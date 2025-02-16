@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from commandagi_j2.utils.gym2.env_base import Observation
 
+
 class BaseAgent(ABC):
     @abstractmethod
     def reset(self) -> None:
@@ -14,7 +15,7 @@ class BaseAgent(ABC):
 
         Args:
             observation (Observation): The current environment observation.
-        
+
         Returns:
             str: The chosen action as a string.
         """
@@ -28,4 +29,4 @@ class BaseAgent(ABC):
         Args:
             reward (float): The reward obtained from the last action.
         """
-        pass 
+        pass

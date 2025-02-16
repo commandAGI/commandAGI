@@ -1,14 +1,21 @@
 import openai
 from typing import List, Dict, Any
 from commandagi_j2.utils.collection import Episode
-from commandagi_j2.utils.gym2.env_base import Observation, Action, Step, Trajectory, Mandate
+from commandagi_j2.utils.gym2.env_base import (
+    Observation,
+    Action,
+    Step,
+    Trajectory,
+    Mandate,
+)
 from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
+
 
 class InstructionFollowingEvaluator(BaseEvaluator):
     def __init__(self, openai_model_name: str = "o1"):
         self.openai_model_name = openai_model_name
         self.metrics = {}
-    
+
     def evaluate_episode(self, episode: Episode, mandate: Mandate) -> str:
         """
         Evaluates the given episode's screenshot-action trajectory against a provided mandate.
@@ -34,26 +41,23 @@ class InstructionFollowingEvaluator(BaseEvaluator):
             trajectory_lines.append(f"Action: {action}")
             trajectory_lines.append("")
         trajectory_text: str = "\n".join(trajectory_lines)
-        
+
         # Construct the evaluation prompt
         prompt: str = (
             f"You are an evaluator for a computer agent. The mandate for this episode is as follows:\n{mandate}\n\n"
             f"Below is the screenshot-action trajectory for the episode:\n{trajectory_text}\n"
             "Please evaluate whether the episode meets the criteria defined in the mandate. Respond with a single word: PASS or FAIL, followed by a brief explanation."
         )
-        
+
         # Call the OpenAI ChatCompletion API to evaluate the trajectory
         response = openai.ChatCompletion.create(
-            model=self.openai_model_name,
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
+            model=self.openai_model_name, messages=[{"role": "user", "content": prompt}]
         )
-        
+
         result = response.choices[0].message.content.strip()
         self.metrics["last_evaluation"] = result
         return result
 
     def get_metrics(self) -> Dict[str, Any]:
         """Get evaluation metrics."""
-        return self.metrics 
+        return self.metrics
