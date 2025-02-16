@@ -1,7 +1,4 @@
-from commandagi_j2.compute_env import ComputeEnv
-from commandagi_j2.simple_computer_agent import SimpleComputerAgent
-from commandagi_j2.utils.gym2.driver import Driver
-from commandagi_j2.utils.gym2.trainer import Trainer
+from commandagi_j2.agents.trainer import Trainer
 
 def main():
     trainer = Trainer()

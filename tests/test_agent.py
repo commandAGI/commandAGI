@@ -1,5 +1,5 @@
 import pytest
-from commandagi_j2.simple_computer_agent import SimpleComputerAgent
+from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
 from unittest.mock import patch, MagicMock
 
 class TestSimpleComputerAgent:

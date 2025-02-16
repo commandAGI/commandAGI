@@ -1,3 +1,4 @@
+import time
 import mss
 import io
 from PIL import Image
@@ -6,7 +7,7 @@ from commandagi_j2.utils.gym2.env_base import Env
 import tempfile
 import os
 
-class ComputeEnv(Env):
+class LocalComputeEnv(Env):
     def __init__(self):
         self.sct = mss.mss()
         self.last_screenshot = None
@@ -14,12 +15,15 @@ class ComputeEnv(Env):
     
     def reset(self):
         """Reset environment and return initial observation"""
-        return self._take_screenshot()
+        pyautogui.hotkey('win', 'd')
+        time.sleep(1)  # Give windows time to minimize
+        
+        return self._get_observation()
     
     def step(self, action):
         """Execute action and return (observation, reward, done, info)"""
         success = self._execute_action(action)
-        observation = self._take_screenshot()
+        observation = self._get_observation()
         
         # Simple reward structure
         reward = 1.0 if success else -1.0
@@ -32,6 +36,10 @@ class ComputeEnv(Env):
         """Clean up resources"""
         self.sct.close()
     
+    def _get_observation(self):
+        """Get the current observation of the environment"""
+        return self._take_screenshot()
+
     def _take_screenshot(self):
         """Take a screenshot and return the path"""
         # Use a temporary file with a fixed path

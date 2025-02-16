@@ -1,29 +1,28 @@
 import time
-from typing import Optional
-import pyautogui
-from commandagi_j2.compute_env import ComputeEnv
-from commandagi_j2.simple_computer_agent import SimpleComputerAgent
-from commandagi_j2.utils.collection import DataCollector
+from typing import Optional, Union
+from commandagi_j2.utils.collection import DataCollector, Episode
+from commandagi_j2.utils.gym2.base_agent import BaseAgent
+from commandagi_j2.utils.gym2.driver_base import BaseDriver
+from commandagi_j2.utils.gym2.env_base import Env
 
-class Driver:
+class BasicDriver(BaseDriver):
     def __init__(self, 
-                 env: Optional[ComputeEnv] = None, 
-                 agent: Optional[SimpleComputerAgent] = None,
+                 env: Optional[Env], 
+                 agent: Optional[BaseAgent],
                  collector: Optional[DataCollector] = None):
-        self.env = env or ComputeEnv()
-        self.agent = agent or SimpleComputerAgent()
+        self.env = env
+        self.agent = agent
         self.collector = collector or DataCollector()
     
-    def _reset_desktop(self):
-        """Minimize all windows using Windows+D"""
-        pyautogui.hotkey('win', 'd')
-        time.sleep(1)  # Give windows time to minimize
     
-    def run_episode(self, max_steps=100, episode_num: Optional[int] = None, return_episode: bool = False):
+    def reset(self) -> None:
+        """Reset the driver's state."""
+        self.env.reset()
+        self.agent.reset()
+        self.collector.reset()
+    
+    def run_episode(self, max_steps=100, episode_num: Optional[int] = None, return_episode: bool = False) -> Union[float, Episode]:
         """Run a single episode"""
-        # Reset desktop state
-        self._reset_desktop()
-        
         # Reset environment, agent, and collector
         observation = self.env.reset()
         self.agent.reset()

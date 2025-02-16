@@ -1,9 +1,14 @@
 import openai
-from typing import List
+from typing import List, Dict, Any
 from commandagi_j2.utils.collection import Episode
 from commandagi_j2.utils.gym2.env_base import Observation, Action, Step, Trajectory, Mandate
+from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
 
-class Evaluator:
+class InstructionFollowingEvaluator(BaseEvaluator):
+    def __init__(self, openai_model_name: str = "o1"):
+        self.openai_model_name = openai_model_name
+        self.metrics = {}
+    
     def evaluate_episode(self, episode: Episode, mandate: Mandate) -> str:
         """
         Evaluates the given episode's screenshot-action trajectory against a provided mandate.
@@ -39,10 +44,16 @@ class Evaluator:
         
         # Call the OpenAI ChatCompletion API to evaluate the trajectory
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model=self.openai_model_name,
             messages=[
                 {"role": "user", "content": prompt}
             ]
         )
         
-        return response.choices[0].message.content.strip() 
+        result = response.choices[0].message.content.strip()
+        self.metrics["last_evaluation"] = result
+        return result
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get evaluation metrics."""
+        return self.metrics 

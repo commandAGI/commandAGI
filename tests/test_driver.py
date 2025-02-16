@@ -1,14 +1,14 @@
 import pytest
-from commandagi_j2.utils.gym2.driver import Driver
-from commandagi_j2.compute_env import ComputeEnv
-from commandagi_j2.simple_computer_agent import SimpleComputerAgent
+from commandagi_j2.utils.basic_driver import BasicDriver
+from commandagi_j2.envs.local_compute_env import LocalComputeEnv
+from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
 from commandagi_j2.utils.collection import DataCollector
 from unittest.mock import MagicMock, patch
 
 class TestDriver:
     @pytest.fixture
     def mock_env(self):
-        env = MagicMock(spec=ComputeEnv)
+        env = MagicMock(spec=LocalComputeEnv)
         env.reset.return_value = "test_screenshot.png"
         env.step.return_value = ("test_screenshot.png", 1.0, False, {"action_success": True})
         return env
@@ -24,7 +24,7 @@ class TestDriver:
     @pytest.fixture
     def driver(self, mock_env, mock_agent):
         collector = DataCollector(save_dir="test_data")
-        return Driver(env=mock_env, agent=mock_agent, collector=collector)
+        return BasicDriver(env=mock_env, agent=mock_agent, collector=collector)
     
     def test_run_episode(self, driver, mock_env, mock_agent):
         with patch('time.sleep'):  # Skip sleep delays

@@ -1,12 +1,12 @@
 import pytest
 from commandagi_j2.utils.gym2.env_base import Env
-from commandagi_j2.compute_env import ComputeEnv
+from commandagi_j2.envs.local_compute_env import LocalComputeEnv
 from pathlib import Path
 
 class TestComputeEnv:
     @pytest.fixture
     def env(self):
-        env = ComputeEnv()
+        env = LocalComputeEnv()
         yield env
         env.close()
     
