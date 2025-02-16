@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import pyautogui
 from commandagi_j2.utils.gym2.env_base import Env
 from commandagi_j2.envs.computer_actions import ComputerAction
@@ -13,6 +14,11 @@ class BaseComputerEnv(Env):
             ComputerAction.PRESS.value: lambda key: pyautogui.press(key),
             ComputerAction.HOTKEY.value: lambda *keys: pyautogui.hotkey(*keys),
         }
+
+    @abstractmethod
+    def _get_observation(self) -> str:
+        """Get the current observation (screenshot) of the environment"""
+        raise NotImplementedError("Subclasses must implement this method")
 
     def _parse_action(self, action_str):
         """Parse action string into action type and parameters"""
@@ -44,3 +50,17 @@ class BaseComputerEnv(Env):
         except Exception as e:
             print(f"Error executing action: {e}")
             return False
+
+    def render(self, mode="human"):
+        if mode == "human":
+            try:
+                from commandagi_j2.envs.tk_render import TkRender
+            except ImportError:
+                raise ImportError("TkRender is required for human rendering but is not installed.")
+            # Instantiate the TkRender with the current environment instance (self)
+            self._tk_renderer = TkRender(self)
+            self._tk_renderer.run()  # This will open the window and block as mainloop runs
+        elif mode == "rgb_array":
+            return self._get_observation()
+        else:
+            raise ValueError("Unsupported render mode: " + mode)
