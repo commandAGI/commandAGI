@@ -12,9 +12,12 @@ Mandate = NewType("Mandate", str)
 class Env(ABC):
     """Abstract base class for environments"""
 
-    @abstractmethod
     def reset(self) -> Any:
         """Reset the environment and return initial observation"""
+        return self._get_observation()
+
+    def close(self):
+        """Clean up environment resources"""
         pass
 
     @abstractmethod

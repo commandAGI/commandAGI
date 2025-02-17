@@ -1,6 +1,6 @@
 from abc import abstractmethod
 import time
-from typing import List, Unpack
+from typing import Dict, List, Tuple, Unpack
 from commandagi_j2.utils.gym2.env_base import Env
 from commandagi_j2.envs.computer_types import (
     CommandAction,
@@ -34,6 +34,17 @@ class BaseComputerEnv(Env):
     def __init__(self):
         # Removed default action_space. Subclasses must implement action handlers via abstract methods.
         pass
+
+    def step(
+        self, action: ComputerAction
+    ) -> Tuple[ComputerObservation, float, bool, Dict]:
+        """Execute an action and return the next observation, reward, done, and info."""
+        success = self._execute_action(action)
+        observation = self._get_observation()
+        reward = ...
+        done = False
+        info = {}
+        return observation, reward, done, info
 
     def _get_observation(self) -> ComputerObservation:
         """

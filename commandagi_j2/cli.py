@@ -16,7 +16,7 @@ import time
 
 # Import agents & environments
 from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
-from commandagi_j2.envs.docker_lxde_env import DockerLxdeEnv
+from commandagi_j2.envs.base_vnc_docker_computer_env import VNCDockerComputerEnv
 from commandagi_j2.envs.e2b_desktop_env import E2BDesktopEnv
 from commandagi_j2.envs.local_pynput_computer_env import LocalPynputComputeEnv
 
@@ -34,7 +34,7 @@ AGENTS = {
 }
 
 ENVS = {
-    "docker": DockerLxdeEnv,
+    "docker": VNCDockerComputerEnv,
     "e2b": E2BDesktopEnv,
     "local": LocalPynputComputeEnv,
     # add other envs as needed
