@@ -4,7 +4,10 @@ from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
 from commandagi_j2.utils.gym2.env_base import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.driver_base import BaseDriver
-from commandagi_j2.utils.gym2.in_memory_collector import InMemoryEpisode, InMemoryDataCollector
+from commandagi_j2.utils.gym2.in_memory_collector import (
+    InMemoryEpisode,
+    InMemoryDataCollector,
+)
 
 
 class BasicDriver(BaseDriver):

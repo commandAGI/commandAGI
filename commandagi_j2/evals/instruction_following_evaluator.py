@@ -1,6 +1,6 @@
 import openai
 from typing import List, Dict, Any
-from commandagi_j2.utils.collection import Episode
+from commandagi_j2.utils.gym2.collector_base import BaseEpisode
 from commandagi_j2.utils.gym2.env_base import (
     Observation,
     Action,
@@ -16,7 +16,7 @@ class InstructionFollowingEvaluator(BaseEvaluator):
         self.openai_model_name = openai_model_name
         self.metrics = {}
 
-    def evaluate_episode(self, episode: Episode, mandate: Mandate) -> str:
+    def evaluate_episode(self, episode: BaseEpisode, mandate: Mandate) -> str:
         """
         Evaluates the given episode's screenshot-action trajectory against a provided mandate.
 

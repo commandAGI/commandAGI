@@ -5,7 +5,9 @@ from commandagi_j2.utils.gym2.env_base import Observation, Action
 
 class BaseEpisode(ABC):
     """Abstract base class for an episode of interaction."""
+
     pass
+
 
 class BaseCollector(ABC):
     """Abstract base class for data collection during environment interaction."""

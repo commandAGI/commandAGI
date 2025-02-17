@@ -24,7 +24,14 @@ class KubernetesComputerEnv(BaseComputerEnv):
     Other interactions such as screenshot, keyboard, and mouse operations are not supported and will raise NotImplementedError.
     """
 
-    def __init__(self, pod_name: str, image: str, namespace: str = "default", env_vars: dict = None, ports: dict = None):
+    def __init__(
+        self,
+        pod_name: str,
+        image: str,
+        namespace: str = "default",
+        env_vars: dict = None,
+        ports: dict = None,
+    ):
         """
         Initialize the KubernetesComputerEnv.
 
@@ -45,19 +52,29 @@ class KubernetesComputerEnv(BaseComputerEnv):
 
     def _create_pod(self):
         # Build the kubectl run command
-        cmd = ["kubectl", "run", self.pod_name, "--image", self.image, "--restart", "Never", "-n", self.namespace]
-        
+        cmd = [
+            "kubectl",
+            "run",
+            self.pod_name,
+            "--image",
+            self.image,
+            "--restart",
+            "Never",
+            "-n",
+            self.namespace,
+        ]
+
         # Add environment variable flags
         for key, value in self.env_vars.items():
             cmd.extend(["--env", f"{key}={value}"])
-        
+
         # Add port flag (kubectl run supports --port for single port)
         # If multiple ports specified, choose one arbitrarily (first one)
         if self.ports:
             # Get the first port mapping (host_port: container_port)
             container_port = list(self.ports.values())[0]
             cmd.extend(["--port", str(container_port)])
-        
+
         print(f"Creating Kubernetes pod with command: {' '.join(cmd)}")
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
@@ -67,61 +84,114 @@ class KubernetesComputerEnv(BaseComputerEnv):
     def _wait_for_pod_ready(self, timeout: int = 60):
         start_time = time.time()
         while True:
-            cmd = ["kubectl", "get", "pod", self.pod_name, "-n", self.namespace, "-o", "jsonpath={.status.phase}"]
+            cmd = [
+                "kubectl",
+                "get",
+                "pod",
+                self.pod_name,
+                "-n",
+                self.namespace,
+                "-o",
+                "jsonpath={.status.phase}",
+            ]
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             status = result.stdout.decode("utf-8").strip()
             if status == "Running":
                 print(f"Pod {self.pod_name} is running.")
                 break
             if time.time() - start_time > timeout:
-                raise Exception(f"Timeout waiting for pod {self.pod_name} to be running. Current status: {status}")
-            print(f"Waiting for pod {self.pod_name} to be running. Current status: {status}")
+                raise Exception(
+                    f"Timeout waiting for pod {self.pod_name} to be running. Current status: {status}"
+                )
+            print(
+                f"Waiting for pod {self.pod_name} to be running. Current status: {status}"
+            )
             time.sleep(2)
 
     def _exec_in_pod(self, cmd: str, timeout: int = 10) -> subprocess.CompletedProcess:
-        full_cmd = ["kubectl", "exec", self.pod_name, "-n", self.namespace, "--"] + cmd.split()
+        full_cmd = [
+            "kubectl",
+            "exec",
+            self.pod_name,
+            "-n",
+            self.namespace,
+            "--",
+        ] + cmd.split()
         print(f"Executing command in pod: {' '.join(full_cmd)}")
-        result = subprocess.run(full_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+        result = subprocess.run(
+            full_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout
+        )
         return result
 
     def get_screenshot(self) -> ScreenshotObservation:
-        raise NotImplementedError("KubernetesComputerEnv does not support screenshot observation.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support screenshot observation."
+        )
 
     def get_mouse_state(self) -> MouseStateObservation:
-        raise NotImplementedError("KubernetesComputerEnv does not support mouse state observation.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support mouse state observation."
+        )
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
-        raise NotImplementedError("KubernetesComputerEnv does not support keyboard state observation.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support keyboard state observation."
+        )
 
     def execute_command(self, action: CommandAction) -> bool:
-        result = self._exec_in_pod(action.command, timeout=action.timeout if action.timeout is not None else 10)
+        result = self._exec_in_pod(
+            action.command, timeout=action.timeout if action.timeout is not None else 10
+        )
         if result.returncode != 0:
             print(f"Error executing command: {result.stderr.decode('utf-8')}")
         return result.returncode == 0
 
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
-        raise NotImplementedError("KubernetesComputerEnv does not support keyboard interactions.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support keyboard interactions."
+        )
 
     def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
-        raise NotImplementedError("KubernetesComputerEnv does not support keyboard interactions.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support keyboard interactions."
+        )
 
     def execute_type(self, action: TypeAction):
-        raise NotImplementedError("KubernetesComputerEnv does not support typing interactions.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support typing interactions."
+        )
 
     def execute_mouse_move(self, action: MouseMoveAction):
-        raise NotImplementedError("KubernetesComputerEnv does not support mouse interactions.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support mouse interactions."
+        )
 
     def execute_mouse_scroll(self, action: MouseScrollAction):
-        raise NotImplementedError("KubernetesComputerEnv does not support mouse interactions.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support mouse interactions."
+        )
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction):
-        raise NotImplementedError("KubernetesComputerEnv does not support mouse interactions.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support mouse interactions."
+        )
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction):
-        raise NotImplementedError("KubernetesComputerEnv does not support mouse interactions.")
+        raise NotImplementedError(
+            "KubernetesComputerEnv does not support mouse interactions."
+        )
 
     def close(self):
-        cmd = ["kubectl", "delete", "pod", self.pod_name, "-n", self.namespace, "--grace-period=0", "--force"]
+        cmd = [
+            "kubectl",
+            "delete",
+            "pod",
+            self.pod_name,
+            "-n",
+            self.namespace,
+            "--grace-period=0",
+            "--force",
+        ]
         print(f"Deleting Kubernetes pod with command: {' '.join(cmd)}")
         subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("Pod deleted.") 
+        print("Pod deleted.")

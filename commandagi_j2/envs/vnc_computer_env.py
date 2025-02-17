@@ -36,10 +36,14 @@ class VNCComputerEnv(BaseComputerEnv):
         return ScreenshotObservation(screenshot=screenshot_path)
 
     def get_mouse_state(self) -> MouseStateObservation:
-        raise NotImplementedError("VNCComputerEnv does not support mouse state observation.")
+        raise NotImplementedError(
+            "VNCComputerEnv does not support mouse state observation."
+        )
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
-        raise NotImplementedError("VNCComputerEnv does not support keyboard state observation.")
+        raise NotImplementedError(
+            "VNCComputerEnv does not support keyboard state observation."
+        )
 
     def execute_command(self, action):
         raise NotImplementedError("VNCComputerEnv does not support command execution.")
@@ -68,12 +72,14 @@ class VNCComputerEnv(BaseComputerEnv):
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         from commandagi_j2.envs.computer_types import MouseButton
+
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         from commandagi_j2.envs.computer_types import MouseButton
+
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)
-        return True 
+        return True

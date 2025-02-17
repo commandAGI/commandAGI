@@ -11,9 +11,16 @@ class LXDEVNCKubernetesComputerEnv(VNCKubernetesComputerEnv):
     and a reset method that simulates the LXDE 'show desktop' hotkey (super+d).
     """
 
-    def __init__(self, pod_name: str = "lxde-vnc-kub", namespace: str = "default", 
-                 user: str = "root", password: str = "secret", vnc_port: int = 5900, 
-                 env_vars: dict = None, ports: dict = None):
+    def __init__(
+        self,
+        pod_name: str = "lxde-vnc-kub",
+        namespace: str = "default",
+        user: str = "root",
+        password: str = "secret",
+        vnc_port: int = 5900,
+        env_vars: dict = None,
+        ports: dict = None,
+    ):
         # For LXDE environments, we assume the pod uses an image with LXDE (e.g., "lxde_image")
         image = "lxde_image"
         super().__init__(pod_name, image, namespace, env_vars, ports)
@@ -30,9 +37,11 @@ class LXDEVNCKubernetesComputerEnv(VNCKubernetesComputerEnv):
         try:
             result = self._exec_in_pod("xdotool getmouselocation", timeout=5)
             if result.returncode != 0:
-                print(f"xdotool getmouselocation error: {result.stderr.decode('utf-8')}")
+                print(
+                    f"xdotool getmouselocation error: {result.stderr.decode('utf-8')}"
+                )
                 return MouseStateObservation(position=(0, 0), buttons={})
-            output = result.stdout.decode('utf-8').strip()
+            output = result.stdout.decode("utf-8").strip()
             # Expected output format: "x:100 y:200 screen:0 window:12345678"
             parts = output.split()
             x = int(parts[0].split(":")[1])
@@ -64,4 +73,4 @@ class LXDEVNCKubernetesComputerEnv(VNCKubernetesComputerEnv):
         """
         self._vnc_hotkey("super", "d")
         time.sleep(1)
-        return self._get_observation() 
+        return self._get_observation()

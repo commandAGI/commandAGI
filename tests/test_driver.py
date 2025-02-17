@@ -1,9 +1,10 @@
 import pytest
-from commandagi_j2.utils.basic_driver import BasicDriver
 from commandagi_j2.envs.local_pynput_computer_env import LocalPynputComputeEnv
 from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
-from commandagi_j2.utils.collection import DataCollector
 from unittest.mock import MagicMock, patch
+
+from commandagi_j2.utils.gym2.basic_driver import BasicDriver
+from commandagi_j2.utils.gym2.in_memory_collector import InMemoryDataCollector
 
 
 class TestDriver:
@@ -29,7 +30,7 @@ class TestDriver:
 
     @pytest.fixture
     def driver(self, mock_env, mock_agent):
-        collector = DataCollector(save_dir="test_data")
+        collector = InMemoryDataCollector(save_dir="test_data")
         return BasicDriver(env=mock_env, agent=mock_agent, collector=collector)
 
     def test_run_episode(self, driver, mock_env, mock_agent):

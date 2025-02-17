@@ -191,14 +191,15 @@ class BaseComputerEnv(Env):
     def render(self, mode="human"):
         if mode == "human":
             try:
-                from commandagi_j2.envs.tk_render import TkRender
+                from commandagi_j2.utils.env_viewer import EnvironmentViewer
             except ImportError:
                 raise ImportError(
                     "TkRender is required for human rendering but is not installed."
                 )
             # Instantiate the TkRender with the current environment instance (self)
-            self._tk_renderer = TkRender(self)
-            self._tk_renderer.run()  # This will open the window and block as mainloop runs
+            self._env_viewer = EnvironmentViewer(
+                self
+            )  # This will open the window and block as mainloop runs
         elif mode == "rgb_array":
             return self._get_observation()
         else:
