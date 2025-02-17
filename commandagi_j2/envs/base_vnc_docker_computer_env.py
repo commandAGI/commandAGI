@@ -89,7 +89,7 @@ class VNCDockerComputerEnv(BaseDockerComputerEnv):
         # We'll try super+d:
         self._vnc_hotkey("super", "d")
         time.sleep(1)
-        return self._get_observation()
+        return self.get_observation()
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
         raise NotImplementedError(

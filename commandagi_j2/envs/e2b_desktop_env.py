@@ -30,12 +30,12 @@ class E2BDesktopEnv(BaseComputerEnv):
     def reset(self):
         """Reset the desktop environment and return initial observation"""
         self.desktop.hotkey("win", "d")  # Show desktop
-        return self._get_observation()
+        return self.get_observation()
 
     def step(self, action):
         """Execute action and return (observation, reward, done, info)"""
-        success = self._execute_action(action)
-        observation = self._get_observation()
+        success = self.execute_action(action)
+        observation = self.get_observation()
 
         reward = 1.0 if success else -1.0
         done = False

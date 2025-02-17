@@ -72,4 +72,4 @@ class LXDEVNCKubernetesComputerEnv(VNCKubernetesComputerEnv):
         """
         self._vnc_hotkey("super", "d")
         time.sleep(1)
-        return self._get_observation()
+        return self.get_observation()
