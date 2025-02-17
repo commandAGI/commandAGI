@@ -4,6 +4,7 @@ from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.env_base import Action, Observation
 from langchain.chat_models import ChatOpenAI, ChatAnthropic, ChatHuggingFaceHub
 from langchain.schema import HumanMessage
+from commandagi_j2.utils.chat_model_utils import get_chat_model
 
 
 # New custom chat model class for the custom_openai_compat provider.
@@ -16,50 +17,14 @@ class ChatOpenAICompat(ChatOpenAI):
 
 class SimpleComputerAgent(BaseAgent):
 
-    model_provider: str = "openai"
-    model_provider_options: dict = {}
-
-    def __init__(self):
+    def __init__(self, chat_model_options: dict):
         self.total_reward = 0.0
+        self.chat_model_options = chat_model_options
 
     @property
     def main_chat_model(self):
-        extra_args = (
-            self.model_provider_options
-        )  # Additional model options for all providers.
-        if self.model_provider == "openai":
-            self.chat_model = ChatOpenAI(
-                model_name=self.openai_model_name,
-                openai_api_key=self.openai_api_key,
-                **extra_args,
-            )
-        elif self.model_provider == "custom_openai_compat":
-            self.chat_model = ChatOpenAICompat(
-                model_name=self.openai_model_name,
-                openai_api_key=self.openai_api_key,
-                **extra_args,
-            )
-        elif self.model_provider == "anthropic":
-            anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
-            if not anthropic_api_key:
-                raise ValueError("ANTHROPIC_API_KEY not set for Anthropic provider")
-            self.chat_model = ChatAnthropic(
-                model=self.openai_model_name,
-                anthropic_api_key=anthropic_api_key,
-                **extra_args,
-            )
-        elif self.model_provider == "huggingface":
-            huggingface_api_key = os.getenv("HUGGINGFACE_API_KEY")
-            if not huggingface_api_key:
-                raise ValueError("HUGGINGFACE_API_KEY not set for HuggingFace provider")
-            self.chat_model = ChatHuggingFaceHub(
-                repo_id=self.openai_model_name,
-                huggingfacehub_api_token=huggingface_api_key,
-                **extra_args,
-            )
-        else:
-            raise ValueError(f"Unsupported model provider: {self.model_provider}")
-        return self.chat_model  # Ensure the instantiated model is returned.
+        self.chat_model = get_chat_model(**self.chat_model_options)
+        return self.chat_model
 
     def reset(self):
         """Reset agent state"""

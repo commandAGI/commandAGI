@@ -3,11 +3,11 @@ from dataclasses import dataclass
 from pathlib import Path
 import json
 from commandagi_j2.utils.gym2.env_base import Observation, Action
-from commandagi_j2.utils.gym2.collector_base import BaseCollector
+from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
 
 
 @dataclass
-class Episode:
+class InMemoryEpisode(BaseEpisode):
     observations: List[Observation]
     actions: List[Action]
     rewards: List[float]
@@ -15,7 +15,7 @@ class Episode:
     total_reward: float
 
 
-class DataCollector(BaseCollector):
+class InMemoryDataCollector(BaseCollector):
     def __init__(self, save_dir: str = "collected_data"):
         self.save_dir = Path(save_dir)
         self.save_dir.mkdir(exist_ok=True)
@@ -24,7 +24,7 @@ class DataCollector(BaseCollector):
 
     def reset(self) -> None:
         """Start a new episode"""
-        self.current_episode = Episode(
+        self.current_episode = InMemoryEpisode(
             observations=[], actions=[], rewards=[], infos=[], total_reward=0.0
         )
 

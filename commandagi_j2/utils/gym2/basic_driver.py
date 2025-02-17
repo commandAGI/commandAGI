@@ -1,9 +1,10 @@
 import time
 from typing import Optional, Union
-from commandagi_j2.utils.collection import DataCollector, Episode
+from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
+from commandagi_j2.utils.gym2.env_base import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.driver_base import BaseDriver
-from commandagi_j2.utils.gym2.env_base import Env
+from commandagi_j2.utils.gym2.in_memory_collector import InMemoryEpisode, InMemoryDataCollector
 
 
 class BasicDriver(BaseDriver):
@@ -11,11 +12,11 @@ class BasicDriver(BaseDriver):
         self,
         env: Optional[Env],
         agent: Optional[BaseAgent],
-        collector: Optional[DataCollector] = None,
+        collector: Optional[BaseCollector] = None,
     ):
         self.env = env
         self.agent = agent
-        self.collector = collector or DataCollector()
+        self.collector = collector or InMemoryDataCollector()
 
     def reset(self) -> None:
         """Reset the driver's state."""
@@ -28,7 +29,7 @@ class BasicDriver(BaseDriver):
         max_steps=100,
         episode_num: Optional[int] = None,
         return_episode: bool = False,
-    ) -> Union[float, Episode]:
+    ) -> Union[float, BaseEpisode]:
         """Run a single episode"""
         # Reset environment, agent, and collector
         observation = self.env.reset()

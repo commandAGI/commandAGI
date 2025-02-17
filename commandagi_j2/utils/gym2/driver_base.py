@@ -3,7 +3,7 @@ from typing import Optional, Union, Dict, Any
 from commandagi_j2.utils.collection import Episode
 from commandagi_j2.utils.gym2.env_base import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
-from commandagi_j2.utils.gym2.collector_base import BaseCollector
+from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
 
 
 class BaseDriver(ABC):
@@ -32,7 +32,7 @@ class BaseDriver(ABC):
         max_steps: int = 100,
         episode_num: Optional[int] = None,
         return_episode: bool = False,
-    ) -> Union[float, Episode]:
+    ) -> Union[float, BaseEpisode]:
         """
         Run a single episode.
 
