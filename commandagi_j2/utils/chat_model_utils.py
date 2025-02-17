@@ -3,18 +3,6 @@ from langchain_openai.chat_models import ChatOpenAI
 from langchain_anthropic.chat_models import ChatAnthropic
 from langchain_huggingface.chat_models import ChatHuggingFace
 
-# Import the custom compatibility chat model if available.
-try:
-    from commandagi_j2.agents.simple_computer_agent import ChatOpenAICompat
-except ImportError:
-    # Define a fallback for ChatOpenAICompat in case it is not importable.
-    from langchain.chat_models import ChatOpenAI
-
-    class ChatOpenAICompat(ChatOpenAI):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.compat_mode = True
-
 
 def get_chat_model(
     model_provider: Literal[
@@ -39,7 +27,8 @@ def get_chat_model(
         case "openai":
             return ChatOpenAI(**options)
         case "custom_openai_compat":
-            return ChatOpenAICompat(**options)
+            # keep for now
+            return ChatOpenAI(**options)
         case "anthropic":
             return ChatAnthropic(**options)
         case "huggingface":

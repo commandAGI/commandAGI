@@ -1,10 +1,22 @@
 from abc import ABC, abstractmethod
-from typing import Type
-from pydantic import ValidationError
-from random import choice, randint
+from typing import (
+    Type,
+    Any,
+    List,
+    Dict,
+    Literal,
+    Optional,
+    Set,
+    Union,
+    get_type_hints,
+    get_origin,
+    get_args,
+)
+from pydantic import ValidationError, BaseModel, Field
+from random import choice, randint, uniform
 import string
-from typing import List, Dict, Any, Literal, Optional, Set
-from pydantic import BaseModel, Field
+from enum import Enum
+import types  # for types.UnionType
 
 
 class Space(BaseModel, ABC):
@@ -139,8 +151,6 @@ class FloatSpace(Space):
         return True
 
     def sample(self) -> float:
-        from random import uniform
-
         min_val = (
             self.min_value if self.min_value is not None else self.sample_default_min
         )
@@ -157,7 +167,7 @@ class BooleanSpace(Space):
     >>> space.contains(True)
     True
     >>> space.contains(False)
-    False
+    True
     >>> space.contains(1)
     False
     >>> isinstance(space.sample(), bool)
@@ -168,8 +178,6 @@ class BooleanSpace(Space):
         return isinstance(x, bool)
 
     def sample(self) -> bool:
-        from random import choice
-
         return choice([True, False])
 
 
@@ -222,24 +230,23 @@ class StringSpace(Space):
 class DictSpace(Space):
     """Space for dictionary values with specified subspaces for each key.
 
-    >>> int_space = IntegerSpace(min_value=0, max_value=10)
-    >>> space = DictSpace(spaces={'a': int_space, 'b': int_space})
-    >>> space.contains({'a': 5, 'b': 7})
-    True
-    >>> space.contains({'a': 5})
-    False
-    >>> space.contains({'a': -1, 'b': 7})
-    False
+    This version supports keys of any type (including enums).
+
+    >>> # For a fixed dictionary with enum keys:
+    >>> from enum import Enum
+    >>> class MouseButton(Enum):
+    ...     LEFT = "left"
+    ...     RIGHT = "right"
+    >>> bool_space = BooleanSpace()
+    >>> space = DictSpace(spaces={button: bool_space for button in MouseButton})
     >>> sample = space.sample()
-    >>> isinstance(sample, dict)
-    True
-    >>> all(0 <= v <= 10 for v in sample.values())
+    >>> all(isinstance(k, MouseButton) and isinstance(v, bool) for k, v in sample.items())
     True
     """
 
-    spaces: Dict[str, Space]
+    spaces: Dict[Any, Space]
 
-    def contains(self, x: Dict[str, Any]) -> bool:
+    def contains(self, x: Dict[Any, Any]) -> bool:
         if not isinstance(x, dict):
             return False
 
@@ -248,8 +255,35 @@ class DictSpace(Space):
 
         return all(space.contains(x[key]) for key, space in self.spaces.items())
 
-    def sample(self) -> Dict[str, Any]:
+    def sample(self) -> Dict[Any, Any]:
         return {key: space.sample() for key, space in self.spaces.items()}
+
+
+class TupleSpace(Space):
+    """Space for fixed-length tuples with heterogeneous subspaces.
+
+    >>> subspaces = [IntegerSpace(min_value=0, max_value=10), IntegerSpace(min_value=0, max_value=10)]
+    >>> space = TupleSpace(subspaces=subspaces)
+    >>> x = space.sample()
+    >>> isinstance(x, tuple) and len(x) == 2
+    True
+    >>> space.contains((5, 7))
+    True
+    >>> space.contains((5,))
+    False
+    """
+
+    subspaces: List[Space]
+
+    def contains(self, x: Any) -> bool:
+        if not isinstance(x, tuple):
+            return False
+        if len(x) != len(self.subspaces):
+            return False
+        return all(space.contains(item) for space, item in zip(self.subspaces, x))
+
+    def sample(self) -> tuple:
+        return tuple(space.sample() for space in self.subspaces)
 
 
 class ListSpace(Space):
@@ -335,7 +369,7 @@ class StructuredSpace(Space):
     >>> space = StructuredSpace(model=Point)
     >>> space.contains(Point(x=1, y=2))
     True
-    >>> space.contains(Point(x='1', y=2))
+    >>> space.contains(2)
     False
     >>> sample = space.sample()
     >>> isinstance(sample, Point)
@@ -343,73 +377,140 @@ class StructuredSpace(Space):
     """
 
     model: Type[BaseModel]
-    _field_spaces: Dict[str, Space]
+    _field_spaces: Dict[str, Space] = {}
 
-    def __init__(self, model: Type[BaseModel]):
-        self.model = model
+    def __init__(self, **data):
+        super().__init__(**data)
         self._field_spaces = {}
         self._analyze_model_fields()
 
     def _analyze_model_fields(self):
         """Recursively analyze model fields and create appropriate spaces."""
-        for field_name, field in self.model.model_fields.items():
+        type_hints = get_type_hints(self.model)
+        for field_name, field_type in type_hints.items():
             if field_name.startswith("_"):
                 continue
 
-            if hasattr(field.type_, "__metadata__"):
-                # Field already has space annotation
-                self._field_spaces[field_name] = field.type_.__metadata__[0]
+            if hasattr(field_type, "__metadata__"):
+                # Field already has a space annotation
+                self._field_spaces[field_name] = field_type.__metadata__[0]
             else:
-                # Create appropriate space based on field type
-                self._field_spaces[field_name] = self._create_space_for_type(
-                    field.type_
-                )
+                self._field_spaces[field_name] = self._create_space_for_type(field_type)
+
+    def _normalize_type(self, type_: Any) -> tuple:
+        """
+        Convert a type annotation into a structured tuple representation for easier processing.
+        The returned tuple has a "kind" tag as its first element:
+
+          - ("optional", inner_type): for Optional types (e.g. float | None)
+          - ("union", (arg1, arg2, ...)): for unions with more than two types
+          - ("list", element_type): for list[...] types
+          - ("tuple", (elem1, elem2, ...)): for fixed-length tuples
+          - ("var_tuple", element_type): for variable-length tuples (using Ellipsis) [not supported]
+          - ("dict", key_type, value_type): for dict[...] types
+          - ("literal", [literal1, literal2, ...]): for Literals
+          - ("scalar", type): for all other types
+        """
+        origin = get_origin(type_)
+        if origin in (Union, types.UnionType):
+            args = get_args(type_)
+            if len(args) == 2 and type(None) in args:
+                # Optional type detected.
+                non_none_type = next(t for t in args if t is not type(None))
+                return ("optional", non_none_type)
+            return ("union", args)
+        elif origin is list:
+            (elt,) = get_args(type_)
+            return ("list", elt)
+        elif origin is tuple:
+            args = get_args(type_)
+            if len(args) == 2 and args[1] is Ellipsis:
+                return ("var_tuple", args[0])
+            return ("tuple", args)
+        elif origin is dict:
+            key_type, value_type = get_args(type_)
+            return ("dict", key_type, value_type)
+        elif origin is Literal:
+            return ("literal", list(get_args(type_)))
+        else:
+            return ("scalar", type_)
 
     def _create_space_for_type(self, type_: Any) -> Space:
-        """Create appropriate space for a given type."""
-        # Handle Lists
-        if hasattr(type_, "__origin__") and type_.__origin__ is list:
-            element_type = type_.__args__[0]
+        """
+        Create an appropriate space for a given type using its normalized representation.
+
+        Supports:
+         - Optional types (e.g. float | None)
+         - Unions
+         - Lists, Tuples (fixed-length)
+         - Dicts (with keys that are either str or Enum)
+         - Literals
+         - Nested Pydantic models
+         - Basic types (str, int, float, bool)
+         - Enums (returns a DiscreteSpace with all enum members)
+        """
+        normalized = self._normalize_type(type_)
+        kind = normalized[0]
+
+        if kind == "optional":
+            inner_type = normalized[1]
+            inner_space = self._create_space_for_type(inner_type)
+            return UnionSpace(spaces=[inner_space, SingletonSpace(value=None)])
+        elif kind == "union":
+            args = normalized[1]
+            return UnionSpace(spaces=[self._create_space_for_type(t) for t in args])
+        elif kind == "list":
+            element_type = normalized[1]
             return ListSpace(subspace=self._create_space_for_type(element_type))
-
-        # Handle Dicts
-        if hasattr(type_, "__origin__") and type_.__origin__ is dict:
-            key_type, value_type = type_.__args__
-            if key_type is str:  # Only support str keys for now
-                return DictSpace({}, self._create_space_for_type(value_type))
-            raise ValueError(f"Dict keys must be strings, got {key_type}")
-
-        # Handle Literals
-        if hasattr(type_, "__origin__") and type_.__origin__ is Literal:
-            return UnionSpace([SingletonSpace(val) for val in type_.__args__])
-
-        # Handle nested BaseModels
-        if isinstance(type_, type) and issubclass(type_, BaseModel):
-            return StructuredSpace(model=type_)
-
-        # Handle basic types
-        if type_ is str:
-            return StringSpace()
-        if type_ is int:
-            return IntegerSpace()
-        if type_ is float:
-            return FloatSpace()
-        if type_ is bool:
-            return BooleanSpace()
-
-        raise ValueError(f"Unsupported type: {type_}")
+        elif kind == "tuple":
+            subspaces = [self._create_space_for_type(t) for t in normalized[1]]
+            return TupleSpace(subspaces=subspaces)
+        elif kind == "var_tuple":
+            raise ValueError("Variable-length tuples are not supported.")
+        elif kind == "dict":
+            key_type, value_type = normalized[1], normalized[2]
+            if key_type is str:
+                return DictSpace(spaces={})
+            elif isinstance(key_type, type) and issubclass(key_type, Enum):
+                keys = list(key_type)
+                spaces_dict = {
+                    key: self._create_space_for_type(value_type) for key in keys
+                }
+                return DictSpace(spaces=spaces_dict)
+            else:
+                raise ValueError(f"Dict keys must be strings or Enum, got {key_type}")
+        elif kind == "literal":
+            return DiscreteSpace(values=normalized[1])
+        elif kind == "scalar":
+            base = normalized[1]
+            if isinstance(base, type) and issubclass(base, BaseModel):
+                return StructuredSpace(model=base)
+            if isinstance(base, type) and issubclass(base, Enum):
+                return DiscreteSpace(values=list(base))
+            if base is str:
+                return StringSpace()
+            if base is int:
+                return IntegerSpace()
+            if base is float:
+                return FloatSpace()
+            if base is bool:
+                return BooleanSpace()
+            raise ValueError(f"Unsupported type: {base}")
+        else:
+            raise ValueError(f"Unsupported type kind: {kind}")
 
     def contains(self, x: Any) -> bool:
+        # Make sure x is actually an instance of the model
         if not isinstance(x, self.model):
             return False
-        try:
-            self.model.validate(x)
-            return all(
-                space.contains(getattr(x, field_name))
-                for field_name, space in self._field_spaces.items()
-            )
-        except ValidationError:
-            return False
+
+        # Strictly check each field with its corresponding child space
+        for field_name, space in self._field_spaces.items():
+            value = getattr(x, field_name)
+            if not space.contains(value):
+                return False
+
+        return True
 
     def sample(self) -> BaseModel:
         sample_data = {
