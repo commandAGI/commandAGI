@@ -31,7 +31,6 @@ class BaseEvaluator(ABC):
         >>> result["score"]
         1.0
         """
-        pass
 
     @abstractmethod
     def get_metrics(self) -> dict:
@@ -48,4 +47,3 @@ class BaseEvaluator(ABC):
         >>> metrics["avg_score"]
         1.0
         """
-        pass

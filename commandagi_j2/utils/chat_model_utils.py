@@ -1,6 +1,7 @@
-import os
 from typing import Literal, Unpack
-from langchain.chat_models import ChatOpenAI, ChatAnthropic, ChatHuggingFaceHub
+from langchain_openai.chat_models import ChatOpenAI
+from langchain_anthropic.chat_models import ChatAnthropic
+from langchain_huggingface.chat_models import ChatHuggingFace
 
 # Import the custom compatibility chat model if available.
 try:
@@ -42,6 +43,6 @@ def get_chat_model(
         case "anthropic":
             return ChatAnthropic(**options)
         case "huggingface":
-            return ChatHuggingFaceHub(**options)
+            return ChatHuggingFace(**options)
         case _:
             raise ValueError(f"Unsupported model provider: {model_provider}")

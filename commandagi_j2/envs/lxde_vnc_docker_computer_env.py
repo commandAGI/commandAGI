@@ -1,12 +1,8 @@
-import os
-import tempfile
 import time
-from vncdotool import api
 
 from commandagi_j2.envs.base_vnc_docker_computer_env import VNCDockerComputerEnv
 from commandagi_j2.envs.computer_types import (
     MouseStateObservation,
-    ScreenshotObservation,
     KeyboardKey,
 )
 

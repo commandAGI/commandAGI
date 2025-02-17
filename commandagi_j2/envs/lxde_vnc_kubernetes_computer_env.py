@@ -1,4 +1,3 @@
-import os
 import time
 from commandagi_j2.envs.vnc_kubernetes_computer_env import VNCKubernetesComputerEnv
 from commandagi_j2.envs.computer_types import MouseStateObservation, KeyboardKey

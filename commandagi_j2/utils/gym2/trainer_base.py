@@ -56,7 +56,6 @@ class BaseTrainer(ABC):
         >>> rewards[1]
         2.0
         """
-        pass
 
     def evaluate(
         self,

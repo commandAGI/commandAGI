@@ -1,6 +1,5 @@
 import pytest
 from commandagi_j2.envs.local_pynput_computer_env import LocalPynputComputeEnv
-from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
 from unittest.mock import MagicMock, patch
 
 from commandagi_j2.utils.gym2.basic_driver import BasicDriver

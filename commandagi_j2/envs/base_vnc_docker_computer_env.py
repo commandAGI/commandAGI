@@ -1,18 +1,14 @@
 import os
 import tempfile
-import subprocess
 import time
 import uuid
 from vncdotool import api
 from commandagi_j2.envs.base_docker_computer_env import BaseDockerComputerEnv
 from commandagi_j2.envs.computer_types import (
-    ComputerAction,
     KeyboardKey,
     KeyboardKeyDownAction,
-    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
     ScreenshotObservation,
-    MouseStateObservation,
     KeyboardStateObservation,
     MouseButton,
     CommandAction,
@@ -21,7 +17,6 @@ from commandagi_j2.envs.computer_types import (
     MouseScrollAction,
     MouseButtonDownAction,
     MouseButtonUpAction,
-    ClickAction,
 )
 
 
@@ -83,7 +78,6 @@ class VNCDockerComputerEnv(BaseDockerComputerEnv):
         You could keep a method to run commands in the container if needed,
         but for user input simulation we now use VNC.
         """
-        pass
 
     def reset(self):
         """

@@ -1,19 +1,13 @@
 import subprocess
 import time
-from typing import List
 import mss
-import io
 from PIL import Image
-import pyautogui
 from commandagi_j2.envs.base_computer_env import BaseComputerEnv
 import tempfile
 import os
-from enum import Enum
 
 # Import pynput for keyboard and mouse listeners
 from pynput import keyboard, mouse
-from pynput.mouse import Button
-from pynput.keyboard import Key, KeyCode
 from commandagi_j2.envs.computer_types import (
     KeyboardKey,
     KeyboardKeyDownAction,
@@ -31,7 +25,6 @@ from commandagi_j2.envs.computer_types import (
     MouseScrollAction,
     MouseButtonDownAction,
     MouseButtonUpAction,
-    ClickAction,
 )
 from commandagi_j2.envs.computer_types import KeyboardHotkeyAction
 

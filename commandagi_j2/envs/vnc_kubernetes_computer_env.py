@@ -1,6 +1,5 @@
 import os
 import tempfile
-import time
 from vncdotool import api
 from commandagi_j2.envs.kubernetes_computer_env import KubernetesComputerEnv
 from commandagi_j2.envs.computer_types import (

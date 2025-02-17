@@ -1,29 +1,22 @@
 import os
 import subprocess
 import tempfile
-import time
 from e2b_desktop import Sandbox
 from commandagi_j2.envs.base_computer_env import BaseComputerEnv
 from commandagi_j2.envs.computer_types import (
-    ComputerAction,
     KeyboardKey,
     KeyboardKeyDownAction,
-    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
     MouseButton,
     ScreenshotObservation,
     MouseStateObservation,
     KeyboardStateObservation,
     CommandAction,
-    KeyboardKeysPressAction,
-    KeyboardKeysDownAction,
-    KeyboardKeysReleaseAction,
     TypeAction,
     MouseMoveAction,
     MouseScrollAction,
     MouseButtonDownAction,
     MouseButtonUpAction,
-    ClickAction,
 )
 
 

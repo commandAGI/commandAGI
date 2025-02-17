@@ -2,7 +2,6 @@ import subprocess
 import time
 from commandagi_j2.envs.base_computer_env import BaseComputerEnv
 from commandagi_j2.envs.computer_types import (
-    ComputerAction,
     CommandAction,
     ScreenshotObservation,
     MouseStateObservation,

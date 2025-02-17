@@ -21,7 +21,6 @@ class BaseAgent(ABC):
         >>> agent = MockAgent()
         >>> agent.reset()
         """
-        pass
 
     @abstractmethod
     def act(self, observation: Observation) -> str:
@@ -41,7 +40,6 @@ class BaseAgent(ABC):
         >>> agent.act("test_observation")
         'test_action'
         """
-        pass
 
     @abstractmethod
     def update(self, reward: float) -> None:
@@ -57,4 +55,3 @@ class BaseAgent(ABC):
         >>> agent = MockAgent()
         >>> agent.update(1.0)
         """
-        pass

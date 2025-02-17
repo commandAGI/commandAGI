@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Literal, List, Optional, Union
 from pydantic import BaseModel
 from pynput.keyboard import Key as PynputKey, KeyCode as PynputKeyCode
-from pynput.mouse import PynputButton as PynputButton
+from pynput.mouse import Button as PynputButton
 
 
 class MouseButton(str, Enum):

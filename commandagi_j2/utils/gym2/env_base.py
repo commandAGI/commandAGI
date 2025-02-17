@@ -40,7 +40,6 @@ class Env(ABC):
         >>> env = MockEnv()
         >>> env.close()
         """
-        pass
 
     @abstractmethod
     def step(self, action: Action) -> Tuple[Observation, float, bool, Dict]:
@@ -70,7 +69,6 @@ class Env(ABC):
         >>> info
         {}
         """
-        pass
 
     @abstractmethod
     def close(self):
@@ -83,4 +81,3 @@ class Env(ABC):
         >>> env = MockEnv()
         >>> env.close()
         """
-        pass

@@ -1,19 +1,14 @@
 import subprocess
 import time
-from typing import List
 import mss
-import io
 from PIL import Image
 import pyautogui
 from commandagi_j2.envs.base_computer_env import BaseComputerEnv
 import tempfile
 import os
-from enum import Enum
-from e2b_desktop import Sandbox
 from commandagi_j2.envs.computer_types import (
     KeyboardKey,
     KeyboardKeyDownAction,
-    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
     ScreenshotObservation,
     MouseStateObservation,
@@ -27,7 +22,6 @@ from commandagi_j2.envs.computer_types import (
     MouseScrollAction,
     MouseButtonDownAction,
     MouseButtonUpAction,
-    ClickAction,
 )
 
 

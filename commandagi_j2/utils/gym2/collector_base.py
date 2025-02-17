@@ -11,8 +11,6 @@ class BaseEpisode(ABC):
     True
     """
 
-    pass
-
 
 class BaseCollector(ABC):
     """Abstract base class for data collection during environment interaction.
@@ -33,7 +31,6 @@ class BaseCollector(ABC):
         >>> collector = MockCollector()
         >>> collector.reset()
         """
-        pass
 
     @abstractmethod
     def add_step(
@@ -58,7 +55,6 @@ class BaseCollector(ABC):
         >>> collector = MockCollector()
         >>> collector.add_step("obs", "action", 1.0, {"info": "test"})
         """
-        pass
 
     @abstractmethod
     def save_episode(self, episode_num: int) -> None:
@@ -74,4 +70,3 @@ class BaseCollector(ABC):
         >>> collector = MockCollector()
         >>> collector.save_episode(1)
         """
-        pass

@@ -2,10 +2,6 @@ import openai
 from typing import List, Dict, Any
 from commandagi_j2.utils.gym2.collector_base import BaseEpisode
 from commandagi_j2.utils.gym2.env_base import (
-    Observation,
-    Action,
-    Step,
-    Trajectory,
     Mandate,
 )
 from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator

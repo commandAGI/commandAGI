@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Union, Dict, Any
+from typing import Optional, Union
 from commandagi_j2.utils.gym2.env_base import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
@@ -33,7 +33,6 @@ class BaseDriver(ABC):
         ...     def reset(self): pass
         >>> driver = MockDriver()
         """
-        pass
 
     @abstractmethod
     def run_episode(
@@ -60,7 +59,6 @@ class BaseDriver(ABC):
         >>> driver.run_episode(max_steps=10)
         1.0
         """
-        pass
 
     @abstractmethod
     def reset(self) -> None:
@@ -73,4 +71,3 @@ class BaseDriver(ABC):
         >>> driver = MockDriver()
         >>> driver.reset()
         """
-        pass

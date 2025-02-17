@@ -1,8 +1,6 @@
-import openai
-import os
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.env_base import Action, Observation
-from langchain.chat_models import ChatOpenAI, ChatAnthropic, ChatHuggingFaceHub
+from langchain_openai.chat_models import ChatOpenAI
 from langchain.schema import HumanMessage
 from commandagi_j2.utils.chat_model_utils import get_chat_model
 

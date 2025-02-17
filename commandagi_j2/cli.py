@@ -18,9 +18,7 @@ from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
 from commandagi_j2.envs.base_vnc_docker_computer_env import VNCDockerComputerEnv
 from commandagi_j2.envs.e2b_desktop_env import E2BDesktopEnv
 from commandagi_j2.envs.local_pynput_computer_env import LocalPynputComputeEnv
-from commandagi_j2.agents.trainer import Trainer
 from commandagi_j2.utils.gym2.basic_driver import BasicDriver
-from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
 from commandagi_j2.evals.instruction_following_evaluator import (
     InstructionFollowingEvaluator,
 )
@@ -302,7 +300,9 @@ def run_format() -> None:
         print("Running command:", " ".join(cmd))
         result = subprocess.run(cmd)
         if result.returncode != 0:
-            print(f"Command {' '.join(cmd)} failed with return code {result.returncode}")
+            print(
+                f"Command {' '.join(cmd)} failed with return code {result.returncode}"
+            )
             sys.exit(result.returncode)
 
 

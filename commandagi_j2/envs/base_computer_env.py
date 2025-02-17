@@ -1,13 +1,12 @@
 from abc import abstractmethod
 import time
-from typing import Dict, List, Tuple, Unpack
+from typing import Dict, Tuple
 from commandagi_j2.utils.gym2.env_base import Env
 from commandagi_j2.envs.computer_types import (
     CommandAction,
     ClickAction,
     ComputerObservation,
     KeyboardHotkeyAction,
-    KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
@@ -21,7 +20,6 @@ from commandagi_j2.envs.computer_types import (
     MouseButtonUpAction,
     DragAction,
     ComputerAction,
-    MouseButton,
     ScreenshotObservation,
     MouseStateObservation,
     KeyboardStateObservation,
@@ -208,17 +206,14 @@ class BaseComputerEnv(Env):
     @abstractmethod
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a ScreenshotObservation of the current state (e.g. including a file path for the screenshot)."""
-        pass
 
     @abstractmethod
     def get_mouse_state(self) -> MouseStateObservation:
         """Return a MouseStateObservation containing the current mouse button states and position."""
-        pass
 
     @abstractmethod
     def get_keyboard_state(self) -> KeyboardStateObservation:
         """Return a KeyboardStateObservation with the current keyboard keys mapped to their states."""
-        pass
 
     @abstractmethod
     def execute_command(self, action: CommandAction) -> bool:
@@ -227,7 +222,6 @@ class BaseComputerEnv(Env):
         The timeout parameter indicates how long (in seconds) to wait before giving up,
         with None meaning no timeout.
         """
-        pass
 
     def execute_keyboard_keys_press(self, action: KeyboardKeysPressAction):
         """Execute pressing keyboard keys."""
@@ -258,12 +252,10 @@ class BaseComputerEnv(Env):
     @abstractmethod
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
-        pass
 
     @abstractmethod
     def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key."""
-        pass
 
     def execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
@@ -287,22 +279,18 @@ class BaseComputerEnv(Env):
     @abstractmethod
     def execute_mouse_move(self, action: MouseMoveAction):
         """Execute moving the mouse to (x, y) over the move duration."""
-        pass
 
     @abstractmethod
     def execute_mouse_scroll(self, action: MouseScrollAction):
         """Execute mouse scroll by a given amount."""
-        pass
 
     @abstractmethod
     def execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Execute mouse button down action."""
-        pass
 
     @abstractmethod
     def execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Execute mouse button up action."""
-        pass
 
     def execute_click(self, action: ClickAction) -> bool:
         """Execute a click action at the given coordinates using press and release operations with a duration.
