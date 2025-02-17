@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CLI for testing, evaluating, and re-watching evaluation episodes 
+CLI for testing, evaluating, and re-watching evaluation episodes
 with various agent/environment combinations.
 
 Subcommands:
@@ -23,7 +23,9 @@ from commandagi_j2.envs.local_compute_env import LocalComputeEnv
 # Import driver, trainer and evaluator
 from commandagi_j2.utils.basic_driver import BasicDriver
 from commandagi_j2.agents.trainer import Trainer
-from commandagi_j2.evals.instruction_following_evaluator import InstructionFollowingEvaluator
+from commandagi_j2.evals.instruction_following_evaluator import (
+    InstructionFollowingEvaluator,
+)
 
 # Mapping from string names to classes so that we can dynamically select them.
 AGENTS = {
@@ -95,7 +97,9 @@ def run_evaluate(args):
         driver = BasicDriver(env, agent)
         driver.reset()
         # Get the full episode data (including observations, actions, etc.)
-        episode_data = driver.run_episode(max_steps=args.max_steps, episode_num=f"eval_{ep}", return_episode=True)
+        episode_data = driver.run_episode(
+            max_steps=args.max_steps, episode_num=f"eval_{ep}", return_episode=True
+        )
         rewards.append(episode_data.total_reward)
         # Provide a mandate. You can update this string or pass it via the CLI.
         mandate = args.mandate or "Follow the instructions exactly."
@@ -188,32 +192,72 @@ def run_replay(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="CLI for testing, evaluating, and replaying eval episodes.")
-    subparsers = parser.add_subparsers(dest="command", required=True, help="Subcommand to run")
+    parser = argparse.ArgumentParser(
+        description="CLI for testing, evaluating, and replaying eval episodes."
+    )
+    subparsers = parser.add_subparsers(
+        dest="command", required=True, help="Subcommand to run"
+    )
 
     # Subparser for the test mode
-    parser_test = subparsers.add_parser("test", help="Test a single episode with a chosen agent and environment")
-    parser_test.add_argument("--agent", type=str, default="simple", help="Agent to use (e.g. simple)")
-    parser_test.add_argument("--env", type=str, default="local", help="Environment to use (e.g. local, docker, e2b)")
-    parser_test.add_argument("--num_episodes", type=int, default=1, help="Number of test episodes to run")
-    parser_test.add_argument("--max_steps", type=int, default=100, help="Maximum steps per episode")
+    parser_test = subparsers.add_parser(
+        "test", help="Test a single episode with a chosen agent and environment"
+    )
+    parser_test.add_argument(
+        "--agent", type=str, default="simple", help="Agent to use (e.g. simple)"
+    )
+    parser_test.add_argument(
+        "--env",
+        type=str,
+        default="local",
+        help="Environment to use (e.g. local, docker, e2b)",
+    )
+    parser_test.add_argument(
+        "--num_episodes", type=int, default=1, help="Number of test episodes to run"
+    )
+    parser_test.add_argument(
+        "--max_steps", type=int, default=100, help="Maximum steps per episode"
+    )
     parser_test.set_defaults(func=run_test)
 
     # Subparser for the evaluation mode
-    parser_eval = subparsers.add_parser("evaluate", help="Run evaluation episodes with an evaluator")
+    parser_eval = subparsers.add_parser(
+        "evaluate", help="Run evaluation episodes with an evaluator"
+    )
     parser_eval.add_argument("--agent", type=str, default="simple", help="Agent to use")
-    parser_eval.add_argument("--env", type=str, default="local", help="Environment to use")
-    parser_eval.add_argument("--num_episodes", type=int, default=1, help="Number of evaluation episodes")
-    parser_eval.add_argument("--max_steps", type=int, default=100, help="Maximum steps per episode")
-    parser_eval.add_argument("--model", type=str, default="o1", help="OpenAI model name to use in evaluator")
-    parser_eval.add_argument("--mandate", type=str, default="", help="Mandate string for evaluator (if not provided, a default is used)")
+    parser_eval.add_argument(
+        "--env", type=str, default="local", help="Environment to use"
+    )
+    parser_eval.add_argument(
+        "--num_episodes", type=int, default=1, help="Number of evaluation episodes"
+    )
+    parser_eval.add_argument(
+        "--max_steps", type=int, default=100, help="Maximum steps per episode"
+    )
+    parser_eval.add_argument(
+        "--model", type=str, default="o1", help="OpenAI model name to use in evaluator"
+    )
+    parser_eval.add_argument(
+        "--mandate",
+        type=str,
+        default="",
+        help="Mandate string for evaluator (if not provided, a default is used)",
+    )
     parser_eval.set_defaults(func=run_evaluate)
 
     # Subparser for the replay mode
-    parser_replay = subparsers.add_parser("replay", help="Replay a saved evaluation episode")
-    parser_replay.add_argument("--episode", type=str, required=True,
-                               help="Episode file name (or episode number) from collected_data (e.g. 0 for collected_data/episode_0.json)")
-    parser_replay.add_argument("--interval", type=int, default=1, help="Time in seconds between observations")
+    parser_replay = subparsers.add_parser(
+        "replay", help="Replay a saved evaluation episode"
+    )
+    parser_replay.add_argument(
+        "--episode",
+        type=str,
+        required=True,
+        help="Episode file name (or episode number) from collected_data (e.g. 0 for collected_data/episode_0.json)",
+    )
+    parser_replay.add_argument(
+        "--interval", type=int, default=1, help="Time in seconds between observations"
+    )
     parser_replay.set_defaults(func=run_replay)
 
     args = parser.parse_args()
@@ -221,4 +265,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

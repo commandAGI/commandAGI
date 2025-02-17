@@ -18,8 +18,8 @@ class RandomAgent(BaseAgent):
             y = random.randint(0, 600)
             return f"click {x},{y}"
         else:
-            random_text = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=6))
+            random_text = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=6))
             return f"type {random_text}"
 
     def update(self, reward: float):
-        self.total_reward += reward 
+        self.total_reward += reward

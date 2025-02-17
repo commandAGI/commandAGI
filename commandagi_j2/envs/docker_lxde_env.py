@@ -4,11 +4,20 @@ import subprocess
 import time
 from vncdotool import api
 from commandagi_j2.envs.base_computer_env import BaseComputerEnv
-from commandagi_j2.envs.computer_actions import ComputerAction
+from commandagi_j2.envs.computer_types import (
+    ComputerAction,
+    KeyboardKey,
+    ScreenshotObservation,
+    MouseStateObservation,
+    KeyboardStateObservation,
+    MouseButton,
+)
 
 
 class DockerLxdeEnv(BaseComputerEnv):
-    def __init__(self, container_name="lxde_container", password="secret", vnc_port=5900):
+    def __init__(
+        self, container_name="lxde_container", password="secret", vnc_port=5900
+    ):
         super().__init__()
         self.container_name = container_name
         self.password = password
@@ -17,14 +26,6 @@ class DockerLxdeEnv(BaseComputerEnv):
         self.temp_dir = tempfile.mkdtemp()
         self.last_screenshot = None
         self.vnc = None
-
-        # Replace the default action_space with actions that use vncdotool
-        self.action_space = {
-            ComputerAction.CLICK.value: self._vnc_click,
-            ComputerAction.TYPE.value: self._vnc_type,
-            ComputerAction.PRESS.value: self._vnc_press,
-            ComputerAction.HOTKEY.value: self._vnc_hotkey
-        }
 
         # Start the container and connect to its VNC
         self._start_docker_container()
@@ -37,7 +38,12 @@ class DockerLxdeEnv(BaseComputerEnv):
         """
         # If it's already running, you might want to skip, or do a docker stop/rm first
         # In this example, we'll forcibly remove if it exists, then run again:
-        subprocess.run(f"docker rm -f {self.container_name}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(
+            f"docker rm -f {self.container_name}",
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
         # Example run command using dorowu/ubuntu-desktop-lxde-vnc
         # Expose the container's 5900 on localhost:5900
@@ -59,47 +65,9 @@ class DockerLxdeEnv(BaseComputerEnv):
         Connect to the container's VNC server using vncdotool
         """
         # vncdotool expects host::port format; password is passed at connect time
-        self.vnc = api.connect(f"{self.vnc_host}::{self.vnc_port}", password=self.password)
-
-    def _vnc_click(self, x_str, y_str):
-        """
-        Move mouse to (x, y) and perform a left-click
-        """
-        x, y = int(x_str), int(y_str)
-        self.vnc.mouseMove(x, y)
-        # left mouse button is button=1
-        self.vnc.mouseDown(1)
-        self.vnc.mouseUp(1)
-        return True
-
-    def _vnc_type(self, text):
-        """
-        Type text by sending keystrokes. If you need special keys, you may
-        have to split them or use another approach in vncdotool.
-        """
-        for char in text:
-            self.vnc.keyPress(char)
-        return True
-
-    def _vnc_press(self, key):
-        """
-        Press a single key (e.g., 'enter', 'backspace', etc.)
-        For standard text characters, see the _vnc_type approach.
-        """
-        # For special keys, vncdotool might expect them in bracket notation, e.g.:
-        # Enter: 'return', Tab: 'tab', etc.
-        self.vnc.keyPress(key)
-        return True
-
-    def _vnc_hotkey(self, *keys):
-        """
-        Press multiple keys together (e.g., ctrl+c).
-        """
-        # As an example, we'll press them in quick succession. 
-        # If you want them "held down" simultaneously, you can do keyDown() calls, then keyUp().
-        for k in keys:
-            self.vnc.keyPress(k)
-        return True
+        self.vnc = api.connect(
+            f"{self.vnc_host}::{self.vnc_port}", password=self.password
+        )
 
     def execute_in_container(self, cmd):
         """
@@ -138,17 +106,78 @@ class DockerLxdeEnv(BaseComputerEnv):
             self.vnc.disconnect()
         subprocess.run(f"docker rm -f {self.container_name}", shell=True)
 
-    def _get_observation(self):
-        """
-        Currently returns a screenshot from the VNC server. 
-        """
-        return self._take_screenshot()
-
-    def _take_screenshot(self):
-        """
-        Capture the screen through VNC and store locally.
-        """
+    def get_screenshot(self) -> ScreenshotObservation:
         screenshot_path = os.path.join(self.temp_dir, "docker_lxde_screenshot.png")
         self.vnc.captureScreen(screenshot_path)
         self.last_screenshot = screenshot_path
-        return screenshot_path 
+        return ScreenshotObservation(screenshot=screenshot_path)
+
+    def get_mouse_state(self) -> MouseStateObservation:
+        return MouseStateObservation(
+            buttons={
+                MouseButton.LEFT: False,
+                MouseButton.MIDDLE: False,
+                MouseButton.RIGHT: False,
+            },
+            position=(0, 0),
+        )
+
+    def get_keyboard_state(self) -> KeyboardStateObservation:
+        return KeyboardStateObservation(keys={})
+
+    def execute_command(self, command: str) -> bool:
+        try:
+            import subprocess
+
+            result = subprocess.run(
+                f"docker exec {self.container_name} {command}",
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=10,
+            )
+            return result.returncode == 0
+        except Exception as e:
+            print(f"Error executing command in container: {e}")
+            return False
+
+    def execute_keyboard_key_press(self, key):
+        """Execute pressing a keyboard key."""
+        vnc_key = KeyboardKey.to_vnc(key)
+        self.vnc.keyPress(vnc_key)
+        return True
+
+    def execute_keyboard_key_down(self, key):
+        """Execute key down for a keyboard key."""
+        vnc_key = KeyboardKey.to_vnc(key)
+        self.vnc.keyDown(vnc_key)
+        return True
+
+    def execute_keyboard_key_release(self, key):
+        """Execute key release for a keyboard key."""
+        vnc_key = KeyboardKey.to_vnc(key)
+        self.vnc.keyUp(vnc_key)
+        return True
+
+    def execute_type(self, text):
+        for char in text:
+            self.vnc.keyPress(char)
+        return True
+
+    def execute_mouse_move(self, x, y, move_duration: float = 0.5):
+        self.vnc.mouseMove(x, y)
+        return True
+
+    def execute_mouse_scroll(self, amount: float):
+        print(f"Scrolling by amount {amount} not implemented in DockerLxdeEnv")
+        return False
+
+    def execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+        vnc_button = MouseButton.to_vnc(button)
+        self.vnc.mouseDown(vnc_button)
+        return True
+
+    def execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+        vnc_button = MouseButton.to_vnc(button)
+        self.vnc.mouseUp(vnc_button)
+        return True

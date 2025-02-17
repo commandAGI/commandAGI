@@ -1,12 +1,14 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
+
 class TkRender:
     """
     A Tkinter-based renderer that updates its display every 100ms.
     Expects the environment (env) to have a _get_observation() method that returns
     the path to the current screenshot image.
     """
+
     def __init__(self, env):
         self.env = env
         self.root = tk.Tk()
@@ -32,7 +34,7 @@ class TkRender:
             self.label.image = photo  # keep a reference to prevent garbage collection
         except Exception as e:
             print(f"Failed to update render: {e}")
-        
+
         # Schedule the next update in 100ms
         self.root.after(100, self._update_render)
 
@@ -40,4 +42,4 @@ class TkRender:
         """
         Run the Tkinter main loop.
         """
-        self.root.mainloop() 
+        self.root.mainloop()
