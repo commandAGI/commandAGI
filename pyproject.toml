@@ -42,6 +42,6 @@ pytest = "^8.3.4"
 
 
 [tool.poetry.scripts]
-run-tests = "commandagi_j2.cli:run_tests"
-run-doctests = "commandagi_j2.cli:run_doctests"
-format-code = "commandagi_j2.cli:run_format"
+run-tests = "commandagi_j2.dev:run_tests"
+run-doctests = "commandagi_j2.dev:run_doctests"
+format-code = "commandagi_j2.dev:run_format"
