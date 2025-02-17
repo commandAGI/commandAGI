@@ -27,6 +27,11 @@ dependencies = [
     "pynput (>=1.7.7,<2.0.0)"
 ]
 
+# [tool.poetry]
+# packages = [
+#     { include = "gym2", from = "gym2" },
+#     { include = "commandagi_j2", from = "." }
+# ]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

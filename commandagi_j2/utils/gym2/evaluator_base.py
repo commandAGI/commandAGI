@@ -5,12 +5,16 @@ from commandagi_j2.utils.gym2.env_base import Mandate
 
 
 class BaseEvaluator(ABC):
-    """Abstract base class for evaluating agent episodes."""
+    """Abstract base class for evaluating agent episodes.
+    
+    >>> from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
+    >>> issubclass(BaseEvaluator, ABC)
+    True
+    """
 
     @abstractmethod
     def evaluate_episode(self, episode: BaseEpisode, mandate: Mandate) -> Any:
-        """
-        Evaluate an episode against a given mandate.
+        """Evaluate an episode against a given mandate.
 
         Args:
             episode (Episode): The episode to evaluate
@@ -18,15 +22,30 @@ class BaseEvaluator(ABC):
 
         Returns:
             Any: The evaluation result, format determined by implementation
+            
+        >>> class MockEvaluator(BaseEvaluator):
+        ...     def evaluate_episode(self, episode, mandate): return {"score": 1.0}
+        ...     def get_metrics(self): return {"avg_score": 1.0}
+        >>> evaluator = MockEvaluator()
+        >>> result = evaluator.evaluate_episode(None, "test_mandate")
+        >>> result["score"]
+        1.0
         """
         pass
 
     @abstractmethod
     def get_metrics(self) -> dict:
-        """
-        Get evaluation metrics.
+        """Get evaluation metrics.
 
         Returns:
             dict: A dictionary of evaluation metrics
+            
+        >>> class MockEvaluator(BaseEvaluator):
+        ...     def evaluate_episode(self, episode, mandate): return {"score": 1.0}
+        ...     def get_metrics(self): return {"avg_score": 1.0}
+        >>> evaluator = MockEvaluator()
+        >>> metrics = evaluator.get_metrics()
+        >>> metrics["avg_score"]
+        1.0
         """
         pass
