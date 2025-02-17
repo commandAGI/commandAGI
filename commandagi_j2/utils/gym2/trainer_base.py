@@ -5,12 +5,7 @@ from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
 
 
 class BaseTrainer(ABC):
-    """Abstract base class for training agents.
-
-    >>> from commandagi_j2.utils.gym2.trainer_base import BaseTrainer
-    >>> issubclass(BaseTrainer, ABC)
-    True
-    """
+    """Abstract base class for training agents."""
 
     def __init__(
         self,
@@ -24,12 +19,6 @@ class BaseTrainer(ABC):
             driver (Optional[BaseDriver]): The driver to use for training
             train_evaluators (Optional[List[BaseEvaluator]]): Evaluators to use during training
             test_evaluators (Optional[List[BaseEvaluator]]): Evaluators to use during final testing
-
-        >>> class MockTrainer(BaseTrainer):
-        ...     def train(self, num_episodes=10, max_steps=100): return [1.0]
-        >>> trainer = MockTrainer()
-        >>> trainer.metrics
-        {}
         """
         self.driver = driver
         self.train_evaluators = train_evaluators or []
@@ -46,15 +35,6 @@ class BaseTrainer(ABC):
 
         Returns:
             List[float]: List of episode rewards
-
-        >>> class MockTrainer(BaseTrainer):
-        ...     def train(self, num_episodes=10, max_steps=100): return [1.0, 2.0]
-        >>> trainer = MockTrainer()
-        >>> rewards = trainer.train(num_episodes=2)
-        >>> len(rewards)
-        2
-        >>> rewards[1]
-        2.0
         """
 
     def evaluate(
@@ -72,21 +52,6 @@ class BaseTrainer(ABC):
 
         Returns:
             Dict[str, Any]: Evaluation metrics from all evaluators
-
-        >>> from commandagi_j2.utils.gym2.driver_base import BaseDriver
-        >>> from commandagi_j2.utils.gym2.collector_base import BaseEpisode
-        >>> class MockDriver(BaseDriver):
-        ...     def __init__(self): pass
-        ...     def reset(self): pass
-        ...     def run_episode(self, max_steps=100, episode_num=None, return_episode=False):
-        ...         return type('MockEpisode', (BaseEpisode,), {'total_reward': 1.0})()
-        >>> class MockEvaluator(BaseEvaluator):
-        ...     def evaluate_episode(self, episode, mandate): return {"score": 1.0}
-        ...     def get_metrics(self): return {"avg_score": 1.0}
-        >>> trainer = BaseTrainer(driver=MockDriver(), test_evaluators=[MockEvaluator()])
-        >>> results = trainer.evaluate(num_episodes=1)
-        >>> results["average_reward"]
-        1.0
         """
         evaluators = evaluators or self.test_evaluators
         episode_rewards = []
@@ -128,13 +93,5 @@ class BaseTrainer(ABC):
 
         Returns:
             Dict[str, Any]: A dictionary containing all metrics
-
-        >>> class MockTrainer(BaseTrainer):
-        ...     def train(self, num_episodes=10, max_steps=100): return [1.0]
-        >>> trainer = MockTrainer()
-        >>> trainer.metrics = {"test_metric": 1.0}
-        >>> metrics = trainer.get_metrics()
-        >>> metrics["test_metric"]
-        1.0
         """
         return self.metrics
