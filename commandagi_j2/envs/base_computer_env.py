@@ -1,12 +1,16 @@
 from abc import abstractmethod
 import time
-from typing import List
+from typing import List, Unpack
 from commandagi_j2.utils.gym2.env_base import Env
 from commandagi_j2.envs.computer_types import (
     CommandAction,
     ClickAction,
     ComputerObservation,
+    KeyboardHotkeyAction,
     KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
+    KeyboardKeyReleaseAction,
     TypeAction,
     KeyboardKeysPressAction,
     KeyboardKeysDownAction,
@@ -16,8 +20,8 @@ from commandagi_j2.envs.computer_types import (
     MouseButtonDownAction,
     MouseButtonUpAction,
     DragAction,
-    ComputerAction,  # if needed as a type alias/union
-    MouseButton,  # Added for proper type annotations
+    ComputerAction,
+    MouseButton,
     ScreenshotObservation,
     MouseStateObservation,
     KeyboardStateObservation,
@@ -35,7 +39,7 @@ class BaseComputerEnv(Env):
         """
         Get the current observation of the environment as a ComputerObservation containing:
             screenshot: Optional[ScreenshotObservation]
-            mouse_state: Optional[MouseStateObservation] 
+            mouse_state: Optional[MouseStateObservation]
             keyboard_state: Optional[KeyboardStateObservation]
         """
         try:
@@ -59,7 +63,7 @@ class BaseComputerEnv(Env):
         return ComputerObservation(
             screenshot=screenshot,
             mouse_state=mouse_state,
-            keyboard_state=keyboard_state
+            keyboard_state=keyboard_state,
         )
 
     def _execute_action(self, action: ComputerAction) -> bool:
@@ -68,30 +72,36 @@ class BaseComputerEnv(Env):
 
         if action.command:
             try:
-                success = self.execute_command(action.command.command, action.command.timeout)
+                success = self.execute_command(
+                    action.command.command, action.command.timeout
+                )
             except Exception as e:
                 print(f"Error executing command: {e}")
                 success = False
 
-
-
         if action.keyboard_keys_press:
             try:
-                success = self.execute_keyboard_keys_press(action.keyboard_keys_press.keys)
+                success = self.execute_keyboard_keys_press(
+                    action.keyboard_keys_press.keys
+                )
             except Exception as e:
                 print(f"Error executing keyboard press: {e}")
                 success = False
 
         if action.keyboard_keys_down:
             try:
-                success = self.execute_keyboard_keys_down(action.keyboard_keys_down.keys)
+                success = self.execute_keyboard_keys_down(
+                    action.keyboard_keys_down.keys
+                )
             except Exception as e:
                 print(f"Error executing keyboard down: {e}")
                 success = False
 
         if action.keyboard_keys_release:
             try:
-                success = self.execute_keyboard_keys_release(action.keyboard_keys_release.keys)
+                success = self.execute_keyboard_keys_release(
+                    action.keyboard_keys_release.keys
+                )
             except Exception as e:
                 print(f"Error executing keyboard release: {e}")
                 success = False
@@ -109,13 +119,13 @@ class BaseComputerEnv(Env):
             except Exception as e:
                 print(f"Error executing type: {e}")
                 success = False
-                
+
         if action.mouse_move:
             try:
                 success = self.execute_mouse_move(
                     action.mouse_move.x,
                     action.mouse_move.y,
-                    action.mouse_move.move_duration
+                    action.mouse_move.move_duration,
                 )
             except Exception as e:
                 print(f"Error executing mouse move: {e}")
@@ -130,7 +140,9 @@ class BaseComputerEnv(Env):
 
         if action.mouse_button_down:
             try:
-                success = self.execute_mouse_button_down(action.mouse_button_down.button)
+                success = self.execute_mouse_button_down(
+                    action.mouse_button_down.button
+                )
             except Exception as e:
                 print(f"Error executing mouse button down: {e}")
                 success = False
@@ -144,12 +156,7 @@ class BaseComputerEnv(Env):
 
         if action.click:
             try:
-                success = self.execute_click(
-                    action.click.x,
-                    action.click.y, 
-                    action.click.move_duration,
-                    action.click.button
-                )
+                success = self.execute_click(action.click)
             except Exception as e:
                 print(f"Error executing click: {e}")
                 success = False
@@ -162,7 +169,7 @@ class BaseComputerEnv(Env):
                     action.drag.end_x,
                     action.drag.end_y,
                     action.drag.move_duration,
-                    action.drag.button
+                    action.drag.button,
                 )
             except Exception as e:
                 print(f"Error executing drag: {e}")
@@ -202,7 +209,7 @@ class BaseComputerEnv(Env):
         pass
 
     @abstractmethod
-    def execute_command(self, command: str, timeout: float | None = None) -> bool:
+    def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the environment and return True if successful.
 
         The timeout parameter indicates how long (in seconds) to wait before giving up,
@@ -210,98 +217,106 @@ class BaseComputerEnv(Env):
         """
         pass
 
-    def execute_keyboard_keys_press(self, keys: List[KeyboardKey]):
-        """Execute pressing a keyboard key."""
-        self.execute_keyboard_keys_down(keys)
-        # time.sleep(duration)
-        self.execute_keyboard_keys_release(keys)
+    def execute_keyboard_keys_press(self, action: KeyboardKeysPressAction):
+        """Execute pressing keyboard keys."""
+        self.execute_keyboard_keys_down(action.keys)
+        self.execute_keyboard_keys_release(action.keys)
 
-    def execute_keyboard_key_press(self, key: KeyboardKey):
-        """Execute pressing a keyboard key."""
-        self.execute_keyboard_key_down(key)
-        # time.sleep(duration)
-        self.execute_keyboard_key_release(key)
-
-    def execute_keyboard_keys_down(self, keys: List[KeyboardKey]):
+    def execute_keyboard_keys_down(self, action: KeyboardKeysDownAction):
         """Execute key down for each keyboard key."""
-        for key in keys:
+        for key in action.keys:
             self.execute_keyboard_key_down(key)
 
-    def execute_keyboard_keys_release(self, keys: List[KeyboardKey]):
+    def execute_keyboard_keys_release(self, action: KeyboardKeysReleaseAction):
         """Execute key release for each keyboard key."""
-        for key in keys:
-            self.execute_keyboard_key_release(key)
+        success = True
+        for key in action.keys:
+            success_i = self.execute_keyboard_key_release(key)
+            if not success_i:
+                success = False
+        return success
+
+    def execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
+        """Execute pressing a keyboard key with a specified duration."""
+        self.execute_keyboard_key_down(KeyboardKeyDownAction(key=action.key))
+        time.sleep(action.duration)
+        self.execute_keyboard_key_release(KeyboardKeyReleaseAction(key=action.key))
+        return True
 
     @abstractmethod
-    def execute_keyboard_key_down(self, key: KeyboardKey):
+    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
         pass
 
     @abstractmethod
-    def execute_keyboard_key_release(self, key: KeyboardKey):
+    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key."""
         pass
 
-    def execute_keyboard_hotkey(self, keys: List[KeyboardKey]) -> bool:
+    def execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
-        try:
-            for key in keys:
-                self.execute_keyboard_key_down(key)
-            for key in reversed(keys):
-                self.execute_keyboard_key_release(key)
-            return True
-        except Exception as e:
-            print(f"Error executing keyboard hotkey: {e}")
-            return False
+        success = True
+        for key in action.keys:
+            success_i = self.execute_keyboard_key_down(key)
+            if not success_i:
+                success = False
+        for key in reversed(action.keys):
+            success_i = self.execute_keyboard_key_release(key)
+            if not success_i:
+                success = False
+        return success
 
-    @abstractmethod
-    def execute_type(self, text):
+    def execute_type(self, action: TypeAction):
         """Execute typing the given text."""
-        pass
+        for char in action.text:
+            self.execute_keyboard_key_press(KeyboardKeyPressAction(key=char))
+        return True
 
     @abstractmethod
-    def execute_mouse_move(self, x, y, move_duration: float = 0.5):
+    def execute_mouse_move(self, action: MouseMoveAction):
         """Execute moving the mouse to (x, y) over the move duration."""
         pass
 
     @abstractmethod
-    def execute_mouse_scroll(self, amount: float):
+    def execute_mouse_scroll(self, action: MouseScrollAction):
         """Execute mouse scroll by a given amount."""
         pass
 
     @abstractmethod
-    def execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+    def execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Execute mouse button down action."""
         pass
 
     @abstractmethod
-    def execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+    def execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Execute mouse button up action."""
         pass
 
-    def execute_click(self, x, y, move_duration: float = 0.5, button: MouseButton = MouseButton.LEFT):
-        """Execute a click action at the given coordinates using press and release operations."""
-        self.execute_mouse_move(x, y, move_duration)
-        self.execute_mouse_button_down(button)
-        self.execute_mouse_button_up(button)
+    def execute_click(self, action: ClickAction) -> bool:
+        """Execute a click action at the given coordinates using press and release operations with a duration.
+        It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
+        """
+        move_action = MouseMoveAction(x=action.x, y=action.y, move_duration=action.move_duration)
+        self.execute_mouse_move(move_action)
+        down_action = MouseButtonDownAction(button=action.button)
+        self.execute_mouse_button_down(down_action)
+        time.sleep(action.press_duration)
+        up_action = MouseButtonUpAction(button=action.button)
+        self.execute_mouse_button_up(up_action)
         return True
 
-    def execute_drag(
-        self,
-        start_x: int,
-        start_y: int,
-        end_x: int,
-        end_y: int,
-        move_duration: float = 0.5,
-        button: MouseButton = MouseButton.LEFT,
-    ):
+    def execute_drag(self, action: DragAction):
         """Execute a drag action using the primitive mouse operations."""
         # Move to the starting position
-        self.execute_mouse_move(start_x, start_y, move_duration)
+        self.execute_mouse_move(
+            x=action.start_x, y=action.start_y, move_duration=action.move_duration
+        )
         # Press the mouse button down
-        self.execute_mouse_button_down(button)
+        self.execute_mouse_button_down(button=action.button)
         # Move to the ending position while holding down the mouse button
-        self.execute_mouse_move(end_x, end_y, move_duration)
+        self.execute_mouse_move(
+            x=action.end_x, y=action.end_y, move_duration=action.move_duration
+        )
         # Release the mouse button
-        self.execute_mouse_button_up(button)
+        self.execute_mouse_button_up(button=action.button)
         return True

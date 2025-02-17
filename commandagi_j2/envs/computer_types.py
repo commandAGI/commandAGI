@@ -237,6 +237,14 @@ class KeyboardKeysPressAction(BaseComputerAction):
     duration: float = 0.1
 
 
+class KeyboardKeyPressAction(BaseComputerAction):
+    action_type: Literal[ComputerActionType.KEYBOARD_KEY_PRESS] = (
+        ComputerActionType.KEYBOARD_KEY_PRESS
+    )
+    key: KeyboardKey
+    duration: float = 0.1
+
+
 class KeyboardKeysDownAction(BaseComputerAction):
     action_type: Literal[ComputerActionType.KEYBOARD_KEY_DOWN] = (
         ComputerActionType.KEYBOARD_KEY_DOWN
@@ -244,11 +252,25 @@ class KeyboardKeysDownAction(BaseComputerAction):
     keys: List[KeyboardKey]
 
 
+class KeyboardKeyDownAction(BaseComputerAction):
+    action_type: Literal[ComputerActionType.KEYBOARD_KEY_DOWN] = (
+        ComputerActionType.KEYBOARD_KEY_DOWN
+    )
+    key: KeyboardKey
+
+
 class KeyboardKeysReleaseAction(BaseComputerAction):
     action_type: Literal[ComputerActionType.KEYBOARD_KEY_RELEASE] = (
         ComputerActionType.KEYBOARD_KEY_RELEASE
     )
     keys: List[KeyboardKey]
+
+
+class KeyboardKeyReleaseAction(BaseComputerAction):
+    action_type: Literal[ComputerActionType.KEYBOARD_KEY_RELEASE] = (
+        ComputerActionType.KEYBOARD_KEY_RELEASE
+    )
+    key: KeyboardKey
 
 
 class KeyboardHotkeyAction(BaseComputerAction):
@@ -294,6 +316,7 @@ class ClickAction(BaseComputerAction):
     x: int
     y: int
     move_duration: float = 0.5
+    press_duration: float = 0.1
     button: MouseButton = MouseButton.LEFT
 
 
