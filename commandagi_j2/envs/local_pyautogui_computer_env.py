@@ -37,12 +37,12 @@ class LocalPyAutoGUIComputeEnv(BaseComputerEnv):
         pyautogui.hotkey("win", "d")
         time.sleep(1)  # Give windows time to minimize
 
-        return self._get_observation()
+        return self.get_observation()
 
     def step(self, action):
         """Execute action and return (observation, reward, done, info)"""
-        success = self._execute_action(action)
-        observation = self._get_observation()
+        success = self.execute_action(action)
+        observation = self.get_observation()
 
         # Simple reward structure
         reward = 1.0 if success else -1.0

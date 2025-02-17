@@ -76,7 +76,7 @@ class LocalPynputComputeEnv(BaseComputerEnv):
             )
             self._mouse_listener.start()
 
-        return self._get_observation()
+        return self.get_observation()
 
     def _on_keyboard_press(self, key):
         """Callback for when a key is pressed."""

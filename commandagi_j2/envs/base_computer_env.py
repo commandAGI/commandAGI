@@ -1,7 +1,7 @@
 from abc import abstractmethod
 import time
-from typing import Dict, Tuple
-from commandagi_j2.utils.gym2.env_base import Env
+from commandagi_j2.utils.gym2.env_base import Action, Env
+from commandagi_j2.utils.gym2.spaces import StructuredSpace
 from commandagi_j2.envs.computer_types import (
     CommandAction,
     ClickAction,
@@ -29,22 +29,24 @@ from commandagi_j2.envs.computer_types import (
 class BaseComputerEnv(Env):
     """Base class for computer environments with standard actions"""
 
+    _observation_space = StructuredSpace(model=ComputerObservation)
+    _action_space = StructuredSpace(model=ComputerAction)
+
     def __init__(self):
-        # Removed default action_space. Subclasses must implement action handlers via abstract methods.
+        # Initialize spaces using StructuredSpace
         pass
 
-    def step(
-        self, action: ComputerAction
-    ) -> Tuple[ComputerObservation, float, bool, Dict]:
-        """Execute an action and return the next observation, reward, done, and info."""
-        success = self._execute_action(action)
-        observation = self._get_observation()
-        reward = ...
-        done = False
-        info = {}
-        return observation, reward, done, info
+    @property
+    def observation_space(self) -> StructuredSpace:
+        """Get the observation space of the environment."""
+        return self._observation_space
 
-    def _get_observation(self) -> ComputerObservation:
+    @property
+    def action_space(self) -> StructuredSpace:
+        """Get the action space of the environment."""
+        return self._action_space
+
+    def get_observation(self) -> ComputerObservation:
         """
         Get the current observation of the environment as a ComputerObservation containing:
             screenshot: Optional[ScreenshotObservation]
@@ -75,7 +77,7 @@ class BaseComputerEnv(Env):
             keyboard_state=keyboard_state,
         )
 
-    def _execute_action(self, action: ComputerAction) -> bool:
+    def execute_action(self, action: ComputerAction) -> bool:
         """Route the action to the appropriate handler implemented by subclasses."""
         success = False
 
@@ -186,6 +188,13 @@ class BaseComputerEnv(Env):
 
         return success
 
+    def get_reward(self, action: Action) -> float:
+        return 0
+
+    @abstractmethod
+    def get_done(self, action: Action) -> bool:
+        return False
+
     def render(self, mode="human"):
         if mode == "human":
             try:
@@ -199,7 +208,7 @@ class BaseComputerEnv(Env):
                 self
             )  # This will open the window and block as mainloop runs
         elif mode == "rgb_array":
-            return self._get_observation()
+            return self.get_observation()
         else:
             raise ValueError("Unsupported render mode: " + mode)
 
