@@ -123,17 +123,14 @@ class DockerLxdeEnv(BaseComputerEnv):
         return ScreenshotObservation(screenshot=screenshot_path)
 
     def get_mouse_state(self) -> MouseStateObservation:
-        return MouseStateObservation(
-            buttons={
-                MouseButton.LEFT: False,
-                MouseButton.MIDDLE: False,
-                MouseButton.RIGHT: False,
-            },
-            position=(0, 0),
+        raise NotImplementedError(
+            "DockerLxdeEnv does not support mouse state observation"
         )
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
-        return KeyboardStateObservation(keys={})
+        raise NotImplementedError(
+            "DockerLxdeEnv does not support keyboard state observation"
+        )
 
     def execute_command(self, action: CommandAction) -> bool:
         try:

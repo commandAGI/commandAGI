@@ -64,18 +64,15 @@ class E2BDesktopEnv(BaseComputerEnv):
 
     def get_mouse_state(self) -> MouseStateObservation:
         """Return dummy mouse state as Sandbox does not provide real-time states."""
-        return MouseStateObservation(
-            buttons={
-                MouseButton.LEFT: False,
-                MouseButton.MIDDLE: False,
-                MouseButton.RIGHT: False,
-            },
-            position=(0, 0),
+        raise NotImplementedError(
+            "E2BDesktopEnv does not support mouse state observation"
         )
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
         """Return dummy keyboard state as Sandbox does not track key states."""
-        return KeyboardStateObservation(keys={})
+        raise NotImplementedError(
+            "E2BDesktopEnv does not support keyboard state observation"
+        )
 
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the host environment using subprocess."""

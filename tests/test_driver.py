@@ -1,6 +1,6 @@
 import pytest
 from commandagi_j2.utils.basic_driver import BasicDriver
-from commandagi_j2.envs.local_compute_env import LocalComputeEnv
+from commandagi_j2.envs.local_pynput_computer_env import LocalPynputComputeEnv
 from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
 from commandagi_j2.utils.collection import DataCollector
 from unittest.mock import MagicMock, patch
@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 class TestDriver:
     @pytest.fixture
     def mock_env(self):
-        env = MagicMock(spec=LocalComputeEnv)
+        env = MagicMock(spec=LocalPynputComputeEnv)
         env.reset.return_value = "test_screenshot.png"
         env.step.return_value = (
             "test_screenshot.png",

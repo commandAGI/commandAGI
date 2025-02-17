@@ -296,7 +296,9 @@ class BaseComputerEnv(Env):
         """Execute a click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """
-        move_action = MouseMoveAction(x=action.x, y=action.y, move_duration=action.move_duration)
+        move_action = MouseMoveAction(
+            x=action.x, y=action.y, move_duration=action.move_duration
+        )
         self.execute_mouse_move(move_action)
         down_action = MouseButtonDownAction(button=action.button)
         self.execute_mouse_button_down(down_action)

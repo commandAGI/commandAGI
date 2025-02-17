@@ -18,7 +18,7 @@ import time
 from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
 from commandagi_j2.envs.docker_lxde_env import DockerLxdeEnv
 from commandagi_j2.envs.e2b_desktop_env import E2BDesktopEnv
-from commandagi_j2.envs.local_compute_env import LocalComputeEnv
+from commandagi_j2.envs.local_pynput_computer_env import LocalPynputComputeEnv
 
 # Import driver, trainer and evaluator
 from commandagi_j2.utils.basic_driver import BasicDriver
@@ -36,7 +36,7 @@ AGENTS = {
 ENVS = {
     "docker": DockerLxdeEnv,
     "e2b": E2BDesktopEnv,
-    "local": LocalComputeEnv,
+    "local": LocalPynputComputeEnv,
     # add other envs as needed
 }
 

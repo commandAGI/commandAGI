@@ -31,7 +31,7 @@ from commandagi_j2.envs.computer_types import (
 )
 
 
-class LocalComputeEnv(BaseComputerEnv):
+class LocalPyAutoGUIComputeEnv(BaseComputerEnv):
     def __init__(self):
         super().__init__()
         self.sct = mss.mss()
@@ -71,18 +71,15 @@ class LocalComputeEnv(BaseComputerEnv):
 
     def get_mouse_state(self) -> MouseStateObservation:
         """Return dummy mouse state using pyautogui (pyautogui doesn't provide state, so we return a default value)."""
-        return MouseStateObservation(
-            position=pyautogui.position(),
-            buttons={
-                MouseButton.LEFT: False,
-                MouseButton.MIDDLE: False,
-                MouseButton.RIGHT: False,
-            },
+        raise NotImplementedError(
+            "LocalComputeEnv does not support mouse state observation"
         )
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
         """Return dummy keyboard state as pyautogui doesn't track key states."""
-        return KeyboardStateObservation(keys={})
+        raise NotImplementedError(
+            "LocalComputeEnv does not support keyboard state observation"
+        )
 
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command using subprocess."""
@@ -132,4 +129,3 @@ class LocalComputeEnv(BaseComputerEnv):
         pyautogui_button = MouseButton.to_pyautogui(action.button)
         pyautogui.mouseUp(button=pyautogui_button)
         return True
-

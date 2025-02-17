@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Literal, List, Optional, Union
 from pydantic import BaseModel
+from pynput.keyboard import Key as PynputKey, KeyCode as PynputKeyCode
+from pynput.mouse import PynputButton as PynputButton
 
 
 class MouseButton(str, Enum):
@@ -12,6 +14,13 @@ class MouseButton(str, Enum):
     _VNC_MAPPING = {"left": 1, "middle": 2, "right": 3}
 
     _PYAUTOGUI_MAPPING = {"left": "left", "middle": "middle", "right": "right"}
+
+    # Add Pynput mapping
+    _PYNPUT_MAPPING = {
+        "left": PynputButton.left,
+        "middle": PynputButton.middle,
+        "right": PynputButton.right,
+    }
 
     @classmethod
     def to_vnc(cls, button: Union["MouseButton", str]) -> int:
@@ -38,6 +47,22 @@ class MouseButton(str, Enum):
         """
         return any(button == item.value for item in cls)
 
+    @classmethod
+    def to_pynput(cls, button: Union["MouseButton", str]) -> PynputButton:
+        """Convert a standard mouse button to Pynput PynputButton"""
+        button_val = button.value if isinstance(button, cls) else button
+        return cls._PYNPUT_MAPPING.get(button_val, PynputButton.left)
+
+    @classmethod
+    def from_pynput(cls, button) -> "MouseButton":
+        if button == PynputButton.left:
+            return cls.LEFT
+        elif button == PynputButton.middle:
+            return cls.MIDDLE
+        elif button == PynputButton.right:
+            return cls.RIGHT
+        return None
+
 
 class KeyboardKey(str, Enum):
     # Special Keys
@@ -58,11 +83,17 @@ class KeyboardKey(str, Enum):
     LEFT = "left"
     RIGHT = "right"
 
-    # Modifier Keys
+    # Modifier Keys - generic and with left/right differentiation
     SHIFT = "shift"
     CTRL = "ctrl"
+    LCTRL = "lctrl"
+    RCTRL = "rctrl"
     ALT = "alt"
-    WIN = "win"  # or "super" on some systems
+    LALT = "lalt"
+    RALT = "ralt"
+    META = "meta"  # Generic / non-specified meta key
+    LMETA = "lmeta"
+    RMETA = "rmeta"
 
     # Function Keys F1 - F12
     F1 = "f1"
@@ -120,21 +151,68 @@ class KeyboardKey(str, Enum):
 
     # Mapping for different backends
     _VNC_MAPPING = {
-        WIN: "super",
+        META: "meta",
+        LMETA: "meta",
+        RMETA: "meta",
         CTRL: "control",
-        # (Additional VNC-specific mappings can be added here)
+        LCTRL: "control",
+        RCTRL: "control",
+        ALT: "alt",
+        LALT: "alt",
+        RALT: "alt",
     }
 
     _PYAUTOGUI_MAPPING = {
-        WIN: "win",
+        META: "meta",
+        LMETA: "meta",
+        RMETA: "meta",
         CTRL: "ctrl",
-        # (Additional PyAutoGUI-specific mappings can be added here)
+        LCTRL: "ctrl",
+        RCTRL: "ctrl",
+        ALT: "alt",
+        LALT: "alt",
+        RALT: "alt",
     }
 
     _E2B_MAPPING = {
-        WIN: "super",
+        META: "meta",
+        LMETA: "meta",
+        RMETA: "meta",
         CTRL: "control",
-        # (Additional E2B-specific mappings can be added here)
+        LCTRL: "control",
+        RCTRL: "control",
+        ALT: "alt",
+        LALT: "alt",
+        RALT: "alt",
+    }
+
+    _PYNPUT_MAPPING = {
+        ENTER: PynputKey.enter,
+        TAB: PynputKey.tab,
+        SPACE: PynputKey.space,
+        BACKSPACE: PynputKey.backspace,
+        DELETE: PynputKey.delete,
+        ESCAPE: PynputKey.esc,
+        HOME: PynputKey.home,
+        END: PynputKey.end,
+        PAGE_UP: PynputKey.page_up,
+        PAGE_DOWN: PynputKey.page_down,
+        UP: PynputKey.up,
+        DOWN: PynputKey.down,
+        LEFT: PynputKey.left,
+        RIGHT: PynputKey.right,
+        SHIFT: PynputKey.shift,
+        SHIFT: PynputKey.shift_l,
+        SHIFT: PynputKey.shift_r,
+        LCTRL: PynputKey.ctrl_l,
+        RCTRL: PynputKey.ctrl_r,
+        CTRL: PynputKey.ctrl,
+        LALT: PynputKey.alt_l,
+        RALT: PynputKey.alt_r,
+        ALT: PynputKey.alt,
+        LMETA: PynputKey.cmd_l,
+        RMETA: PynputKey.cmd_r,
+        META: PynputKey.cmd,
     }
 
     @classmethod
@@ -148,11 +226,31 @@ class KeyboardKey(str, Enum):
         return cls._PYAUTOGUI_MAPPING.get(key, key)
 
     @classmethod
+    def to_pynput(cls, key: Union["KeyboardKey", str]) -> str:
+        """Convert a standard key to Pynput format"""
+        return cls._PYNPUT_MAPPING.get(key, key)
+
+    @classmethod
     def to_e2b(cls, key: Union["KeyboardKey", str]) -> str:
         """Convert a standard key to E2B format.
-        If no mapping is provided in _E2B_MAPPING, defaults to returning the key itself."""
+        If no mapping is provided in _E2B_MAPPING, defaults to returning the key itself.
+        """
         key_val = key.value if isinstance(key, cls) else key
         return cls._E2B_MAPPING.get(key_val, key_val)
+
+    @classmethod
+    def from_pynput(cls, key) -> "KeyboardKey":
+        # Find the KeyboardKey enum value by looking up the pynput key in the mapping
+        for enum_key, pynput_key in cls._PYNPUT_MAPPING.items():
+            if pynput_key == key:
+                return enum_key
+        # Handle character keys
+        if isinstance(key, PynputKeyCode) and key.char:
+            try:
+                return cls(key.char.lower())
+            except ValueError:
+                return None
+        return None
 
     @classmethod
     def is_valid_key(cls, key: Union["KeyboardKey", str]) -> bool:
@@ -185,7 +283,7 @@ class MouseStateObservation(BaseComputerObservation):
     observation_type: Literal[ComputerObservationType.MOUSE_STATE] = (
         ComputerObservationType.MOUSE_STATE
     )
-    buttons: dict[MouseButton, bool] # 0=released, 1=pressed
+    buttons: dict[MouseButton, bool]  # 0=released, 1=pressed
     position: tuple[int, int]
 
 
@@ -193,7 +291,7 @@ class KeyboardStateObservation(BaseComputerObservation):
     observation_type: Literal[ComputerObservationType.KEYBOARD_STATE] = (
         ComputerObservationType.KEYBOARD_STATE
     )
-    keys: dict[KeyboardKey, bool] # 0=released, 1=pressed
+    keys: dict[KeyboardKey, bool]  # 0=released, 1=pressed
 
 
 class ComputerObservation(BaseModel):
@@ -274,7 +372,9 @@ class KeyboardKeyReleaseAction(BaseComputerAction):
 
 
 class KeyboardHotkeyAction(BaseComputerAction):
-    action_type: Literal[ComputerActionType.KEYBOARD_HOTKEY] = ComputerActionType.KEYBOARD_HOTKEY
+    action_type: Literal[ComputerActionType.KEYBOARD_HOTKEY] = (
+        ComputerActionType.KEYBOARD_HOTKEY
+    )
     keys: List[KeyboardKey]
 
 
