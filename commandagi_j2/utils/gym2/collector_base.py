@@ -5,7 +5,7 @@ from commandagi_j2.utils.gym2.env_base import Observation, Action
 
 class BaseEpisode(ABC):
     """Abstract base class for an episode of interaction.
-    
+
     >>> from commandagi_j2.utils.gym2.collector_base import BaseEpisode
     >>> issubclass(BaseEpisode, ABC)
     True
@@ -16,7 +16,7 @@ class BaseEpisode(ABC):
 
 class BaseCollector(ABC):
     """Abstract base class for data collection during environment interaction.
-    
+
     >>> from commandagi_j2.utils.gym2.collector_base import BaseCollector
     >>> issubclass(BaseCollector, ABC)
     True
@@ -25,7 +25,7 @@ class BaseCollector(ABC):
     @abstractmethod
     def reset(self) -> None:
         """Reset the collector's state for a new episode.
-        
+
         >>> class MockCollector(BaseCollector):
         ...     def reset(self): pass
         ...     def add_step(self, observation, action, reward, info): pass
@@ -50,7 +50,7 @@ class BaseCollector(ABC):
             action (Action): The action taken
             reward (float): The reward received
             info (Dict[str, Any]): Additional information from the environment
-            
+
         >>> class MockCollector(BaseCollector):
         ...     def reset(self): pass
         ...     def add_step(self, observation, action, reward, info): pass
@@ -66,7 +66,7 @@ class BaseCollector(ABC):
 
         Args:
             episode_num (int): The episode number/identifier
-            
+
         >>> class MockCollector(BaseCollector):
         ...     def reset(self): pass
         ...     def add_step(self, observation, action, reward, info): pass

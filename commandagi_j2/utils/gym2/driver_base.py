@@ -7,7 +7,7 @@ from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
 
 class BaseDriver(ABC):
     """Abstract base class for driving agent-environment interactions.
-    
+
     >>> from commandagi_j2.utils.gym2.driver_base import BaseDriver
     >>> issubclass(BaseDriver, ABC)
     True
@@ -26,7 +26,7 @@ class BaseDriver(ABC):
             env (Optional[Env]): The environment to use
             agent (Optional[BaseAgent]): The agent to use
             collector (Optional[BaseCollector]): The data collector to use
-            
+
         >>> class MockDriver(BaseDriver):
         ...     def __init__(self, env=None, agent=None, collector=None): pass
         ...     def run_episode(self, max_steps=100, episode_num=None, return_episode=False): pass
@@ -51,7 +51,7 @@ class BaseDriver(ABC):
 
         Returns:
             Union[float, Episode]: Either the total reward or full episode data
-            
+
         >>> class MockDriver(BaseDriver):
         ...     def __init__(self, env=None, agent=None, collector=None): pass
         ...     def run_episode(self, max_steps=100, episode_num=None, return_episode=False): return 1.0
@@ -65,7 +65,7 @@ class BaseDriver(ABC):
     @abstractmethod
     def reset(self) -> None:
         """Reset the driver's state.
-        
+
         >>> class MockDriver(BaseDriver):
         ...     def __init__(self, env=None, agent=None, collector=None): pass
         ...     def run_episode(self, max_steps=100, episode_num=None, return_episode=False): pass

@@ -14,15 +14,13 @@ import json
 import os
 import time
 
-# Import agents & environments
 from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
 from commandagi_j2.envs.base_vnc_docker_computer_env import VNCDockerComputerEnv
 from commandagi_j2.envs.e2b_desktop_env import E2BDesktopEnv
 from commandagi_j2.envs.local_pynput_computer_env import LocalPynputComputeEnv
-
-# Import driver, trainer and evaluator
-from commandagi_j2.utils.basic_driver import BasicDriver
 from commandagi_j2.agents.trainer import Trainer
+from commandagi_j2.utils.gym2.basic_driver import BasicDriver
+from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
 from commandagi_j2.evals.instruction_following_evaluator import (
     InstructionFollowingEvaluator,
 )
@@ -262,6 +260,50 @@ def main():
 
     args = parser.parse_args()
     args.func(args)
+
+
+def run_tests() -> None:
+    """
+    Run all pytests in the tests/ directory.
+    """
+    import sys
+    import pytest
+
+    # Explicitly run pytest in the 'tests/' subdirectory.
+    sys.exit(pytest.main(["tests/"]))
+
+
+def run_doctests() -> None:
+    """
+    Run doctests across the repository.
+    """
+    import sys
+    import pytest
+
+    # Run pytest in doctest mode across the entire repo.
+    # (Assumes your code files are doctest-enabled.)
+    sys.exit(pytest.main(["--doctest-modules", "."]))
+
+
+def run_format() -> None:
+    """
+    Format the repository code by first running autoflake to remove unused import lines,
+    and then using black to format the code.
+    """
+    import subprocess
+    import sys
+
+    commands = [
+        ["autoflake", "--in-place", "--recursive", "--remove-all-unused-imports", "."],
+        ["black", "."],
+    ]
+
+    for cmd in commands:
+        print("Running command:", " ".join(cmd))
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            print(f"Command {' '.join(cmd)} failed with return code {result.returncode}")
+            sys.exit(result.returncode)
 
 
 if __name__ == "__main__":

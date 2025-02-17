@@ -12,7 +12,7 @@ from commandagi_j2.utils.gym2.in_memory_collector import (
 
 class BasicDriver(BaseDriver):
     """Basic implementation of the BaseDriver for running agent-environment interactions.
-    
+
     >>> from commandagi_j2.utils.gym2.basic_driver import BasicDriver
     >>> driver = BasicDriver(None, None)
     >>> isinstance(driver, BaseDriver)
@@ -31,7 +31,7 @@ class BasicDriver(BaseDriver):
             env (Optional[Env]): The environment to use
             agent (Optional[BaseAgent]): The agent to use
             collector (Optional[BaseCollector]): The data collector to use, defaults to InMemoryDataCollector
-            
+
         >>> from commandagi_j2.utils.gym2.in_memory_collector import InMemoryDataCollector
         >>> driver = BasicDriver(None, None)
         >>> isinstance(driver.collector, InMemoryDataCollector)
@@ -43,7 +43,7 @@ class BasicDriver(BaseDriver):
 
     def reset(self) -> None:
         """Reset the driver's state including environment, agent and collector.
-        
+
         >>> from commandagi_j2.utils.gym2.env_base import Env
         >>> from commandagi_j2.utils.gym2.base_agent import BaseAgent
         >>> class MockEnv(Env):
@@ -76,7 +76,7 @@ class BasicDriver(BaseDriver):
 
         Returns:
             Union[float, BaseEpisode]: Either the total reward or full episode data
-            
+
         >>> from commandagi_j2.utils.gym2.env_base import Env
         >>> from commandagi_j2.utils.gym2.base_agent import BaseAgent
         >>> class MockEnv(Env):

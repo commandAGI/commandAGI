@@ -11,7 +11,7 @@ Mandate = NewType("Mandate", str)
 
 class Env(ABC):
     """Abstract base class for environments.
-    
+
     >>> from commandagi_j2.utils.gym2.env_base import Env
     >>> issubclass(Env, ABC)
     True
@@ -19,7 +19,7 @@ class Env(ABC):
 
     def reset(self) -> Any:
         """Reset the environment and return initial observation.
-        
+
         >>> class MockEnv(Env):
         ...     def _get_observation(self): return "initial_obs"
         ...     def step(self, action): pass
@@ -32,7 +32,7 @@ class Env(ABC):
 
     def close(self):
         """Clean up environment resources.
-        
+
         >>> class MockEnv(Env):
         ...     def _get_observation(self): return "obs"
         ...     def step(self, action): pass
@@ -54,7 +54,7 @@ class Env(ABC):
             reward (float): Reward from the action
             done (bool): Whether episode has ended
             info (Dict): Additional information
-            
+
         >>> class MockEnv(Env):
         ...     def _get_observation(self): return "obs"
         ...     def step(self, action): return ("next_obs", 1.0, False, {})
@@ -75,7 +75,7 @@ class Env(ABC):
     @abstractmethod
     def close(self):
         """Clean up environment resources.
-        
+
         >>> class MockEnv(Env):
         ...     def _get_observation(self): return "obs"
         ...     def step(self, action): pass

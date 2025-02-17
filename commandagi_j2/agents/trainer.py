@@ -1,5 +1,5 @@
 from typing import List, Optional
-from commandagi_j2.utils.basic_driver import BasicDriver
+from commandagi_j2.utils.gym2.basic_driver import BasicDriver
 from commandagi_j2.utils.gym2.trainer_base import BaseTrainer
 from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
 

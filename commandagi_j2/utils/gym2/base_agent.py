@@ -4,7 +4,7 @@ from commandagi_j2.utils.gym2.env_base import Observation
 
 class BaseAgent(ABC):
     """Base class for all agents in the environment.
-    
+
     >>> from commandagi_j2.utils.gym2.base_agent import BaseAgent
     >>> issubclass(BaseAgent, ABC)
     True
@@ -13,7 +13,7 @@ class BaseAgent(ABC):
     @abstractmethod
     def reset(self) -> None:
         """Reset the agent's internal state.
-        
+
         >>> class MockAgent(BaseAgent):
         ...     def reset(self): pass
         ...     def act(self, observation): pass
@@ -32,7 +32,7 @@ class BaseAgent(ABC):
 
         Returns:
             str: The chosen action as a string.
-            
+
         >>> class MockAgent(BaseAgent):
         ...     def reset(self): pass
         ...     def act(self, observation): return "test_action"
@@ -49,7 +49,7 @@ class BaseAgent(ABC):
 
         Args:
             reward (float): The reward obtained from the last action.
-            
+
         >>> class MockAgent(BaseAgent):
         ...     def reset(self): pass
         ...     def act(self, observation): pass

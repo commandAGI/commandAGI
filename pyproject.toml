@@ -2,11 +2,9 @@
 name = "commandagi-j2"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Jacob Valdez",email = "jacobfv123@gmail.com"}
-]
+authors = [{ name = "Jacob Valdez", email = "jacobfv123@gmail.com" }]
 readme = "README.md"
-requires-python = ">=3.12,<4.0" 
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "pyautogui (>=0.9.54,<0.10.0)",
     "mss (>=10.0.0,<11.0.0)",
@@ -24,7 +22,7 @@ dependencies = [
     "vncdotool (>=1.2.0,<2.0.0)",
     "typer (>=0.15.1,<0.16.0)",
     "pydantic (>=2.10.6,<3.0.0)",
-    "pynput (>=1.7.7,<2.0.0)"
+    "pynput (>=1.7.7,<2.0.0)",
 ]
 
 # [tool.poetry]
@@ -39,4 +37,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
+autoflake = "^2.3.1"
+pytest = "^8.3.4"
 
+
+[tool.poetry.scripts]
+run-tests = "commandagi_j2.cli:run_tests"
+run-doctests = "commandagi_j2.cli:run_doctests"
+format-code = "commandagi_j2.cli:run_format"
