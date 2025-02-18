@@ -21,16 +21,17 @@ from enum import Enum
 import types  # for types.UnionType
 
 # Define generic type variables for spaces.
-T = TypeVar("T")   # Base type for a given space
-E = TypeVar("E")   # Element type (e.g. for ListSpace)
-K = TypeVar("K")   # Key type for dictionaries (e.g. in DictSpace)
-V = TypeVar("V")   # Value type for dictionaries (e.g. in DictSpace)
+T = TypeVar("T")  # Base type for a given space
+E = TypeVar("E")  # Element type (e.g. for ListSpace)
+K = TypeVar("K")  # Key type for dictionaries (e.g. in DictSpace)
+V = TypeVar("V")  # Value type for dictionaries (e.g. in DictSpace)
 SM = TypeVar("SM", bound=BaseModel)  # For StructuredSpace models
+
 
 class Space(BaseModel, ABC, Generic[T]):
     """
     Abstract base class for observation and action spaces.
-    
+
     The generic parameter (T) is optional: you can use a Space without specifying a type,
     though specifying it adds extra type safety when you use your spaces.
     """
@@ -91,7 +92,7 @@ class IntegerSpace(Space[int]):
     """Space for integer values with optional bounds.
 
     You can simply use IntegerSpace() without specifying the type parameter.
-    
+
     >>> space = IntegerSpace(min_value=0, max_value=10)
     >>> space.contains(5)
     True
@@ -119,8 +120,12 @@ class IntegerSpace(Space[int]):
         return True
 
     def sample(self) -> int:
-        min_val = self.min_value if self.min_value is not None else self.sample_default_min
-        max_val = self.max_value if self.max_value is not None else self.sample_default_max
+        min_val = (
+            self.min_value if self.min_value is not None else self.sample_default_min
+        )
+        max_val = (
+            self.max_value if self.max_value is not None else self.sample_default_max
+        )
         return randint(min_val, max_val)
 
 
@@ -152,8 +157,12 @@ class FloatSpace(Space[float]):
         return True
 
     def sample(self) -> float:
-        min_val = self.min_value if self.min_value is not None else self.sample_default_min
-        max_val = self.max_value if self.max_value is not None else self.sample_default_max
+        min_val = (
+            self.min_value if self.min_value is not None else self.sample_default_min
+        )
+        max_val = (
+            self.max_value if self.max_value is not None else self.sample_default_max
+        )
         return uniform(min_val, max_val)
 
 
@@ -205,8 +214,16 @@ class StringSpace(Space[str]):
         return all(c in self.allowed_chars for c in x)
 
     def sample(self) -> str:
-        min_len = self.min_length if self.min_length is not None else self.sample_default_min_length
-        max_len = self.max_length if self.max_length is not None else self.sample_default_max_length
+        min_len = (
+            self.min_length
+            if self.min_length is not None
+            else self.sample_default_min_length
+        )
+        max_len = (
+            self.max_length
+            if self.max_length is not None
+            else self.sample_default_max_length
+        )
         length = randint(min_len, max_len)
         chars = list(self.allowed_chars)
         return "".join(choice(chars) for _ in range(length))
@@ -216,7 +233,7 @@ class DictSpace(Space[Dict[K, V]], Generic[K, V]):
     """Space for dictionary values with specified subspaces for each key.
 
     The generic types for keys and values are optional, but used here for added type safety.
-    
+
     >>> from enum import Enum
     >>> class MouseButton(Enum):
     ...     LEFT = "left"
@@ -269,7 +286,7 @@ class ListSpace(Space[List[E]], Generic[E]):
     """Space for list values with a specified subspace for elements.
 
     The generic type for the element is optional; use this if you want extra type hints.
-    
+
     >>> int_space = IntegerSpace(min_value=0, max_value=10)
     >>> space = ListSpace(subspace=int_space, min_length=2, max_length=4)
     >>> space.contains([1, 2, 3])
@@ -292,13 +309,62 @@ class ListSpace(Space[List[E]], Generic[E]):
         return all(self.subspace.contains(item) for item in x)
 
     def sample(self) -> List[E]:
-        min_len = self.min_length if self.min_length is not None else self.sample_default_min_length
-        max_len = self.max_length if self.max_length is not None else self.sample_default_max_length
+        min_len = (
+            self.min_length
+            if self.min_length is not None
+            else self.sample_default_min_length
+        )
+        max_len = (
+            self.max_length
+            if self.max_length is not None
+            else self.sample_default_max_length
+        )
         length = randint(min_len, max_len)
         return [self.subspace.sample() for _ in range(length)]
 
 
-class UnionSpace(Space[Any]):
+class SetSpace(Space[Set[E]], Generic[E]):
+    """Space for set values with a specified subspace for elements.
+
+    The generic type for the element is optional; use this if you want extra type hints.
+
+    >>> int_space = IntegerSpace(min_value=0, max_value=10)
+    >>> space = SetSpace(subspace=int_space, min_length=2, max_length=4)
+    >>> space.contains({1, 2, 3})
+    True
+    """
+
+    subspace: Space[E]
+    min_length: Optional[int] = None
+    max_length: Optional[int] = None
+    sample_default_min_length: int = 0
+    sample_default_max_length: int = 10
+
+    def contains(self, x: Set[E]) -> bool:
+        if not isinstance(x, set):
+            return False
+        if self.min_length is not None and len(x) < self.min_length:
+            return False
+        if self.max_length is not None and len(x) > self.max_length:
+            return False
+        return all(self.subspace.contains(item) for item in x)
+
+    def sample(self) -> Set[E]:
+        min_len = (
+            self.min_length
+            if self.min_length is not None
+            else self.sample_default_min_length
+        )
+        max_len = (
+            self.max_length
+            if self.max_length is not None
+            else self.sample_default_max_length
+        )
+        length = randint(min_len, max_len)
+        return set(self.subspace.sample() for _ in range(length))
+
+
+class UnionSpace(Space[T], Generic[T]):
     """Space that accepts values from any of its component spaces.
 
     >>> int_space = IntegerSpace(min_value=0, max_value=10)
@@ -308,12 +374,12 @@ class UnionSpace(Space[Any]):
     True
     """
 
-    spaces: List[Space[Any]]
+    spaces: List[Space[T]]
 
-    def contains(self, x: Any) -> bool:
+    def contains(self, x: T) -> bool:
         return any(space.contains(x) for space in self.spaces)
 
-    def sample(self) -> Any:
+    def sample(self) -> T:
         return choice(self.spaces).sample()
 
 
@@ -372,6 +438,9 @@ class StructuredSpace(Space[SM], Generic[SM]):
                 non_none_type = next(t for t in args if t is not type(None))
                 return ("optional", non_none_type)
             return ("union", args)
+        elif origin is set:
+            (elt,) = get_args(type_)
+            return ("set", elt)
         elif origin is list:
             (elt,) = get_args(type_)
             return ("list", elt)
@@ -399,10 +468,14 @@ class StructuredSpace(Space[SM], Generic[SM]):
         if kind == "optional":
             inner_type = normalized[1]
             inner_space = self._create_space_for_type(inner_type)
-            return UnionSpace(spaces=[inner_space, SingletonSpace(value=None)])
+            singleton_space = SingletonSpace(value=None)
+            return UnionSpace(spaces=[inner_space, singleton_space])
         elif kind == "union":
             args = normalized[1]
             return UnionSpace(spaces=[self._create_space_for_type(t) for t in args])
+        elif kind == "set":
+            element_type = normalized[1]
+            return SetSpace(subspace=self._create_space_for_type(element_type))
         elif kind == "list":
             element_type = normalized[1]
             return ListSpace(subspace=self._create_space_for_type(element_type))
@@ -414,21 +487,23 @@ class StructuredSpace(Space[SM], Generic[SM]):
         elif kind == "dict":
             key_type, value_type = normalized[1], normalized[2]
             if key_type is str:
-                return DictSpace(spaces={})
+                return DictSpace[str, Any](spaces={})
             elif isinstance(key_type, type) and issubclass(key_type, Enum):
                 keys = list(key_type)
-                spaces_dict = {key: self._create_space_for_type(value_type) for key in keys}
-                return DictSpace(spaces=spaces_dict)
+                spaces_dict = {
+                    key: self._create_space_for_type(value_type) for key in keys
+                }
+                return DictSpace[str, Any](spaces=spaces_dict)
             else:
                 raise ValueError(f"Dict keys must be strings or Enum, got {key_type}")
         elif kind == "literal":
-            return DiscreteSpace(values=normalized[1])
+            return DiscreteSpace[Any](values=normalized[1])
         elif kind == "scalar":
             base = normalized[1]
             if isinstance(base, type) and issubclass(base, BaseModel):
-                return StructuredSpace(model=base)
+                return StructuredSpace[Any](model=base)
             if isinstance(base, type) and issubclass(base, Enum):
-                return DiscreteSpace(values=list(base))
+                return DiscreteSpace[Any](values=list(base))
             if base is str:
                 return StringSpace()
             if base is int:
@@ -451,5 +526,8 @@ class StructuredSpace(Space[SM], Generic[SM]):
         return True
 
     def sample(self) -> SM:
-        sample_data = {field_name: space.sample() for field_name, space in self._field_spaces.items()}
+        sample_data = {
+            field_name: space.sample()
+            for field_name, space in self._field_spaces.items()
+        }
         return self.model(**sample_data)
