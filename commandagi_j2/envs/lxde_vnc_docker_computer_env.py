@@ -43,19 +43,3 @@ class LXDEVNCDockerComputerEnv(VNCDockerComputerEnv):
         except Exception as e:
             print(f"Error in get_mouse_state: {e}")
             return None
-
-    def _vnc_hotkey(self, modifier: str, key: str):
-        """
-        Simulate a hotkey press using the VNC connection.
-        Presses the modifier (e.g. "super") and the key (e.g. "d") sequentially.
-        This can be used for LXDE-specific shortcuts (e.g. Show Desktop).
-        """
-        vnc_modifier = KeyboardKey.to_vnc(modifier)
-        vnc_key = KeyboardKey.to_vnc(key)
-        self.vnc.keyDown(vnc_modifier)
-        time.sleep(0.1)
-        self.vnc.keyDown(vnc_key)
-        time.sleep(0.1)
-        self.vnc.keyUp(vnc_key)
-        time.sleep(0.1)
-        self.vnc.keyUp(vnc_modifier)

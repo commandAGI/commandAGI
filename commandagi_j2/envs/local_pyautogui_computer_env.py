@@ -23,6 +23,8 @@ from commandagi_j2.envs.computer_types import (
     MouseButtonDownAction,
     MouseButtonUpAction,
 )
+import io
+import base64
 
 
 class LocalPyAutoGUIComputeEnv(BaseComputerEnv):
@@ -44,12 +46,13 @@ class LocalPyAutoGUIComputeEnv(BaseComputerEnv):
         self.sct.close()
 
     def get_screenshot(self) -> ScreenshotObservation:
-        """Return a screenshot of the current state using mss."""
-        output_path = os.path.join(self.temp_dir, "screenshot.png")
+        """Return a screenshot of the current state as base64 encoded string."""
         screenshot = self.sct.grab(self.sct.monitors[1])  # Primary monitor
-        Image.frombytes("RGB", screenshot.size, screenshot.rgb).save(output_path)
-        self.last_screenshot = output_path
-        return ScreenshotObservation(screenshot=output_path)
+        img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
+        buffer = io.BytesIO()
+        img.save(buffer, format="PNG")
+        b64_screenshot = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        return ScreenshotObservation(screenshot=b64_screenshot)
 
     def get_mouse_state(self) -> MouseStateObservation:
         """Return dummy mouse state using pyautogui (pyautogui doesn't provide state, so we return a default value)."""

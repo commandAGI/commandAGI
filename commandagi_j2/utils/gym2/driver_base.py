@@ -7,20 +7,19 @@ from commandagi_j2.utils.gym2.callbacks import Callback
 
 ObsType = TypeVar('ObsType')
 ActType = TypeVar('ActType')
-InfoType = TypeVar('InfoType', bound=Dict[str, Any])
 
-class BaseDriver(Generic[ObsType, ActType, InfoType], ABC):
+class BaseDriver(Generic[ObsType, ActType], ABC):
     """Abstract base class for driving agent-environment interactions."""
 
-    episode_cls: Type[BaseEpisode[ObsType, ActType, InfoType]]
+    episode_cls: Type[BaseEpisode[ObsType, ActType]]
     callbacks: List[Callback]
 
     @abstractmethod
     def __init__(
         self,
-        env: Optional[Env[ObsType, ActType, InfoType]] = None,
+        env: Optional[Env[ObsType, ActType]] = None,
         agent: Optional[BaseAgent[ObsType, ActType]] = None,
-        episode_cls: Type[BaseEpisode[ObsType, ActType, InfoType]] = None,
+        episode_cls: Type[BaseEpisode[ObsType, ActType]] = None,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the driver.
@@ -38,7 +37,7 @@ class BaseDriver(Generic[ObsType, ActType, InfoType], ABC):
         max_steps: int = 100,
         episode_name: Optional[str] = None,
         return_episode: bool = False,
-    ) -> Union[float, BaseEpisode[ObsType, ActType, InfoType]]:
+    ) -> Union[float, BaseEpisode[ObsType, ActType]]:
         """Run a single episode.
 
         Args:

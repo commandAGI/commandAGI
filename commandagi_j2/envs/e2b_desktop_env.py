@@ -1,6 +1,7 @@
 import os
 import subprocess
 import tempfile
+import base64
 from e2b_desktop import Sandbox
 from commandagi_j2.envs.base_computer_env import BaseComputerEnv
 from commandagi_j2.envs.computer_types import (
@@ -48,12 +49,10 @@ class E2BDesktopEnv(BaseComputerEnv):
         self.desktop = None  # E2B sandbox automatically closes when object is destroyed
 
     def get_screenshot(self) -> ScreenshotObservation:
-        """Return a screenshot of the current state using Sandbox."""
+        """Return a screenshot of the current state as base64 encoded string."""
         screenshot = self.desktop.take_screenshot()
-        output_path = os.path.join(tempfile.gettempdir(), "e2b_screenshot.png")
-        with open(output_path, "wb") as f:
-            f.write(screenshot)
-        return ScreenshotObservation(screenshot=output_path)
+        b64_screenshot = base64.b64encode(screenshot).decode('utf-8')
+        return ScreenshotObservation(screenshot=b64_screenshot)
 
     def get_mouse_state(self) -> MouseStateObservation:
         """Return dummy mouse state as Sandbox does not provide real-time states."""

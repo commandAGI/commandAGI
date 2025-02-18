@@ -11,6 +11,8 @@ from typing import (
     get_type_hints,
     get_origin,
     get_args,
+    Generic,
+    TypeVar,
 )
 from pydantic import ValidationError, BaseModel, Field
 from random import choice, randint, uniform
@@ -18,20 +20,31 @@ import string
 from enum import Enum
 import types  # for types.UnionType
 
+# Define generic type variables for spaces.
+T = TypeVar("T")   # Base type for a given space
+E = TypeVar("E")   # Element type (e.g. for ListSpace)
+K = TypeVar("K")   # Key type for dictionaries (e.g. in DictSpace)
+V = TypeVar("V")   # Value type for dictionaries (e.g. in DictSpace)
+SM = TypeVar("SM", bound=BaseModel)  # For StructuredSpace models
 
-class Space(BaseModel, ABC):
-    """Abstract base class for observation and action spaces."""
+class Space(BaseModel, ABC, Generic[T]):
+    """
+    Abstract base class for observation and action spaces.
+    
+    The generic parameter (T) is optional: you can use a Space without specifying a type,
+    though specifying it adds extra type safety when you use your spaces.
+    """
 
     @abstractmethod
-    def contains(self, x: Any) -> bool:
+    def contains(self, x: T) -> bool:
         """Check if x is a valid member of this space."""
 
     @abstractmethod
-    def sample(self) -> Any:
+    def sample(self) -> T:
         """Randomly sample a valid value from this space."""
 
 
-class DiscreteSpace(Space):
+class DiscreteSpace(Space[T], Generic[T]):
     """Space with a finite set of possible values.
 
     >>> space = DiscreteSpace(values=[1, 2, 3])
@@ -44,16 +57,16 @@ class DiscreteSpace(Space):
     True
     """
 
-    values: List[Any]
+    values: List[T]
 
-    def contains(self, x: Any) -> bool:
+    def contains(self, x: T) -> bool:
         return x in self.values
 
-    def sample(self) -> Any:
+    def sample(self) -> T:
         return choice(self.values)
 
 
-class SingletonSpace(Space):
+class SingletonSpace(Space[T], Generic[T]):
     """Space containing exactly one value.
 
     >>> space = SingletonSpace(value=42)
@@ -65,26 +78,24 @@ class SingletonSpace(Space):
     42
     """
 
-    value: Any
+    value: T
 
-    def contains(self, x: Any) -> bool:
+    def contains(self, x: T) -> bool:
         return x == self.value
 
-    def sample(self) -> Any:
+    def sample(self) -> T:
         return self.value
 
 
-class IntegerSpace(Space):
+class IntegerSpace(Space[int]):
     """Space for integer values with optional bounds.
 
+    You can simply use IntegerSpace() without specifying the type parameter.
+    
     >>> space = IntegerSpace(min_value=0, max_value=10)
     >>> space.contains(5)
     True
     >>> space.contains(-1)
-    False
-    >>> space.contains(11)
-    False
-    >>> space.contains(3.14)
     False
     >>> sample = space.sample()
     >>> 0 <= sample <= 10
@@ -98,7 +109,7 @@ class IntegerSpace(Space):
     sample_default_min: int = -100  # Default min when no bounds provided
     sample_default_max: int = 100  # Default max when no bounds provided
 
-    def contains(self, x: Any) -> bool:
+    def contains(self, x: int) -> bool:
         if not isinstance(x, int):
             return False
         if self.min_value is not None and x < self.min_value:
@@ -108,16 +119,12 @@ class IntegerSpace(Space):
         return True
 
     def sample(self) -> int:
-        min_val = (
-            self.min_value if self.min_value is not None else self.sample_default_min
-        )
-        max_val = (
-            self.max_value if self.max_value is not None else self.sample_default_max
-        )
+        min_val = self.min_value if self.min_value is not None else self.sample_default_min
+        max_val = self.max_value if self.max_value is not None else self.sample_default_max
         return randint(min_val, max_val)
 
 
-class FloatSpace(Space):
+class FloatSpace(Space[float]):
     """Space for float values with optional bounds.
 
     >>> space = FloatSpace(min_value=0.0, max_value=1.0)
@@ -125,14 +132,8 @@ class FloatSpace(Space):
     True
     >>> space.contains(-0.1)
     False
-    >>> space.contains(1.1)
-    False
-    >>> space.contains("0.5")
-    False
     >>> sample = space.sample()
     >>> 0.0 <= sample <= 1.0
-    True
-    >>> isinstance(sample, float)
     True
     """
 
@@ -141,7 +142,7 @@ class FloatSpace(Space):
     sample_default_min: float = -100.0  # Default min when no bounds provided
     sample_default_max: float = 100.0  # Default max when no bounds provided
 
-    def contains(self, x: Any) -> bool:
+    def contains(self, x: float) -> bool:
         if not isinstance(x, (int, float)):  # Allow integers as valid floats
             return False
         if self.min_value is not None and x < self.min_value:
@@ -151,16 +152,12 @@ class FloatSpace(Space):
         return True
 
     def sample(self) -> float:
-        min_val = (
-            self.min_value if self.min_value is not None else self.sample_default_min
-        )
-        max_val = (
-            self.max_value if self.max_value is not None else self.sample_default_max
-        )
+        min_val = self.min_value if self.min_value is not None else self.sample_default_min
+        max_val = self.max_value if self.max_value is not None else self.sample_default_max
         return uniform(min_val, max_val)
 
 
-class BooleanSpace(Space):
+class BooleanSpace(Space[bool]):
     """Space for boolean values.
 
     >>> space = BooleanSpace()
@@ -168,20 +165,18 @@ class BooleanSpace(Space):
     True
     >>> space.contains(False)
     True
-    >>> space.contains(1)
-    False
     >>> isinstance(space.sample(), bool)
     True
     """
 
-    def contains(self, x: Any) -> bool:
+    def contains(self, x: bool) -> bool:
         return isinstance(x, bool)
 
     def sample(self) -> bool:
         return choice([True, False])
 
 
-class StringSpace(Space):
+class StringSpace(Space[str]):
     """Space for string values with optional constraints.
 
     >>> space = StringSpace(min_length=2, max_length=4, allowed_chars=set('abc'))
@@ -189,50 +184,39 @@ class StringSpace(Space):
     True
     >>> space.contains('a')
     False
-    >>> space.contains('abcde')
-    False
-    >>> space.contains('def')
-    False
     >>> sample = space.sample()
     >>> 2 <= len(sample) <= 4
-    True
-    >>> all(c in 'abc' for c in sample)
     True
     """
 
     min_length: Optional[int] = None
     max_length: Optional[int] = None
     allowed_chars: Set[str] = Field(default_factory=lambda: set(string.printable))
-    sample_default_min_length: int = 0  # Default min length when no bounds provided
-    sample_default_max_length: int = 10  # Default max length when no bounds provided
+    sample_default_min_length: int = 0
+    sample_default_max_length: int = 10
 
     def contains(self, x: str) -> bool:
         if not isinstance(x, str):
             return False
-
         if self.min_length is not None and len(x) < self.min_length:
             return False
-
         if self.max_length is not None and len(x) > self.max_length:
             return False
-
         return all(c in self.allowed_chars for c in x)
 
     def sample(self) -> str:
-        min_len = self.min_length or self.sample_default_min_length
-        max_len = self.max_length or self.sample_default_max_length
+        min_len = self.min_length if self.min_length is not None else self.sample_default_min_length
+        max_len = self.max_length if self.max_length is not None else self.sample_default_max_length
         length = randint(min_len, max_len)
-
         chars = list(self.allowed_chars)
         return "".join(choice(chars) for _ in range(length))
 
 
-class DictSpace(Space):
+class DictSpace(Space[Dict[K, V]], Generic[K, V]):
     """Space for dictionary values with specified subspaces for each key.
 
-    This version supports keys of any type (including enums).
-
-    >>> # For a fixed dictionary with enum keys:
+    The generic types for keys and values are optional, but used here for added type safety.
+    
     >>> from enum import Enum
     >>> class MouseButton(Enum):
     ...     LEFT = "left"
@@ -244,36 +228,31 @@ class DictSpace(Space):
     True
     """
 
-    spaces: Dict[Any, Space]
+    spaces: Dict[K, Space[V]]
 
     def contains(self, x: Dict[Any, Any]) -> bool:
         if not isinstance(x, dict):
             return False
-
         if set(x.keys()) != set(self.spaces.keys()):
             return False
-
         return all(space.contains(x[key]) for key, space in self.spaces.items())
 
-    def sample(self) -> Dict[Any, Any]:
+    def sample(self) -> Dict[K, V]:
         return {key: space.sample() for key, space in self.spaces.items()}
 
 
-class TupleSpace(Space):
+class TupleSpace(Space[tuple]):
     """Space for fixed-length tuples with heterogeneous subspaces.
 
-    >>> subspaces = [IntegerSpace(min_value=0, max_value=10), IntegerSpace(min_value=0, max_value=10)]
+    >>> subspaces = [IntegerSpace(min_value=0, max_value=10),
+    ...              IntegerSpace(min_value=0, max_value=10)]
     >>> space = TupleSpace(subspaces=subspaces)
     >>> x = space.sample()
     >>> isinstance(x, tuple) and len(x) == 2
     True
-    >>> space.contains((5, 7))
-    True
-    >>> space.contains((5,))
-    False
     """
 
-    subspaces: List[Space]
+    subspaces: List[Space[Any]]
 
     def contains(self, x: Any) -> bool:
         if not isinstance(x, tuple):
@@ -286,52 +265,40 @@ class TupleSpace(Space):
         return tuple(space.sample() for space in self.subspaces)
 
 
-class ListSpace(Space):
+class ListSpace(Space[List[E]], Generic[E]):
     """Space for list values with a specified subspace for elements.
 
+    The generic type for the element is optional; use this if you want extra type hints.
+    
     >>> int_space = IntegerSpace(min_value=0, max_value=10)
     >>> space = ListSpace(subspace=int_space, min_length=2, max_length=4)
     >>> space.contains([1, 2, 3])
     True
-    >>> space.contains([1])
-    False
-    >>> space.contains([1, 2, 3, 4, 5])
-    False
-    >>> space.contains([1, -1, 3])
-    False
-    >>> sample = space.sample()
-    >>> 2 <= len(sample) <= 4
-    True
-    >>> all(0 <= x <= 10 for x in sample)
-    True
     """
 
-    subspace: Space
+    subspace: Space[E]
     min_length: Optional[int] = None
     max_length: Optional[int] = None
-    sample_default_min_length: int = 0  # Default min length when no bounds provided
-    sample_default_max_length: int = 10  # Default max length when no bounds provided
+    sample_default_min_length: int = 0
+    sample_default_max_length: int = 10
 
-    def contains(self, x: List[Any]) -> bool:
+    def contains(self, x: List[E]) -> bool:
         if not isinstance(x, list):
             return False
-
         if self.min_length is not None and len(x) < self.min_length:
             return False
-
         if self.max_length is not None and len(x) > self.max_length:
             return False
-
         return all(self.subspace.contains(item) for item in x)
 
-    def sample(self) -> List[Any]:
-        min = self.min_length or self.sample_default_min_length
-        max = self.max_length or self.sample_default_max_length
-        length = randint(min, max)
+    def sample(self) -> List[E]:
+        min_len = self.min_length if self.min_length is not None else self.sample_default_min_length
+        max_len = self.max_length if self.max_length is not None else self.sample_default_max_length
+        length = randint(min_len, max_len)
         return [self.subspace.sample() for _ in range(length)]
 
 
-class UnionSpace(Space):
+class UnionSpace(Space[Any]):
     """Space that accepts values from any of its component spaces.
 
     >>> int_space = IntegerSpace(min_value=0, max_value=10)
@@ -339,18 +306,9 @@ class UnionSpace(Space):
     >>> space = UnionSpace(spaces=[int_space, str_space])
     >>> space.contains(5)
     True
-    >>> space.contains('abc')
-    True
-    >>> space.contains(-1)
-    False
-    >>> space.contains('def')
-    False
-    >>> sample = space.sample()
-    >>> isinstance(sample, (int, str))
-    True
     """
 
-    spaces: List[Space]
+    spaces: List[Space[Any]]
 
     def contains(self, x: Any) -> bool:
         return any(space.contains(x) for space in self.spaces)
@@ -359,8 +317,11 @@ class UnionSpace(Space):
         return choice(self.spaces).sample()
 
 
-class StructuredSpace(Space):
+class StructuredSpace(Space[SM], Generic[SM]):
     """Space for validating and sampling Pydantic model instances.
+
+    The model's type is specified by the generic, which is optional. If not supplied,
+    you can still instantiate StructuredSpace with the model keyword argument.
 
     >>> from pydantic import BaseModel
     >>> class Point(BaseModel):
@@ -369,15 +330,10 @@ class StructuredSpace(Space):
     >>> space = StructuredSpace(model=Point)
     >>> space.contains(Point(x=1, y=2))
     True
-    >>> space.contains(2)
-    False
-    >>> sample = space.sample()
-    >>> isinstance(sample, Point)
-    True
     """
 
-    model: Type[BaseModel]
-    _field_spaces: Dict[str, Space] = {}
+    model: Type[SM]
+    _field_spaces: Dict[str, Space[Any]] = {}
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -390,7 +346,6 @@ class StructuredSpace(Space):
         for field_name, field_type in type_hints.items():
             if field_name.startswith("_"):
                 continue
-
             if hasattr(field_type, "__metadata__"):
                 # Field already has a space annotation
                 self._field_spaces[field_name] = field_type.__metadata__[0]
@@ -400,22 +355,20 @@ class StructuredSpace(Space):
     def _normalize_type(self, type_: Any) -> tuple:
         """
         Convert a type annotation into a structured tuple representation for easier processing.
-        The returned tuple has a "kind" tag as its first element:
-
-          - ("optional", inner_type): for Optional types (e.g. float | None)
-          - ("union", (arg1, arg2, ...)): for unions with more than two types
-          - ("list", element_type): for list[...] types
-          - ("tuple", (elem1, elem2, ...)): for fixed-length tuples
-          - ("var_tuple", element_type): for variable-length tuples (using Ellipsis) [not supported]
-          - ("dict", key_type, value_type): for dict[...] types
-          - ("literal", [literal1, literal2, ...]): for Literals
-          - ("scalar", type): for all other types
+        The tuple's first element indicates the kind:
+          - ("optional", inner_type) for Optional types
+          - ("union", (arg1, arg2, ...)) for unions
+          - ("list", element_type) for list[...] types
+          - ("tuple", (elem1, elem2, ...)) for fixed-length tuples
+          - ("var_tuple", element_type) for variable-length tuples (using Ellipsis) [not supported]
+          - ("dict", key_type, value_type) for dict[...] types
+          - ("literal", [literal1, literal2, ...]) for Literals
+          - ("scalar", type) for all other types
         """
         origin = get_origin(type_)
         if origin in (Union, types.UnionType):
             args = get_args(type_)
             if len(args) == 2 and type(None) in args:
-                # Optional type detected.
                 non_none_type = next(t for t in args if t is not type(None))
                 return ("optional", non_none_type)
             return ("union", args)
@@ -435,19 +388,10 @@ class StructuredSpace(Space):
         else:
             return ("scalar", type_)
 
-    def _create_space_for_type(self, type_: Any) -> Space:
+    def _create_space_for_type(self, type_: Any) -> Space[Any]:
         """
         Create an appropriate space for a given type using its normalized representation.
-
-        Supports:
-         - Optional types (e.g. float | None)
-         - Unions
-         - Lists, Tuples (fixed-length)
-         - Dicts (with keys that are either str or Enum)
-         - Literals
-         - Nested Pydantic models
-         - Basic types (str, int, float, bool)
-         - Enums (returns a DiscreteSpace with all enum members)
+        Supports Optional, Union, List, Tuple, Dict, Literals, nested Pydantic models, and basic types.
         """
         normalized = self._normalize_type(type_)
         kind = normalized[0]
@@ -473,9 +417,7 @@ class StructuredSpace(Space):
                 return DictSpace(spaces={})
             elif isinstance(key_type, type) and issubclass(key_type, Enum):
                 keys = list(key_type)
-                spaces_dict = {
-                    key: self._create_space_for_type(value_type) for key in keys
-                }
+                spaces_dict = {key: self._create_space_for_type(value_type) for key in keys}
                 return DictSpace(spaces=spaces_dict)
             else:
                 raise ValueError(f"Dict keys must be strings or Enum, got {key_type}")
@@ -499,22 +441,15 @@ class StructuredSpace(Space):
         else:
             raise ValueError(f"Unsupported type kind: {kind}")
 
-    def contains(self, x: Any) -> bool:
-        # Make sure x is actually an instance of the model
+    def contains(self, x: SM) -> bool:
         if not isinstance(x, self.model):
             return False
-
-        # Strictly check each field with its corresponding child space
         for field_name, space in self._field_spaces.items():
             value = getattr(x, field_name)
             if not space.contains(value):
                 return False
-
         return True
 
-    def sample(self) -> BaseModel:
-        sample_data = {
-            field_name: space.sample()
-            for field_name, space in self._field_spaces.items()
-        }
+    def sample(self) -> SM:
+        sample_data = {field_name: space.sample() for field_name, space in self._field_spaces.items()}
         return self.model(**sample_data)

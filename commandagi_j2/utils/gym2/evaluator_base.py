@@ -6,9 +6,8 @@ from commandagi_j2.utils.gym2.callbacks import Callback
 
 ObsType = TypeVar('ObsType')
 ActType = TypeVar('ActType')
-InfoType = TypeVar('InfoType', bound=Dict[str, Any])
 
-class BaseEvaluator(Generic[ObsType, ActType, InfoType], ABC):
+class BaseEvaluator(Generic[ObsType, ActType], ABC):
     """Abstract base class for evaluating agent episodes."""
 
     callbacks: List[Callback]
@@ -22,7 +21,7 @@ class BaseEvaluator(Generic[ObsType, ActType, InfoType], ABC):
         self.callbacks = callbacks or []
 
     @abstractmethod
-    def evaluate_episode(self, episode: BaseEpisode[ObsType, ActType, InfoType], mandate: str) -> Any:
+    def evaluate_episode(self, episode: BaseEpisode[ObsType, ActType], mandate: str) -> Any:
         """Evaluate an episode against a given mandate.
 
         Args:

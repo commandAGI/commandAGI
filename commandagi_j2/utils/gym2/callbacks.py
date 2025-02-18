@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
-from commandagi_j2.utils.gym2.base_env import Observation, Action
+from typing import Dict, Any, Optional, Generic, TypeVar
 
+ObsType = TypeVar('ObsType')
+ActType = TypeVar('ActType')
 
-class Callback(ABC):
+class Callback(Generic[ObsType, ActType], ABC):
     """Base class for callbacks that can be registered with the driver."""
     
     def on_episode_start(self) -> None:
@@ -12,8 +13,8 @@ class Callback(ABC):
         
     def on_step(
         self,
-        observation: Observation,
-        action: Action,
+        observation: ObsType,
+        action: ActType,
         reward: float,
         info: Dict[str, Any],
         done: bool,

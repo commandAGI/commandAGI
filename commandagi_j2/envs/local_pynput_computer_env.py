@@ -5,6 +5,8 @@ from PIL import Image
 from commandagi_j2.envs.base_computer_env import BaseComputerEnv
 import tempfile
 import os
+import io
+import base64
 
 # Import pynput for keyboard and mouse listeners
 from pynput import keyboard, mouse
@@ -111,12 +113,13 @@ class LocalPynputComputeEnv(BaseComputerEnv):
         self._mouse_pos = (x, y)
 
     def get_screenshot(self) -> ScreenshotObservation:
-        """Return a screenshot of the current state using mss."""
-        output_path = os.path.join(self.temp_dir, "screenshot.png")
+        """Return a screenshot of the current state as base64 encoded string."""
         screenshot = self.sct.grab(self.sct.monitors[1])  # Primary monitor
-        Image.frombytes("RGB", screenshot.size, screenshot.rgb).save(output_path)
-        self.last_screenshot = output_path
-        return ScreenshotObservation(screenshot=output_path)
+        img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
+        buffer = io.BytesIO()
+        img.save(buffer, format="PNG")
+        b64_screenshot = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        return ScreenshotObservation(screenshot=b64_screenshot)
 
     def get_mouse_state(self) -> MouseStateObservation:
         """Return the mouse state collected via pynput listeners."""

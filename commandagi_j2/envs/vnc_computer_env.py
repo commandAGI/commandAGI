@@ -1,5 +1,6 @@
 import os
 import tempfile
+import base64
 from vncdotool import api
 from commandagi_j2.envs.base_computer_env import BaseComputerEnv
 from commandagi_j2.envs.computer_types import (
@@ -32,9 +33,12 @@ class VNCComputerEnv(BaseComputerEnv):
         self.vnc = api.connect(f"{self.host}::{self.port}", password=self.password)
 
     def get_screenshot(self) -> ScreenshotObservation:
-        screenshot_path = os.path.join(tempfile.mkdtemp(), "vnc_screenshot.png")
-        self.vnc.captureScreen(screenshot_path)
-        return ScreenshotObservation(screenshot=screenshot_path)
+        temp_path = os.path.join(tempfile.mkdtemp(), "temp_screenshot.png")
+        self.vnc.captureScreen(temp_path)
+        with open(temp_path, "rb") as f:
+            b64_screenshot = base64.b64encode(f.read()).decode('utf-8')
+        os.remove(temp_path)
+        return ScreenshotObservation(screenshot=b64_screenshot)
 
     def get_mouse_state(self) -> MouseStateObservation:
         raise NotImplementedError(

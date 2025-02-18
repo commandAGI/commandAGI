@@ -4,12 +4,27 @@ from .spaces import Space, DictSpace
 
 ObsType = TypeVar('ObsType')
 ActType = TypeVar('ActType')
-InfoType = TypeVar('InfoType', bound=Dict[str, Any])
 
-class ParallelEnv(Env[Dict[str, ObsType], Dict[str, ActType], Dict[str, InfoType]], Generic[ObsType, ActType, InfoType]):
+class ParallelEnv(Env[Dict[str, ObsType], Dict[str, ActType]], Generic[ObsType, ActType]):
     """Runs multiple environments in parallel using dictionaries."""
     
-    def __init__(self, env_factory: Callable[[], Env[ObsType, ActType, InfoType]], num_envs: int, reset_when_done: bool = True):
+    @property
+    def observation_space(self) -> Space[Dict[str, ObsType]]:
+        """Get the observation space for currently active environments."""
+        return DictSpace(spaces={
+            env_id: self._base_obs_space 
+            for env_id in self.active_envs
+        })
+    
+    @property
+    def action_space(self) -> Space[Dict[str, ActType]]:
+        """Get the action space for currently active environments."""
+        return DictSpace(spaces={
+            env_id: self._base_act_space 
+            for env_id in self.active_envs
+        })
+
+    def __init__(self, env_factory: Callable[[], Env[ObsType, ActType]], num_envs: int, reset_when_done: bool = True):
         """Initialize parallel environments.
         
         Args:
@@ -18,7 +33,7 @@ class ParallelEnv(Env[Dict[str, ObsType], Dict[str, ActType], Dict[str, InfoType
             reset_when_done: Whether to automatically reset done environments
         """
         self.env_factory = env_factory  # Store the factory for later use
-        self.envs: Dict[str, Env[ObsType, ActType, InfoType]] = {
+        self.envs: Dict[str, Env[ObsType, ActType]] = {
             str(i): env_factory() for i in range(num_envs)
         }
         self.reset_when_done = reset_when_done
@@ -46,7 +61,7 @@ class ParallelEnv(Env[Dict[str, ObsType], Dict[str, ActType], Dict[str, InfoType
         self.active_envs = list(self.envs.keys())
         return {env_id: env.reset() for env_id, env in self.envs.items()}
     
-    def step(self, action: Dict[str, ActType]) -> Tuple[Dict[str, ObsType] | float | bool | Dict[str, InfoType]]:
+    def step(self, action: Dict[str, ActType]) -> Tuple[Dict[str, ObsType], float, bool, Dict[str, Any]]:
         return super().step(action)
 
     @property
@@ -91,7 +106,7 @@ class ParallelEnv(Env[Dict[str, ObsType], Dict[str, ActType], Dict[str, InfoType
         return all(self.envs[env_id].get_done(action[env_id]) 
                   for env_id in self.active_envs)
 
-    def get_info(self) -> Dict[str, InfoType]:
+    def get_info(self) -> Dict[str, Any]:
         """Get info from active environments only."""
         return {env_id: self.envs[env_id].get_info() 
                 for env_id in self.active_envs}

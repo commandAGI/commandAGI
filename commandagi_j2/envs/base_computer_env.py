@@ -2,7 +2,7 @@ from abc import abstractmethod
 import time
 from typing import ClassVar
 from rich.console import Console
-from commandagi_j2.utils.gym2.base_env import Action, Env
+from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.envs.computer_types import (
     CommandAction,
     ClickAction,
@@ -197,10 +197,10 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         return success
 
-    def get_reward(self, action: Action) -> float:
+    def get_reward(self, action: ComputerAction) -> float:
         return 0
 
-    def get_done(self, action: Action) -> bool:
+    def get_done(self, action: ComputerAction) -> bool:
         return False
 
     def render(self, mode="human"):
@@ -226,7 +226,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
     @abstractmethod
     def get_screenshot(self) -> ScreenshotObservation:
-        """Return a ScreenshotObservation of the current state (e.g. including a file path for the screenshot)."""
+        """Return a ScreenshotObservation containing the screenshot encoded as a base64 string."""
 
     @abstractmethod
     def get_mouse_state(self) -> MouseStateObservation:

@@ -2,6 +2,7 @@ import os
 import tempfile
 import time
 import uuid
+import base64
 from vncdotool import api
 from commandagi_j2.envs.base_docker_computer_env import BaseDockerComputerEnv
 from commandagi_j2.envs.computer_types import (
@@ -60,12 +61,13 @@ class VNCDockerComputerEnv(BaseDockerComputerEnv):
         )
 
     def get_screenshot(self) -> ScreenshotObservation:
-        """
-        Capture a screenshot using the VNC connection.
-        """
-        screenshot_path = os.path.join(tempfile.mkdtemp(), "vnc_screenshot.png")
-        self.vnc.captureScreen(screenshot_path)
-        return ScreenshotObservation(screenshot=screenshot_path)
+        """Capture a screenshot using the VNC connection and return as base64 string."""
+        temp_path = os.path.join(tempfile.mkdtemp(), "temp_screenshot.png")
+        self.vnc.captureScreen(temp_path)
+        with open(temp_path, "rb") as f:
+            b64_screenshot = base64.b64encode(f.read()).decode('utf-8')
+        os.remove(temp_path)
+        return ScreenshotObservation(screenshot=b64_screenshot)
 
     def close(self):
         """Clean up VNC and Docker resources.

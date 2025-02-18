@@ -4,15 +4,14 @@ from pydantic import BaseModel
 
 ObsType = TypeVar('ObsType')
 ActType = TypeVar('ActType')
-InfoType = TypeVar('InfoType', bound=Dict[str, Any])
 
-class BaseStep(BaseModel, Generic[ObsType, ActType, InfoType]):
+class BaseStep(BaseModel, Generic[ObsType, ActType]):
     observation: ObsType
     action: ActType
     reward: float
-    info: InfoType
+    info: Dict[str, Any]
 
-class BaseEpisode(Generic[ObsType, ActType, InfoType], ABC):
+class BaseEpisode(Generic[ObsType, ActType], ABC):
     """Abstract base class for an episode of interaction."""
 
     @property
@@ -28,7 +27,7 @@ class BaseEpisode(Generic[ObsType, ActType, InfoType], ABC):
         pass
 
     @abstractmethod
-    def get_step(self, index: int) -> BaseStep[ObsType, ActType, InfoType]:
+    def get_step(self, index: int) -> BaseStep[ObsType, ActType]:
         """Get a step from the current episode."""
         pass
 
@@ -38,13 +37,13 @@ class BaseEpisode(Generic[ObsType, ActType, InfoType], ABC):
         observation: ObsType,
         action: ActType,
         reward: float|None,
-        info: InfoType,
+        info: Dict[str, Any],
     ) -> None:
         """Add a step to the current episode."""
         pass
 
     @abstractmethod
-    def update_step(self, index: int, step: BaseStep[ObsType, ActType, InfoType]) -> None:
+    def update_step(self, index: int, step: BaseStep[ObsType, ActType]) -> None:
         """Update a step in the current episode."""
         pass
 
@@ -54,7 +53,7 @@ class BaseEpisode(Generic[ObsType, ActType, InfoType], ABC):
         pass
 
     @abstractmethod
-    def iter_steps(self) -> Iterator[BaseStep[ObsType, ActType, InfoType]]:
+    def iter_steps(self) -> Iterator[BaseStep[ObsType, ActType]]:
         """Get an iterator over the steps in the episode."""
         pass
 
@@ -66,8 +65,8 @@ class BaseEpisode(Generic[ObsType, ActType, InfoType], ABC):
     def __len__(self) -> int:
         return self.num_steps
 
-    def __getitem__(self, index: int) -> BaseStep[ObsType, ActType, InfoType]:
+    def __getitem__(self, index: int) -> BaseStep[ObsType, ActType]:
         return self.get_step(index)
 
-    def __iter__(self) -> Iterator[BaseStep[ObsType, ActType, InfoType]]:
+    def __iter__(self) -> Iterator[BaseStep[ObsType, ActType]]:
         return iter(self.iter_steps())

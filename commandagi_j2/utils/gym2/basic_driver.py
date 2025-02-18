@@ -13,30 +13,29 @@ console = Console()
 
 ObsType = TypeVar('ObsType')
 ActType = TypeVar('ActType')
-InfoType = TypeVar('InfoType', bound=Dict[str, Any])
 
-class BasicDriver(BaseDriver[ObsType, ActType, InfoType]):
+class BasicDriver(BaseDriver[ObsType, ActType]):
     """Single agent implementation of the BaseDriver for running agent-environment interactions."""
 
     def __init__(
         self,
-        env: Optional[Env[ObsType, ActType, InfoType]],
+        env: Optional[Env[ObsType, ActType]],
         agent: Optional[BaseAgent[ObsType, ActType]],
-        episode_cls: Type[BaseEpisode[ObsType, ActType, InfoType]],
+        episode_cls: Type[BaseEpisode[ObsType, ActType]],
         callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the single agent driver.
 
         Args:
-            env (Optional[Env[ObsType, ActType, InfoType]]): The environment to use
+            env (Optional[Env[ObsType, ActType]]): The environment to use
             agent (Optional[BaseAgent[ObsType, ActType]]): The agent to use
-            episode_cls (Type[BaseEpisode[ObsType, ActType, InfoType]]): The episode class to use for data collection
+            episode_cls (Type[BaseEpisode[ObsType, ActType]]): The episode class to use for data collection
             callbacks (Optional[List[Callback]]): List of callbacks to register
         """
         self.env = env
         self.agent = agent
         self.episode_cls = episode_cls
-        self.current_episode: Optional[BaseEpisode[ObsType, ActType, InfoType]] = None
+        self.current_episode: Optional[BaseEpisode[ObsType, ActType]] = None
         self.callbacks = callbacks or []
 
     def reset(self) -> None:
@@ -54,7 +53,7 @@ class BasicDriver(BaseDriver[ObsType, ActType, InfoType]):
         max_steps: Optional[int] = None,
         episode_name: Optional[str] = None,
         return_episode: bool = False,
-    ) -> Union[float, BaseEpisode[ObsType, ActType, InfoType]]:
+    ) -> Union[float, BaseEpisode[ObsType, ActType]]:
         """Run a single episode.
 
         Args:
@@ -63,7 +62,7 @@ class BasicDriver(BaseDriver[ObsType, ActType, InfoType]):
             return_episode (bool): Whether to return the full episode data
 
         Returns:
-            Union[float, BaseEpisode[ObsType, ActType, InfoType]]: Either the total reward or full episode data
+            Union[float, BaseEpisode[ObsType, ActType]]: Either the total reward or full episode data
         """
         # Reset environment, agent, and collector
         console.print("\n🎬 [bold blue]Starting new episode...[/]")

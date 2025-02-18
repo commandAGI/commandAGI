@@ -1,16 +1,17 @@
-from typing import List, Dict, Any, Iterator
+from typing import List, Dict, Any, Iterator, TypeVar, Generic
 from dataclasses import dataclass
 from pathlib import Path
 import json
 
 from pydantic import BaseModel
-from commandagi_j2.utils.gym2.base_env import Observation, Action
 from commandagi_j2.utils.gym2.base_episode import BaseEpisode, BaseStep
 
+ObsType = TypeVar('ObsType')
+ActType = TypeVar('ActType')
 
-class InMemoryEpisode(BaseEpisode, BaseModel):
+class InMemoryEpisode(BaseEpisode[ObsType, ActType], BaseModel):
     """In-memory storage for episode data."""
-    steps: List[BaseStep] = []
+    steps: List[BaseStep[ObsType, ActType]] = []
 
     @property
     def num_steps(self) -> int:
@@ -20,13 +21,13 @@ class InMemoryEpisode(BaseEpisode, BaseModel):
     def total_reward(self) -> float:
         return sum(step.reward if step.reward is not None else 0 for step in self.steps)
 
-    def get_step(self, index: int) -> BaseStep:
+    def get_step(self, index: int) -> BaseStep[ObsType, ActType]:
         return self.steps[index]
 
     def append_step(
         self,
-        observation: Observation,
-        action: Action, 
+        observation: ObsType,
+        action: ActType, 
         reward: float|None,
         info: Dict[str, Any]
     ) -> None:
@@ -38,13 +39,13 @@ class InMemoryEpisode(BaseEpisode, BaseModel):
         )
         self.steps.append(step)
 
-    def update_step(self, index: int, step: BaseStep) -> None:
+    def update_step(self, index: int, step: BaseStep[ObsType, ActType]) -> None:
         self.steps[index] = step
 
     def remove_step(self, index: int) -> None:
         self.steps.pop(index)
 
-    def iter_steps(self) -> Iterator[BaseStep]:
+    def iter_steps(self) -> Iterator[BaseStep[ObsType, ActType]]:
         return iter(self.steps)
 
     def save(self, episode_name: str) -> None:
