@@ -21,7 +21,7 @@ class BaseAgent(ABC):
         """
 
     @abstractmethod
-    def update(self, reward: float) -> None:
+    def update(self, reward: float) -> None: # TODO: move reward to `act``
         """Update the agent's internal state based on the received reward.
 
         Args:

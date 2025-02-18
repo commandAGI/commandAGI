@@ -83,3 +83,8 @@ class VNCComputerEnv(BaseComputerEnv):
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)
         return True
+
+    def close(self):
+        """Clean up VNC connection."""
+        if hasattr(self, 'vnc'):
+            self.vnc.disconnect()

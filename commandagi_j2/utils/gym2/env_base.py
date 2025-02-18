@@ -39,7 +39,6 @@ class Env(ABC):
     def close(self):
         """Clean up environment resources."""
 
-    @abstractmethod
     def step(self, action: Action) -> Tuple[Observation, float, bool, Dict]:
         """Execute action and return (observation, reward, done, info).
 
@@ -54,6 +53,8 @@ class Env(ABC):
         """
         """Execute an action and return the next observation, reward, done, and info."""
         success = self._execute_action(action)
+        if not success:
+            raise ValueError(f"Action {action} failed to execute")
         observation = self.get_observation()
         reward = self.get_reward(observation, action)
         done = self.get_done(observation, action)

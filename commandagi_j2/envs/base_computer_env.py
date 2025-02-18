@@ -191,7 +191,6 @@ class BaseComputerEnv(Env):
     def get_reward(self, action: Action) -> float:
         return 0
 
-    @abstractmethod
     def get_done(self, action: Action) -> bool:
         return False
 
