@@ -79,7 +79,7 @@ class BaseEpisode(ABC):
         pass
 
     @abstractmethod
-    def save_episode(self, episode_name: str) -> None:
+    def save(self, episode_name: str) -> None:
         """Save the current episode data.
 
         Args:
@@ -124,4 +124,4 @@ class Collector:
 
     def save_episode(self, episode_name: str) -> None:
         """Save the current episode."""
-        self.current_episode.save_episode(episode_name)
+        self.current_episode.save(episode_name)

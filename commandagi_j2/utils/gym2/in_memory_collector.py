@@ -47,7 +47,7 @@ class InMemoryEpisode(BaseEpisode, BaseModel):
     def iter_steps(self) -> Iterator[BaseStep]:
         return iter(self.steps)
 
-    def save_episode(self, episode_name: str) -> None:
+    def save(self, episode_name: str) -> None:
         # Convert episode data to JSON-serializable format
         episode_data = {
             "steps": [step.model_dump_json(indent=2) for step in self.steps]
