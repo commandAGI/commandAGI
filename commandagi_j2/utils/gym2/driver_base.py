@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Type
 from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
-from commandagi_j2.utils.gym2.collector_base import BaseEpisode, Collector
+from commandagi_j2.utils.gym2.collector_base import BaseEpisode
 from commandagi_j2.utils.gym2.callbacks import Callback
 
 
@@ -14,7 +14,7 @@ class BaseDriver(ABC):
         self,
         env: Optional[Env] = None,
         agent: Optional[BaseAgent] = None,
-        collector: Optional[Collector] = None,
+        episode_cls: Type[BaseEpisode] = None,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the driver.
@@ -22,7 +22,7 @@ class BaseDriver(ABC):
         Args:
             env (Optional[Env]): The environment to use
             agent (Optional[BaseAgent]): The agent to use
-            collector (Optional[BaseCollector]): The data collector to use
+            episode_cls (Type[BaseEpisode]): The episode class to use
             callbacks (Optional[List[Callback]]): List of callbacks to register
         """
 

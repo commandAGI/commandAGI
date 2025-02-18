@@ -99,7 +99,7 @@ class BaseTrainer(ABC):
             Dict[str, Any]: A dictionary containing all metrics
         """
         return self.metrics
-    
+
     @property
     def callbacks(self):
         if not hasattr(self, "_callbacks"):

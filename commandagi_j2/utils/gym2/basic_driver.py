@@ -1,9 +1,9 @@
 import time
 import traceback
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Type
 from rich.console import Console
 from commandagi_j2.utils.gym2.callbacks import Callback
-from commandagi_j2.utils.gym2.collector_base import BaseEpisode, Collector
+from commandagi_j2.utils.gym2.collector_base import BaseEpisode
 from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.driver_base import BaseDriver
@@ -19,7 +19,7 @@ class BasicDriver(BaseDriver):
         self,
         env: Optional[Env],
         agent: Optional[BaseAgent],
-        collector: Optional[Collector] = None,
+        episode_cls: Type[BaseEpisode] = InMemoryEpisode,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the basic driver.
@@ -27,22 +27,23 @@ class BasicDriver(BaseDriver):
         Args:
             env (Optional[Env]): The environment to use
             agent (Optional[BaseAgent]): The agent to use
-            collector (Optional[BaseCollector]): The data collector to use, defaults to InMemoryDataCollector
+            episode_cls (Type[BaseEpisode]): The episode class to use for data collection
             callbacks (Optional[List[Callback]]): List of callbacks to register
         """
         self.env = env
         self.agent = agent
-        self.collector = collector or Collector(InMemoryEpisode)
+        self.episode_cls = episode_cls
+        self.current_episode: Optional[BaseEpisode] = None
         self._callbacks = callbacks or []
 
     def reset(self) -> None:
-        """Reset the driver's state including environment, agent and collector."""
+        """Reset the driver's state including environment, agent and episode."""
         console.print("🔄 [cyan]Resetting environment...[/]")
         self.env.reset()
         console.print("🤖 [cyan]Resetting agent...[/]")
         self.agent.reset()
-        console.print("📊 [cyan]Resetting collector...[/]")
-        self.collector.reset()
+        console.print("📊 [cyan]Creating new episode...[/]")
+        self.current_episode = self.episode_cls()
         console.print("✅ [green]Reset complete[/]")
 
     def run_episode(
@@ -65,7 +66,6 @@ class BasicDriver(BaseDriver):
         console.print("\n🎬 [bold blue]Starting new episode...[/]")
         observation = self.env.reset()
         self.agent.reset()
-        self.collector.reset()
 
         try:
             step = 0
@@ -85,7 +85,7 @@ class BasicDriver(BaseDriver):
                 self.agent.update(reward)
 
                 # Collect data
-                self.collector.add_step(observation, action, reward, info)
+                self.current_episode.append_step(observation, action, reward, info)
                 console.print(f"💰 [green]Reward: {reward}[/]")
 
                 for cb in self.callbacks:
@@ -114,13 +114,13 @@ class BasicDriver(BaseDriver):
             # Save episode data if episode name provided
             if episode_name is not None:
                 console.print(f"💾 [blue]Saving episode {episode_name} data...[/]")
-                self.collector.save_episode(episode_name)
+                self.current_episode.save(episode_name)
             console.print("🔒 [yellow]Closing environment...[/]")
             self.env.close()
 
         if return_episode:
-            return self.collector.current_episode
+            return self.current_episode
         else:
-            total_reward = self.collector.current_episode.total_reward
+            total_reward = self.current_episode.total_reward
             console.print(f"📊 [bold green]Total reward: {total_reward}[/]")
             return total_reward

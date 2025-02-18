@@ -97,31 +97,3 @@ class BaseEpisode(ABC):
     def __iter__(self) -> Iterator[BaseStep]:
         """Iterate over the steps in the episode."""
         return iter(self.iter_steps())
-
-
-class Collector:
-    """Standard collector of episode data."""
-
-    episode_cls: Type[BaseEpisode]
-    current_episode: Optional[BaseEpisode] = None
-
-    def __init__(self, episode_cls: Type[BaseEpisode]):
-        self.episode_cls = episode_cls
-
-    def reset(self) -> None:
-        """Reset the collector by creating a new episode."""
-        self.current_episode = self.episode_cls()
-
-    def add_step(
-        self,
-        observation: Observation,
-        action: Action,
-        reward: float,
-        info: Dict[str, Any],
-    ) -> None:
-        """Add a step to the current episode."""
-        self.current_episode.append_step(observation, action, reward, info)
-
-    def save_episode(self, episode_name: str) -> None:
-        """Save the current episode."""
-        self.current_episode.save(episode_name)

@@ -17,7 +17,6 @@ import docker
 import time
 import subprocess
 
-from commandagi_j2.utils.gym2.collector_base import Collector
 from commandagi_j2.utils.gym2.in_memory_collector import InMemoryEpisode
 
 console = Console()
@@ -229,7 +228,7 @@ def test_all_combinations():
     #     )
     #     console.print("✅ [green]Claude + LXDEVNCKubernetesComputerEnv test completed[/]")
         
-    #     console.print("\n�� [cyan]Running GPT-4o + LXDEVNCKubernetesComputerEnv test...[/]")
+    #     console.print("\n🤖 [cyan]Running GPT-4o + LXDEVNCKubernetesComputerEnv test...[/]")
     #     console.print("🔄 [yellow]Initializing test with GPT-4o agent...[/]")
     #     run_single_test(
     #         SimpleComputerAgent, gpt4o_params,
