@@ -150,7 +150,7 @@ class KeyboardKey(str, Enum):
     NUM_9 = "9"
 
     # Mapping for different backends
-    _VNC_MAPPING = {
+    _SPECIAL_VNC_MAPPINGS = {
         META: "meta",
         LMETA: "meta",
         RMETA: "meta",
@@ -162,7 +162,7 @@ class KeyboardKey(str, Enum):
         RALT: "alt",
     }
 
-    _PYAUTOGUI_MAPPING = {
+    _SPECIAL_PYAUTOGUI_MAPPINGS = {
         META: "meta",
         LMETA: "meta",
         RMETA: "meta",
@@ -174,7 +174,7 @@ class KeyboardKey(str, Enum):
         RALT: "alt",
     }
 
-    _E2B_MAPPING = {
+    _SPECIAL_E2B_MAPPINGS = {
         META: "meta",
         LMETA: "meta",
         RMETA: "meta",
@@ -186,7 +186,7 @@ class KeyboardKey(str, Enum):
         RALT: "alt",
     }
 
-    _PYNPUT_MAPPING = {
+    _SPECIAL_PYNPUT_MAPPINGS = {
         ENTER: PynputKey.enter,
         TAB: PynputKey.tab,
         SPACE: PynputKey.space,
@@ -218,17 +218,23 @@ class KeyboardKey(str, Enum):
     @classmethod
     def to_vnc(cls, key: Union["KeyboardKey", str]) -> str:
         """Convert a standard key to VNC format"""
-        return cls._VNC_MAPPING.get(key, key)
+        if key in cls._SPECIAL_VNC_MAPPINGS:
+            return cls._SPECIAL_VNC_MAPPINGS[key]
+        return key
 
     @classmethod
     def to_pyautogui(cls, key: Union["KeyboardKey", str]) -> str:
         """Convert a standard key to PyAutoGUI format"""
-        return cls._PYAUTOGUI_MAPPING.get(key, key)
+        if key in cls._SPECIAL_PYAUTOGUI_MAPPINGS:
+            return cls._SPECIAL_PYAUTOGUI_MAPPINGS[key]
+        return key
 
     @classmethod
     def to_pynput(cls, key: Union["KeyboardKey", str]) -> str:
         """Convert a standard key to Pynput format"""
-        return cls._PYNPUT_MAPPING.get(key, key)
+        if key in cls._SPECIAL_PYNPUT_MAPPINGS:
+            return cls._SPECIAL_PYNPUT_MAPPINGS[key]
+        return key
 
     @classmethod
     def to_e2b(cls, key: Union["KeyboardKey", str]) -> str:
@@ -236,12 +242,14 @@ class KeyboardKey(str, Enum):
         If no mapping is provided in _E2B_MAPPING, defaults to returning the key itself.
         """
         key_val = key.value if isinstance(key, cls) else key
-        return cls._E2B_MAPPING.get(key_val, key_val)
+        if key_val in cls._SPECIAL_E2B_MAPPINGS:
+            return cls._SPECIAL_E2B_MAPPINGS[key_val]
+        return key_val
 
     @classmethod
     def from_pynput(cls, key) -> "KeyboardKey":
         # Find the KeyboardKey enum value by looking up the pynput key in the mapping
-        for enum_key, pynput_key in cls._PYNPUT_MAPPING.items():
+        for enum_key, pynput_key in cls._SPECIAL_PYNPUT_MAPPINGS.items():
             if pynput_key == key:
                 return enum_key
         # Handle character keys
