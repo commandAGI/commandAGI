@@ -107,7 +107,7 @@ def test_agent_env_combination(AgentClass, agent_params, EnvClass, env_params):
 
     try:
         driver.reset()
-        reward = driver.run_episode(max_steps=5, episode_num=None)
+        reward = driver.run_episode(max_steps=5, episode_name=None)
         print(f"{AgentClass.__name__} × {EnvClass.__name__} → reward = {reward}")
     except NotImplementedError as e:
         pytest.skip(f"Skipping {EnvClass.__name__} due to NotImplementedError: {e}")

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Optional, Union, List
 from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
-from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
+from commandagi_j2.utils.gym2.collector_base import BaseEpisode, Collector
+from commandagi_j2.utils.gym2.callbacks import Callback
 
 
 class BaseDriver(ABC):
@@ -13,7 +14,8 @@ class BaseDriver(ABC):
         self,
         env: Optional[Env] = None,
         agent: Optional[BaseAgent] = None,
-        collector: Optional[BaseCollector] = None,
+        collector: Optional[Collector] = None,
+        callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the driver.
 
@@ -21,20 +23,21 @@ class BaseDriver(ABC):
             env (Optional[Env]): The environment to use
             agent (Optional[BaseAgent]): The agent to use
             collector (Optional[BaseCollector]): The data collector to use
+            callbacks (Optional[List[Callback]]): List of callbacks to register
         """
 
     @abstractmethod
     def run_episode(
         self,
         max_steps: int = 100,
-        episode_num: Optional[int] = None,
+        episode_name: Optional[str] = None,
         return_episode: bool = False,
     ) -> Union[float, BaseEpisode]:
         """Run a single episode.
 
         Args:
             max_steps (int): Maximum number of steps to run
-            episode_num (Optional[int]): Episode identifier for data collection
+            episode_name (Optional[str]): Episode identifier for data collection
             return_episode (bool): Whether to return the full episode data
 
         Returns:
@@ -44,3 +47,13 @@ class BaseDriver(ABC):
     @abstractmethod
     def reset(self) -> None:
         """Reset the driver's state."""
+
+    @property
+    def callbacks(self):
+        if not hasattr(self, "_callbacks"):
+            self._callbacks = []
+        return self._callbacks
+
+    def register_callback(self, callback: Callback) -> None:
+        """Register a callback to be used during episode execution."""
+        self.callbacks.append(callback)

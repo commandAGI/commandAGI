@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional, Dict, Any
 from commandagi_j2.utils.gym2.driver_base import BaseDriver
 from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
+from commandagi_j2.utils.gym2.callbacks import Callback
 
 
 class BaseTrainer(ABC):
@@ -12,6 +13,7 @@ class BaseTrainer(ABC):
         driver: Optional[BaseDriver] = None,
         train_evaluators: Optional[List[BaseEvaluator]] = None,
         test_evaluators: Optional[List[BaseEvaluator]] = None,
+        callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the trainer.
 
@@ -19,11 +21,13 @@ class BaseTrainer(ABC):
             driver (Optional[BaseDriver]): The driver to use for training
             train_evaluators (Optional[List[BaseEvaluator]]): Evaluators to use during training
             test_evaluators (Optional[List[BaseEvaluator]]): Evaluators to use during final testing
+            callbacks (Optional[List[Callback]]): List of callbacks to register
         """
         self.driver = driver
         self.train_evaluators = train_evaluators or []
         self.test_evaluators = test_evaluators or []
         self.metrics: Dict[str, Any] = {}
+        self._callbacks = callbacks or []
 
     @abstractmethod
     def train(self, num_episodes: int = 10, max_steps: int = 100) -> List[float]:
@@ -57,10 +61,10 @@ class BaseTrainer(ABC):
         episode_rewards = []
         evaluation_results = {}
 
-        for episode in range(num_episodes):
-            print(f"Starting evaluation episode {episode + 1}/{num_episodes}")
+        for i in range(num_episodes):
+            print(f"Starting evaluation episode {i + 1}/{num_episodes}")
             episode = self.driver.run_episode(
-                max_steps=max_steps, episode_num=f"eval_{episode}", return_episode=True
+                max_steps=max_steps, episode_name=f"eval_{i}", return_episode=True
             )
             episode_rewards.append(episode.total_reward)
 
@@ -70,13 +74,13 @@ class BaseTrainer(ABC):
                     episode, mandate="TODO: Add mandate"
                 )  # TODO: Add mandate handling
                 metrics = evaluator.get_metrics()
-                evaluation_results[f"{evaluator.__class__.__name__}_{episode}"] = {
+                evaluation_results[f"{evaluator.__class__.__name__}_eval_{i}"] = {
                     "result": result,
                     "metrics": metrics,
                 }
 
             print(
-                f"Evaluation episode {episode + 1} finished with reward: {episode.total_reward}"
+                f"Evaluation episode {i + 1} finished with reward: {episode.total_reward}"
             )
 
         avg_reward = sum(episode_rewards) / len(episode_rewards)
@@ -95,3 +99,13 @@ class BaseTrainer(ABC):
             Dict[str, Any]: A dictionary containing all metrics
         """
         return self.metrics
+    
+    @property
+    def callbacks(self):
+        if not hasattr(self, "_callbacks"):
+            self._callbacks = []
+        return self._callbacks
+
+    def register_callback(self, callback: Callback) -> None:
+        """Register a callback for trainer-specific events."""
+        self.callbacks.append(callback)

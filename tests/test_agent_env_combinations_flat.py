@@ -17,6 +17,9 @@ import docker
 import time
 import subprocess
 
+from commandagi_j2.utils.gym2.collector_base import Collector
+from commandagi_j2.utils.gym2.in_memory_collector import InMemoryEpisode
+
 console = Console()
 
 def run_single_test(agent_class, agent_params, env_class, env_params, test_name):
@@ -28,13 +31,15 @@ def run_single_test(agent_class, agent_params, env_class, env_params, test_name)
         console.print(f"✅ [green]Environment initialized[/]")
         agent = agent_class(**agent_params)
         console.print(f"✅ [green]Agent initialized[/]")
-        driver = BasicDriver(env=env, agent=agent)
+        collector = Collector(episode_cls=InMemoryEpisode)
+        driver = BasicDriver(env=env, agent=agent, collector=collector)
         console.print(f"✅ [green]Driver initialized[/]")
         driver.reset()
         console.print(f"✅ [green]Driver reset[/]")
-        reward = driver.run_episode(max_steps=5, episode_num=None)
+        reward = driver.run_episode(max_steps=5, episode_name=None)
         console.print(f"✅ [green]Episode completed[/]")
         console.print(f"✨ [green]{agent_class.__name__} × {env_class.__name__} → reward = {reward}[/]")
+        collector.save_episode(test_name)
         return True
         
     except NotImplementedError as e:
@@ -187,6 +192,15 @@ def test_all_combinations():
         SimpleComputerAgent, gpt4o_params,
         LXDEVNCDockerComputerEnv, docker_params,
         "GPT-4o + LXDEVNCDockerComputerEnv"
+    )
+    console.print("✅ [green]GPT-4o + LXDEVNCDockerComputerEnv test completed[/]")
+    
+    console.print("\n🤖 [cyan]Running GPT-4o + LXDEVNCDockerComputerEnv test FOR THE SECOND TIME!!![/]")
+    console.print("🔄 [yellow]Initializing test with GPT-4o agent...[/]")
+    run_single_test(
+        SimpleComputerAgent, gpt4o_params,
+        LXDEVNCDockerComputerEnv, docker_params,
+        "GPT-4o + LXDEVNCDockerComputerEnv (second time)"
     )
     console.print("✅ [green]GPT-4o + LXDEVNCDockerComputerEnv test completed[/]")
     console.print("[bold blue]=== 🎉 LXDEVNCDockerComputerEnv Tests Completed ===[/]\n")

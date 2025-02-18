@@ -17,7 +17,7 @@ class Callback(ABC):
         reward: float,
         info: Dict[str, Any],
         done: bool,
-        step: int
+        step_num: int
     ) -> None:
         """Called after each step in the environment.
         
@@ -27,14 +27,14 @@ class Callback(ABC):
             reward: The reward received
             info: Additional info from the environment
             done: Whether the episode is complete
-            step: The current step number
+            step_num: The current step number
         """
         pass
         
-    def on_episode_end(self, episode_num: Optional[int] = None) -> None:
+    def on_episode_end(self, episode_name: Optional[str] = None) -> None:
         """Called when an episode ends.
         
         Args:
-            episode_num: Optional episode identifier
+            episode_name: Optional episode identifier
         """
         pass 

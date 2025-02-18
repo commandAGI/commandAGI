@@ -1,16 +1,16 @@
 import time
 import traceback
-from typing import Optional, Union
+from typing import Optional, Union, List
 from rich.console import Console
-from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
+from commandagi_j2.utils.gym2.callbacks import Callback
+from commandagi_j2.utils.gym2.collector_base import BaseEpisode, Collector
 from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.driver_base import BaseDriver
-from commandagi_j2.utils.gym2.in_memory_collector import (
-    InMemoryDataCollector,
-)
+from commandagi_j2.utils.gym2.in_memory_collector import InMemoryEpisode
 
 console = Console()
+
 
 class BasicDriver(BaseDriver):
     """Basic implementation of the BaseDriver for running agent-environment interactions."""
@@ -19,7 +19,8 @@ class BasicDriver(BaseDriver):
         self,
         env: Optional[Env],
         agent: Optional[BaseAgent],
-        collector: Optional[BaseCollector] = None,
+        collector: Optional[Collector] = None,
+        callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the basic driver.
 
@@ -27,10 +28,12 @@ class BasicDriver(BaseDriver):
             env (Optional[Env]): The environment to use
             agent (Optional[BaseAgent]): The agent to use
             collector (Optional[BaseCollector]): The data collector to use, defaults to InMemoryDataCollector
+            callbacks (Optional[List[Callback]]): List of callbacks to register
         """
         self.env = env
         self.agent = agent
-        self.collector = collector or InMemoryDataCollector()
+        self.collector = collector or Collector(InMemoryEpisode)
+        self._callbacks = callbacks or []
 
     def reset(self) -> None:
         """Reset the driver's state including environment, agent and collector."""
@@ -45,14 +48,14 @@ class BasicDriver(BaseDriver):
     def run_episode(
         self,
         max_steps: Optional[int] = None,
-        episode_num: Optional[int] = None,
+        episode_name: Optional[str] = None,
         return_episode: bool = False,
     ) -> Union[float, BaseEpisode]:
         """Run a single episode.
 
         Args:
             max_steps (Optional[int]): Maximum number of steps to run
-            episode_num (Optional[int]): Episode identifier for data collection
+            episode_name (Optional[str]): Episode identifier for data collection
             return_episode (bool): Whether to return the full episode data
 
         Returns:
@@ -66,9 +69,12 @@ class BasicDriver(BaseDriver):
 
         try:
             step = 0
+            for cb in self.callbacks:
+                cb.on_episode_start()
+            
             while True:
                 console.print(f"👉 [yellow]Step {step + 1}/{max_steps}[/]")
-                
+
                 # Agent selects action
                 action = self.agent.act(observation)
 
@@ -82,6 +88,9 @@ class BasicDriver(BaseDriver):
                 self.collector.add_step(observation, action, reward, info)
                 console.print(f"💰 [green]Reward: {reward}[/]")
 
+                for cb in self.callbacks:
+                    cb.on_step(observation, action, reward, info, done, step + 1)
+
                 # Optional delay
                 time.sleep(2)
 
@@ -91,7 +100,7 @@ class BasicDriver(BaseDriver):
                     console.print("🏁 [bold green]Episode complete![/]")
                     break
 
-                if  max_steps and step >= max_steps:
+                if max_steps and step >= max_steps:
                     console.print("🏁⏱️ [bold green]Reached max steps![/]")
                     break
 
@@ -100,10 +109,12 @@ class BasicDriver(BaseDriver):
             console.print(f"[dim red]Stacktrace:\n{''.join(traceback.format_exc())}[/]")
             raise e
         finally:
-            # Save episode data if episode number provided
-            if episode_num is not None:
-                console.print(f"💾 [blue]Saving episode {episode_num} data...[/]")
-                self.collector.save_episode(episode_num)
+            for cb in self.callbacks:
+                cb.on_episode_end(episode_name)
+            # Save episode data if episode name provided
+            if episode_name is not None:
+                console.print(f"💾 [blue]Saving episode {episode_name} data...[/]")
+                self.collector.save_episode(episode_name)
             console.print("🔒 [yellow]Closing environment...[/]")
             self.env.close()
 

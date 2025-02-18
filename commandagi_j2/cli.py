@@ -58,7 +58,7 @@ def run_test(args):
         agent = agent_cls()
         driver = BasicDriver(env, agent)
         driver.reset()
-        reward = driver.run_episode(max_steps=args.max_steps, episode_num=ep)
+        reward = driver.run_episode(max_steps=args.max_steps, episode_name=ep)
         print(f"Episode {ep + 1} finished with reward: {reward}")
         total_reward += reward
         # Allow a short break between episodes if desired
@@ -94,7 +94,7 @@ def run_evaluate(args):
         driver.reset()
         # Get the full episode data (including observations, actions, etc.)
         episode_data = driver.run_episode(
-            max_steps=args.max_steps, episode_num=f"eval_{ep}", return_episode=True
+            max_steps=args.max_steps, episode_name=f"eval_{ep}", return_episode=True
         )
         rewards.append(episode_data.total_reward)
         # Provide a mandate. You can update this string or pass it via the CLI.

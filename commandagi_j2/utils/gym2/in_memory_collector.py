@@ -1,77 +1,62 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 import json
+
+from pydantic import BaseModel
 from commandagi_j2.utils.gym2.base_env import Observation, Action
-from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
+from commandagi_j2.utils.gym2.collector_base import BaseEpisode, BaseStep
 
 
-@dataclass
-class InMemoryEpisode(BaseEpisode):
+class InMemoryEpisode(BaseEpisode, BaseModel):
     """In-memory storage for episode data."""
+    steps: List[BaseStep] = []
 
-    observations: List[Observation]
-    actions: List[Action]
-    rewards: List[float]
-    infos: List[Dict[str, Any]]
-    total_reward: float
+    @property
+    def num_steps(self) -> int:
+        return len(self.steps)
 
+    @property 
+    def total_reward(self) -> float:
+        return sum(step.reward if step.reward is not None else 0 for step in self.steps)
 
-class InMemoryDataCollector(BaseCollector):
-    """Collector that stores episode data in memory and can save to disk."""
+    def get_step(self, index: int) -> BaseStep:
+        return self.steps[index]
 
-    def __init__(self, save_dir: str = "collected_data"):
-        """Initialize the collector with a save directory.
-
-        Args:
-            save_dir (str): Directory to save episode data
-        """
-        self.save_dir = Path(save_dir)
-        self.save_dir.mkdir(exist_ok=True)
-        self.current_episode = None
-        self.reset()
-
-    def reset(self) -> None:
-        """Start a new episode."""
-        self.current_episode = InMemoryEpisode(
-            observations=[], actions=[], rewards=[], infos=[], total_reward=0.0
-        )
-
-    def add_step(
+    def append_step(
         self,
         observation: Observation,
-        action: Action,
-        reward: float,
-        info: Dict[str, Any],
+        action: Action, 
+        reward: float|None,
+        info: Dict[str, Any]
     ) -> None:
-        """Add a step to the current episode.
+        step = BaseStep(
+            observation=observation,
+            action=action,
+            reward=reward,
+            info=info
+        )
+        self.steps.append(step)
 
-        Args:
-            observation (Observation): The environment observation
-            action (Action): The action taken
-            reward (float): The reward received
-            info (Dict[str, Any]): Additional information
-        """
-        self.current_episode.observations.append(observation)
-        self.current_episode.actions.append(action)
-        self.current_episode.rewards.append(reward)
-        self.current_episode.infos.append(info)
-        self.current_episode.total_reward += reward
+    def update_step(self, index: int, step: BaseStep) -> None:
+        self.steps[index] = step
 
-    def save_episode(self, episode_num: int) -> None:
-        """Save the current episode to disk.
+    def remove_step(self, index: int) -> None:
+        self.steps.pop(index)
 
-        Args:
-            episode_num (int): The episode number/identifier
-        """
+    def iter_steps(self) -> Iterator[BaseStep]:
+        return iter(self.steps)
+
+    def save_episode(self, episode_name: str) -> None:
+        # Convert episode data to JSON-serializable format
         episode_data = {
-            "observations": self.current_episode.observations,
-            "actions": self.current_episode.actions,
-            "rewards": self.current_episode.rewards,
-            "infos": self.current_episode.infos,
-            "total_reward": self.current_episode.total_reward,
+            "steps": [step.model_dump_json(indent=2) for step in self.steps]
         }
-
-        filepath = self.save_dir / f"episode_{episode_num}.json"
-        with open(filepath, "w") as f:
+        
+        # Save to file
+        path = Path(f"{episode_name}.json")
+        parent_dir = path.parent
+        if not parent_dir.exists():
+            parent_dir.mkdir(parents=True)
+        with path.open("w") as f:
             json.dump(episode_data, f, indent=2)

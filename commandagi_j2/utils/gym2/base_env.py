@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, List, NewType
+from typing import Dict, Tuple, List, NewType, Any
 
 # Define common type aliases for the environment and related modules
-Observation = NewType("Observation", str)
-Action = NewType("Action", str)
+Observation = NewType("Observation", Any)
+Action = NewType("Action", Any)
 Step = Tuple[Observation, Action]
 Trajectory = List[Step]
 Mandate = NewType("Mandate", str)
