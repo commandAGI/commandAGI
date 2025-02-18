@@ -35,10 +35,8 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
     _LOG_MODALITY_ERRORS: ClassVar[bool] = False
 
-    observation_space: Space[ComputerObservation] = StructuredSpace(
-        model=ComputerObservation
-    )
-    action_space: Space[ComputerAction] = StructuredSpace(model=ComputerAction)
+    observation_space: Space = StructuredSpace(model=ComputerObservation)
+    action_space: Space = StructuredSpace(model=ComputerAction)
 
     def get_observation(self) -> ComputerObservation:
         """

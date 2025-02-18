@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Union, List, Type, TypeVar, Generic, Dict, Any
+from typing import Optional, Union, List, Type, TypeVar, Generic, Dict, Any, Callable
 from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.base_episode import BaseEpisode
@@ -11,7 +11,7 @@ ActType = TypeVar('ActType')
 class BaseDriver(Generic[ObsType, ActType], ABC):
     """Abstract base class for driving agent-environment interactions."""
 
-    episode_cls: Type[BaseEpisode[ObsType, ActType]]
+    episode_constructor: Callable[[], BaseEpisode[ObsType, ActType]]
     callbacks: List[Callback]
 
     @abstractmethod
@@ -19,7 +19,7 @@ class BaseDriver(Generic[ObsType, ActType], ABC):
         self,
         env: Optional[Env[ObsType, ActType]] = None,
         agent: Optional[BaseAgent[ObsType, ActType]] = None,
-        episode_cls: Type[BaseEpisode[ObsType, ActType]] = None,
+        episode_constructor: Optional[Callable[[], BaseEpisode[ObsType, ActType]]] = None,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the driver.
@@ -27,7 +27,7 @@ class BaseDriver(Generic[ObsType, ActType], ABC):
         Args:
             env (Optional[Env]): The environment to use
             agent (Optional[BaseAgent]): The agent to use
-            episode_cls (Type[BaseEpisode]): The episode class to use
+            episode_constructor (Optional[Callable[[], BaseEpisode]]): Function to create new episodes
             callbacks (Optional[List[Callback]]): List of callbacks to register
         """
 

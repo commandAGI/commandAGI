@@ -29,9 +29,6 @@ class SimpleComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
         if not observation.screenshot.screenshot:
             return None
 
-        with open(observation.screenshot.screenshot, "rb") as image_file:
-            encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
-
         input_messages = [
             ChatMessage(
                 role="user",
@@ -52,7 +49,7 @@ class SimpleComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
                     },
                     {
                         "type": "image_url",
-                        "image_url": {"url": f"data:image/png;base64,{encoded_image}"},
+                        "image_url": {"url": f"data:image/png;base64,{observation.screenshot.screenshot}"},
                     },
                     {
                         "type": "text",

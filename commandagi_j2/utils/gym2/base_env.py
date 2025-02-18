@@ -12,13 +12,13 @@ class Env(Generic[ObsType, ActType], ABC):
 
     @property
     @abstractmethod
-    def observation_space(self) -> Space[ObsType]:
+    def observation_space(self) -> Space:
         """The observation space of the environment."""
         pass
 
     @property
     @abstractmethod
-    def action_space(self) -> Space[ActType]:
+    def action_space(self) -> Space:
         """The action space of the environment."""
         pass
 

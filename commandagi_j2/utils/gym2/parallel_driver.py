@@ -1,4 +1,4 @@
-from typing import Optional, Union, List, Type, Dict
+from typing import Optional, Union, List, Type, Dict, Callable
 from rich.console import Console
 import time
 import traceback
@@ -20,7 +20,7 @@ class ParallelDriver(BaseDriver):
         self,
         agent: BaseAgent,
         parallel_env: ParallelEnv,
-        episode_cls: Type[BaseEpisode] = InMemoryEpisode,
+        episode_constructor: Optional[Callable[[], BaseEpisode]] = None,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the parallel single agent driver.
@@ -28,12 +28,12 @@ class ParallelDriver(BaseDriver):
         Args:
             parallel_env (ParallelEnv): The parallel environment to use
             agent (Optional[BaseAgent]): The agent that can handle batched observations
-            episode_cls (Type[BaseEpisode]): The episode class to use for data collection
+            episode_constructor (Optional[Callable[[], BaseEpisode]]): Function to create new episodes
             callbacks (Optional[List[Callback]]): List of callbacks to register
         """
         self.agent = agent
         self.env = parallel_env
-        self.episode_cls = episode_cls
+        self.episode_constructor = episode_constructor or InMemoryEpisode
         self.current_episodes: Dict[str, BaseEpisode] = {}
 
     def reset(self) -> None:
@@ -44,7 +44,7 @@ class ParallelDriver(BaseDriver):
         self.agent.reset()
         console.print("📊 [cyan]Creating new episodes...[/]")
         self.current_episodes = {
-            env_id: self.episode_cls() 
+            env_id: self.episode_constructor() 
             for env_id in self.env.envs.keys()
         }
         console.print("✅ [green]Reset complete[/]")

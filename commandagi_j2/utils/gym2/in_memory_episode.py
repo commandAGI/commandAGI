@@ -9,7 +9,7 @@ from commandagi_j2.utils.gym2.base_episode import BaseEpisode, BaseStep
 ObsType = TypeVar('ObsType')
 ActType = TypeVar('ActType')
 
-class InMemoryEpisode(BaseEpisode[ObsType, ActType], BaseModel):
+class InMemoryEpisode(BaseModel, BaseEpisode[ObsType, ActType]):
     """In-memory storage for episode data."""
     steps: List[BaseStep[ObsType, ActType]] = []
 

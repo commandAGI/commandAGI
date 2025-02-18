@@ -1,6 +1,6 @@
 import time
 import traceback
-from typing import Optional, Union, List, Type, TypeVar, Generic, Dict, Any
+from typing import Optional, Union, List, Type, TypeVar, Generic, Dict, Any, Callable
 from rich.console import Console
 from commandagi_j2.utils.gym2.callbacks import Callback
 from commandagi_j2.utils.gym2.base_episode import BaseEpisode
@@ -21,7 +21,7 @@ class BasicDriver(BaseDriver[ObsType, ActType]):
         self,
         env: Optional[Env[ObsType, ActType]],
         agent: Optional[BaseAgent[ObsType, ActType]],
-        episode_cls: Type[BaseEpisode[ObsType, ActType]],
+        episode_constructor: Optional[Callable[[], BaseEpisode[ObsType, ActType]]] = None,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the single agent driver.
@@ -29,13 +29,13 @@ class BasicDriver(BaseDriver[ObsType, ActType]):
         Args:
             env (Optional[Env[ObsType, ActType]]): The environment to use
             agent (Optional[BaseAgent[ObsType, ActType]]): The agent to use
-            episode_cls (Type[BaseEpisode[ObsType, ActType]]): The episode class to use for data collection
+            episode_constructor (Optional[Callable[[], BaseEpisode[ObsType, ActType]]]): Function to create new episodes
             callbacks (Optional[List[Callback]]): List of callbacks to register
         """
         self.env = env
         self.agent = agent
-        self.episode_cls = episode_cls
-        self.current_episode: Optional[BaseEpisode[ObsType, ActType]] = None
+        self.episode_constructor = episode_constructor or InMemoryEpisode
+        self.current_episode = None
         self.callbacks = callbacks or []
 
     def reset(self) -> None:
@@ -45,7 +45,7 @@ class BasicDriver(BaseDriver[ObsType, ActType]):
         console.print("🤖 [cyan]Resetting agent...[/]")
         self.agent.reset()
         console.print("📊 [cyan]Creating new episode...[/]")
-        self.current_episode = self.episode_cls()
+        self.current_episode = self.episode_constructor()
         console.print("✅ [green]Reset complete[/]")
 
     def run_episode(
