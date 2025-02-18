@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Union
-from commandagi_j2.utils.gym2.env_base import Env
+from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
 

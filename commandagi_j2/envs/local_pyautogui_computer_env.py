@@ -39,18 +39,6 @@ class LocalPyAutoGUIComputeEnv(BaseComputerEnv):
 
         return self.get_observation()
 
-    def step(self, action):
-        """Execute action and return (observation, reward, done, info)"""
-        success = self.execute_action(action)
-        observation = self.get_observation()
-
-        # Simple reward structure
-        reward = 1.0 if success else -1.0
-        done = False  # In this case, episodes don't naturally terminate
-        info = {"action_success": success}
-
-        return observation, reward, done, info
-
     def close(self):
         """Clean up resources"""
         self.sct.close()

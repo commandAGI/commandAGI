@@ -36,8 +36,15 @@ class Env(ABC):
         observation = self.get_observation()
         return observation
 
+    @abstractmethod
     def close(self):
-        """Clean up environment resources."""
+        """Clean up environment resources.
+        
+        This method should be implemented by subclasses to properly clean up any resources
+        like network connections, file handles, or external processes that need to be
+        explicitly closed or terminated.
+        """
+        pass
 
     def step(self, action: Action) -> Tuple[Observation, float, bool, Dict]:
         """Execute action and return (observation, reward, done, info).
@@ -52,13 +59,13 @@ class Env(ABC):
             info (Dict): Additional information
         """
         """Execute an action and return the next observation, reward, done, and info."""
-        success = self._execute_action(action)
+        success = self.execute_action(action)
         if not success:
             raise ValueError(f"Action {action} failed to execute")
         observation = self.get_observation()
-        reward = self.get_reward(observation, action)
-        done = self.get_done(observation, action)
-        info = self.get_info(observation, action)
+        reward = self.get_reward(action)
+        done = self.get_done(action)
+        info = self.get_info()
         return observation, reward, done, info
 
     @abstractmethod
@@ -103,7 +110,3 @@ class Env(ABC):
             Dict: Additional information
         """
         return {}
-
-    @abstractmethod
-    def close(self):
-        """Clean up environment resources."""

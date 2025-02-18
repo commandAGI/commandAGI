@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
-from commandagi_j2.utils.gym2.env_base import Observation, Action
+from commandagi_j2.utils.gym2.base_env import Observation, Action
 
 
 class BaseEpisode(ABC):

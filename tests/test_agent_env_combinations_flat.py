@@ -216,7 +216,7 @@ def test_all_combinations():
     #     )
     #     console.print("✅ [green]Claude + LXDEVNCKubernetesComputerEnv test completed[/]")
         
-    #     console.print("\n🤖 [cyan]Running GPT-4o + LXDEVNCKubernetesComputerEnv test...[/]")
+    #     console.print("\n�� [cyan]Running GPT-4o + LXDEVNCKubernetesComputerEnv test...[/]")
     #     console.print("🔄 [yellow]Initializing test with GPT-4o agent...[/]")
     #     run_single_test(
     #         SimpleComputerAgent, gpt4o_params,
@@ -231,3 +231,4 @@ def test_all_combinations():
 
 if __name__ == "__main__":
     test_all_combinations() 
+    print("Done")

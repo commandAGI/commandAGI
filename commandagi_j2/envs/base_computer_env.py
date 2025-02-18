@@ -1,6 +1,8 @@
 from abc import abstractmethod
 import time
-from commandagi_j2.utils.gym2.env_base import Action, Env
+from typing import ClassVar
+from rich.console import Console
+from commandagi_j2.utils.gym2.base_env import Action, Env
 from commandagi_j2.utils.gym2.spaces import StructuredSpace
 from commandagi_j2.envs.computer_types import (
     CommandAction,
@@ -25,12 +27,15 @@ from commandagi_j2.envs.computer_types import (
     KeyboardStateObservation,
 )
 
+console = Console()
 
 class BaseComputerEnv(Env):
     """Base class for computer environments with standard actions"""
 
     _observation_space = StructuredSpace(model=ComputerObservation)
     _action_space = StructuredSpace(model=ComputerAction)
+
+    _LOG_MODALITY_ERRORS: ClassVar[bool] = False
 
     def __init__(self):
         # Initialize spaces using StructuredSpace
@@ -56,19 +61,22 @@ class BaseComputerEnv(Env):
         try:
             screenshot = self.get_screenshot()
         except Exception as e:
-            print(f"Error getting screenshot: {e}")
+            if self._LOG_MODALITY_ERRORS:
+                console.print(f"🖼️ [red]Error getting screenshot:[/] {e}")
             screenshot = None
 
         try:
             mouse_state = self.get_mouse_state()
         except Exception as e:
-            print(f"Error getting mouse state: {e}")
+            if self._LOG_MODALITY_ERRORS:
+                console.print(f"🖱️ [red]Error getting mouse state:[/] {e}")
             mouse_state = None
 
         try:
             keyboard_state = self.get_keyboard_state()
         except Exception as e:
-            print(f"Error getting keyboard state: {e}")
+            if self._LOG_MODALITY_ERRORS:
+                console.print(f"⌨️ [red]Error getting keyboard state:[/] {e}")
             keyboard_state = None
 
         return ComputerObservation(
@@ -79,7 +87,7 @@ class BaseComputerEnv(Env):
 
     def execute_action(self, action: ComputerAction) -> bool:
         """Route the action to the appropriate handler implemented by subclasses."""
-        success = False
+        success = True
 
         if action.command:
             try:
@@ -87,7 +95,8 @@ class BaseComputerEnv(Env):
                     action.command.command, action.command.timeout
                 )
             except Exception as e:
-                print(f"Error executing command: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"💻 [red]Error executing command:[/] {e}")
                 success = False
 
         if action.keyboard_keys_press:
@@ -96,7 +105,8 @@ class BaseComputerEnv(Env):
                     action.keyboard_keys_press.keys
                 )
             except Exception as e:
-                print(f"Error executing keyboard press: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"⌨️ [red]Error executing keyboard press:[/] {e}")
                 success = False
 
         if action.keyboard_keys_down:
@@ -105,7 +115,8 @@ class BaseComputerEnv(Env):
                     action.keyboard_keys_down.keys
                 )
             except Exception as e:
-                print(f"Error executing keyboard down: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"⌨️ [red]Error executing keyboard down:[/] {e}")
                 success = False
 
         if action.keyboard_keys_release:
@@ -114,21 +125,24 @@ class BaseComputerEnv(Env):
                     action.keyboard_keys_release.keys
                 )
             except Exception as e:
-                print(f"Error executing keyboard release: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"⌨️ [red]Error executing keyboard release:[/] {e}")
                 success = False
 
         if action.keyboard_hotkey:
             try:
                 success = self.execute_keyboard_hotkey(action.keyboard_hotkey.keys)
             except Exception as e:
-                print(f"Error executing keyboard hotkey: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"⌨️ [red]Error executing keyboard hotkey:[/] {e}")
                 success = False
 
         if action.type:
             try:
                 success = self.execute_type(action.type.text)
             except Exception as e:
-                print(f"Error executing type: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"⌨️ [red]Error executing type:[/] {e}")
                 success = False
 
         if action.mouse_move:
@@ -139,14 +153,16 @@ class BaseComputerEnv(Env):
                     action.mouse_move.move_duration,
                 )
             except Exception as e:
-                print(f"Error executing mouse move: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"🖱️ [red]Error executing mouse move:[/] {e}")
                 success = False
 
         if action.mouse_scroll:
             try:
                 success = self.execute_mouse_scroll(action.mouse_scroll.amount)
             except Exception as e:
-                print(f"Error executing mouse scroll: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"🖱️ [red]Error executing mouse scroll:[/] {e}")
                 success = False
 
         if action.mouse_button_down:
@@ -155,21 +171,24 @@ class BaseComputerEnv(Env):
                     action.mouse_button_down.button
                 )
             except Exception as e:
-                print(f"Error executing mouse button down: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"🖱️ [red]Error executing mouse button down:[/] {e}")
                 success = False
 
         if action.mouse_button_up:
             try:
                 success = self.execute_mouse_button_up(action.mouse_button_up.button)
             except Exception as e:
-                print(f"Error executing mouse button up: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"🖱️ [red]Error executing mouse button up:[/] {e}")
                 success = False
 
         if action.click:
             try:
                 success = self.execute_click(action.click)
             except Exception as e:
-                print(f"Error executing click: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"🖱️ [red]Error executing click:[/] {e}")
                 success = False
 
         if action.drag:
@@ -183,7 +202,8 @@ class BaseComputerEnv(Env):
                     action.drag.button,
                 )
             except Exception as e:
-                print(f"Error executing drag: {e}")
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"🖱️ [red]Error executing drag:[/] {e}")
                 success = False
 
         return success
@@ -199,6 +219,7 @@ class BaseComputerEnv(Env):
             try:
                 from commandagi_j2.utils.env_viewer import EnvironmentViewer
             except ImportError:
+                console.print("❌ [red]TkRender is required for human rendering but is not installed.[/]")
                 raise ImportError(
                     "TkRender is required for human rendering but is not installed."
                 )
@@ -209,6 +230,7 @@ class BaseComputerEnv(Env):
         elif mode == "rgb_array":
             return self.get_observation()
         else:
+            console.print(f"❌ [red]Unsupported render mode:[/] {mode}")
             raise ValueError("Unsupported render mode: " + mode)
 
     @abstractmethod

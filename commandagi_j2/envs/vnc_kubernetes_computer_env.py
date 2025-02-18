@@ -34,6 +34,7 @@ class VNCKubernetesComputerEnv(KubernetesComputerEnv):
         self.vnc_port = vnc_port
         self.vnc_host = "localhost"  # Assumes port-forwarding is set up to map the pod's VNC port to localhost
         self.password = password
+        self.vnc = None
         self._connect_vnc()
 
     def _connect_vnc(self):
@@ -73,3 +74,17 @@ class VNCKubernetesComputerEnv(KubernetesComputerEnv):
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)
         return True
+
+    def close(self):
+        """Clean up VNC connection and Kubernetes resources.
+        
+        Disconnects from the VNC server and cleans up Kubernetes pod resources.
+        """
+        try:
+            self.vnc.disconnect()
+            print("Disconnected from VNC server")
+        except Exception as e:
+            print(f"Error disconnecting from VNC server: {e}")
+        
+        # Call parent's close to cleanup Kubernetes resources
+        super().close()

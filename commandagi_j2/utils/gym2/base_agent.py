@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from commandagi_j2.utils.gym2.env_base import Observation
+from commandagi_j2.utils.gym2.base_env import Observation
 
 
 class BaseAgent(ABC):
@@ -21,7 +21,7 @@ class BaseAgent(ABC):
         """
 
     @abstractmethod
-    def update(self, reward: float) -> None: # TODO: move reward to `act``
+    def update(self, reward: float) -> None:  # TODO: move reward to `act``
         """Update the agent's internal state based on the received reward.
 
         Args:

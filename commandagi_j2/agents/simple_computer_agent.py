@@ -1,19 +1,14 @@
 from textwrap import dedent
+from rich.console import Console
+from rich.panel import Panel
+from commandagi_j2.envs.computer_types import ComputerAction, ComputerObservation
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
-from commandagi_j2.utils.gym2.env_base import Action, Observation
-from langchain_openai.chat_models import ChatOpenAI
 from langchain_core.output_parsers.string import StrOutputParser
 from langchain.schema import ChatMessage
 from commandagi_j2.utils.chat_model_utils import get_chat_model
 import base64
 
-
-# New custom chat model class for the custom_openai_compat provider.
-class ChatOpenAICompat(ChatOpenAI):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Set a flag or perform adjustments unique to custom compatibility mode.
-        self.compat_mode = True
+console = Console()
 
 
 class SimpleComputerAgent(BaseAgent):
@@ -28,10 +23,13 @@ class SimpleComputerAgent(BaseAgent):
         """Reset agent state"""
         self.total_reward = 0.0
 
-    def act(self, observation: Observation) -> Action:
+    def act(self, observation: ComputerObservation) -> ComputerAction:
         """Analyze screenshot and decide on next action using LangChain chat model."""
         # Convert image to base64
-        with open(observation, "rb") as image_file:
+        if not observation.screenshot.screenshot:
+            return None
+
+        with open(observation.screenshot.screenshot, "rb") as image_file:
             encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
 
         input_messages = [
@@ -68,9 +66,11 @@ class SimpleComputerAgent(BaseAgent):
             ),
         ]
 
-        response = self.chat_model.invoke(input_messages)
-        response_str = self.str_output_parser.invoke(response.content.strip())
-        return response_str
+        # response = self.chat_model.invoke(input_messages)
+        # response_str = self.str_output_parser.invoke(response.content.strip())
+        # console.print(Panel(f"🤖 [cyan]Agent response:[/] {response_str}"))
+
+        return ComputerAction()
 
     def update(self, reward: float):
         """Update agent with reward feedback"""

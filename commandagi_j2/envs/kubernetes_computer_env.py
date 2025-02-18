@@ -181,16 +181,28 @@ class KubernetesComputerEnv(BaseComputerEnv):
         )
 
     def close(self):
-        cmd = [
-            "kubectl",
-            "delete",
-            "pod",
-            self.pod_name,
-            "-n",
-            self.namespace,
-            "--grace-period=0",
-            "--force",
-        ]
-        print(f"Deleting Kubernetes pod with command: {' '.join(cmd)}")
-        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("Pod deleted.")
+        """Clean up Kubernetes resources.
+        
+        Deletes the pod and cleans up any associated resources.
+        """
+        try:
+            cmd = [
+                "kubectl",
+                "delete",
+                "pod",
+                self.pod_name,
+                "-n",
+                self.namespace,
+                "--grace-period=0",
+                "--force",
+            ]
+            print(f"Deleting Kubernetes pod with command: {' '.join(cmd)}")
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode == 0:
+                print(f"Successfully deleted pod {self.pod_name}")
+            else:
+                print(f"Error deleting pod: {result.stderr.decode('utf-8')}")
+        except Exception as e:
+            print(f"Error cleaning up Kubernetes resources: {e}")
+        
+        super().close()

@@ -78,6 +78,14 @@ class LocalPynputComputeEnv(BaseComputerEnv):
 
         return self.get_observation()
 
+    def close(self):
+        """Clean up resources, including stopping pynput listeners."""
+        self.sct.close()
+        if self._keyboard_listener:
+            self._keyboard_listener.stop()
+        if self._mouse_listener:
+            self._mouse_listener.stop()
+
     def _on_keyboard_press(self, key):
         """Callback for when a key is pressed."""
         self._pressed_keys.add(key)
@@ -125,14 +133,6 @@ class LocalPynputComputeEnv(BaseComputerEnv):
             if conv_key is not None and conv_key in keys_state:
                 keys_state[conv_key] = True
         return KeyboardStateObservation(keys=keys_state)
-
-    def close(self):
-        """Clean up resources, including stopping pynput listeners."""
-        self.sct.close()
-        if self._keyboard_listener:
-            self._keyboard_listener.stop()
-        if self._mouse_listener:
-            self._mouse_listener.stop()
 
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command using subprocess."""

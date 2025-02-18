@@ -443,6 +443,10 @@ class ComputerAction(BaseModel):
     keyboard_keys_press: Optional[KeyboardKeysPressAction] = None
     keyboard_keys_down: Optional[KeyboardKeysDownAction] = None
     keyboard_keys_release: Optional[KeyboardKeysReleaseAction] = None
+    keyboard_key_press: Optional[KeyboardKeyPressAction] = None
+    keyboard_key_down: Optional[KeyboardKeyDownAction] = None
+    keyboard_key_release: Optional[KeyboardKeyReleaseAction] = None
+    keyboard_hotkey: Optional[KeyboardHotkeyAction] = None
     type: Optional[TypeAction] = None
     mouse_move: Optional[MouseMoveAction] = None
     mouse_scroll: Optional[MouseScrollAction] = None

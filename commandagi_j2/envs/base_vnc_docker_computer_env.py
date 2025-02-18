@@ -68,16 +68,18 @@ class VNCDockerComputerEnv(BaseDockerComputerEnv):
         return ScreenshotObservation(screenshot=screenshot_path)
 
     def close(self):
-        if self.vnc:
+        """Clean up VNC and Docker resources.
+        
+        Disconnects from the VNC server and cleans up Docker container resources.
+        """
+        try:
             self.vnc.disconnect()
+            print("Disconnected from VNC server")
+        except Exception as e:
+            print(f"Error disconnecting from VNC server: {e}")
+        
+        # Call parent's close to cleanup Docker resources
         super().close()
-
-    def execute_in_container(self, cmd):
-        """
-        (Deprecated in this VNC-based approach)
-        You could keep a method to run commands in the container if needed,
-        but for user input simulation we now use VNC.
-        """
 
     def reset(self):
         """
@@ -95,10 +97,6 @@ class VNCDockerComputerEnv(BaseDockerComputerEnv):
         raise NotImplementedError(
             "DockerLxdeEnv does not support keyboard state observation"
         )
-
-    def execute_command(self, action: CommandAction) -> bool:
-        # Delegate to parent's container command executor.
-        return self.execute_command_in_container(action.command)
 
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key using VNC."""

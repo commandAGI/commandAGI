@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 from dataclasses import dataclass
 from pathlib import Path
 import json
-from commandagi_j2.utils.gym2.env_base import Observation, Action
+from commandagi_j2.utils.gym2.base_env import Observation, Action
 from commandagi_j2.utils.gym2.collector_base import BaseCollector, BaseEpisode
 
 

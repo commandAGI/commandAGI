@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 from commandagi_j2.utils.gym2.collector_base import BaseEpisode
-from commandagi_j2.utils.gym2.env_base import Mandate
+from commandagi_j2.utils.gym2.base_env import Mandate
 
 
 class BaseEvaluator(ABC):

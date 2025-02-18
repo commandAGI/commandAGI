@@ -25,6 +25,7 @@ class VNCComputerEnv(BaseComputerEnv):
         self.host = host
         self.port = port
         self.password = password
+        self.vnc = None
         self._connect_vnc()
 
     def _connect_vnc(self):
@@ -85,6 +86,14 @@ class VNCComputerEnv(BaseComputerEnv):
         return True
 
     def close(self):
-        """Clean up VNC connection."""
-        if hasattr(self, 'vnc'):
+        """Clean up VNC connection and resources.
+        
+        Disconnects from the VNC server and cleans up any resources.
+        """
+        try:
             self.vnc.disconnect()
+            print("Disconnected from VNC server")
+        except Exception as e:
+            print(f"Error disconnecting from VNC server: {e}")
+        
+        super().close()

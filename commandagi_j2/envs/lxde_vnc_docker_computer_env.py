@@ -26,13 +26,14 @@ class LXDEVNCDockerComputerEnv(VNCDockerComputerEnv):
             result = self.run_command_in_container(
                 "xdotool getmouselocation", timeout=5
             )
-            if result.returncode != 0:
+            # Docker exec results have output attribute instead of stdout
+            if result.exit_code != 0:
                 print(
-                    f"xdotool getmouselocation error: {result.stderr.decode('utf-8')}"
+                    f"xdotool getmouselocation error: {result.output.decode('utf-8') if result.output else ''}"
                 )
                 return MouseStateObservation(position=(0, 0), buttons={})
 
-            output = result.stdout.decode("utf-8").strip()
+            output = result.output.decode("utf-8").strip()
             # Expected output example: "x:100 y:200 screen:0 window:12345678"
             parts = output.split()
             x = int(parts[0].split(":")[1])
@@ -41,7 +42,7 @@ class LXDEVNCDockerComputerEnv(VNCDockerComputerEnv):
             return MouseStateObservation(position=(x, y), buttons={})
         except Exception as e:
             print(f"Error in get_mouse_state: {e}")
-            return MouseStateObservation(position=(0, 0), buttons={})
+            return None
 
     def _vnc_hotkey(self, modifier: str, key: str):
         """
