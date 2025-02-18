@@ -27,7 +27,7 @@ class BaseTrainer(ABC):
         self.train_evaluators = train_evaluators or []
         self.test_evaluators = test_evaluators or []
         self.metrics: Dict[str, Any] = {}
-        self._callbacks = callbacks or []
+        self.callbacks = callbacks or []
 
     @abstractmethod
     def train(self, num_episodes: int = 10, max_steps: int = 100) -> List[float]:
@@ -99,13 +99,7 @@ class BaseTrainer(ABC):
             Dict[str, Any]: A dictionary containing all metrics
         """
         return self.metrics
-
-    @property
-    def callbacks(self):
-        if not hasattr(self, "_callbacks"):
-            self._callbacks = []
-        return self._callbacks
-
+    
     def register_callback(self, callback: Callback) -> None:
         """Register a callback for trainer-specific events."""
         self.callbacks.append(callback)

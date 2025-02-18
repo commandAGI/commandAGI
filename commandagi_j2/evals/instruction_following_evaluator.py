@@ -1,6 +1,6 @@
 import openai
 from typing import List, Dict, Any
-from commandagi_j2.utils.gym2.collector_base import BaseEpisode
+from commandagi_j2.utils.gym2.base_episode import BaseEpisode
 from commandagi_j2.utils.gym2.base_env import (
     Mandate,
 )

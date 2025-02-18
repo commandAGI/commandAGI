@@ -11,7 +11,7 @@ import base64
 console = Console()
 
 
-class SimpleComputerAgent(BaseAgent):
+class SimpleComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
 
     def __init__(self, chat_model_options: dict):
         self.total_reward = 0.0

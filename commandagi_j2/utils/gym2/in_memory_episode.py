@@ -5,7 +5,7 @@ import json
 
 from pydantic import BaseModel
 from commandagi_j2.utils.gym2.base_env import Observation, Action
-from commandagi_j2.utils.gym2.collector_base import BaseEpisode, BaseStep
+from commandagi_j2.utils.gym2.base_episode import BaseEpisode, BaseStep
 
 
 class InMemoryEpisode(BaseEpisode, BaseModel):

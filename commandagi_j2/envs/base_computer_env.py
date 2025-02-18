@@ -25,14 +25,20 @@ from commandagi_j2.envs.computer_types import (
     MouseStateObservation,
     KeyboardStateObservation,
 )
+from commandagi_j2.utils.gym2.spaces import Space, StructuredSpace
 
 console = Console()
 
 
-class BaseComputerEnv(Env):
+class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
     """Base class for computer environments with standard actions"""
 
     _LOG_MODALITY_ERRORS: ClassVar[bool] = False
+
+    observation_space: Space[ComputerObservation] = StructuredSpace(
+        model=ComputerObservation
+    )
+    action_space: Space[ComputerAction] = StructuredSpace(model=ComputerAction)
 
     def get_observation(self) -> ComputerObservation:
         """

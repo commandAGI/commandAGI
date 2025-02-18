@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
-from commandagi_j2.utils.gym2.base_env import Observation
+from typing import Generic, TypeVar
 
+ObsType = TypeVar('ObsType')
+ActType = TypeVar('ActType')
 
-class BaseAgent(ABC):
+class BaseAgent(Generic[ObsType, ActType], ABC):
     """Base class for all agents in the environment."""
 
     @abstractmethod
@@ -10,18 +12,18 @@ class BaseAgent(ABC):
         """Reset the agent's internal state."""
 
     @abstractmethod
-    def act(self, observation: Observation) -> str:
+    def act(self, observation: ObsType) -> ActType:
         """Given an observation, determine the next action.
 
         Args:
-            observation (Observation): The current environment observation.
+            observation (ObsType): The current environment observation.
 
         Returns:
-            str: The chosen action as a string.
+            ActType: The chosen action.
         """
 
     @abstractmethod
-    def update(self, reward: float) -> None:  # TODO: move reward to `act``
+    def update(self, reward: float) -> None:
         """Update the agent's internal state based on the received reward.
 
         Args:

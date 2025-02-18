@@ -1,40 +1,43 @@
 import time
 import traceback
-from typing import Optional, Union, List, Type
+from typing import Optional, Union, List, Type, TypeVar, Generic, Dict, Any
 from rich.console import Console
 from commandagi_j2.utils.gym2.callbacks import Callback
-from commandagi_j2.utils.gym2.collector_base import BaseEpisode
+from commandagi_j2.utils.gym2.base_episode import BaseEpisode
 from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.driver_base import BaseDriver
-from commandagi_j2.utils.gym2.in_memory_collector import InMemoryEpisode
+from commandagi_j2.utils.gym2.in_memory_episode import InMemoryEpisode
 
 console = Console()
 
+ObsType = TypeVar('ObsType')
+ActType = TypeVar('ActType')
+InfoType = TypeVar('InfoType', bound=Dict[str, Any])
 
-class BasicDriver(BaseDriver):
-    """Basic implementation of the BaseDriver for running agent-environment interactions."""
+class BasicDriver(BaseDriver[ObsType, ActType, InfoType]):
+    """Single agent implementation of the BaseDriver for running agent-environment interactions."""
 
     def __init__(
         self,
-        env: Optional[Env],
-        agent: Optional[BaseAgent],
-        episode_cls: Type[BaseEpisode] = InMemoryEpisode,
+        env: Optional[Env[ObsType, ActType, InfoType]],
+        agent: Optional[BaseAgent[ObsType, ActType]],
+        episode_cls: Type[BaseEpisode[ObsType, ActType, InfoType]],
         callbacks: Optional[List[Callback]] = None,
     ):
-        """Initialize the basic driver.
+        """Initialize the single agent driver.
 
         Args:
-            env (Optional[Env]): The environment to use
-            agent (Optional[BaseAgent]): The agent to use
-            episode_cls (Type[BaseEpisode]): The episode class to use for data collection
+            env (Optional[Env[ObsType, ActType, InfoType]]): The environment to use
+            agent (Optional[BaseAgent[ObsType, ActType]]): The agent to use
+            episode_cls (Type[BaseEpisode[ObsType, ActType, InfoType]]): The episode class to use for data collection
             callbacks (Optional[List[Callback]]): List of callbacks to register
         """
         self.env = env
         self.agent = agent
         self.episode_cls = episode_cls
-        self.current_episode: Optional[BaseEpisode] = None
-        self._callbacks = callbacks or []
+        self.current_episode: Optional[BaseEpisode[ObsType, ActType, InfoType]] = None
+        self.callbacks = callbacks or []
 
     def reset(self) -> None:
         """Reset the driver's state including environment, agent and episode."""
@@ -51,7 +54,7 @@ class BasicDriver(BaseDriver):
         max_steps: Optional[int] = None,
         episode_name: Optional[str] = None,
         return_episode: bool = False,
-    ) -> Union[float, BaseEpisode]:
+    ) -> Union[float, BaseEpisode[ObsType, ActType, InfoType]]:
         """Run a single episode.
 
         Args:
@@ -60,7 +63,7 @@ class BasicDriver(BaseDriver):
             return_episode (bool): Whether to return the full episode data
 
         Returns:
-            Union[float, BaseEpisode]: Either the total reward or full episode data
+            Union[float, BaseEpisode[ObsType, ActType, InfoType]]: Either the total reward or full episode data
         """
         # Reset environment, agent, and collector
         console.print("\n🎬 [bold blue]Starting new episode...[/]")

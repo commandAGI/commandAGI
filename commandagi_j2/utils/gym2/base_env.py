@@ -1,18 +1,28 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, List, NewType, Any
+from typing import Dict, Tuple, List, TypeVar, Generic, Any
 
-# Define common type aliases for the environment and related modules
-Observation = NewType("Observation", Any)
-Action = NewType("Action", Any)
-Step = Tuple[Observation, Action]
-Trajectory = List[Step]
-Mandate = NewType("Mandate", str)
+from commandagi_j2.utils.gym2.spaces import Space
 
+# Define generic type variables
+ObsType = TypeVar("ObsType")
+ActType = TypeVar("ActType")
 
-class Env(ABC):
+class Env(Generic[ObsType, ActType], ABC):
     """Abstract base class for environments."""
 
-    def reset(self) -> Observation:
+    @property
+    @abstractmethod
+    def observation_space(self) -> Space[ObsType]:
+        """The observation space of the environment."""
+        pass
+
+    @property
+    @abstractmethod
+    def action_space(self) -> Space[ActType]:
+        """The action space of the environment."""
+        pass
+
+    def reset(self) -> ObsType:
         """Reset the environment and return initial observation."""
         observation = self.get_observation()
         return observation
@@ -20,24 +30,24 @@ class Env(ABC):
     @abstractmethod
     def close(self):
         """Clean up environment resources.
-        
+
         This method should be implemented by subclasses to properly clean up any resources
         like network connections, file handles, or external processes that need to be
         explicitly closed or terminated.
         """
         pass
 
-    def step(self, action: Action) -> Tuple[Observation, float, bool, Dict]:
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, Dict[str, Any]]:
         """Execute action and return (observation, reward, done, info).
 
         Args:
-            action (Action): Action to execute
+            action (ActType): Action to execute
 
         Returns:
-            observation (Observation): Environment observation
+            observation (ObsType): Environment observation
             reward (float): Reward from the action
             done (bool): Whether episode has ended
-            info (Dict): Additional information
+            info (Dict[str, Any]): Additional information
         """
         """Execute an action and return the next observation, reward, done, and info."""
         success = self.execute_action(action)
@@ -50,44 +60,39 @@ class Env(ABC):
         return observation, reward, done, info
 
     @abstractmethod
-    def get_observation(self) -> Observation:
+    def get_observation(self) -> ObsType:
         """Get the current observation from the environment.
 
         This method should be implemented by subclasses to return the current state observation.
         """
 
     @abstractmethod
-    def execute_action(self, action: Action) -> Observation:
-        """Execute an action and return the observation.
-
-        Args:
-            action (Action): The action to execute
-
-        """
+    def execute_action(self, action: ActType) -> bool:
+        """Execute an action and return success flag."""
 
     @abstractmethod
-    def get_reward(self, action: Action) -> float:
+    def get_reward(self, action: ActType) -> float:
         """Get the reward for an action.
 
         Args:
-            action (Action): The action that was executed
+            action (ActType): The action that was executed
 
         Returns:
             float: The reward for the action
         """
 
     @abstractmethod
-    def get_done(self, action: Action) -> bool:
+    def get_done(self, action: ActType) -> bool:
         """Get the done flag for an action.
 
         Returns:
             bool: Whether the episode is done
         """
 
-    def get_info(self) -> Dict:
+    def get_info(self) -> Dict[str, Any]:
         """Get the info for an action.
 
         Returns:
-            Dict: Additional information
+            Dict[str, Any]: Additional information
         """
         return {}

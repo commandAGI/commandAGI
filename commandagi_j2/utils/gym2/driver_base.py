@@ -1,20 +1,26 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Union, List, Type
+from typing import Optional, Union, List, Type, TypeVar, Generic, Dict, Any
 from commandagi_j2.utils.gym2.base_env import Env
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
-from commandagi_j2.utils.gym2.collector_base import BaseEpisode
+from commandagi_j2.utils.gym2.base_episode import BaseEpisode
 from commandagi_j2.utils.gym2.callbacks import Callback
 
+ObsType = TypeVar('ObsType')
+ActType = TypeVar('ActType')
+InfoType = TypeVar('InfoType', bound=Dict[str, Any])
 
-class BaseDriver(ABC):
+class BaseDriver(Generic[ObsType, ActType, InfoType], ABC):
     """Abstract base class for driving agent-environment interactions."""
+
+    episode_cls: Type[BaseEpisode[ObsType, ActType, InfoType]]
+    callbacks: List[Callback]
 
     @abstractmethod
     def __init__(
         self,
-        env: Optional[Env] = None,
-        agent: Optional[BaseAgent] = None,
-        episode_cls: Type[BaseEpisode] = None,
+        env: Optional[Env[ObsType, ActType, InfoType]] = None,
+        agent: Optional[BaseAgent[ObsType, ActType]] = None,
+        episode_cls: Type[BaseEpisode[ObsType, ActType, InfoType]] = None,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Initialize the driver.
@@ -32,7 +38,7 @@ class BaseDriver(ABC):
         max_steps: int = 100,
         episode_name: Optional[str] = None,
         return_episode: bool = False,
-    ) -> Union[float, BaseEpisode]:
+    ) -> Union[float, BaseEpisode[ObsType, ActType, InfoType]]:
         """Run a single episode.
 
         Args:
@@ -47,12 +53,6 @@ class BaseDriver(ABC):
     @abstractmethod
     def reset(self) -> None:
         """Reset the driver's state."""
-
-    @property
-    def callbacks(self):
-        if not hasattr(self, "_callbacks"):
-            self._callbacks = []
-        return self._callbacks
 
     def register_callback(self, callback: Callback) -> None:
         """Register a callback to be used during episode execution."""

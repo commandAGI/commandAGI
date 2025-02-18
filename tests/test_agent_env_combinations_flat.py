@@ -17,7 +17,7 @@ import docker
 import time
 import subprocess
 
-from commandagi_j2.utils.gym2.in_memory_collector import InMemoryEpisode
+from commandagi_j2.utils.gym2.in_memory_episode import InMemoryEpisode
 
 console = Console()
 
