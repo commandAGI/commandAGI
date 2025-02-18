@@ -16,7 +16,7 @@ class BaseCollector(ABC):
 
     @abstractmethod
     def add_step(
-        self,
+        self, 
         observation: Observation,
         action: Action,
         reward: float,

@@ -3,7 +3,6 @@ import time
 from typing import ClassVar
 from rich.console import Console
 from commandagi_j2.utils.gym2.base_env import Action, Env
-from commandagi_j2.utils.gym2.spaces import StructuredSpace
 from commandagi_j2.envs.computer_types import (
     CommandAction,
     ClickAction,
@@ -29,27 +28,11 @@ from commandagi_j2.envs.computer_types import (
 
 console = Console()
 
+
 class BaseComputerEnv(Env):
     """Base class for computer environments with standard actions"""
 
-    _observation_space = StructuredSpace(model=ComputerObservation)
-    _action_space = StructuredSpace(model=ComputerAction)
-
     _LOG_MODALITY_ERRORS: ClassVar[bool] = False
-
-    def __init__(self):
-        # Initialize spaces using StructuredSpace
-        pass
-
-    @property
-    def observation_space(self) -> StructuredSpace:
-        """Get the observation space of the environment."""
-        return self._observation_space
-
-    @property
-    def action_space(self) -> StructuredSpace:
-        """Get the action space of the environment."""
-        return self._action_space
 
     def get_observation(self) -> ComputerObservation:
         """
@@ -219,7 +202,9 @@ class BaseComputerEnv(Env):
             try:
                 from commandagi_j2.utils.env_viewer import EnvironmentViewer
             except ImportError:
-                console.print("❌ [red]TkRender is required for human rendering but is not installed.[/]")
+                console.print(
+                    "❌ [red]TkRender is required for human rendering but is not installed.[/]"
+                )
                 raise ImportError(
                     "TkRender is required for human rendering but is not installed."
                 )
