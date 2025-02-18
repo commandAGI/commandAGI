@@ -50,26 +50,9 @@ class LXDEVNCKubernetesComputerEnv(VNCKubernetesComputerEnv):
             print(f"Error in get_mouse_state: {e}")
             return MouseStateObservation(position=(0, 0), buttons={})
 
-    def _vnc_hotkey(self, modifier: str, key: str):
-        """
-        Simulate a hotkey press using the VNC connection.
-        Press the modifier and key sequentially.
-        """
-        vnc_modifier = KeyboardKey.to_vnc(modifier)
-        vnc_key = KeyboardKey.to_vnc(key)
-        self.vnc.keyDown(vnc_modifier)
-        time.sleep(0.1)
-        self.vnc.keyDown(vnc_key)
-        time.sleep(0.1)
-        self.vnc.keyUp(vnc_key)
-        time.sleep(0.1)
-        self.vnc.keyUp(vnc_modifier)
-
     def reset(self):
         """
         Reset the environment, e.g., by showing the desktop using the 'super+d' hotkey combination.
         Returns the current observation.
         """
-        self._vnc_hotkey("super", "d")
-        time.sleep(1)
         return self.get_observation()

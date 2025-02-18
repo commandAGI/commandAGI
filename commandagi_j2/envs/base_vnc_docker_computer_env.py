@@ -88,11 +88,6 @@ class VNCDockerComputerEnv(BaseDockerComputerEnv):
         Reset the environment. For instance, pressing 'Super+d' in LXDE inside
         the Docker container might show the desktop. Adjust to your needs.
         """
-        # Example hotkey for "Show Desktop" in LXDE inside the Docker container
-        # (You might need the right combination, e.g., 'ctrl+alt+d' or 'super+d')
-        # We'll try super+d:
-        self._vnc_hotkey("super", "d")
-        time.sleep(1)
         return self.get_observation()
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
