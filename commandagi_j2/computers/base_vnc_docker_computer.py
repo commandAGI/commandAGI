@@ -4,8 +4,8 @@ import time
 import uuid
 import base64
 from vncdotool import api
-from commandagi_j2.envs.base_docker_computer_env import BaseDockerComputerEnv
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.base_docker_computer import BaseDockerComputer
+from commandagi_j2.computers.computer_types import (
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -21,7 +21,7 @@ from commandagi_j2.envs.computer_types import (
 )
 
 
-class VNCDockerComputerEnv(BaseDockerComputerEnv):
+class VNCDockerComputer(BaseDockerComputer):
     def __init__(
         self,
         dockerfile_path,
@@ -65,7 +65,7 @@ class VNCDockerComputerEnv(BaseDockerComputerEnv):
         temp_path = os.path.join(tempfile.mkdtemp(), "temp_screenshot.png")
         self.vnc.captureScreen(temp_path)
         with open(temp_path, "rb") as f:
-            b64_screenshot = base64.b64encode(f.read()).decode('utf-8')
+            b64_screenshot = base64.b64encode(f.read()).decode("utf-8")
         os.remove(temp_path)
         return ScreenshotObservation(screenshot=b64_screenshot)
 

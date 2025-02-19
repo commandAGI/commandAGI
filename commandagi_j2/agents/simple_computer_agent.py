@@ -1,7 +1,7 @@
 from textwrap import dedent
 from rich.console import Console
 from rich.panel import Panel
-from commandagi_j2.envs.computer_types import ComputerAction, ComputerObservation
+from commandagi_j2.computers.computer_types import ComputerAction, ComputerObservation
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from langchain_core.output_parsers.string import StrOutputParser
 from langchain.schema import ChatMessage

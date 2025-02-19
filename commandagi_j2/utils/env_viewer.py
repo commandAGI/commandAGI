@@ -174,7 +174,7 @@ class EnvironmentViewer:
 
 # If run as main for testing purposes, use a dummy environment
 if __name__ == "__main__":
-    from commandagi_j2.envs.computer_types import (
+    from commandagi_j2.computers.computer_types import (
         ScreenshotObservation,
         MouseStateObservation,
         KeyboardStateObservation,

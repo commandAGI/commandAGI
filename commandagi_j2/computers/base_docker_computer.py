@@ -3,11 +3,11 @@ import time
 from typing import ClassVar
 import docker
 from docker.errors import DockerException
-from commandagi_j2.envs.base_computer_env import BaseComputerEnv
-from commandagi_j2.envs.computer_types import CommandAction
+from commandagi_j2.computers.base_computer import BaseComputer
+from commandagi_j2.computers.computer_types import CommandAction
 
 
-class BaseDockerComputerEnv(BaseComputerEnv):
+class BaseDockerComputer(BaseComputer):
     # Class-level shared Docker client
     docker_client: docker.DockerClient
 

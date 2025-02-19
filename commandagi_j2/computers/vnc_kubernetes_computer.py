@@ -1,33 +1,25 @@
 import os
 import tempfile
 import base64
-import time
-import subprocess
-from typing import Optional
-
 from vncdotool import api
-
-from commandagi_j2.computers.base_computer import Computer
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.envs.base_docker_computer import BaseDockerComputer
+from commandagi_j2.computers.computer_types import (
     ScreenshotObservation,
-    CommandAction,
+    KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
-    TypeAction,
     MouseMoveAction,
-    MouseScrollAction,
     MouseButtonDownAction,
     MouseButtonUpAction,
-    KeyboardKey,
-    MouseButton,
-    MouseStateObservation,
-    KeyboardStateObservation,
 )
 
-class VNCKubernetesComputer(Computer):
+
+class VNCKubernetesComputer(BaseDockerComputer):
     """
-    Computer implementation using a Kubernetes pod with VNC capabilities.
+    Kubernetes environment with VNC capabilities.
+    This class extends KubernetesComputerEnv and adds support for VNC-based screenshot capture and input actions.
     """
+
     def __init__(
         self,
         pod_name: str,
@@ -39,73 +31,25 @@ class VNCKubernetesComputer(Computer):
         env_vars: dict = None,
         ports: dict = None,
     ):
-        self.pod_name = pod_name
-        self.image = image
-        self.namespace = namespace
+        super().__init__(pod_name, image, namespace, env_vars, ports)
         self.vnc_port = vnc_port
-        self.vnc_host = "localhost"  # Assumes port-forwarding is set up externally
-        self.user = user
+        self.vnc_host = "localhost"  # Assumes port-forwarding is set up to map the pod's VNC port to localhost
         self.password = password
-        self.env_vars = env_vars if env_vars is not None else {}
-        self.ports = ports if ports is not None else {}
-        self._create_pod()
-        self._wait_for_pod_ready()
+        self.vnc = None
         self._connect_vnc()
 
-    def _create_pod(self):
-        cmd = [
-            "kubectl", "run", self.pod_name, "--image", self.image,
-            "--restart", "Never", "-n", self.namespace
-        ]
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if result.returncode != 0:
-            raise Exception(f"Failed to create pod: {result.stderr.decode('utf-8')}")
-
-    def _wait_for_pod_ready(self, timeout: int = 60):
-        start_time = time.time()
-        while True:
-            cmd = [
-                "kubectl", "get", "pod", self.pod_name, "-n", self.namespace,
-                "-o", "jsonpath={.status.phase}"
-            ]
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            status = result.stdout.decode("utf-8").strip()
-            if status == "Running":
-                break
-            if time.time() - start_time > timeout:
-                raise Exception(f"Timeout waiting for pod {self.pod_name} to be running.")
-            time.sleep(2)
-
     def _connect_vnc(self):
-        self.vnc = api.connect(f"{self.vnc_host}::{self.vnc_port}", password=self.password)
+        self.vnc = api.connect(
+            f"{self.vnc_host}::{self.vnc_port}", password=self.password
+        )
 
-    def get_screenshot(self) -> Optional[ScreenshotObservation]:
+    def get_screenshot(self) -> ScreenshotObservation:
         temp_path = os.path.join(tempfile.mkdtemp(), "temp_screenshot.png")
         self.vnc.captureScreen(temp_path)
         with open(temp_path, "rb") as f:
-            b64_img = base64.b64encode(f.read()).decode("utf-8")
+            b64_screenshot = base64.b64encode(f.read()).decode('utf-8')
         os.remove(temp_path)
-        return ScreenshotObservation(screenshot=b64_img)
-
-    def get_mouse_state(self) -> Optional[MouseStateObservation]:
-        """VNC doesn't support mouse state observation"""
-        return None
-
-    def get_keyboard_state(self) -> Optional[KeyboardStateObservation]:
-        """VNC doesn't support keyboard state observation"""
-        return None
-
-    def execute_command(self, action: CommandAction) -> bool:
-        full_cmd = [
-            "kubectl", "exec", self.pod_name, "-n", self.namespace, "--"
-        ] + action.command.split()
-        result = subprocess.run(
-            full_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=action.timeout if action.timeout is not None else 10
-        )
-        return result.returncode == 0
+        return ScreenshotObservation(screenshot=b64_screenshot)
 
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         vnc_key = KeyboardKey.to_vnc(action.key)
@@ -117,37 +61,34 @@ class VNCKubernetesComputer(Computer):
         self.vnc.keyUp(vnc_key)
         return True
 
-    def execute_type(self, action: TypeAction) -> bool:
-        self.vnc.write(action.text)
-        return True
-
     def execute_mouse_move(self, action: MouseMoveAction) -> bool:
         self.vnc.mouseMove(action.x, action.y)
         return True
 
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
-        return False
-
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+        from commandagi_j2.computers.computer_types import MouseButton
+
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+        from commandagi_j2.computers.computer_types import MouseButton
+
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)
         return True
 
     def close(self):
+        """Clean up VNC connection and Kubernetes resources.
+        
+        Disconnects from the VNC server and cleans up Kubernetes pod resources.
+        """
         try:
             self.vnc.disconnect()
+            print("Disconnected from VNC server")
         except Exception as e:
-            print(f"Error disconnecting VNC: {e}")
-        try:
-            cmd = [
-                "kubectl", "delete", "pod", self.pod_name, "-n", self.namespace,
-                "--grace-period=0", "--force"
-            ]
-            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except Exception as e:
-            print(f"Error deleting pod: {e}") 
+            print(f"Error disconnecting from VNC server: {e}")
+        
+        # Call parent's close to cleanup Kubernetes resources
+        super().close()

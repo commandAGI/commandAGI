@@ -1,17 +1,12 @@
 import os
 import tempfile
 import base64
-from typing import Optional
 from vncdotool import api
-
-from commandagi_j2.computers.base_computer import Computer
-from commandagi_j2.envs.computer_types import (
-    KeyboardKey,
-    MouseButton,
+from commandagi_j2.computers.base_computer import BaseComputer
+from commandagi_j2.computers.computer_types import (
     ScreenshotObservation,
     MouseStateObservation,
     KeyboardStateObservation,
-    CommandAction,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
     TypeAction,
@@ -19,12 +14,15 @@ from commandagi_j2.envs.computer_types import (
     MouseScrollAction,
     MouseButtonDownAction,
     MouseButtonUpAction,
+    KeyboardKey,
 )
 
-class VNCComputer(Computer):
-    """Computer implementation using VNC for remote system control"""
+
+class VNCComputer(BaseComputer):
+    """Environment for VNC connections to arbitrary hardware."""
 
     def __init__(self, host: str, port: int, password: str = ""):
+        super().__init__()
         self.host = host
         self.port = port
         self.password = password
@@ -32,11 +30,9 @@ class VNCComputer(Computer):
         self._connect_vnc()
 
     def _connect_vnc(self):
-        """Connect to VNC server"""
         self.vnc = api.connect(f"{self.host}::{self.port}", password=self.password)
 
-    def get_screenshot(self) -> Optional[ScreenshotObservation]:
-        """Capture screenshot using VNC and return as base64 string"""
+    def get_screenshot(self) -> ScreenshotObservation:
         temp_path = os.path.join(tempfile.mkdtemp(), "temp_screenshot.png")
         self.vnc.captureScreen(temp_path)
         with open(temp_path, "rb") as f:
@@ -44,59 +40,64 @@ class VNCComputer(Computer):
         os.remove(temp_path)
         return ScreenshotObservation(screenshot=b64_screenshot)
 
-    def get_mouse_state(self) -> Optional[MouseStateObservation]:
-        """VNC doesn't support mouse state observation"""
-        return None
+    def get_mouse_state(self) -> MouseStateObservation:
+        raise NotImplementedError(
+            "VNCComputerEnv does not support mouse state observation."
+        )
 
-    def get_keyboard_state(self) -> Optional[KeyboardStateObservation]:
-        """VNC doesn't support keyboard state observation"""
-        return None
+    def get_keyboard_state(self) -> KeyboardStateObservation:
+        raise NotImplementedError(
+            "VNCComputerEnv does not support keyboard state observation."
+        )
 
-    def execute_command(self, action: CommandAction) -> bool:
-        """VNC doesn't support direct command execution"""
-        return False
+    def execute_command(self, action):
+        raise NotImplementedError("VNCComputerEnv does not support command execution.")
 
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
-        """Press down a keyboard key using VNC"""
         vnc_key = KeyboardKey.to_vnc(action.key)
         self.vnc.keyDown(vnc_key)
         return True
 
     def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
-        """Release a keyboard key using VNC"""
         vnc_key = KeyboardKey.to_vnc(action.key)
         self.vnc.keyUp(vnc_key)
         return True
 
     def execute_type(self, action: TypeAction) -> bool:
-        """Type text using VNC"""
         self.vnc.write(action.text)
         return True
 
     def execute_mouse_move(self, action: MouseMoveAction) -> bool:
-        """Move mouse cursor using VNC"""
         self.vnc.mouseMove(action.x, action.y)
         return True
 
     def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
-        """VNC doesn't support mouse scrolling"""
+        # Not implemented as vncdotool does not support mouse scroll
         return False
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        """Press mouse button using VNC"""
+        from commandagi_j2.computers.computer_types import MouseButton
+
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        """Release mouse button using VNC"""
+        from commandagi_j2.computers.computer_types import MouseButton
+
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)
         return True
 
     def close(self):
-        """Clean up VNC connection"""
+        """Clean up VNC connection and resources.
+        
+        Disconnects from the VNC server and cleans up any resources.
+        """
         try:
             self.vnc.disconnect()
-        except:
-            pass 
+            print("Disconnected from VNC server")
+        except Exception as e:
+            print(f"Error disconnecting from VNC server: {e}")
+        
+        super().close()
