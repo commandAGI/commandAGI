@@ -3,8 +3,8 @@ import subprocess
 import tempfile
 import base64
 from e2b_desktop import Sandbox
-from commandagi_j2.envs.base_computer_env import BaseComputerEnv
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.base_computer import BaseComputer
+from commandagi_j2.computers.computer_types import (
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -21,7 +21,7 @@ from commandagi_j2.envs.computer_types import (
 )
 
 
-class E2BDesktopEnv(BaseComputerEnv):
+class E2BDesktopComputer(BaseComputer):
     """Environment that uses E2B Desktop Sandbox for secure computer interactions"""
 
     def __init__(self, video_stream=False):
@@ -51,7 +51,7 @@ class E2BDesktopEnv(BaseComputerEnv):
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         screenshot = self.desktop.take_screenshot()
-        b64_screenshot = base64.b64encode(screenshot).decode('utf-8')
+        b64_screenshot = base64.b64encode(screenshot).decode("utf-8")
         return ScreenshotObservation(screenshot=b64_screenshot)
 
     def get_mouse_state(self) -> MouseStateObservation:

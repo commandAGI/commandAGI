@@ -1,13 +1,13 @@
 import time
 
-from commandagi_j2.envs.base_vnc_docker_computer_env import VNCDockerComputerEnv
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.vnc_docker_computer import VNCDockerComputer
+from commandagi_j2.computers.computer_types import (
     MouseStateObservation,
     KeyboardKey,
 )
 
 
-class LXDEVNCDockerComputerEnv(VNCDockerComputerEnv):
+class LXDEVNCDockerComputer(VNCDockerComputer):
     def __init__(self, user="root", password="secret", vnc_port=5900):
         # Note: the dockerfile_path is given first and the container name will be auto-generated.
         super().__init__(

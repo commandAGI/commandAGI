@@ -3,10 +3,10 @@ import time
 import mss
 from PIL import Image
 import pyautogui
-from commandagi_j2.envs.base_computer_env import BaseComputerEnv
+from commandagi_j2.computers.base_computer import BaseComputer
 import tempfile
 import os
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.computer_types import (
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -15,7 +15,7 @@ from commandagi_j2.envs.computer_types import (
     KeyboardStateObservation,
     MouseButton,
 )
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.computer_types import (
     CommandAction,
     TypeAction,
     MouseMoveAction,
@@ -27,7 +27,7 @@ import io
 import base64
 
 
-class LocalPyAutoGUIComputeEnv(BaseComputerEnv):
+class LocalPyAutoGUIComputer(BaseComputer):
     def __init__(self):
         super().__init__()
         self.sct = mss.mss()
@@ -51,7 +51,7 @@ class LocalPyAutoGUIComputeEnv(BaseComputerEnv):
         img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
         buffer = io.BytesIO()
         img.save(buffer, format="PNG")
-        b64_screenshot = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        b64_screenshot = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return ScreenshotObservation(screenshot=b64_screenshot)
 
     def get_mouse_state(self) -> MouseStateObservation:

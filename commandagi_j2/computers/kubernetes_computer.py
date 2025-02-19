@@ -1,7 +1,7 @@
 import subprocess
 import time
-from commandagi_j2.envs.base_computer_env import BaseComputerEnv
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.base_computer import BaseComputer
+from commandagi_j2.computers.computer_types import (
     CommandAction,
     ScreenshotObservation,
     MouseStateObservation,
@@ -16,7 +16,7 @@ from commandagi_j2.envs.computer_types import (
 )
 
 
-class KubernetesComputerEnv(BaseComputerEnv):
+class KubernetesComputer(BaseComputer):
     """
     Environment that creates and manages a Kubernetes Pod for executing commands.
     Note: This environment primarily supports executing commands within a Kubernetes pod.

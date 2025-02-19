@@ -2,7 +2,7 @@ import subprocess
 import time
 import mss
 from PIL import Image
-from commandagi_j2.envs.base_computer_env import BaseComputerEnv
+from commandagi_j2.computers.base_computer import BaseComputer
 import tempfile
 import os
 import io
@@ -10,7 +10,7 @@ import base64
 
 # Import pynput for keyboard and mouse listeners
 from pynput import keyboard, mouse
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.computer_types import (
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyPressAction,
@@ -20,7 +20,7 @@ from commandagi_j2.envs.computer_types import (
     KeyboardStateObservation,
     MouseButton,
 )
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.computer_types import (
     CommandAction,
     TypeAction,
     MouseMoveAction,
@@ -28,10 +28,10 @@ from commandagi_j2.envs.computer_types import (
     MouseButtonDownAction,
     MouseButtonUpAction,
 )
-from commandagi_j2.envs.computer_types import KeyboardHotkeyAction
+from commandagi_j2.computers.computer_types import KeyboardHotkeyAction
 
 
-class LocalPynputComputeEnv(BaseComputerEnv):
+class LocalPynputComputer(BaseComputer):
     def __init__(self):
         super().__init__()
         self.sct = mss.mss()
@@ -118,7 +118,7 @@ class LocalPynputComputeEnv(BaseComputerEnv):
         img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
         buffer = io.BytesIO()
         img.save(buffer, format="PNG")
-        b64_screenshot = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        b64_screenshot = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return ScreenshotObservation(screenshot=b64_screenshot)
 
     def get_mouse_state(self) -> MouseStateObservation:

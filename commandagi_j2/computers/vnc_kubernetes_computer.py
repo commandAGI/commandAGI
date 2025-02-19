@@ -2,8 +2,8 @@ import os
 import tempfile
 import base64
 from vncdotool import api
-from commandagi_j2.envs.kubernetes_computer_env import KubernetesComputerEnv
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.envs.base_docker_computer import BaseDockerComputer
+from commandagi_j2.computers.computer_types import (
     ScreenshotObservation,
     KeyboardKey,
     KeyboardKeyDownAction,
@@ -14,7 +14,7 @@ from commandagi_j2.envs.computer_types import (
 )
 
 
-class VNCKubernetesComputerEnv(KubernetesComputerEnv):
+class VNCKubernetesComputer(BaseDockerComputer):
     """
     Kubernetes environment with VNC capabilities.
     This class extends KubernetesComputerEnv and adds support for VNC-based screenshot capture and input actions.
@@ -66,14 +66,14 @@ class VNCKubernetesComputerEnv(KubernetesComputerEnv):
         return True
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        from commandagi_j2.envs.computer_types import MouseButton
+        from commandagi_j2.computers.computer_types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        from commandagi_j2.envs.computer_types import MouseButton
+        from commandagi_j2.computers.computer_types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)

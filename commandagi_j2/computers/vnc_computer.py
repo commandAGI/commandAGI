@@ -2,8 +2,8 @@ import os
 import tempfile
 import base64
 from vncdotool import api
-from commandagi_j2.envs.base_computer_env import BaseComputerEnv
-from commandagi_j2.envs.computer_types import (
+from commandagi_j2.computers.base_computer import BaseComputer
+from commandagi_j2.computers.computer_types import (
     ScreenshotObservation,
     MouseStateObservation,
     KeyboardStateObservation,
@@ -18,7 +18,7 @@ from commandagi_j2.envs.computer_types import (
 )
 
 
-class VNCComputerEnv(BaseComputerEnv):
+class VNCComputer(BaseComputer):
     """Environment for VNC connections to arbitrary hardware."""
 
     def __init__(self, host: str, port: int, password: str = ""):
@@ -76,14 +76,14 @@ class VNCComputerEnv(BaseComputerEnv):
         return False
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        from commandagi_j2.envs.computer_types import MouseButton
+        from commandagi_j2.computers.computer_types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        from commandagi_j2.envs.computer_types import MouseButton
+        from commandagi_j2.computers.computer_types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)

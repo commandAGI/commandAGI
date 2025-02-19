@@ -1,12 +1,12 @@
 import time
-from commandagi_j2.envs.vnc_kubernetes_computer_env import VNCKubernetesComputerEnv
-from commandagi_j2.envs.computer_types import MouseStateObservation, KeyboardKey
+from commandagi_j2.computers.vnc_kubernetes_computer import VNCKubernetesComputer
+from commandagi_j2.computers.computer_types import MouseStateObservation, KeyboardKey
 
 
-class LXDEVNCKubernetesComputerEnv(VNCKubernetesComputerEnv):
+class LXDEVNCKubernetesComputer(VNCKubernetesComputer):
     """
     Kubernetes environment with VNC and LXDE desktop support.
-    Extends VNCKubernetesComputerEnv by adding methods to retrieve the mouse state using xdotool
+    Extends VNCKubernetesComputer by adding methods to retrieve the mouse state using xdotool
     and a reset method that simulates the LXDE 'show desktop' hotkey (super+d).
     """
 
