@@ -5,22 +5,22 @@ from pynput.keyboard import Key as PynputKey, KeyCode as PynputKeyCode
 from pynput.mouse import Button as PynputButton
 
 
+
+# Backend-specific mappings
+_VNC_MOUSE_BUTTON_MAPPING = {"left": 1, "middle": 2, "right": 3}
+
+_PYAUTOGUI_MOUSE_BUTTON_MAPPING = {"left": "left", "middle": "middle", "right": "right"}
+
+# Add Pynput mapping
+_PYNPUT_MOUSE_BUTTON_MAPPING = {
+    "left": PynputButton.left,
+    "middle": PynputButton.middle,
+    "right": PynputButton.right,
+}
 class MouseButton(str, Enum):
     LEFT = "left"
     RIGHT = "right"
     MIDDLE = "middle"
-
-    # Backend-specific mappings
-    _VNC_MAPPING = {"left": 1, "middle": 2, "right": 3}
-
-    _PYAUTOGUI_MAPPING = {"left": "left", "middle": "middle", "right": "right"}
-
-    # Add Pynput mapping
-    _PYNPUT_MAPPING = {
-        "left": PynputButton.left,
-        "middle": PynputButton.middle,
-        "right": PynputButton.right,
-    }
 
     @classmethod
     def to_vnc(cls, button: Union["MouseButton", str]) -> int:
@@ -30,7 +30,7 @@ class MouseButton(str, Enum):
         """
         # If a MouseButton enum was passed, use its value; otherwise assume a string was passed.
         button_val = button.value if isinstance(button, cls) else button
-        return cls._VNC_MAPPING.get(button_val, 1)
+        return _VNC_MOUSE_BUTTON_MAPPING.get(button_val, 1)
 
     @classmethod
     def to_pyautogui(cls, button: Union["MouseButton", str]) -> str:
@@ -38,20 +38,13 @@ class MouseButton(str, Enum):
         Convert a standard mouse button into the PyAutoGUI-compatible string.
         """
         button_val = button.value if isinstance(button, cls) else button
-        return cls._PYAUTOGUI_MAPPING.get(button_val, "left")
-
-    @classmethod
-    def is_valid_button(cls, button: str) -> bool:
-        """
-        Check if the supplied button string is one of the legal mouse buttons.
-        """
-        return any(button == item.value for item in cls)
+        return _PYAUTOGUI_MOUSE_BUTTON_MAPPING.get(button_val, "left")
 
     @classmethod
     def to_pynput(cls, button: Union["MouseButton", str]) -> PynputButton:
         """Convert a standard mouse button to Pynput PynputButton"""
         button_val = button.value if isinstance(button, cls) else button
-        return cls._PYNPUT_MAPPING.get(button_val, PynputButton.left)
+        return _PYNPUT_MOUSE_BUTTON_MAPPING.get(button_val, PynputButton.left)
 
     @classmethod
     def from_pynput(cls, button) -> "MouseButton":
@@ -62,6 +55,13 @@ class MouseButton(str, Enum):
         elif button == PynputButton.right:
             return cls.RIGHT
         return None
+
+    @classmethod
+    def is_valid_button(cls, button: str) -> bool:
+        """
+        Check if the supplied button string is one of the legal mouse buttons.
+        """
+        return any(button == item.value for item in cls)
 
 
 class KeyboardKey(str, Enum):
@@ -149,92 +149,30 @@ class KeyboardKey(str, Enum):
     NUM_8 = "8"
     NUM_9 = "9"
 
-    # Mapping for different backends
-    _SPECIAL_VNC_MAPPINGS = {
-        META: "meta",
-        LMETA: "meta",
-        RMETA: "meta",
-        CTRL: "control",
-        LCTRL: "control",
-        RCTRL: "control",
-        ALT: "alt",
-        LALT: "alt",
-        RALT: "alt",
-    }
-
-    _SPECIAL_PYAUTOGUI_MAPPINGS = {
-        META: "meta",
-        LMETA: "meta",
-        RMETA: "meta",
-        CTRL: "ctrl",
-        LCTRL: "ctrl",
-        RCTRL: "ctrl",
-        ALT: "alt",
-        LALT: "alt",
-        RALT: "alt",
-    }
-
-    _SPECIAL_E2B_MAPPINGS = {
-        META: "meta",
-        LMETA: "meta",
-        RMETA: "meta",
-        CTRL: "control",
-        LCTRL: "control",
-        RCTRL: "control",
-        ALT: "alt",
-        LALT: "alt",
-        RALT: "alt",
-    }
-
-    _SPECIAL_PYNPUT_MAPPINGS = {
-        ENTER: PynputKey.enter,
-        TAB: PynputKey.tab,
-        SPACE: PynputKey.space,
-        BACKSPACE: PynputKey.backspace,
-        DELETE: PynputKey.delete,
-        ESCAPE: PynputKey.esc,
-        HOME: PynputKey.home,
-        END: PynputKey.end,
-        PAGE_UP: PynputKey.page_up,
-        PAGE_DOWN: PynputKey.page_down,
-        UP: PynputKey.up,
-        DOWN: PynputKey.down,
-        LEFT: PynputKey.left,
-        RIGHT: PynputKey.right,
-        SHIFT: PynputKey.shift,
-        SHIFT: PynputKey.shift_l,
-        SHIFT: PynputKey.shift_r,
-        LCTRL: PynputKey.ctrl_l,
-        RCTRL: PynputKey.ctrl_r,
-        CTRL: PynputKey.ctrl,
-        LALT: PynputKey.alt_l,
-        RALT: PynputKey.alt_r,
-        ALT: PynputKey.alt,
-        LMETA: PynputKey.cmd_l,
-        RMETA: PynputKey.cmd_r,
-        META: PynputKey.cmd,
-    }
 
     @classmethod
     def to_vnc(cls, key: Union["KeyboardKey", str]) -> str:
         """Convert a standard key to VNC format"""
-        if key in cls._SPECIAL_VNC_MAPPINGS:
-            return cls._SPECIAL_VNC_MAPPINGS[key]
-        return key
+        key_val = key.value if isinstance(key, cls) else key
+        if key_val in _SPECIAL_VNC_KEYBOARD_KEY_MAPPINGS:
+            return _SPECIAL_VNC_KEYBOARD_KEY_MAPPINGS[str(key_val)]
+        return key_val
 
     @classmethod
     def to_pyautogui(cls, key: Union["KeyboardKey", str]) -> str:
         """Convert a standard key to PyAutoGUI format"""
-        if key in cls._SPECIAL_PYAUTOGUI_MAPPINGS:
-            return cls._SPECIAL_PYAUTOGUI_MAPPINGS[key]
-        return key
+        key_val = key.value if isinstance(key, cls) else key
+        if key_val in _SPECIAL_PYAUTOGUI_KEYBOARD_KEY_MAPPINGS:
+            return _SPECIAL_PYAUTOGUI_KEYBOARD_KEY_MAPPINGS[str(key_val)]
+        return key_val
 
     @classmethod
-    def to_pynput(cls, key: Union["KeyboardKey", str]) -> str:
+    def to_pynput(cls, key: Union["KeyboardKey", str]) -> PynputKey:
         """Convert a standard key to Pynput format"""
-        if key in cls._SPECIAL_PYNPUT_MAPPINGS:
-            return cls._SPECIAL_PYNPUT_MAPPINGS[key]
-        return key
+        key_val = key.value if isinstance(key, cls) else key
+        if key_val in _SPECIAL_PYNPUT_KEYBOARD_KEY_MAPPINGS:
+            return _SPECIAL_PYNPUT_KEYBOARD_KEY_MAPPINGS[str(key_val)]
+        return key_val
 
     @classmethod
     def to_e2b(cls, key: Union["KeyboardKey", str]) -> str:
@@ -242,14 +180,14 @@ class KeyboardKey(str, Enum):
         If no mapping is provided in _E2B_MAPPING, defaults to returning the key itself.
         """
         key_val = key.value if isinstance(key, cls) else key
-        if key_val in cls._SPECIAL_E2B_MAPPINGS:
-            return cls._SPECIAL_E2B_MAPPINGS[key_val]
+        if key_val in _SPECIAL_E2B_KEYBOARD_KEY_MAPPINGS:
+            return _SPECIAL_E2B_KEYBOARD_KEY_MAPPINGS[str(key_val)]
         return key_val
 
     @classmethod
     def from_pynput(cls, key) -> "KeyboardKey":
         # Find the KeyboardKey enum value by looking up the pynput key in the mapping
-        for enum_key, pynput_key in cls._SPECIAL_PYNPUT_MAPPINGS.items():
+        for enum_key, pynput_key in _SPECIAL_PYNPUT_KEYBOARD_KEY_MAPPINGS.items():
             if pynput_key == key:
                 return enum_key
         # Handle character keys
@@ -269,6 +207,71 @@ class KeyboardKey(str, Enum):
             if isinstance(value, str) and not value.startswith("_")
         )
 
+# Mapping for different backends
+_SPECIAL_VNC_KEYBOARD_KEY_MAPPINGS = {
+    KeyboardKey.META: "meta",
+    KeyboardKey.LMETA: "meta",
+    KeyboardKey.RMETA: "meta",
+    KeyboardKey.CTRL: "control",
+    KeyboardKey.LCTRL: "control",
+    KeyboardKey.RCTRL: "control",
+    KeyboardKey.ALT: "alt",
+    KeyboardKey.LALT: "alt",
+    KeyboardKey.RALT: "alt",
+}
+
+_SPECIAL_PYAUTOGUI_KEYBOARD_KEY_MAPPINGS = {
+    KeyboardKey.META: "meta",
+    KeyboardKey.LMETA: "meta",
+    KeyboardKey.RMETA: "meta",
+    KeyboardKey.CTRL: "ctrl",
+    KeyboardKey.LCTRL: "ctrl",
+    KeyboardKey.RCTRL: "ctrl",
+    KeyboardKey.ALT: "alt",
+    KeyboardKey.LALT: "alt",
+    KeyboardKey.RALT: "alt",
+}
+
+_SPECIAL_E2B_KEYBOARD_KEY_MAPPINGS = {
+    KeyboardKey.META: "meta",
+    KeyboardKey.LMETA: "meta",
+    KeyboardKey.RMETA: "meta",
+    KeyboardKey.CTRL: "control",
+    KeyboardKey.LCTRL: "control",
+    KeyboardKey.RCTRL: "control",
+    KeyboardKey.ALT: "alt",
+    KeyboardKey.LALT: "alt",
+    KeyboardKey.RALT: "alt",
+}
+
+_SPECIAL_PYNPUT_KEYBOARD_KEY_MAPPINGS = {
+    KeyboardKey.ENTER: PynputKey.enter,
+    KeyboardKey.TAB: PynputKey.tab,
+    KeyboardKey.SPACE: PynputKey.space,
+    KeyboardKey.BACKSPACE: PynputKey.backspace,
+    KeyboardKey.DELETE: PynputKey.delete,
+    KeyboardKey.ESCAPE: PynputKey.esc,
+    KeyboardKey.HOME: PynputKey.home,
+    KeyboardKey.END: PynputKey.end,
+    KeyboardKey.PAGE_UP: PynputKey.page_up,
+    KeyboardKey.PAGE_DOWN: PynputKey.page_down,
+    KeyboardKey.UP: PynputKey.up,
+    KeyboardKey.DOWN: PynputKey.down,
+    KeyboardKey.LEFT: PynputKey.left,
+    KeyboardKey.RIGHT: PynputKey.right,
+    KeyboardKey.SHIFT: PynputKey.shift,
+    KeyboardKey.SHIFT: PynputKey.shift_l,
+    KeyboardKey.SHIFT: PynputKey.shift_r,
+    KeyboardKey.LCTRL: PynputKey.ctrl_l,
+    KeyboardKey.RCTRL: PynputKey.ctrl_r,
+    KeyboardKey.CTRL: PynputKey.ctrl,
+    KeyboardKey.LALT: PynputKey.alt_l,
+    KeyboardKey.RALT: PynputKey.alt_r,
+    KeyboardKey.ALT: PynputKey.alt,
+    KeyboardKey.LMETA: PynputKey.cmd_l,
+    KeyboardKey.RMETA: PynputKey.cmd_r,
+    KeyboardKey.META: PynputKey.cmd,
+}
 
 class ComputerObservationType(str, Enum):
     SCREENSHOT = "screenshot"

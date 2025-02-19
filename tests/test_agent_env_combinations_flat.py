@@ -103,31 +103,43 @@ def test_all_combinations():
         }
     }
 
-    # # Test LocalPynputComputeEnv
-    # run_single_test(
-    #     SimpleComputerAgent, claude_params,
-    #     LocalPynputComputeEnv, {},
-    #     "Claude + LocalPynputComputeEnv"
-    # )
+    # Test LocalPynputComputeEnv
+    console.print("\n[bold blue]=== 🖥️ Starting LocalPynputComputeEnv Tests ===[/]")
+    console.print("\n🤖 [cyan]Running Claude + LocalPynputComputeEnv test...[/]")
+    run_single_test(
+        SimpleComputerAgent, claude_params,
+        LocalPynputComputeEnv, {},
+        "Claude + LocalPynputComputeEnv"
+    )
+    console.print("✅ [green]Claude + LocalPynputComputeEnv test complete[/]")
     
-    # run_single_test(
-    #     SimpleComputerAgent, gpt4o_params,
-    #     LocalPynputComputeEnv, {},
-    #     "GPT-4o + LocalPynputComputeEnv"
-    # )
+    console.print("\n🤖 [cyan]Running GPT-4o + LocalPynputComputeEnv test...[/]")
+    run_single_test(
+        SimpleComputerAgent, gpt4o_params,
+        LocalPynputComputeEnv, {},
+        "GPT-4o + LocalPynputComputeEnv"
+    )
+    console.print("✅ [green]GPT-4o + LocalPynputComputeEnv test complete[/]")
+    console.print("🎉 [bold blue]LocalPynputComputeEnv tests complete[/]")
 
-    # # Test LocalPyAutoGUIComputeEnv
-    # run_single_test(
-    #     SimpleComputerAgent, claude_params,
-    #     LocalPyAutoGUIComputeEnv, {},
-    #     "Claude + LocalPyAutoGUIComputeEnv"
-    # )
+    # Test LocalPyAutoGUIComputeEnv
+    console.print("\n[bold blue]=== 🖱️ Starting LocalPyAutoGUIComputeEnv Tests ===[/]")
+    console.print("\n🤖 [cyan]Running Claude + LocalPyAutoGUIComputeEnv test...[/]")
+    run_single_test(
+        SimpleComputerAgent, claude_params,
+        LocalPyAutoGUIComputeEnv, {},
+        "Claude + LocalPyAutoGUIComputeEnv"
+    )
+    console.print("✅ [green]Claude + LocalPyAutoGUIComputeEnv test complete[/]")
     
-    # run_single_test(
-    #     SimpleComputerAgent, gpt4o_params,
-    #     LocalPyAutoGUIComputeEnv, {},
-    #     "GPT-4o + LocalPyAutoGUIComputeEnv"
-    # )
+    console.print("\n🤖 [cyan]Running GPT-4o + LocalPyAutoGUIComputeEnv test...[/]")
+    run_single_test(
+        SimpleComputerAgent, gpt4o_params,
+        LocalPyAutoGUIComputeEnv, {},
+        "GPT-4o + LocalPyAutoGUIComputeEnv"
+    )
+    console.print("✅ [green]GPT-4o + LocalPyAutoGUIComputeEnv test complete[/]")
+    console.print("🎉 [bold blue]LocalPyAutoGUIComputeEnv tests complete[/]")
 
     # # Test E2BDesktopEnv (with and without video stream)
     # for video_stream in [False, True]:
@@ -192,54 +204,45 @@ def test_all_combinations():
         "GPT-4o + LXDEVNCDockerComputerEnv"
     )
     console.print("✅ [green]GPT-4o + LXDEVNCDockerComputerEnv test completed[/]")
-    
-    console.print("\n🤖 [cyan]Running GPT-4o + LXDEVNCDockerComputerEnv test FOR THE SECOND TIME!!![/]")
-    console.print("🔄 [yellow]Initializing test with GPT-4o agent...[/]")
-    run_single_test(
-        SimpleComputerAgent, gpt4o_params,
-        LXDEVNCDockerComputerEnv, docker_params,
-        "GPT-4o + LXDEVNCDockerComputerEnv (second time)"
-    )
-    console.print("✅ [green]GPT-4o + LXDEVNCDockerComputerEnv test completed[/]")
     console.print("[bold blue]=== 🎉 LXDEVNCDockerComputerEnv Tests Completed ===[/]\n")
 
-    # # Test Kubernetes-based environments only if Kubernetes is available
-    # console.print("\n[bold blue]=== ⚡ Checking Kubernetes Availability ===[/]")
-    # if is_kubernetes_available():
-    #     console.print("✅ [green]Kubernetes cluster detected - proceeding with K8s tests[/]")
+    # Test Kubernetes-based environments only if Kubernetes is available
+    console.print("\n[bold blue]=== ⚡ Checking Kubernetes Availability ===[/]")
+    if is_kubernetes_available():
+        console.print("✅ [green]Kubernetes cluster detected - proceeding with K8s tests[/]")
         
-    #     # Test LXDEVNCKubernetesComputerEnv
-    #     console.print("\n[bold blue]=== 🚀 Starting LXDEVNCKubernetesComputerEnv Tests ===[/]")
-    #     lxde_k8s_params = {
-    #         "pod_name": "lxde-test-pod",
-    #         "namespace": "default",
-    #         "user": "root",
-    #         "password": "secret",
-    #         "vnc_port": 5900
-    #     }
-    #     console.print(f"⚙️  [yellow]Kubernetes params configured:[/] {lxde_k8s_params}")
+        # Test LXDEVNCKubernetesComputerEnv
+        console.print("\n[bold blue]=== 🚀 Starting LXDEVNCKubernetesComputerEnv Tests ===[/]")
+        lxde_k8s_params = {
+            "pod_name": "lxde-test-pod",
+            "namespace": "default",
+            "user": "root",
+            "password": "secret",
+            "vnc_port": 5900
+        }
+        console.print(f"⚙️  [yellow]Kubernetes params configured:[/] {lxde_k8s_params}")
 
-    #     console.print("\n🤖 [cyan]Running Claude + LXDEVNCKubernetesComputerEnv test...[/]")
-    #     console.print("🔄 [yellow]Initializing test with Claude agent...[/]")
-    #     run_single_test(
-    #         SimpleComputerAgent, claude_params,
-    #         LXDEVNCKubernetesComputerEnv, lxde_k8s_params,
-    #         "Claude + LXDEVNCKubernetesComputerEnv"
-    #     )
-    #     console.print("✅ [green]Claude + LXDEVNCKubernetesComputerEnv test completed[/]")
+        console.print("\n🤖 [cyan]Running Claude + LXDEVNCKubernetesComputerEnv test...[/]")
+        console.print("🔄 [yellow]Initializing test with Claude agent...[/]")
+        run_single_test(
+            SimpleComputerAgent, claude_params,
+            LXDEVNCKubernetesComputerEnv, lxde_k8s_params,
+            "Claude + LXDEVNCKubernetesComputerEnv"
+        )
+        console.print("✅ [green]Claude + LXDEVNCKubernetesComputerEnv test completed[/]")
         
-    #     console.print("\n🤖 [cyan]Running GPT-4o + LXDEVNCKubernetesComputerEnv test...[/]")
-    #     console.print("🔄 [yellow]Initializing test with GPT-4o agent...[/]")
-    #     run_single_test(
-    #         SimpleComputerAgent, gpt4o_params,
-    #         LXDEVNCKubernetesComputerEnv, lxde_k8s_params,
-    #         "GPT-4o + LXDEVNCKubernetesComputerEnv"
-    #     )
-    #     console.print("✅ [green]GPT-4o + LXDEVNCKubernetesComputerEnv test completed[/]")
-    #     console.print("[bold blue]=== 🎉 LXDEVNCKubernetesComputerEnv Tests Completed ===[/]\n")
-    # else:
-    #     console.print("❌ [red]No Kubernetes cluster detected[/]")
-    #     console.print("⚠️  [yellow]Skipping Kubernetes tests - no Kubernetes cluster available[/]")
+        console.print("\n🤖 [cyan]Running GPT-4o + LXDEVNCKubernetesComputerEnv test...[/]")
+        console.print("🔄 [yellow]Initializing test with GPT-4o agent...[/]")
+        run_single_test(
+            SimpleComputerAgent, gpt4o_params,
+            LXDEVNCKubernetesComputerEnv, lxde_k8s_params,
+            "GPT-4o + LXDEVNCKubernetesComputerEnv"
+        )
+        console.print("✅ [green]GPT-4o + LXDEVNCKubernetesComputerEnv test completed[/]")
+        console.print("[bold blue]=== 🎉 LXDEVNCKubernetesComputerEnv Tests Completed ===[/]\n")
+    else:
+        console.print("❌ [red]No Kubernetes cluster detected[/]")
+        console.print("⚠️  [yellow]Skipping Kubernetes tests - no Kubernetes cluster available[/]")
 
 if __name__ == "__main__":
     test_all_combinations() 
