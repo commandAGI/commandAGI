@@ -31,4 +31,4 @@ x11vnc -forever -display :0 -passwd secret' > /start.sh && \
 EXPOSE 5900
 
 # Start services
-CMD ["/start.sh"] 
+CMD ["/start.sh"]
