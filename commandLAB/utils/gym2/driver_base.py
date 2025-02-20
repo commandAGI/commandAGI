@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import (Callable, Generic, List, Optional, TypeVar, Union)
+from typing import Callable, Generic, List, Optional, TypeVar, Union
 
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.base_env import Env

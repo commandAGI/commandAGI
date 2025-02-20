@@ -1,6 +1,6 @@
 import time
 import traceback
-from typing import (Callable, List, Optional, TypeVar, Union)
+from typing import Callable, List, Optional, TypeVar, Union
 
 from commandagi_j2.utils.gym2.base_agent import BaseAgent
 from commandagi_j2.utils.gym2.base_env import Env

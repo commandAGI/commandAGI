@@ -1,5 +1,4 @@
-
-from commandagi_j2.computers.computer_types import (MouseStateObservation)
+from commandagi_j2.computers.computer_types import MouseStateObservation
 from commandagi_j2.computers.vnc_docker_computer import VNCDockerComputer
 
 
