@@ -1,6 +1,6 @@
 [project]
-name = "commandlab"
-version = "0.1.0"
+name = "commandagi-lab"
+version = "0.0.1"
 description = ""
 authors = [{ name = "commandAGI" }]
 license = { text = "MIT" }
@@ -21,8 +21,8 @@ langchain = ["langchain"]
 
 [project.urls]
 Homepage = "https://commandagi.com"
-Documentation = "https://commandagi.com/developers/commandLAB"
-PyPI = "https://pypi.org/project/commandlab/"
+Documentation = "https://commandagi.com/developers/commandAGI_LAB"
+PyPI = "https://pypi.org/project/commandagi-lab/"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

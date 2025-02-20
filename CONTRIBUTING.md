@@ -5,8 +5,8 @@
 1. Fork & clone:
 
    ```bash
-   git clone https://github.com/commandAGI/commandlab.git
-   cd commandlab
+   git clone https://github.com/commandAGI/commandagi-lab.git
+   cd commandagi-lab
    ```
 
 2. Set up dev environment:
@@ -57,4 +57,4 @@ Additional requirements:
 
 ## Questions?
 
-[Open an issue](https://github.com/commandAGI/commandlab/issues/new) or start a discussion.
+[Open an issue](https://github.com/commandAGI/commandagi-lab/issues/new) or start a discussion.

@@ -2,22 +2,22 @@ import traceback
 import pytest
 from rich.console import Console
 
-from commandLAB.utils.gym2.basic_driver import BasicDriver
-from commandLAB.agents.simple_computer_agent import SimpleComputerAgent
-from commandLAB.envs.local_pynput_computer_env import LocalPynputComputeEnv
-from commandLAB.envs.e2b_desktop_env import E2BDesktopEnv
-from commandLAB.envs.lxde_vnc_docker_computer_env import LXDEVNCDockerComputerEnv
-from commandLAB.envs.local_pyautogui_computer_env import LocalPyAutoGUIComputeEnv
-from commandLAB.envs.vnc_computer_env import VNCComputerEnv
-from commandLAB.envs.kubernetes_computer_env import KubernetesComputerEnv
-from commandLAB.envs.vnc_kubernetes_computer_env import VNCKubernetesComputerEnv
-from commandLAB.envs.lxde_vnc_kubernetes_computer_env import LXDEVNCKubernetesComputerEnv
+from commandAGI_LAB.utils.gym2.basic_driver import BasicDriver
+from commandAGI_LAB.agents.simple_computer_agent import SimpleComputerAgent
+from commandAGI_LAB.envs.local_pynput_computer_env import LocalPynputComputeEnv
+from commandAGI_LAB.envs.e2b_desktop_env import E2BDesktopEnv
+from commandAGI_LAB.envs.lxde_vnc_docker_computer_env import LXDEVNCDockerComputerEnv
+from commandAGI_LAB.envs.local_pyautogui_computer_env import LocalPyAutoGUIComputeEnv
+from commandAGI_LAB.envs.vnc_computer_env import VNCComputerEnv
+from commandAGI_LAB.envs.kubernetes_computer_env import KubernetesComputerEnv
+from commandAGI_LAB.envs.vnc_kubernetes_computer_env import VNCKubernetesComputerEnv
+from commandAGI_LAB.envs.lxde_vnc_kubernetes_computer_env import LXDEVNCKubernetesComputerEnv
 
 import docker
 import time
 import subprocess
 
-from commandLAB.utils.gym2.in_memory_episode import InMemoryEpisode
+from commandAGI_LAB.utils.gym2.in_memory_episode import InMemoryEpisode
 
 console = Console()
 
