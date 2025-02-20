@@ -5,7 +5,7 @@ description = ""
 authors = [{ name = "commandAGI" }]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4"
 dependencies = ["rich", "pydantic", "typer"]
 
 
@@ -16,7 +16,7 @@ docker = ["docker"]
 kubernetes = ["kubernetes"]
 openrl = ["pillow", "numpy", "openrl"]
 e2b = ["e2b-desktop"]
-scrappybara = ["scrapybara"]
+# scrappybara = ["scrapybara"]
 langchain = ["langchain"]
 
 [project.urls]

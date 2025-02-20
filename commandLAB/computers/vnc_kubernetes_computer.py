@@ -2,14 +2,14 @@ import base64
 import os
 import tempfile
 
-from commandagi_j2.computers.computer_types import (KeyboardKey,
+from commandLAB.computers.computer_types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     MouseButtonDownAction,
                                                     MouseButtonUpAction,
                                                     MouseMoveAction,
                                                     ScreenshotObservation)
-from commandagi_j2.envs.base_docker_computer import BaseDockerComputer
+from commandLAB.envs.base_docker_computer import BaseDockerComputer
 from vncdotool import api
 
 
@@ -65,14 +65,14 @@ class VNCKubernetesComputer(BaseDockerComputer):
         return True
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        from commandagi_j2.computers.computer_types import MouseButton
+        from commandLAB.computers.computer_types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        from commandagi_j2.computers.computer_types import MouseButton
+        from commandLAB.computers.computer_types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generic, Tuple, TypeVar
 
-from commandagi_j2.utils.gym2.spaces import Space
+from commandLAB.utils.gym2.spaces import Space
 
 # Define generic type variables
 ObsType = TypeVar("ObsType")

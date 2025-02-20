@@ -8,12 +8,17 @@ CommandLAB is a testing framework for evaluating AI agents in real computer envi
 
 ## Features
 
-- Desktop automation and control capabilities
-- Integration with popular LLM frameworks (OpenAI, Anthropic, HuggingFace)
-- VNC-based remote desktop access
-- Docker containerization support
-- Rich logging and monitoring
-- Comprehensive test suite
+- Interface with the desktop:
+  - Obtain the mouse and keyboard states
+  - Send mouse and keyboard commands
+  - Take screenshots
+  - Send/receive microphone/speaker/camera streams ([planned](https://github.com/commandAGI/commandLAB/issues/5))
+- Run agents in a containerized environment:
+
+- Work near or far, big or small:
+  - Near, Directly control your local desktop
+  - commandLAB can spawn docker and Kubernetes containers
+- Rich suite of evaluation metrics and testing utilities
 
 ## Installation
 

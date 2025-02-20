@@ -177,7 +177,7 @@ class EnvironmentViewer:
 if __name__ == "__main__":
     import random
 
-    from commandagi_j2.computers.computer_types import (
+    from commandLAB.computers.computer_types import (
         ComputerObservation, KeyboardKey, KeyboardStateObservation,
         MouseButton, MouseStateObservation, ScreenshotObservation)
 

@@ -5,8 +5,8 @@ import tempfile
 import time
 
 import mss
-from commandagi_j2.computers.base_computer import BaseComputer
-from commandagi_j2.computers.computer_types import (CommandAction,
+from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.computer_types import (CommandAction,
                                                     KeyboardHotkeyAction,
                                                     KeyboardKey,
                                                     KeyboardKeyDownAction,

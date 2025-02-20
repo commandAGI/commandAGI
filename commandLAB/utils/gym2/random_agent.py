@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from commandagi_j2.utils.gym2.base_agent import BaseAgent
-from commandagi_j2.utils.gym2.env_base import Action, Env, Observation
+from commandLAB.utils.gym2.base_agent import BaseAgent
+from commandLAB.utils.gym2.env_base import Action, Env, Observation
 
 
 class RandomAgent(BaseAgent):

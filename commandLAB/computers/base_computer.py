@@ -1,7 +1,7 @@
 import time
 from abc import abstractmethod
 
-from commandagi_j2.computers.computer_types import (ClickAction, CommandAction,
+from commandLAB.computers.computer_types import (ClickAction, CommandAction,
                                                     DragAction,
                                                     KeyboardHotkeyAction,
                                                     KeyboardKeyDownAction,

@@ -1,5 +1,5 @@
-from commandagi_j2.computers.computer_types import MouseStateObservation
-from commandagi_j2.computers.vnc_kubernetes_computer import \
+from commandLAB.computers.computer_types import MouseStateObservation
+from commandLAB.computers.vnc_kubernetes_computer import \
     VNCKubernetesComputer
 
 

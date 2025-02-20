@@ -2,8 +2,8 @@ import base64
 import os
 import tempfile
 
-from commandagi_j2.computers.base_computer import BaseComputer
-from commandagi_j2.computers.computer_types import (KeyboardKey,
+from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.computer_types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     KeyboardStateObservation,
@@ -75,14 +75,14 @@ class VNCComputer(BaseComputer):
         return False
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        from commandagi_j2.computers.computer_types import MouseButton
+        from commandLAB.computers.computer_types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        from commandagi_j2.computers.computer_types import MouseButton
+        from commandLAB.computers.computer_types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)

@@ -2,12 +2,12 @@ import time
 import traceback
 from typing import Callable, Dict, List, Optional, Union
 
-from commandagi_j2.utils.gym2.base_agent import BaseAgent
-from commandagi_j2.utils.gym2.base_episode import BaseEpisode
-from commandagi_j2.utils.gym2.callbacks import Callback
-from commandagi_j2.utils.gym2.driver_base import BaseDriver
-from commandagi_j2.utils.gym2.in_memory_episode import InMemoryEpisode
-from commandagi_j2.utils.gym2.parallel_env import ParallelEnv
+from commandLAB.utils.gym2.base_agent import BaseAgent
+from commandLAB.utils.gym2.base_episode import BaseEpisode
+from commandLAB.utils.gym2.callbacks import Callback
+from commandLAB.utils.gym2.driver_base import BaseDriver
+from commandLAB.utils.gym2.in_memory_episode import InMemoryEpisode
+from commandLAB.utils.gym2.parallel_env import ParallelEnv
 from rich.console import Console
 
 console = Console()

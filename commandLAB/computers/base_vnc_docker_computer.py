@@ -3,8 +3,8 @@ import os
 import tempfile
 import uuid
 
-from commandagi_j2.computers.base_docker_computer import BaseDockerComputer
-from commandagi_j2.computers.computer_types import (KeyboardKey,
+from commandLAB.computers.base_docker_computer import BaseDockerComputer
+from commandLAB.computers.computer_types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     KeyboardStateObservation,

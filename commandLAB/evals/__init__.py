@@ -1,8 +1,8 @@
 from typing import List
 
 import openai
-from commandagi_j2.utils.gym2.base_env import Mandate
-from commandagi_j2.utils.gym2.base_episode import BaseEpisode
+from commandLAB.utils.gym2.base_env import Mandate
+from commandLAB.utils.gym2.base_episode import BaseEpisode
 
 
 def evaluate_episode(self, episode: BaseEpisode, mandate: Mandate) -> str:

@@ -14,14 +14,14 @@ import json
 import os
 import time
 
-from commandagi_j2.agents.simple_computer_agent import SimpleComputerAgent
-from commandagi_j2.envs.base_vnc_docker_computer_env import \
+from commandLAB.agents.simple_computer_agent import SimpleComputerAgent
+from commandLAB.envs.base_vnc_docker_computer_env import \
     VNCDockerComputerEnv
-from commandagi_j2.envs.e2b_desktop_env import E2BDesktopEnv
-from commandagi_j2.envs.local_pynput_computer_env import LocalPynputComputeEnv
-from commandagi_j2.evals.instruction_following_evaluator import \
+from commandLAB.envs.e2b_desktop_env import E2BDesktopEnv
+from commandLAB.envs.local_pynput_computer_env import LocalPynputComputeEnv
+from commandLAB.evals.instruction_following_evaluator import \
     InstructionFollowingEvaluator
-from commandagi_j2.utils.gym2.basic_driver import BasicDriver
+from commandLAB.utils.gym2.basic_driver import BasicDriver
 
 # Mapping from string names to classes so that we can dynamically select them.
 AGENTS = {

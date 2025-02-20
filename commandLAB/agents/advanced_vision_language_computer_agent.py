@@ -1,9 +1,9 @@
 from textwrap import dedent
 
-from commandagi_j2.computers.computer_types import (ComputerAction,
+from commandLAB.computers.computer_types import (ComputerAction,
                                                     ComputerObservation)
-from commandagi_j2.utils.chat_model_utils import get_chat_model
-from commandagi_j2.utils.gym2.base_agent import BaseAgent
+from commandLAB.utils.chat_model_utils import get_chat_model
+from commandLAB.utils.gym2.base_agent import BaseAgent
 from langchain.schema import ChatMessage
 from langchain_core.output_parsers.string import StrOutputParser
 from rich.console import Console

@@ -6,8 +6,8 @@ import time
 
 import mss
 import pyautogui
-from commandagi_j2.computers.base_computer import BaseComputer
-from commandagi_j2.computers.computer_types import (CommandAction, KeyboardKey,
+from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.computer_types import (CommandAction, KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     KeyboardStateObservation,

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from commandagi_j2.utils.gym2.callbacks import Callback
-from commandagi_j2.utils.gym2.driver_base import BaseDriver
-from commandagi_j2.utils.gym2.evaluator_base import BaseEvaluator
+from commandLAB.utils.gym2.callbacks import Callback
+from commandLAB.utils.gym2.driver_base import BaseDriver
+from commandLAB.utils.gym2.evaluator_base import BaseEvaluator
 
 
 class BaseTrainer(ABC):

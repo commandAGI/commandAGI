@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, List, Optional, TypeVar, Union
 
-from commandagi_j2.utils.gym2.base_agent import BaseAgent
-from commandagi_j2.utils.gym2.base_env import Env
-from commandagi_j2.utils.gym2.base_episode import BaseEpisode
-from commandagi_j2.utils.gym2.callbacks import Callback
+from commandLAB.utils.gym2.base_agent import BaseAgent
+from commandLAB.utils.gym2.base_env import Env
+from commandLAB.utils.gym2.base_episode import BaseEpisode
+from commandLAB.utils.gym2.callbacks import Callback
 
 ObsType = TypeVar("ObsType")
 ActType = TypeVar("ActType")

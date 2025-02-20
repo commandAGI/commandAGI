@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, TypeVar
 
-from commandagi_j2.utils.gym2.base_episode import BaseEpisode, BaseStep
+from commandLAB.utils.gym2.base_episode import BaseEpisode, BaseStep
 from pydantic import BaseModel
 
 ObsType = TypeVar("ObsType")
