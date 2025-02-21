@@ -1,8 +1,8 @@
 from textwrap import dedent
 
-from commandAGI_LAB.computers.computer_types import (ComputerAction,
+from commandAGI_LAB.types import (ComputerAction,
                                                     ComputerObservation)
-from commandAGI_LAB.utils.chat_model_utils import get_chat_model
+from commandAGI_LAB.utils._internal.llms import get_chat_model
 from commandAGI_LAB.utils.gym2.base_agent import BaseAgent
 from langchain.schema import ChatMessage
 from langchain_core.output_parsers.string import StrOutputParser

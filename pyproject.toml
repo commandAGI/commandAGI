@@ -6,18 +6,38 @@ authors = [{ name = "commandAGI" }]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.12,<4"
-dependencies = ["rich", "pydantic", "typer"]
+dependencies = [
+    "rich==13.9.4",
+    "pydantic==2.10.6",
+    "typer==0.15.1"
+]
 
 
 [project.optional-dependencies]
-dev = ["pytest", "black", "isort", "ruff"]
-local = ["pillow", "pynput", "pyautogui", "mss"]
-docker = ["docker"]
-kubernetes = ["kubernetes"]
-openrl = ["pillow", "numpy", "openrl"]
-e2b = ["e2b-desktop"]
-# scrappybara = ["scrapybara"]
-langchain = ["langchain"]
+dev = [
+    "pytest==8.3.4",
+    "black==25.1.0",
+    "isort==6.0.0",
+    "ruff==0.9.7",
+    "pillow==11.1.0",
+]
+local = [
+    "pynput==1.7.7",
+    "pyautogui==0.9.54",
+    "mss==10.0.0"
+]
+docker = ["docker==7.1.0"]
+kubernetes = ["kubernetes==32.0.1"]
+openrl = [
+    "pillow==11.1.0",
+    "numpy==2.2.3",
+    "openrl==0.2.0"
+]
+e2b-desktop = ["e2b-desktop==1.0.2"]
+scrapybara = ["scrapybara==2.2.7"]
+langchain = ["langchain==0.3.19"]
+pig = ["pig-python==0.1.1"]
+pytesseract = ["pytesseract==0.3.10"]
 
 [project.urls]
 Homepage = "https://commandagi.com"
@@ -28,8 +48,3 @@ PyPI = "https://pypi.org/project/commandagi-lab/"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^4.1.0"
-
-[tool.poetry.group.docker.dependencies]
-docker = "^7.1.0"

@@ -4,7 +4,7 @@ import tempfile
 import uuid
 
 from commandAGI_LAB.computers.base_docker_computer import BaseDockerComputer
-from commandAGI_LAB.computers.computer_types import (KeyboardKey,
+from commandAGI_LAB.types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     KeyboardStateObservation,

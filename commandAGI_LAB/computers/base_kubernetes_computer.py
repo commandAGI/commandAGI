@@ -2,7 +2,7 @@ import subprocess
 import time
 
 from commandAGI_LAB.computers.base_computer import BaseComputer
-from commandAGI_LAB.computers.computer_types import (CommandAction,
+from commandAGI_LAB.types import (CommandAction,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     KeyboardStateObservation,
@@ -14,8 +14,13 @@ from commandAGI_LAB.computers.computer_types import (CommandAction,
                                                     ScreenshotObservation,
                                                     TypeAction)
 
+try:
+    import kubernetes
+except ImportError:
+    raise ImportError("kubernetes is not installed. Please install commandAGI_LAB with the kubernetes extra:\n\npip install commandAGI_LAB[kubernetes]")
 
-class KubernetesComputer(BaseComputer):
+
+class BaseKubernetesComputer(BaseComputer):
     """
     Environment that creates and manages a Kubernetes Pod for executing commands.
     Note: This environment primarily supports executing commands within a Kubernetes pod.

@@ -7,7 +7,7 @@ import time
 import mss
 import pyautogui
 from commandAGI_LAB.computers.base_computer import BaseComputer
-from commandAGI_LAB.computers.computer_types import (CommandAction, KeyboardKey,
+from commandAGI_LAB.types import (CommandAction, KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     KeyboardStateObservation,

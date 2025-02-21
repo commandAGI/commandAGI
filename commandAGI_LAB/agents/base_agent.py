@@ -1,12 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
-
-ObsType = TypeVar("ObsType")
-ActType = TypeVar("ActType")
-
+from commandAGI_LAB.utils.gym2.structures import Episode, Step, ObsType, ActType
 
 class BaseAgent(Generic[ObsType, ActType], ABC):
-    """Base class for all agents in the environment."""
+    """Base class for agents"""
 
     @abstractmethod
     def reset(self) -> None:
@@ -24,9 +21,6 @@ class BaseAgent(Generic[ObsType, ActType], ABC):
         """
 
     @abstractmethod
-    def update(self, reward: float) -> None:
-        """Update the agent's internal state based on the received reward.
+    def train(self, episode: Episode) -> None:
+        """Train the agent on an episode."""
 
-        Args:
-            reward (float): The reward obtained from the last action.
-        """

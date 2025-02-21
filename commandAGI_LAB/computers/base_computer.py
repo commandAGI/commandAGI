@@ -1,7 +1,7 @@
 import time
 from abc import abstractmethod
 
-from commandAGI_LAB.computers.computer_types import (ClickAction, CommandAction,
+from commandAGI_LAB.types import (ClickAction, CommandAction,
                                                     DragAction,
                                                     KeyboardHotkeyAction,
                                                     KeyboardKeyDownAction,
@@ -124,6 +124,16 @@ class BaseComputer(BaseModel):
         time.sleep(action.press_duration)
         up_action = MouseButtonUpAction(button=action.button)
         self.execute_mouse_button_up(up_action)
+        return True
+
+    def execute_double_click(self, action: DoubleClickAction):
+        # TODO: define DoubleClickAction and add to ComputerAction
+        """Execute a double click action at the given coordinates using press and release operations with a duration.
+        It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
+        """
+        self.execute_click(ClickAction(x=action.x, y=action.y, move_duration=action.move_duration, press_duration=action.press_duration, button=action.button))
+        time.sleep(action.double_click_interval_seconds)
+        self.execute_click(ClickAction(x=action.x, y=action.y, move_duration=action.move_duration, press_duration=action.press_duration, button=action.button))
         return True
 
     def execute_drag(self, action: DragAction):

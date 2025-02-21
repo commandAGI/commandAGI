@@ -2,7 +2,7 @@ import base64
 import subprocess
 
 from commandAGI_LAB.computers.base_computer import BaseComputer
-from commandAGI_LAB.computers.computer_types import (CommandAction, KeyboardKey,
+from commandAGI_LAB.types import (CommandAction, KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     KeyboardStateObservation,
@@ -14,7 +14,10 @@ from commandAGI_LAB.computers.computer_types import (CommandAction, KeyboardKey,
                                                     MouseStateObservation,
                                                     ScreenshotObservation,
                                                     TypeAction)
-from e2b_desktop import Sandbox
+try:
+    from e2b_desktop import Sandbox
+except ImportError:
+    raise ImportError("e2b_desktop is not installed. Please install commandAGI_LAB with the e2b_desktop extra:\n\npip install commandAGI_LAB[e2b_desktop]")
 
 
 class E2BDesktopComputer(BaseComputer):

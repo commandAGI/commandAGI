@@ -3,7 +3,7 @@ import time
 
 import docker
 from commandAGI_LAB.computers.base_computer import BaseComputer
-from commandAGI_LAB.computers.computer_types import CommandAction
+from commandAGI_LAB.types import CommandAction
 from docker.errors import DockerException
 
 

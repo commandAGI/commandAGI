@@ -1,34 +1,25 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, Tuple, TypeVar
+from typing import Any, Dict, Generic, Iterator, Tuple, TypeVar
 
-from commandAGI_LAB.utils.gym2.spaces import Space
+from pydantic import BaseModel
 
-# Define generic type variables
-ObsType = TypeVar("ObsType")
-ActType = TypeVar("ActType")
+from commandAGI_LAB.utils.collection import Episode, Step, ObsType, ActionType
 
-
-class Env(Generic[ObsType, ActType], ABC):
+class BaseEnv(Generic[ObsType, ActionType], ABC):
     """Abstract base class for environments."""
 
-    @property
-    @abstractmethod
-    def observation_space(self) -> Space:
-        """The observation space of the environment."""
-        pass
+    _active: bool = True
 
-    @property
-    @abstractmethod
-    def action_space(self) -> Space:
-        """The action space of the environment."""
-        pass
+    def __del__(self):
+        if self._active:
+            self.close()
 
     def reset(self) -> ObsType:
         """Reset the environment and return initial observation."""
+        self._active = True
         observation = self.get_observation()
         return observation
 
-    @abstractmethod
     def close(self):
         """Clean up environment resources.
 
@@ -36,9 +27,9 @@ class Env(Generic[ObsType, ActType], ABC):
         like network connections, file handles, or external processes that need to be
         explicitly closed or terminated.
         """
-        pass
+        self._active = False
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, Dict[str, Any]]:
+    def step(self, action: ActionType) -> Tuple[ObsType, float, bool, Dict[str, Any]]:
         """Execute action and return (observation, reward, done, info).
 
         Args:
@@ -68,11 +59,11 @@ class Env(Generic[ObsType, ActType], ABC):
         """
 
     @abstractmethod
-    def execute_action(self, action: ActType) -> bool:
+    def execute_action(self, action: ActionType) -> bool:
         """Execute an action and return success flag."""
 
     @abstractmethod
-    def get_reward(self, action: ActType) -> float:
+    def get_reward(self, action: ActionType) -> float:
         """Get the reward for an action.
 
         Args:
@@ -83,7 +74,7 @@ class Env(Generic[ObsType, ActType], ABC):
         """
 
     @abstractmethod
-    def get_done(self, action: ActType) -> bool:
+    def get_done(self, action: ActionType) -> bool:
         """Get the done flag for an action.
 
         Returns:

@@ -1,12 +1,11 @@
 from textwrap import dedent
 
-from commandAGI_LAB.computers.computer_types import (ComputerAction,
-                                                    ComputerObservation)
-from commandAGI_LAB.utils.chat_model_utils import get_chat_model
-from commandAGI_LAB.utils.gym2.base_agent import BaseAgent
-from langchain.schema import ChatMessage
-from langchain_core.output_parsers.string import StrOutputParser
+from commandAGI_LAB.agents._utils.llms import get_chat_model
+from commandAGI_LAB.agents.base_agent import BaseAgent
+from commandAGI_LAB.types import ComputerAction, ComputerObservation
 from rich.console import Console
+from langchain_core.output_parsers.string import StrOutputParser
+from langchain.schema import ChatMessage
 
 console = Console()
 

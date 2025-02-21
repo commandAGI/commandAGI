@@ -1,23 +1,19 @@
 from typing import ClassVar
 
 from commandAGI_LAB.computers.base_computer import BaseComputer
-from commandAGI_LAB.computers.computer_types import (ComputerAction,
-                                                    ComputerObservation)
-from commandAGI_LAB.utils.gym2.base_env import Env
+from commandAGI_LAB.types import ComputerAction, ComputerObservation
+from commandAGI_LAB.utils.gym2.base_env import BaseEnv
 from commandAGI_LAB.utils.gym2.spaces import Space, StructuredSpace
 from rich.console import Console
 
 console = Console()
 
 
-class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
+class BaseComputerEnv(BaseEnv[ComputerObservation, ComputerAction]):
     """Base class for computer environments with standard actions"""
 
     computer: BaseComputer
     _LOG_MODALITY_ERRORS: ClassVar[bool] = False
-
-    observation_space: Space = StructuredSpace(model=ComputerObservation)
-    action_space: Space = StructuredSpace(model=ComputerAction)
 
     def reset(self) -> ComputerObservation:
         return self.computer.reset()
@@ -33,21 +29,21 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
             keyboard_state: Optional[KeyboardStateObservation]
         """
         try:
-            screenshot = self.get_screenshot()
+            screenshot = self.computer.get_screenshot()
         except Exception as e:
             if self._LOG_MODALITY_ERRORS:
                 console.print(f"🖼️ [red]Error getting screenshot:[/] {e}")
             screenshot = None
 
         try:
-            mouse_state = self.get_mouse_state()
+            mouse_state = self.computer.get_mouse_state()
         except Exception as e:
             if self._LOG_MODALITY_ERRORS:
                 console.print(f"🖱️ [red]Error getting mouse state:[/] {e}")
             mouse_state = None
 
         try:
-            keyboard_state = self.get_keyboard_state()
+            keyboard_state = self.computer.get_keyboard_state()
         except Exception as e:
             if self._LOG_MODALITY_ERRORS:
                 console.print(f"⌨️ [red]Error getting keyboard state:[/] {e}")
@@ -65,7 +61,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.command:
             try:
-                success = self.execute_command(
+                success = self.computer.execute_command(
                     action.command.command, action.command.timeout
                 )
             except Exception as e:
@@ -75,7 +71,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.keyboard_keys_press:
             try:
-                success = self.execute_keyboard_keys_press(
+                success = self.computer.execute_keyboard_keys_press(
                     action.keyboard_keys_press.keys
                 )
             except Exception as e:
@@ -85,7 +81,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.keyboard_keys_down:
             try:
-                success = self.execute_keyboard_keys_down(
+                success = self.computer.execute_keyboard_keys_down(
                     action.keyboard_keys_down.keys
                 )
             except Exception as e:
@@ -95,7 +91,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.keyboard_keys_release:
             try:
-                success = self.execute_keyboard_keys_release(
+                success = self.computer.execute_keyboard_keys_release(
                     action.keyboard_keys_release.keys
                 )
             except Exception as e:
@@ -105,7 +101,9 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.keyboard_hotkey:
             try:
-                success = self.execute_keyboard_hotkey(action.keyboard_hotkey.keys)
+                success = self.computer.execute_keyboard_hotkey(
+                    action.keyboard_hotkey.keys
+                )
             except Exception as e:
                 if self._LOG_MODALITY_ERRORS:
                     console.print(f"⌨️ [red]Error executing keyboard hotkey:[/] {e}")
@@ -113,7 +111,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.type:
             try:
-                success = self.execute_type(action.type.text)
+                success = self.computer.execute_type(action.type.text)
             except Exception as e:
                 if self._LOG_MODALITY_ERRORS:
                     console.print(f"⌨️ [red]Error executing type:[/] {e}")
@@ -121,7 +119,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.mouse_move:
             try:
-                success = self.execute_mouse_move(
+                success = self.computer.execute_mouse_move(
                     action.mouse_move.x,
                     action.mouse_move.y,
                     action.mouse_move.move_duration,
@@ -133,7 +131,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.mouse_scroll:
             try:
-                success = self.execute_mouse_scroll(action.mouse_scroll.amount)
+                success = self.computer.execute_mouse_scroll(action.mouse_scroll.amount)
             except Exception as e:
                 if self._LOG_MODALITY_ERRORS:
                     console.print(f"🖱️ [red]Error executing mouse scroll:[/] {e}")
@@ -141,7 +139,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.mouse_button_down:
             try:
-                success = self.execute_mouse_button_down(
+                success = self.computer.execute_mouse_button_down(
                     action.mouse_button_down.button
                 )
             except Exception as e:
@@ -151,7 +149,9 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.mouse_button_up:
             try:
-                success = self.execute_mouse_button_up(action.mouse_button_up.button)
+                success = self.computer.execute_mouse_button_up(
+                    action.mouse_button_up.button
+                )
             except Exception as e:
                 if self._LOG_MODALITY_ERRORS:
                     console.print(f"🖱️ [red]Error executing mouse button up:[/] {e}")
@@ -159,7 +159,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.click:
             try:
-                success = self.execute_click(action.click)
+                success = self.computer.execute_click(action.click)
             except Exception as e:
                 if self._LOG_MODALITY_ERRORS:
                     console.print(f"🖱️ [red]Error executing click:[/] {e}")
@@ -167,14 +167,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
 
         if action.drag:
             try:
-                success = self.execute_drag(
-                    action.drag.start_x,
-                    action.drag.start_y,
-                    action.drag.end_x,
-                    action.drag.end_y,
-                    action.drag.move_duration,
-                    action.drag.button,
-                )
+                success = self.computer.execute_drag(action.drag)
             except Exception as e:
                 if self._LOG_MODALITY_ERRORS:
                     console.print(f"🖱️ [red]Error executing drag:[/] {e}")
@@ -191,7 +184,7 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
     def render(self, mode="human"):
         if mode == "human":
             try:
-                from commandAGI_LAB.utils.env_viewer import EnvironmentViewer
+                from commandAGI_LAB.utils.viewer import EnvironmentViewer
             except ImportError:
                 console.print(
                     "❌ [red]TkRender is required for human rendering but is not installed.[/]"
@@ -204,7 +197,23 @@ class BaseComputerEnv(Env[ComputerObservation, ComputerAction]):
                 self
             )  # This will open the window and block as mainloop runs
         elif mode == "rgb_array":
-            return self.get_observation()
+            obs = self.computer.get_screenshot()
+            if not obs or not obs.screenshot:
+                return None
+
+            import numpy as np
+            import base64
+            import io
+            from PIL import Image
+
+            # Decode base64 string to bytes
+            img_bytes = base64.b64decode(obs.screenshot)
+
+            # Convert bytes to PIL Image
+            img = Image.open(io.BytesIO(img_bytes))
+
+            # Convert PIL Image to numpy array
+            return np.array(img)
         else:
             console.print(f"❌ [red]Unsupported render mode:[/] {mode}")
             raise ValueError("Unsupported render mode: " + mode)

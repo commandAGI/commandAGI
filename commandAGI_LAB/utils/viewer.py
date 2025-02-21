@@ -2,20 +2,28 @@ import os
 import tkinter as tk
 from tkinter import ttk
 
-from PIL import Image, ImageTk
+from commandAGI_LAB.computers.base_computer import BaseComputer
+from commandAGI_LAB.environments.base_env import BaseEnv
+from commandAGI_LAB.environments.computer_env import BaseComputerEnv
 
 
-class EnvironmentViewer:
-    def __init__(self, env, refresh_rate=100, show_mouse=True, show_keyboard=True):
+class ComputerViewer:
+    def __init__(self, computer_or_env, refresh_rate=100, show_mouse=True, show_keyboard=True):
         """
         Initialize the Environment Viewer.
 
-        env: An environment instance that supports _get_observation(), returning a ComputerObservation.
+        computer_or_env: An environment instance that supports _get_observation(), returning a ComputerObservation.
         refresh_rate: Refresh interval in milliseconds.
         show_mouse: Whether to display mouse state information.
         show_keyboard: Whether to display keyboard state information.
         """
-        self.env = env
+        if isinstance(computer_or_env, BaseComputerEnv):
+            self.computer = computer_or_env.computer
+        elif isinstance(computer_or_env, BaseComputer):
+            self.computer = computer_or_env
+        else:
+            raise ValueError("Invalid computer or environment")
+        
         self.refresh_rate = refresh_rate  # in milliseconds
         self.show_mouse = show_mouse
         self.show_keyboard = show_keyboard
@@ -124,7 +132,7 @@ class EnvironmentViewer:
     def update_view(self):
         """Update the viewer widget with the latest observation from the environment."""
         try:
-            observation = self.env._get_observation()
+            observation = self.computer._get_observation()
         except Exception as e:
             print(f"Error in _get_observation: {e}")
             observation = None
@@ -177,7 +185,7 @@ class EnvironmentViewer:
 if __name__ == "__main__":
     import random
 
-    from commandAGI_LAB.computers.computer_types import (
+    from commandAGI_LAB.types import (
         ComputerObservation, KeyboardKey, KeyboardStateObservation,
         MouseButton, MouseStateObservation, ScreenshotObservation)
 

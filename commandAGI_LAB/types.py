@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Literal, Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pynput.keyboard import Key as PynputKey
 from pynput.keyboard import KeyCode as PynputKeyCode
 from pynput.mouse import Button as PynputButton
@@ -283,7 +283,7 @@ class ComputerObservationType(str, Enum):
 
 
 class BaseComputerObservation(BaseModel):
-    observation_type: ComputerObservationType
+    observation_type: ComputerObservationType = Field(discriminator="observation_type")
 
 
 class ScreenshotObservation(BaseComputerObservation):
@@ -312,6 +312,7 @@ class ComputerObservation(BaseModel):
     screenshot: Optional[ScreenshotObservation] = None
     mouse_state: Optional[MouseStateObservation] = None
     keyboard_state: Optional[KeyboardStateObservation] = None
+    # TODO: also add keyboard_events and mouse_events where you store the events that were collected since last observation
 
 
 class ComputerActionType(str, Enum):
@@ -330,7 +331,7 @@ class ComputerActionType(str, Enum):
 
 
 class BaseComputerAction(BaseModel):
-    action_type: ComputerActionType
+    action_type: ComputerActionType = Field(discriminator="action_type")
 
 
 class CommandAction(BaseComputerAction):
@@ -460,3 +461,4 @@ class ComputerAction(BaseModel):
     mouse_button_up: Optional[MouseButtonUpAction] = None
     click: Optional[ClickAction] = None
     drag: Optional[DragAction] = None
+

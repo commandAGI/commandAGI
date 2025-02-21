@@ -6,7 +6,7 @@ import time
 
 import mss
 from commandAGI_LAB.computers.base_computer import BaseComputer
-from commandAGI_LAB.computers.computer_types import (CommandAction,
+from commandAGI_LAB.types import (CommandAction,
                                                     KeyboardHotkeyAction,
                                                     KeyboardKey,
                                                     KeyboardKeyDownAction,

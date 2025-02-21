@@ -3,7 +3,7 @@ import os
 import tempfile
 
 from commandAGI_LAB.computers.base_computer import BaseComputer
-from commandAGI_LAB.computers.computer_types import (KeyboardKey,
+from commandAGI_LAB.types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
                                                     KeyboardStateObservation,
@@ -75,14 +75,14 @@ class VNCComputer(BaseComputer):
         return False
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        from commandAGI_LAB.computers.computer_types import MouseButton
+        from commandAGI_LAB.types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        from commandAGI_LAB.computers.computer_types import MouseButton
+        from commandAGI_LAB.types import MouseButton
 
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)
@@ -98,5 +98,5 @@ class VNCComputer(BaseComputer):
             print("Disconnected from VNC server")
         except Exception as e:
             print(f"Error disconnecting from VNC server: {e}")
-
         super().close()
+

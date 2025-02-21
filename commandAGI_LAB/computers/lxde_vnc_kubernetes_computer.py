@@ -1,4 +1,4 @@
-from commandAGI_LAB.computers.computer_types import MouseStateObservation
+from commandAGI_LAB.types import MouseStateObservation
 from commandAGI_LAB.computers.vnc_kubernetes_computer import \
     VNCKubernetesComputer
 
