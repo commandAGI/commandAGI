@@ -4,7 +4,12 @@ import subprocess
 import tempfile
 import time
 
-import mss
+try:
+    import mss
+    from pynput import keyboard, mouse
+except ImportError:
+    raise ImportError("pynput is not installed. Please install commandAGI_LAB with the local extra:\n\npip install commandAGI_LAB[local]")
+
 from commandAGI_LAB.computers.base_computer import BaseComputer
 from commandAGI_LAB.types import (CommandAction,
                                                     KeyboardHotkeyAction,
@@ -22,8 +27,6 @@ from commandAGI_LAB.types import (CommandAction,
                                                     ScreenshotObservation,
                                                     TypeAction)
 from PIL import Image
-# Import pynput for keyboard and mouse listeners
-from pynput import keyboard, mouse
 
 
 class LocalPynputComputer(BaseComputer):

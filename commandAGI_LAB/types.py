@@ -327,6 +327,7 @@ class ComputerActionType(str, Enum):
     MOUSE_BUTTON_DOWN = "mouse_button_down"
     MOUSE_BUTTON_UP = "mouse_button_up"
     CLICK = "click"
+    DOUBLE_CLICK = "double_click"
     DRAG = "drag"
 
 
@@ -435,6 +436,18 @@ class ClickAction(BaseComputerAction):
     button: MouseButton = MouseButton.LEFT
 
 
+class DoubleClickAction(BaseComputerAction):
+    action_type: Literal[ComputerActionType.DOUBLE_CLICK] = (
+        ComputerActionType.DOUBLE_CLICK
+    )
+    x: int
+    y: int
+    move_duration: float = 0.5
+    press_duration: float = 0.1
+    button: MouseButton = MouseButton.LEFT
+    double_click_interval_seconds: float = 0.1
+
+
 class DragAction(BaseComputerAction):
     action_type: Literal[ComputerActionType.DRAG] = ComputerActionType.DRAG
     start_x: int
@@ -460,5 +473,5 @@ class ComputerAction(BaseModel):
     mouse_button_down: Optional[MouseButtonDownAction] = None
     mouse_button_up: Optional[MouseButtonUpAction] = None
     click: Optional[ClickAction] = None
+    double_click: Optional[DoubleClickAction] = None
     drag: Optional[DragAction] = None
-

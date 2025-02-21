@@ -29,7 +29,7 @@ class ObservationProcessor(Generic[ObsType, ModifiedObsType], ABC):
 
 class ActionProcessor(Generic[ActionType, ModifiedActionType], ABC):
     @abstractmethod
-    def process_action(self, action: ActionType) -> ModifiedActionType:
+    def process_action(self, action: ModifiedActionType) -> ActionType:
         pass
 
     def wrap_env(self, env: BaseEnv) -> BaseEnv:

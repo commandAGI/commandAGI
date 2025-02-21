@@ -26,6 +26,7 @@ local = [
     "pyautogui==0.9.54",
     "mss==10.0.0"
 ]
+vnc = ["vncdotool==1.2.0"]
 docker = ["docker==7.1.0"]
 kubernetes = ["kubernetes==32.0.1"]
 openrl = [

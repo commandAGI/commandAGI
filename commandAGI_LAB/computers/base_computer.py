@@ -1,7 +1,7 @@
 import time
 from abc import abstractmethod
 
-from commandAGI_LAB.types import (ClickAction, CommandAction,
+from commandAGI_LAB.types import (ClickAction, CommandAction, DoubleClickAction,
                                                     DragAction,
                                                     KeyboardHotkeyAction,
                                                     KeyboardKeyDownAction,
@@ -127,7 +127,6 @@ class BaseComputer(BaseModel):
         return True
 
     def execute_double_click(self, action: DoubleClickAction):
-        # TODO: define DoubleClickAction and add to ComputerAction
         """Execute a double click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """

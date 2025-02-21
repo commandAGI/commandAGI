@@ -2,20 +2,23 @@ import subprocess
 import time
 
 from commandAGI_LAB.computers.base_computer import BaseComputer
-from commandAGI_LAB.types import (CommandAction,
-                                                    KeyboardKeyDownAction,
-                                                    KeyboardKeyReleaseAction,
-                                                    KeyboardStateObservation,
-                                                    MouseButtonDownAction,
-                                                    MouseButtonUpAction,
-                                                    MouseMoveAction,
-                                                    MouseScrollAction,
-                                                    MouseStateObservation,
-                                                    ScreenshotObservation,
-                                                    TypeAction)
+from commandAGI_LAB.types import (
+    CommandAction,
+    KeyboardKeyDownAction,
+    KeyboardKeyReleaseAction,
+    KeyboardStateObservation,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
+    ScreenshotObservation,
+    TypeAction,
+)
 
 try:
     import kubernetes
+    from kubernetes.stream import stream as Kubernetesstream
 except ImportError:
     raise ImportError("kubernetes is not installed. Please install commandAGI_LAB with the kubernetes extra:\n\npip install commandAGI_LAB[kubernetes]")
 
@@ -121,7 +124,7 @@ class BaseKubernetesComputer(BaseComputer):
             except kubernetes.client.rest.ApiException as e:
                 raise Exception(f"Error checking pod status: {e}")
 
-    def _exec_in_pod(self, cmd: str, timeout: int = 10) -> kubernetes.stream.stream:
+    def _exec_in_pod(self, cmd: str, timeout: int = 10):
         try:
             exec_command = ["/bin/sh", "-c", cmd]
             return kubernetes.stream.stream(

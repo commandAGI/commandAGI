@@ -2,6 +2,11 @@ import base64
 import os
 import tempfile
 
+try:
+    from vncdotool import api
+except ImportError:
+    raise ImportError("vncdotool is not installed. Please install commandAGI_LAB with the vnc extra:\n\npip install commandAGI_LAB[vnc]")
+
 from commandAGI_LAB.computers.base_computer import BaseComputer
 from commandAGI_LAB.types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
@@ -14,7 +19,6 @@ from commandAGI_LAB.types import (KeyboardKey,
                                                     MouseStateObservation,
                                                     ScreenshotObservation,
                                                     TypeAction)
-from vncdotool import api
 
 
 class VNCComputer(BaseComputer):

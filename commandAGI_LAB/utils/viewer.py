@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import ttk
+from PIL import Image, ImageTk
 
 from commandAGI_LAB.computers.base_computer import BaseComputer
 from commandAGI_LAB.environments.base_env import BaseEnv
@@ -8,7 +9,7 @@ from commandAGI_LAB.environments.computer_env import BaseComputerEnv
 
 
 class ComputerViewer:
-    def __init__(self, computer_or_env, refresh_rate=100, show_mouse=True, show_keyboard=True):
+    def __init__(self, computer_or_env, /, refresh_rate=100, show_mouse=True, show_keyboard=True):
         """
         Initialize the Environment Viewer.
 
@@ -210,7 +211,7 @@ if __name__ == "__main__":
             )
 
     env = DummyEnv()
-    viewer = EnvironmentViewer(
+    viewer = ComputerViewer(
         env, refresh_rate=100, show_mouse=True, show_keyboard=True
     )
     viewer.run()

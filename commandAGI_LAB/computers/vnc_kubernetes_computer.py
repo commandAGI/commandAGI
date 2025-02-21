@@ -2,6 +2,11 @@ import base64
 import os
 import tempfile
 
+try:
+    from vncdotool import api
+except ImportError:
+    raise ImportError("vncdotool is not installed. Please install commandAGI_LAB with the vnc extra:\n\npip install commandAGI_LAB[vnc]")
+
 from commandAGI_LAB.computers.base_kubernetes_computer import BaseKubernetesComputer
 from commandAGI_LAB.types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
@@ -10,7 +15,6 @@ from commandAGI_LAB.types import (KeyboardKey,
                                                     MouseButtonUpAction,
                                                     MouseMoveAction,
                                                     ScreenshotObservation)
-from vncdotool import api
 
 
 class VNCKubernetesComputer(BaseKubernetesComputer):

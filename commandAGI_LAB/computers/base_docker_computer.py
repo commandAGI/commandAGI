@@ -1,7 +1,11 @@
 import os
 import time
 
-import docker
+try:
+    import docker
+except ImportError:
+    raise ImportError("docker is not installed. Please install commandAGI_LAB with the docker extra:\n\npip install commandAGI_LAB[docker]")
+
 from commandAGI_LAB.computers.base_computer import BaseComputer
 from commandAGI_LAB.types import CommandAction
 from docker.errors import DockerException

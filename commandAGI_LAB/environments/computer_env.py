@@ -164,6 +164,14 @@ class BaseComputerEnv(BaseEnv[ComputerObservation, ComputerAction]):
                     console.print(f"🖱️ [red]Error executing click:[/] {e}")
                 success = False
 
+        if action.double_click:
+            try:
+                success = self.computer.execute_double_click(action.double_click)
+            except Exception as e:
+                if self._LOG_MODALITY_ERRORS:
+                    console.print(f"🖱️ [red]Error executing double click:[/] {e}")
+                success = False
+
         if action.drag:
             try:
                 success = self.computer.execute_drag(action.drag)

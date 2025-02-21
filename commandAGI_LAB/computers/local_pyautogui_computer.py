@@ -4,8 +4,13 @@ import subprocess
 import tempfile
 import time
 
-import mss
-import pyautogui
+try:
+    import mss
+    import pyautogui
+except ImportError:
+    raise ImportError("pyautogui is not installed. Please install commandAGI_LAB with the local extra:\n\npip install commandAGI_LAB[local]")
+
+from PIL import Image
 from commandAGI_LAB.computers.base_computer import BaseComputer
 from commandAGI_LAB.types import (CommandAction, KeyboardKey,
                                                     KeyboardKeyDownAction,
@@ -19,7 +24,6 @@ from commandAGI_LAB.types import (CommandAction, KeyboardKey,
                                                     MouseStateObservation,
                                                     ScreenshotObservation,
                                                     TypeAction)
-from PIL import Image
 
 
 class LocalPyAutoGUIComputer(BaseComputer):

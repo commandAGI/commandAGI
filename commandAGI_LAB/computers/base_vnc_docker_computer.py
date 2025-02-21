@@ -3,6 +3,11 @@ import os
 import tempfile
 import uuid
 
+try:
+    from vncdotool import api
+except ImportError:
+    raise ImportError("vncdotool is not installed. Please install commandAGI_LAB with the vncdotool extra:\n\npip install commandAGI_LAB[vncdotool]")
+
 from commandAGI_LAB.computers.base_docker_computer import BaseDockerComputer
 from commandAGI_LAB.types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
@@ -15,7 +20,6 @@ from commandAGI_LAB.types import (KeyboardKey,
                                                     MouseScrollAction,
                                                     ScreenshotObservation,
                                                     TypeAction)
-from vncdotool import api
 
 
 class VNCDockerComputer(BaseDockerComputer):
