@@ -1,9 +1,8 @@
 from typing import ClassVar
 
 from commandAGI_LAB.computers.base_computer import BaseComputer
+from commandAGI_LAB.environments.base_env import BaseEnv
 from commandAGI_LAB.types import ComputerAction, ComputerObservation
-from commandAGI_LAB.utils.gym2.base_env import BaseEnv
-from commandAGI_LAB.utils.gym2.spaces import Space, StructuredSpace
 from rich.console import Console
 
 console = Console()

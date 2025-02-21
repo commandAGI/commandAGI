@@ -2,6 +2,7 @@ import base64
 import os
 import tempfile
 
+from commandAGI_LAB.computers.base_kubernetes_computer import BaseKubernetesComputer
 from commandAGI_LAB.types import (KeyboardKey,
                                                     KeyboardKeyDownAction,
                                                     KeyboardKeyReleaseAction,
@@ -9,14 +10,13 @@ from commandAGI_LAB.types import (KeyboardKey,
                                                     MouseButtonUpAction,
                                                     MouseMoveAction,
                                                     ScreenshotObservation)
-from commandAGI_LAB.envs.base_docker_computer import BaseDockerComputer
 from vncdotool import api
 
 
-class VNCKubernetesComputer(BaseDockerComputer):
+class VNCKubernetesComputer(BaseKubernetesComputer):
     """
     Kubernetes environment with VNC capabilities.
-    This class extends KubernetesComputerEnv and adds support for VNC-based screenshot capture and input actions.
+    This class extends BaseKubernetesComputer and adds support for VNC-based screenshot capture and input actions.
     """
 
     def __init__(
@@ -30,14 +30,26 @@ class VNCKubernetesComputer(BaseDockerComputer):
         env_vars: dict = None,
         ports: dict = None,
     ):
+        # Ensure VNC port is included in the ports mapping
+        ports = ports or {}
+        ports[vnc_port] = vnc_port
+        
+        # Add VNC-related environment variables
+        env_vars = env_vars or {}
+        env_vars.update({
+            "VNC_PASSWORD": password,
+            "USER": user
+        })
+
         super().__init__(pod_name, image, namespace, env_vars, ports)
         self.vnc_port = vnc_port
-        self.vnc_host = "localhost"  # Assumes port-forwarding is set up to map the pod's VNC port to localhost
+        self.vnc_host = "localhost"  # Assumes port-forwarding is set up
         self.password = password
         self.vnc = None
         self._connect_vnc()
 
     def _connect_vnc(self):
+        """Connect to the VNC server running in the pod."""
         self.vnc = api.connect(
             f"{self.vnc_host}::{self.vnc_port}", password=self.password
         )
@@ -66,23 +78,18 @@ class VNCKubernetesComputer(BaseDockerComputer):
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         from commandAGI_LAB.types import MouseButton
-
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         from commandAGI_LAB.types import MouseButton
-
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)
         return True
 
     def close(self):
-        """Clean up VNC connection and Kubernetes resources.
-
-        Disconnects from the VNC server and cleans up Kubernetes pod resources.
-        """
+        """Clean up VNC connection and Kubernetes resources."""
         try:
             self.vnc.disconnect()
             print("Disconnected from VNC server")

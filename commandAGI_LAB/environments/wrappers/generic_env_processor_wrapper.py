@@ -6,7 +6,7 @@ from commandAGI_LAB.types import ComputerAction
 from commandAGI_LAB.processors.base_processor import ObservationProcessor, ActionProcessor, ModifiedObsType, ModifiedActionType
 
 
-class ProcessedEnvWrapper(BaseEnv[ModifiedObsType, ModifiedActionType]):
+class GenericEnvProcessorWrapper(BaseEnv[ModifiedObsType, ModifiedActionType]):
     """
     Wrapper that applies a list of observation and action processors to an environment.
     """

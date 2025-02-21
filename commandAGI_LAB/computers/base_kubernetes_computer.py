@@ -50,81 +50,94 @@ class BaseKubernetesComputer(BaseComputer):
         self.namespace = namespace
         self.env_vars = env_vars if env_vars is not None else {}
         self.ports = ports if ports is not None else {}
+        
+        # Initialize kubernetes client
+        kubernetes.config.load_kube_config()
+        self.core_v1 = kubernetes.client.CoreV1Api()
+        
         self._create_pod()
         self._wait_for_pod_ready()
 
     def _create_pod(self):
-        # Build the kubectl run command
-        cmd = [
-            "kubectl",
-            "run",
-            self.pod_name,
-            "--image",
-            self.image,
-            "--restart",
-            "Never",
-            "-n",
-            self.namespace,
+        # Convert env_vars to kubernetes format
+        env = [
+            kubernetes.client.V1EnvVar(name=key, value=str(value))
+            for key, value in self.env_vars.items()
         ]
 
-        # Add environment variable flags
-        for key, value in self.env_vars.items():
-            cmd.extend(["--env", f"{key}={value}"])
+        # Convert ports to kubernetes format
+        ports = [
+            kubernetes.client.V1ContainerPort(container_port=container_port)
+            for container_port in self.ports.values()
+        ]
 
-        # Add port flag (kubectl run supports --port for single port)
-        # If multiple ports specified, choose one arbitrarily (first one)
-        if self.ports:
-            # Get the first port mapping (host_port: container_port)
-            container_port = list(self.ports.values())[0]
-            cmd.extend(["--port", str(container_port)])
+        # Create pod specification
+        container = kubernetes.client.V1Container(
+            name=self.pod_name,
+            image=self.image,
+            env=env,
+            ports=ports
+        )
 
-        print(f"Creating Kubernetes pod with command: {' '.join(cmd)}")
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if result.returncode != 0:
-            raise Exception(f"Failed to create pod: {result.stderr.decode('utf-8')}")
-        print("Pod created successfully.")
+        pod_spec = kubernetes.client.V1PodSpec(
+            containers=[container],
+            restart_policy="Never"
+        )
+
+        pod = kubernetes.client.V1Pod(
+            metadata=kubernetes.client.V1ObjectMeta(name=self.pod_name),
+            spec=pod_spec
+        )
+
+        print(f"Creating Kubernetes pod {self.pod_name}")
+        try:
+            self.core_v1.create_namespaced_pod(
+                namespace=self.namespace,
+                body=pod
+            )
+            print("Pod created successfully.")
+        except kubernetes.client.rest.ApiException as e:
+            raise Exception(f"Failed to create pod: {e}")
 
     def _wait_for_pod_ready(self, timeout: int = 60):
         start_time = time.time()
         while True:
-            cmd = [
-                "kubectl",
-                "get",
-                "pod",
-                self.pod_name,
-                "-n",
-                self.namespace,
-                "-o",
-                "jsonpath={.status.phase}",
-            ]
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            status = result.stdout.decode("utf-8").strip()
-            if status == "Running":
-                print(f"Pod {self.pod_name} is running.")
-                break
-            if time.time() - start_time > timeout:
-                raise Exception(
-                    f"Timeout waiting for pod {self.pod_name} to be running. Current status: {status}"
+            try:
+                pod = self.core_v1.read_namespaced_pod(
+                    name=self.pod_name,
+                    namespace=self.namespace
                 )
-            print(
-                f"Waiting for pod {self.pod_name} to be running. Current status: {status}"
-            )
-            time.sleep(2)
+                if pod.status.phase == "Running":
+                    print(f"Pod {self.pod_name} is running.")
+                    break
+                if time.time() - start_time > timeout:
+                    raise Exception(
+                        f"Timeout waiting for pod {self.pod_name} to be running. Current status: {pod.status.phase}"
+                    )
+                print(
+                    f"Waiting for pod {self.pod_name} to be running. Current status: {pod.status.phase}"
+                )
+                time.sleep(2)
+            except kubernetes.client.rest.ApiException as e:
+                raise Exception(f"Error checking pod status: {e}")
 
-    def _exec_in_pod(self, cmd: str, timeout: int = 10) -> subprocess.CompletedProcess:
-        full_cmd = [
-            "kubectl",
-            "exec",
-            self.pod_name,
-            "-n",
-            self.namespace,
-            "--",
-        ] + cmd.split()
-        print(f"Executing command in pod: {' '.join(full_cmd)}")
-        result = subprocess.run(
-            full_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout
-        )
-        return result
+    def _exec_in_pod(self, cmd: str, timeout: int = 10) -> kubernetes.stream.stream:
+        try:
+            exec_command = ["/bin/sh", "-c", cmd]
+            return kubernetes.stream.stream(
+                self.core_v1.connect_get_namespaced_pod_exec,
+                self.pod_name,
+                self.namespace,
+                command=exec_command,
+                stderr=True,
+                stdin=False,
+                stdout=True,
+                tty=False,
+                _preload_content=True
+            )
+        except kubernetes.client.rest.ApiException as e:
+            print(f"Error executing command in pod: {e}")
+            return None
 
     def get_screenshot(self) -> ScreenshotObservation:
         raise NotImplementedError(
@@ -145,9 +158,10 @@ class BaseKubernetesComputer(BaseComputer):
         result = self._exec_in_pod(
             action.command, timeout=action.timeout if action.timeout is not None else 10
         )
-        if result.returncode != 0:
-            print(f"Error executing command: {result.stderr.decode('utf-8')}")
-        return result.returncode == 0
+        if result is None:
+            print("Error executing command: Command execution failed.")
+            return False
+        return True
 
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         raise NotImplementedError(
@@ -185,27 +199,19 @@ class BaseKubernetesComputer(BaseComputer):
         )
 
     def close(self):
-        """Clean up Kubernetes resources.
-
-        Deletes the pod and cleans up any associated resources.
-        """
+        """Clean up Kubernetes resources."""
         try:
-            cmd = [
-                "kubectl",
-                "delete",
-                "pod",
-                self.pod_name,
-                "-n",
-                self.namespace,
-                "--grace-period=0",
-                "--force",
-            ]
-            print(f"Deleting Kubernetes pod with command: {' '.join(cmd)}")
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if result.returncode == 0:
-                print(f"Successfully deleted pod {self.pod_name}")
-            else:
-                print(f"Error deleting pod: {result.stderr.decode('utf-8')}")
+            self.core_v1.delete_namespaced_pod(
+                name=self.pod_name,
+                namespace=self.namespace,
+                body=kubernetes.client.V1DeleteOptions(
+                    grace_period_seconds=0,
+                    propagation_policy="Foreground"
+                )
+            )
+            print(f"Successfully deleted pod {self.pod_name}")
+        except kubernetes.client.rest.ApiException as e:
+            print(f"Error deleting pod: {e}")
         except Exception as e:
             print(f"Error cleaning up Kubernetes resources: {e}")
 

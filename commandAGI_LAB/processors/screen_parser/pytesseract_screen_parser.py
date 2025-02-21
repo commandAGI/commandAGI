@@ -4,8 +4,13 @@ from commandAGI_LAB.processors.screen_parser.base_screen_parser import (
     ParsedElement,
     ParsedScreenshot,
 )
+
+try:
+    import pytesseract
+except ImportError:
+    raise ImportError("pytesseract is not installed. Please install commandAGI_LAB with the pytesseract extra:\n\npip install commandAGI_LAB[pytesseract]")
+
 from commandAGI_LAB.types import ComputerObservation
-import pytesseract
 from commandAGI_LAB.utils.image import b64ToImage
 
 class TesseractScreenParser(BaseScreenParser):
