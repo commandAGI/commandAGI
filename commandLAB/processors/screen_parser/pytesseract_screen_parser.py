@@ -1,28 +1,36 @@
-from commandLAB.processors.screen_parser.base_screen_parser import (
-    BaseScreenParser,
-    ComputerObservationWithParsedScreenshot,
-    ParsedElement,
-    ParsedScreenshot,
-)
-
 try:
     import pytesseract
 except ImportError:
     raise ImportError("pytesseract is not installed. Please install commandLAB with the pytesseract extra:\n\npip install commandLAB[pytesseract]")
 
-from commandLAB.types import ComputerObservation
 from commandLAB.utils.image import b64ToImage
+from commandLAB.processors.screen_parser.types import ParsedScreenshot, ParsedElement
 
-class TesseractScreenParser(BaseScreenParser):
-    def parse_observation(self, observation: ComputerObservation) -> ParsedScreenshot:
-        image = b64ToImage(observation.screenshot.screenshot)
-        items = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
-        elements = [
-            ParsedElement(text=text, bounding_box=bounding_box)
-            for text, bounding_box in items.items()
-        ]
-        parsed_screenshot = ParsedScreenshot(elements=elements)
-        return ComputerObservationWithParsedScreenshot(
-            parsed_screenshot=parsed_screenshot,
-            **observation.model_dump()
-        )
+def parse_screenshot(screenshot_b64: str) -> ParsedScreenshot:
+    """
+    Parse a screenshot using Tesseract OCR.
+    
+    Args:
+        screenshot_b64: Base64 encoded screenshot image
+        
+    Returns:
+        ParsedScreenshot containing the detected text elements and their bounding boxes
+    """
+    image = b64ToImage(screenshot_b64)
+    data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+    
+    elements = []
+    for i in range(len(data['text'])):
+        if data['text'][i].strip():  # Only include non-empty text
+            element = ParsedElement(
+                text=data['text'][i],
+                bounding_box=[
+                    data['left'][i],
+                    data['top'][i], 
+                    data['left'][i] + data['width'][i],
+                    data['top'][i] + data['height'][i]
+                ]
+            )
+            elements.append(element)
+            
+    return ParsedScreenshot(elements=elements)
