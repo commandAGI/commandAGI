@@ -1,23 +1,27 @@
 import time
 from abc import abstractmethod
 
-from commandLAB.types import (ClickAction, CommandAction, DoubleClickAction,
-                                                    DragAction,
-                                                    KeyboardHotkeyAction,
-                                                    KeyboardKeyDownAction,
-                                                    KeyboardKeyPressAction,
-                                                    KeyboardKeyReleaseAction,
-                                                    KeyboardKeysDownAction,
-                                                    KeyboardKeysPressAction,
-                                                    KeyboardKeysReleaseAction,
-                                                    KeyboardStateObservation,
-                                                    MouseButtonDownAction,
-                                                    MouseButtonUpAction,
-                                                    MouseMoveAction,
-                                                    MouseScrollAction,
-                                                    MouseStateObservation,
-                                                    ScreenshotObservation,
-                                                    TypeAction)
+from commandLAB.types import (
+    ClickAction,
+    CommandAction,
+    DoubleClickAction,
+    DragAction,
+    KeyboardHotkeyAction,
+    KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
+    KeyboardKeyReleaseAction,
+    KeyboardKeysDownAction,
+    KeyboardKeysPressAction,
+    KeyboardKeysReleaseAction,
+    KeyboardStateObservation,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
+    ScreenshotObservation,
+    TypeAction,
+)
 from pydantic import BaseModel
 
 
@@ -130,9 +134,25 @@ class BaseComputer(BaseModel):
         """Execute a double click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """
-        self.execute_click(ClickAction(x=action.x, y=action.y, move_duration=action.move_duration, press_duration=action.press_duration, button=action.button))
+        self.execute_click(
+            ClickAction(
+                x=action.x,
+                y=action.y,
+                move_duration=action.move_duration,
+                press_duration=action.press_duration,
+                button=action.button,
+            )
+        )
         time.sleep(action.double_click_interval_seconds)
-        self.execute_click(ClickAction(x=action.x, y=action.y, move_duration=action.move_duration, press_duration=action.press_duration, button=action.button))
+        self.execute_click(
+            ClickAction(
+                x=action.x,
+                y=action.y,
+                move_duration=action.move_duration,
+                press_duration=action.press_duration,
+                button=action.button,
+            )
+        )
         return True
 
     def execute_drag(self, action: DragAction):

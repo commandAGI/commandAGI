@@ -1,6 +1,5 @@
 from commandLAB.types import MouseStateObservation
-from commandLAB.computers.vnc_kubernetes_computer import \
-    VNCKubernetesComputer
+from commandLAB.computers.vnc_kubernetes_computer import VNCKubernetesComputer
 
 
 class LXDEVNCKubernetesComputer(VNCKubernetesComputer):

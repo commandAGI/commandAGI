@@ -1,23 +1,29 @@
 import base64
 import subprocess
+
 try:
     from e2b_desktop import Sandbox
 except ImportError:
-    raise ImportError("e2b_desktop is not installed. Please install commandLAB with the e2b_desktop extra:\n\npip install commandLAB[e2b_desktop]")
+    raise ImportError(
+        "e2b_desktop is not installed. Please install commandLAB with the e2b_desktop extra:\n\npip install commandLAB[e2b_desktop]"
+    )
 
 from commandLAB.computers.base_computer import BaseComputer
-from commandLAB.types import (CommandAction, KeyboardKey,
-                                                    KeyboardKeyDownAction,
-                                                    KeyboardKeyReleaseAction,
-                                                    KeyboardStateObservation,
-                                                    MouseButton,
-                                                    MouseButtonDownAction,
-                                                    MouseButtonUpAction,
-                                                    MouseMoveAction,
-                                                    MouseScrollAction,
-                                                    MouseStateObservation,
-                                                    ScreenshotObservation,
-                                                    TypeAction)
+from commandLAB.types import (
+    CommandAction,
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyReleaseAction,
+    KeyboardStateObservation,
+    MouseButton,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
+    ScreenshotObservation,
+    TypeAction,
+)
 
 
 class E2BDesktopComputer(BaseComputer):

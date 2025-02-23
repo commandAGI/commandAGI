@@ -9,7 +9,9 @@ from commandLAB.environments.computer_env import BaseComputerEnv
 
 
 class ComputerViewer:
-    def __init__(self, computer_or_env, /, refresh_rate=100, show_mouse=True, show_keyboard=True):
+    def __init__(
+        self, computer_or_env, /, refresh_rate=100, show_mouse=True, show_keyboard=True
+    ):
         """
         Initialize the Environment Viewer.
 
@@ -24,7 +26,7 @@ class ComputerViewer:
             self.computer = computer_or_env
         else:
             raise ValueError("Invalid computer or environment")
-        
+
         self.refresh_rate = refresh_rate  # in milliseconds
         self.show_mouse = show_mouse
         self.show_keyboard = show_keyboard
@@ -187,8 +189,13 @@ if __name__ == "__main__":
     import random
 
     from commandLAB.types import (
-        ComputerObservation, KeyboardKey, KeyboardStateObservation,
-        MouseButton, MouseStateObservation, ScreenshotObservation)
+        ComputerObservation,
+        KeyboardKey,
+        KeyboardStateObservation,
+        MouseButton,
+        MouseStateObservation,
+        ScreenshotObservation,
+    )
 
     class DummyEnv:
         def _get_observation(self):
@@ -211,7 +218,5 @@ if __name__ == "__main__":
             )
 
     env = DummyEnv()
-    viewer = ComputerViewer(
-        env, refresh_rate=100, show_mouse=True, show_keyboard=True
-    )
+    viewer = ComputerViewer(env, refresh_rate=100, show_mouse=True, show_keyboard=True)
     viewer.run()

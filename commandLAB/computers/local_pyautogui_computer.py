@@ -8,22 +8,27 @@ try:
     import mss
     import pyautogui
 except ImportError:
-    raise ImportError("pyautogui is not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]")
+    raise ImportError(
+        "pyautogui is not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
+    )
 
 from PIL import Image
 from commandLAB.computers.base_computer import BaseComputer
-from commandLAB.types import (CommandAction, KeyboardKey,
-                                                    KeyboardKeyDownAction,
-                                                    KeyboardKeyReleaseAction,
-                                                    KeyboardStateObservation,
-                                                    MouseButton,
-                                                    MouseButtonDownAction,
-                                                    MouseButtonUpAction,
-                                                    MouseMoveAction,
-                                                    MouseScrollAction,
-                                                    MouseStateObservation,
-                                                    ScreenshotObservation,
-                                                    TypeAction)
+from commandLAB.types import (
+    CommandAction,
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyReleaseAction,
+    KeyboardStateObservation,
+    MouseButton,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
+    ScreenshotObservation,
+    TypeAction,
+)
 
 
 class LocalPyAutoGUIComputer(BaseComputer):

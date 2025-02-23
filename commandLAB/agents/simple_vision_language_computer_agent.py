@@ -1,7 +1,6 @@
 from textwrap import dedent
 
-from commandLAB.types import (ComputerAction,
-                                                    ComputerObservation)
+from commandLAB.types import ComputerAction, ComputerObservation
 from commandLAB.utils._internal.llms import get_chat_model
 from commandLAB.utils.gym2.base_agent import BaseAgent
 from langchain.schema import ChatMessage

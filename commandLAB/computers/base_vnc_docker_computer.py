@@ -6,20 +6,24 @@ import uuid
 try:
     from vncdotool import api
 except ImportError:
-    raise ImportError("vncdotool is not installed. Please install commandLAB with the vncdotool extra:\n\npip install commandLAB[vncdotool]")
+    raise ImportError(
+        "vncdotool is not installed. Please install commandLAB with the vncdotool extra:\n\npip install commandLAB[vncdotool]"
+    )
 
 from commandLAB.computers.base_docker_computer import BaseDockerComputer
-from commandLAB.types import (KeyboardKey,
-                                                    KeyboardKeyDownAction,
-                                                    KeyboardKeyReleaseAction,
-                                                    KeyboardStateObservation,
-                                                    MouseButton,
-                                                    MouseButtonDownAction,
-                                                    MouseButtonUpAction,
-                                                    MouseMoveAction,
-                                                    MouseScrollAction,
-                                                    ScreenshotObservation,
-                                                    TypeAction)
+from commandLAB.types import (
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyReleaseAction,
+    KeyboardStateObservation,
+    MouseButton,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    ScreenshotObservation,
+    TypeAction,
+)
 
 
 class VNCDockerComputer(BaseDockerComputer):

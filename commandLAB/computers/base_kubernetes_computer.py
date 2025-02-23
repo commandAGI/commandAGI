@@ -20,7 +20,9 @@ try:
     import kubernetes
     from kubernetes.stream import stream as Kubernetesstream
 except ImportError:
-    raise ImportError("kubernetes is not installed. Please install commandLAB with the kubernetes extra:\n\npip install commandLAB[kubernetes]")
+    raise ImportError(
+        "kubernetes is not installed. Please install commandLAB with the kubernetes extra:\n\npip install commandLAB[kubernetes]"
+    )
 
 
 class BaseKubernetesComputer(BaseComputer):
@@ -53,11 +55,11 @@ class BaseKubernetesComputer(BaseComputer):
         self.namespace = namespace
         self.env_vars = env_vars if env_vars is not None else {}
         self.ports = ports if ports is not None else {}
-        
+
         # Initialize kubernetes client
         kubernetes.config.load_kube_config()
         self.core_v1 = kubernetes.client.CoreV1Api()
-        
+
         self._create_pod()
         self._wait_for_pod_ready()
 
@@ -76,28 +78,20 @@ class BaseKubernetesComputer(BaseComputer):
 
         # Create pod specification
         container = kubernetes.client.V1Container(
-            name=self.pod_name,
-            image=self.image,
-            env=env,
-            ports=ports
+            name=self.pod_name, image=self.image, env=env, ports=ports
         )
 
         pod_spec = kubernetes.client.V1PodSpec(
-            containers=[container],
-            restart_policy="Never"
+            containers=[container], restart_policy="Never"
         )
 
         pod = kubernetes.client.V1Pod(
-            metadata=kubernetes.client.V1ObjectMeta(name=self.pod_name),
-            spec=pod_spec
+            metadata=kubernetes.client.V1ObjectMeta(name=self.pod_name), spec=pod_spec
         )
 
         print(f"Creating Kubernetes pod {self.pod_name}")
         try:
-            self.core_v1.create_namespaced_pod(
-                namespace=self.namespace,
-                body=pod
-            )
+            self.core_v1.create_namespaced_pod(namespace=self.namespace, body=pod)
             print("Pod created successfully.")
         except kubernetes.client.rest.ApiException as e:
             raise Exception(f"Failed to create pod: {e}")
@@ -107,8 +101,7 @@ class BaseKubernetesComputer(BaseComputer):
         while True:
             try:
                 pod = self.core_v1.read_namespaced_pod(
-                    name=self.pod_name,
-                    namespace=self.namespace
+                    name=self.pod_name, namespace=self.namespace
                 )
                 if pod.status.phase == "Running":
                     print(f"Pod {self.pod_name} is running.")
@@ -136,7 +129,7 @@ class BaseKubernetesComputer(BaseComputer):
                 stdin=False,
                 stdout=True,
                 tty=False,
-                _preload_content=True
+                _preload_content=True,
             )
         except kubernetes.client.rest.ApiException as e:
             print(f"Error executing command in pod: {e}")
@@ -208,9 +201,8 @@ class BaseKubernetesComputer(BaseComputer):
                 name=self.pod_name,
                 namespace=self.namespace,
                 body=kubernetes.client.V1DeleteOptions(
-                    grace_period_seconds=0,
-                    propagation_policy="Foreground"
-                )
+                    grace_period_seconds=0, propagation_policy="Foreground"
+                ),
             )
             print(f"Successfully deleted pod {self.pod_name}")
         except kubernetes.client.rest.ApiException as e:

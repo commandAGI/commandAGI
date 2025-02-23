@@ -4,7 +4,9 @@ import time
 try:
     import docker
 except ImportError:
-    raise ImportError("docker is not installed. Please install commandLAB with the docker extra:\n\npip install commandLAB[docker]")
+    raise ImportError(
+        "docker is not installed. Please install commandLAB with the docker extra:\n\npip install commandLAB[docker]"
+    )
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import CommandAction

@@ -6,15 +6,25 @@ import uuid
 try:
     from vncdotool import api
 except ImportError:
-    raise ImportError("vncdotool is not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]")
+    raise ImportError(
+        "vncdotool is not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]"
+    )
 
 from commandLAB.computers.base_docker_computer import BaseDockerComputer
-from commandLAB.types import (KeyboardKey, KeyboardKeyDownAction,
-                                KeyboardKeyReleaseAction, KeyboardStateObservation,
-                                MouseButton, MouseButtonDownAction,
-                                MouseButtonUpAction, MouseMoveAction,
-                                MouseScrollAction, MouseStateObservation,
-                                ScreenshotObservation, TypeAction)
+from commandLAB.types import (
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyReleaseAction,
+    KeyboardStateObservation,
+    MouseButton,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
+    ScreenshotObservation,
+    TypeAction,
+)
 
 
 class VNCDockerComputer(BaseDockerComputer):
@@ -57,7 +67,9 @@ class VNCDockerComputer(BaseDockerComputer):
 
     def _connect_vnc(self):
         """Connect to the container's VNC server using vncdotool."""
-        self.vnc = api.connect(f"{self.vnc_host}::{self.vnc_port}", password=self.password)
+        self.vnc = api.connect(
+            f"{self.vnc_host}::{self.vnc_port}", password=self.password
+        )
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Capture a screenshot using VNC and return as base64 string."""
@@ -123,4 +135,4 @@ class VNCDockerComputer(BaseDockerComputer):
             print(f"Error disconnecting from VNC server: {e}")
 
         # Call parent's close to cleanup Docker resources
-        super().close() 
+        super().close()

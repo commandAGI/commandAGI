@@ -5,20 +5,24 @@ import tempfile
 try:
     from vncdotool import api
 except ImportError:
-    raise ImportError("vncdotool is not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]")
+    raise ImportError(
+        "vncdotool is not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]"
+    )
 
 from commandLAB.computers.base_computer import BaseComputer
-from commandLAB.types import (KeyboardKey,
-                                                    KeyboardKeyDownAction,
-                                                    KeyboardKeyReleaseAction,
-                                                    KeyboardStateObservation,
-                                                    MouseButtonDownAction,
-                                                    MouseButtonUpAction,
-                                                    MouseMoveAction,
-                                                    MouseScrollAction,
-                                                    MouseStateObservation,
-                                                    ScreenshotObservation,
-                                                    TypeAction)
+from commandLAB.types import (
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyReleaseAction,
+    KeyboardStateObservation,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
+    ScreenshotObservation,
+    TypeAction,
+)
 
 
 class VNCComputer(BaseComputer):
@@ -103,4 +107,3 @@ class VNCComputer(BaseComputer):
         except Exception as e:
             print(f"Error disconnecting from VNC server: {e}")
         super().close()
-

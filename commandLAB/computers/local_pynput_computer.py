@@ -8,24 +8,28 @@ try:
     import mss
     from pynput import keyboard, mouse
 except ImportError:
-    raise ImportError("pynput is not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]")
+    raise ImportError(
+        "pynput is not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
+    )
 
 from commandLAB.computers.base_computer import BaseComputer
-from commandLAB.types import (CommandAction,
-                                                    KeyboardHotkeyAction,
-                                                    KeyboardKey,
-                                                    KeyboardKeyDownAction,
-                                                    KeyboardKeyPressAction,
-                                                    KeyboardKeyReleaseAction,
-                                                    KeyboardStateObservation,
-                                                    MouseButton,
-                                                    MouseButtonDownAction,
-                                                    MouseButtonUpAction,
-                                                    MouseMoveAction,
-                                                    MouseScrollAction,
-                                                    MouseStateObservation,
-                                                    ScreenshotObservation,
-                                                    TypeAction)
+from commandLAB.types import (
+    CommandAction,
+    KeyboardHotkeyAction,
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
+    KeyboardKeyReleaseAction,
+    KeyboardStateObservation,
+    MouseButton,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
+    ScreenshotObservation,
+    TypeAction,
+)
 from PIL import Image
 
 

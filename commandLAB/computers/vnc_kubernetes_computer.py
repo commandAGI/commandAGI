@@ -5,16 +5,20 @@ import tempfile
 try:
     from vncdotool import api
 except ImportError:
-    raise ImportError("vncdotool is not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]")
+    raise ImportError(
+        "vncdotool is not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]"
+    )
 
 from commandLAB.computers.base_kubernetes_computer import BaseKubernetesComputer
-from commandLAB.types import (KeyboardKey,
-                                                    KeyboardKeyDownAction,
-                                                    KeyboardKeyReleaseAction,
-                                                    MouseButtonDownAction,
-                                                    MouseButtonUpAction,
-                                                    MouseMoveAction,
-                                                    ScreenshotObservation)
+from commandLAB.types import (
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyReleaseAction,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    ScreenshotObservation,
+)
 
 
 class VNCKubernetesComputer(BaseKubernetesComputer):
@@ -37,13 +41,10 @@ class VNCKubernetesComputer(BaseKubernetesComputer):
         # Ensure VNC port is included in the ports mapping
         ports = ports or {}
         ports[vnc_port] = vnc_port
-        
+
         # Add VNC-related environment variables
         env_vars = env_vars or {}
-        env_vars.update({
-            "VNC_PASSWORD": password,
-            "USER": user
-        })
+        env_vars.update({"VNC_PASSWORD": password, "USER": user})
 
         super().__init__(pod_name, image, namespace, env_vars, ports)
         self.vnc_port = vnc_port
@@ -82,12 +83,14 @@ class VNCKubernetesComputer(BaseKubernetesComputer):
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         from commandLAB.types import MouseButton
+
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseDown(vnc_button)
         return True
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         from commandLAB.types import MouseButton
+
         vnc_button = MouseButton.to_vnc(action.button)
         self.vnc.mouseUp(vnc_button)
         return True
