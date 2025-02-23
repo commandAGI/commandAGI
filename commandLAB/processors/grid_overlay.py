@@ -8,6 +8,9 @@ from commandLAB.types import ComputerObservation, ScreenshotObservation
 
 
 class GridOverlayProcessor(ObservationProcessor[ComputerObservation, ComputerObservation]):
+    
+    grid_px_size: int = 100
+    
     def __init__(self, grid_px_size: int = 100):
         """
         Initialize the grid overlay processor.
