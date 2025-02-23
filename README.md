@@ -1,21 +1,21 @@
 <div align="center">
-  <img src="assets/commandagi-lab-art.svg" alt="CommandAGI Lab Logo" width="400"/>
+  <img src="assets/commandLAB-art.svg" alt="CommandAGI Lab Logo" width="400"/>
 </div>
 
 CommandAGI Lab framework, high performance, easy to learn, easy to use, production-ready
 
-[![PyPI version](https://badge.fury.io/py/commandagi-lab.svg)](https://badge.fury.io/py/commandagi-lab)
+[![PyPI version](https://badge.fury.io/py/commandLAB.svg)](https://badge.fury.io/py/commandLAB)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Documentation Status](https://readthedocs.org/projects/commandagi-lab/badge/?version=latest)](https://commandagi.com/documentation/commandAGI_LAB)
-[![Build Status](https://github.com/commandAGI/commandAGI_LAB/workflows/CI/badge.svg)](https://github.com/commandAGI/commandAGI_LAB/actions)
+[![Documentation Status](https://readthedocs.org/projects/commandLAB/badge/?version=latest)](https://commandagi.com/documentation/commandLAB)
+[![Build Status](https://github.com/commandAGI/commandLAB/workflows/CI/badge.svg)](https://github.com/commandAGI/commandLAB/actions)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ---
 
-📖 Documentation [commandagi.com/documentation/commandAGI_LAB](https://commandagi.com/documentation/commandAGI_LAB)
+📖 Documentation [commandagi.com/documentation/commandLAB](https://commandagi.com/documentation/commandLAB)
 
-🐙 Source Code [github.com/commandAGI/commandAGI_LAB](https://github.com/commandAGI/commandAGI_LAB)
+🐙 Source Code [github.com/commandAGI/commandLAB](https://github.com/commandAGI/commandLAB)
 
 ---
 
@@ -27,7 +27,7 @@ CommandAGI Lab is a framework for developing agents that control computers like 
   - Take screenshots
   - Send mouse and keyboard commands
   - Read the mouse and keyboard states
-  - Send/receive microphone/speaker/camera streams ([planned](https://github.com/commandAGI/commandAGI_LAB/issues/5))
+  - Send/receive microphone/speaker/camera streams ([planned](https://github.com/commandAGI/commandLAB/issues/5))
 
 - Work anywhere, at any scale:
   - directly control your local desktop
@@ -49,13 +49,13 @@ CommandAGI Lab is a framework for developing agents that control computers like 
 You can install CommandAGI Lab using pip:
 
 ```bash
-pip install commandagi-lab
+pip install commandLAB
 ```
 
 Or using Poetry (recommended):
 
 ```bash
-poetry add commandagi-lab
+poetry add commandLAB
 ```
 
 ### Optional Dependencies
@@ -64,10 +64,10 @@ CommandAGI Lab provides optional dependencies for different use cases:
 
 ```bash
 # For Docker support
-poetry add commandagi-lab[docker]
+poetry add commandLAB[docker]
 
 # For Kubernetes support
-poetry add commandagi-lab[kubernetes]
+poetry add commandLAB[kubernetes]
 ```
 
 ## Quick Start
@@ -75,7 +75,7 @@ poetry add commandagi-lab[kubernetes]
 Check out the `examples/` directory to get started quickly:
 
 ```python
-from commandagi-lab import Agent
+from commandLAB import Agent
 
 # Initialize an agent
 agent = Agent()
@@ -90,8 +90,8 @@ To set up the development environment:
 
 ```bash
 # Clone the repository
-git clone https://github.com/commandagi/commandagi-lab.git
-cd commandagi-lab
+git clone https://github.com/commandagi/commandLAB.git
+cd commandLAB
 
 # Install dependencies with Poetry
 poetry install --with dev
@@ -104,8 +104,8 @@ poetry run pre-commit install
 
 For detailed documentation, visit:
 
-- [Official Documentation](https://commandagi.com/documentation/commandAGI_LAB)
-- [API Reference](https://commandagi.com/documentation/commandAGI_LAB/api)
+- [Official Documentation](https://commandagi.com/documentation/commandLAB)
+- [API Reference](https://commandagi.com/documentation/commandLAB/api)
 
 ## License
 
@@ -114,5 +114,5 @@ This project is licensed under the MIT License - see the [LICENSE file](LICENSE)
 ## Additional Links
 
 - [Homepage](https://commandagi.com)
-- [PyPI Package](https://pypi.org/project/commandagi-lab/)
+- [PyPI Package](https://pypi.org/project/commandLAB/)
 - [Discord Community](https://discord.gg/commandagi)
