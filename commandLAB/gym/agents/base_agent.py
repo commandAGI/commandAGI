@@ -3,6 +3,7 @@ from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 
+from commandLAB.gym.schema import Episode
 from commandLAB.types import ComputerAction, ComputerObservation
 
 
@@ -29,5 +30,5 @@ class BaseComputerAgent(BaseModel, ABC):
         """Update the agent's internal state based on the reward."""
 
     @abstractmethod
-    def train(self, episodes: List[Episode]) -> None:
+    def train(self, episodes: list[Episode]) -> None:
         """Train the agent on an episode."""
