@@ -51,3 +51,9 @@ mkdocs-material = "^9.6.5"
 mkdocstrings = {extras = ["python"], version = "^0.28.1"}
 mkdocs-jupyter = "^0.25.1"
 
+
+[tool.poetry.group.gymnasium.dependencies]
+gymnasium = "^1.0.0"
+numpy = "^2.2.3"
+pillow = "^11.1.0"
+

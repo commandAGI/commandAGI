@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
-from commandLAB.utils.gym2.structures import Episode, Step, ObsType, ActType
+from commandLAB.gym.collection import Episode, Step, ObsType, ActType
 
 
-class BaseAgent(Generic[ObsType, ActType], ABC):
+class BaseAgent(ABC):
     """Base class for agents"""
 
     @abstractmethod

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, TypedDict, Union
 
 from pydantic import BaseModel, Field
 from pynput.keyboard import Key as PynputKey
@@ -308,7 +308,7 @@ class KeyboardStateObservation(BaseComputerObservation):
     keys: dict[KeyboardKey, bool]  # 0=released, 1=pressed
 
 
-class ComputerObservation(BaseModel):
+class ComputerObservation(TypedDict):
     screenshot: Optional[ScreenshotObservation] = None
     mouse_state: Optional[MouseStateObservation] = None
     keyboard_state: Optional[KeyboardStateObservation] = None
@@ -458,7 +458,7 @@ class DragAction(BaseComputerAction):
     button: MouseButton = MouseButton.LEFT
 
 
-class ComputerAction(BaseModel):
+class ComputerAction(TypedDict):
     command: Optional[CommandAction] = None
     keyboard_keys_press: Optional[KeyboardKeysPressAction] = None
     keyboard_keys_down: Optional[KeyboardKeysDownAction] = None

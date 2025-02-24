@@ -1,11 +1,12 @@
 from textwrap import dedent
 
+from commandLAB.agents.base_agent import BaseAgent
 from commandLAB.types import ComputerAction, ComputerObservation
-from commandLAB.utils._internal.llms import get_chat_model
-from commandLAB.utils.gym2.base_agent import BaseAgent
+from commandLAB.agents._utils.llms import get_chat_model
 from langchain.schema import ChatMessage
 from langchain_core.output_parsers.string import StrOutputParser
 from rich.console import Console
+from rich.panel import Panel
 
 console = Console()
 
@@ -64,9 +65,9 @@ class SimpleComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
             ),
         ]
 
-        # response = self.chat_model.invoke(input_messages)
-        # response_str = self.str_output_parser.invoke(response.content.strip())
-        # console.print(Panel(f"🤖 [cyan]Agent response:[/] {response_str}"))
+        response = self.chat_model.invoke(input_messages)
+        response_str = self.str_output_parser.invoke(response.content.strip())
+        console.print(Panel(f"🤖 [cyan]Agent response:[/] {response_str}"))
 
         return ComputerAction()
 
