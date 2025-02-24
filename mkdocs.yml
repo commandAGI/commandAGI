@@ -1,0 +1,58 @@
+site_name: commandLAB
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [commandLAB]
+  # - jupyter:
+  #     execute: false  # Set to true if you want to execute notebooks during build
+  #     include_source: true
+
+nav:
+  - User Guide:
+    - 'Introduction': 'index.md'
+    - 'Concepts': 'overview/concepts.md'
+  - API Reference:
+    - 'Computers': 'api/computers.md'
+    - 'Processors': 'api/processors.md'
+    - 'Utilities': 'api/utilities.md'
+  - Examples:
+    - 'Getting Started': 'examples/getting_started.md'
+    - 'Basic Concepts': 'examples/concepts.md'
+    - 'Advanced Concepts': 'examples/advanced_concepts.md'
+    - 'Using Docker': 'examples/using_docker.md'
+    - 'Using Kubernetes': 'examples/using_kubernetes.md'
+    - 'Scripting Interactions': 'examples/scripting_interactions.md'
+    - 'Automation': 'examples/automation.md'
+    - 'Document Editing': 'examples/document_editing.md'
+    - 'Using the Internet': 'examples/using_internet.md'
+    - 'Programming': 'examples/programming.md'
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true 

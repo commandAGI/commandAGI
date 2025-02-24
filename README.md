@@ -35,13 +35,13 @@ CommandAGI Lab is a framework for developing agents that control computers like 
   - spawn docker containers with fully managed OS environments
   - connect to Kubernetes clusters and spin up swarms
 
-- Powerful abstractions for developing agentic commands:
+- Batteries included `Agent` class for developing autonomous computer interaction agents:
   - Fully-typed `ComputerObservation` and `ComputerCommand` classes
-  - Individual `get_screenshot() -> ScreenshotComputerObservation`, `get_keyboard_state() -> KeyboardStateComputerObservation`, `click(MouseClickComputerAction)`, etc for observing and controlling individual modalities
-  - `ComputerEnv` openrl gym for integrating with openrl's (and by extention, gymnasiums and pettingzoo's) comprehensive suite of tools for training agents
+  - Individual `get_screenshot() -> ScreenshotComputerObservation`, `get_keyboard_state() -> KeyboardStateComputerObservation`, `click(MouseClickComputerAction)`, etc can be passed for observing and controlling individual modalities
 
 - Extensible and flexible:
   - Create new `Computer` subclasses to support other providers
+  - OpenRL gym integrations (coming soon)
   - Custom training code
 
 ## Installation
