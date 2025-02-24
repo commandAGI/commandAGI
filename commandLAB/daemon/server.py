@@ -20,7 +20,6 @@ from commandLAB.types import (
     MouseButtonUpAction,
 )
 
-
 class ComputerDaemon:
     def __init__(
         self,
@@ -118,19 +117,3 @@ class ComputerDaemon:
 
     def start_server(self):
         uvicorn.run(self.app, host="0.0.0.0", port=self.port)
-
-
-def main(port: int = 8000, backend: str = "pynput", **kwargs):
-    # Configure computer backend
-    computer_cls = (
-        LocalPynputComputer if backend == "pynput" else LocalPyAutoGUIComputer
-    )
-    daemon = ComputerDaemon(computer_cls=computer_cls, computer_cls_kwargs=kwargs)
-
-    print(f"Starting daemon on port {port}")
-    print(f"API Token: {daemon.API_TOKEN}")
-    daemon.start_server()
-
-
-if __name__ == "__main__":
-    typer.run(main)
