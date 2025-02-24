@@ -12,4 +12,4 @@ class ComputerTaskMixin(BaseTask[ComputerObservation, ComputerAction], ABC):
     def evaluate(
         self, env: ComputerEnv, episode: Episode[ComputerObservation, ComputerAction]
     ):
-        pass
+        raise NotImplementedError("ComputerTaskMixin does not implement evaluate")
