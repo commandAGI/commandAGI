@@ -36,9 +36,8 @@ from PIL import Image
 class LocalPynputComputer(BaseComputer):
     def __init__(self):
         super().__init__()
-        self.sct = mss.mss()
-        self.last_screenshot = None
-        self.temp_dir = tempfile.mkdtemp()
+        self._sct = mss.mss()
+        self._temp_dir = tempfile.mkdtemp()
 
         # These will hold the listener objects and controllers
         self._keyboard_listener = None
@@ -84,7 +83,7 @@ class LocalPynputComputer(BaseComputer):
 
     def close(self):
         """Clean up resources, including stopping pynput listeners."""
-        self.sct.close()
+        self._sct.close()
         if self._keyboard_listener:
             self._keyboard_listener.stop()
         if self._mouse_listener:
@@ -116,7 +115,7 @@ class LocalPynputComputer(BaseComputer):
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
-        screenshot = self.sct.grab(self.sct.monitors[1])  # Primary monitor
+        screenshot = self._sct.grab(self._sct.monitors[1])  # Primary monitor
         img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
         buffer = io.BytesIO()
         img.save(buffer, format="PNG")

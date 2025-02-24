@@ -14,6 +14,7 @@ dependencies = [
 
 
 [project.optional-dependencies]
+# Development dependencies
 dev = [
     "pytest==8.3.4",
     "black==25.1.0",
@@ -21,6 +22,8 @@ dev = [
     "ruff==0.9.7",
     "pillow==11.1.0",
 ]
+
+# Legacy/existing extras for compatibility
 local = [
     "pynput==1.7.7",
     "pyautogui==0.9.54",
@@ -34,6 +37,53 @@ scrapybara = ["scrapybara==2.2.7"]
 langchain = ["langchain==0.3.19"]
 pig = ["pig-python==0.1.1"]
 pytesseract = ["pytesseract==0.3.10"]
+
+# Base daemon client
+daemon-client = [
+    "requests",
+    "pillow",
+]
+
+# Cloud provider specific daemon clients
+daemon-client-aws = [
+    "commandlab[daemon-client]",
+    "boto3",
+]
+
+daemon-client-azure = [
+    "commandlab[daemon-client]",
+    "azure-mgmt-containerinstance",
+    "azure-identity",
+]
+
+daemon-client-gcp = [
+    "commandlab[daemon-client]",
+    "google-cloud-container",
+]
+
+# Docker and Kubernetes daemon clients
+daemon-client-docker = [
+    "commandlab[daemon-client]",
+    "commandlab[docker]",
+]
+
+daemon-client-kubernetes = [
+    "commandlab[daemon-client]",
+    "commandlab[kubernetes]",
+]
+
+# All daemon client capabilities
+daemon-client-all = [
+    "commandlab[daemon-client-aws,daemon-client-azure,daemon-client-gcp,daemon-client-docker,daemon-client-kubernetes]",
+]
+
+# Daemon host dependencies
+daemon-host = [
+    "fastapi",
+    "uvicorn",
+    "commandlab[local]"
+]
+
 
 [project.urls]
 Homepage = "https://commandagi.com"

@@ -4,8 +4,9 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import multiprocessing as mp
 
 from commandLAB.gym.environments.base_env import BaseEnv
-from commandLAB.agents.base_agent import BaseAgent
-from commandLAB.gym.collection import Episode, Step, ObsType, ActionType, InMemoryEpisode
+from commandLAB.gym.agents.base_agent import BaseAgent
+from commandLAB.gym.schema import Episode, Step, ObsType, ActionType, InMemoryEpisode
+
 
 class BaseDriver(Generic[ObsType, ActionType], ABC):
     """Abstract base class for drivers."""
@@ -34,6 +35,7 @@ class BaseDriver(Generic[ObsType, ActionType], ABC):
         """Clean up resources."""
         self.env.close()
 
+
 class SimpleDriver(BaseDriver[ObsType, ActionType]):
     """Single-threaded sequential driver implementation."""
 
@@ -44,16 +46,19 @@ class SimpleDriver(BaseDriver[ObsType, ActionType]):
         observation = self.env.reset()
         self.agent.reset()
         episode = self.episode_cls()
-        
+
         done = False
         while not done:
             action = self.agent.act(observation)
             next_obs, reward, done, info = self.env.step(action)
-            step = Step(observation=observation, action=action, reward=reward, info=info)
+            step = Step(
+                observation=observation, action=action, reward=reward, info=info
+            )
             episode.push(step)
             observation = next_obs
 
         return episode
+
 
 class ThreadedDriver(BaseDriver[ObsType, ActionType]):
     """Multi-threaded driver for environments that support threading."""
@@ -64,11 +69,14 @@ class ThreadedDriver(BaseDriver[ObsType, ActionType]):
 
     def collect_episodes(self, num_episodes: int) -> List[Episode[ObsType, ActionType]]:
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            episodes = list(executor.map(lambda _: self.collect_episode(), range(num_episodes)))
+            episodes = list(
+                executor.map(lambda _: self.collect_episode(), range(num_episodes))
+            )
         return episodes
 
     def collect_episode(self) -> Episode[ObsType, ActionType]:
         return super().collect_episode()
+
 
 class MultiprocessDriver(BaseDriver[ObsType, ActionType]):
     """Multi-process driver for CPU-bound environments."""
@@ -79,7 +87,9 @@ class MultiprocessDriver(BaseDriver[ObsType, ActionType]):
 
     def collect_episodes(self, num_episodes: int) -> List[Episode[ObsType, ActionType]]:
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-            episodes = list(executor.map(lambda _: self.collect_episode(), range(num_episodes)))
+            episodes = list(
+                executor.map(lambda _: self.collect_episode(), range(num_episodes))
+            )
         return episodes
 
     def collect_episode(self) -> Episode[ObsType, ActionType]:

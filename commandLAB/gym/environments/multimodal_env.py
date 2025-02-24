@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import ClassVar, Dict, Callable, Any, TypeVar, Generic, Optional
 
 from commandLAB.computers.base_computer import BaseComputer
@@ -6,10 +7,11 @@ from rich.console import Console
 
 console = Console()
 
-ObsT = TypeVar('ObsT')
-ActT = TypeVar('ActT')
+ObsT = TypeVar("ObsT")
+ActT = TypeVar("ActT")
 
-class MultiModalEnv(BaseEnv[ObsT, ActT], Generic[ObsT, ActT]):
+
+class MultiModalEnv(BaseEnv[ObsT, ActT], Generic[ObsT, ActT], ABC):
     """Base class for environments with multiple modalities for observations and actions"""
 
     _LOG_MODALITY_ERRORS: ClassVar[bool] = False
@@ -27,7 +29,7 @@ class MultiModalEnv(BaseEnv[ObsT, ActT], Generic[ObsT, ActT]):
     def get_observation(self) -> ObsT:
         """Get observations from all modalities"""
         observations = {}
-        
+
         for modality, obs_fn in self.observation_fns.items():
             try:
                 observations[modality] = obs_fn()
@@ -35,13 +37,13 @@ class MultiModalEnv(BaseEnv[ObsT, ActT], Generic[ObsT, ActT]):
                 if self._LOG_MODALITY_ERRORS:
                     console.print(f"[red]Error getting {modality}:[/] {e}")
                 observations[modality] = None
-                
+
         return self.observation_type(**observations)
 
     def execute_action(self, action: ActT) -> bool:
         """Execute actions for each modality"""
         success = True
-        
+
         for modality, action_data in action.items():
             if action_data and modality in self.action_fns:
                 try:
@@ -50,5 +52,5 @@ class MultiModalEnv(BaseEnv[ObsT, ActT], Generic[ObsT, ActT]):
                     if self._LOG_MODALITY_ERRORS:
                         console.print(f"[red]Error executing {modality}:[/] {e}")
                     success = False
-                    
+
         return success

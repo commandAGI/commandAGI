@@ -6,6 +6,7 @@ from commandLAB.agents.base_agent import BaseAgent
 from commandLAB.gym.collection import Episode, ObsType, ActionType
 from commandLAB.gym.driver import BaseDriver
 
+
 class BaseTrainer(Generic[ObsType, ActionType], ABC):
     """Base class for trainers."""
 
@@ -27,13 +28,14 @@ class BaseTrainer(Generic[ObsType, ActionType], ABC):
         """Get training statistics."""
         if not self.training_history:
             return {}
-        
+
         stats = {}
         for key in self.training_history[0].keys():
             values = [h[key] for h in self.training_history]
             stats[f"{key}_mean"] = np.mean(values)
             stats[f"{key}_std"] = np.std(values)
         return stats
+
 
 class OnlineTrainer(BaseTrainer[ObsType, ActionType]):
     """Trainer that trains after each episode."""
@@ -44,34 +46,36 @@ class OnlineTrainer(BaseTrainer[ObsType, ActionType]):
             episode = self.driver.collect_episode()
             self.agent.train(episode)
             episodes.append(episode)
-            
+
             # Record training stats
             episode_stats = {
                 "episode_length": episode.num_steps,
                 "total_reward": sum(step.reward for step in episode),
             }
             self.training_history.append(episode_stats)
-            
+
         return episodes
+
 
 class OfflineTrainer(BaseTrainer[ObsType, ActionType]):
     """Trainer that trains after collecting all episodes."""
 
     def train(self, num_episodes: int) -> List[Episode[ObsType, ActionType]]:
         episodes = self.driver.collect_episodes(num_episodes)
-        
+
         # Train on all episodes
         for episode in episodes:
             self.agent.train(episode)
-            
+
             # Record training stats
             episode_stats = {
                 "episode_length": episode.num_steps,
                 "total_reward": sum(step.reward for step in episode),
             }
             self.training_history.append(episode_stats)
-            
+
         return episodes
+
 
 class BatchTrainer(BaseTrainer[ObsType, ActionType]):
     """Trainer that trains in batches of episodes."""
@@ -87,16 +91,16 @@ class BatchTrainer(BaseTrainer[ObsType, ActionType]):
             batch_size = min(self.batch_size, num_episodes - i)
             batch = self.driver.collect_episodes(batch_size)
             episodes.extend(batch)
-            
+
             # Train on batch
             for episode in batch:
                 self.agent.train(episode)
-                
+
                 # Record training stats
                 episode_stats = {
                     "episode_length": episode.num_steps,
                     "total_reward": sum(step.reward for step in episode),
                 }
                 self.training_history.append(episode_stats)
-                
-        return episodes 
+
+        return episodes

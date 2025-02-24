@@ -3,15 +3,15 @@ import base64
 import io
 from PIL import Image
 
-from commandLAB.gym.environments.computer_env import BaseComputerEnv
+from commandLAB.gym.environments.computer_env import ComputerEnv
 from commandLAB.processors.grid_overlay import overlay_grid
 from commandLAB.types import ComputerObservation, ComputerAction
 
 
-class GridOverlayWrapper(BaseComputerEnv):
+class GridOverlayWrapper(ComputerEnv):
     """Wrapper that adds a grid overlay to screenshot observations."""
 
-    def __init__(self, env: BaseComputerEnv, grid_px_size: int = 100):
+    def __init__(self, env: ComputerEnv, grid_px_size: int = 100):
         """
         Args:
             env: The environment to wrap
@@ -20,7 +20,7 @@ class GridOverlayWrapper(BaseComputerEnv):
         self.env = env
         self.grid_px_size = grid_px_size
         # Initialize parent with same computer as wrapped env
-        super().__init__(computer=env.computer)
+        super().__init__(computer=env._computer)
 
     def get_observation(self) -> ComputerObservation:
         obs = super().get_observation()
@@ -60,5 +60,3 @@ class GridOverlayWrapper(BaseComputerEnv):
             super().__delattr__(name)
         else:
             delattr(self.env, name)
-
-

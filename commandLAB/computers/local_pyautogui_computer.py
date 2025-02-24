@@ -34,9 +34,8 @@ from commandLAB.types import (
 class LocalPyAutoGUIComputer(BaseComputer):
     def __init__(self):
         super().__init__()
-        self.sct = mss.mss()
-        self.last_screenshot = None
-        self.temp_dir = tempfile.mkdtemp()
+        self._sct = mss.mss()
+        self._temp_dir = tempfile.mkdtemp()
 
     def reset(self):
         """Reset environment and return initial observation"""
@@ -47,11 +46,11 @@ class LocalPyAutoGUIComputer(BaseComputer):
 
     def close(self):
         """Clean up resources"""
-        self.sct.close()
+        self._sct.close()
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
-        screenshot = self.sct.grab(self.sct.monitors[1])  # Primary monitor
+        screenshot = self._sct.grab(self._sct.monitors[1])  # Primary monitor
         img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
         buffer = io.BytesIO()
         img.save(buffer, format="PNG")

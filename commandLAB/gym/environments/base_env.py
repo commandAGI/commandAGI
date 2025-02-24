@@ -7,6 +7,7 @@ from pydantic import BaseModel
 ObsType = TypeVar("ObsType")
 ActionType = TypeVar("ActType")
 
+
 class BaseEnv(Generic[ObsType, ActionType], ABC):
     """Abstract base class for environments."""
 

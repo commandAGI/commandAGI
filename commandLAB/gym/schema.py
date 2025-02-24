@@ -59,7 +59,7 @@ class Episode(Generic[ObsType, ActionType], ABC):
         if index < 0 or index >= self.num_steps:
             raise IndexError("Episode index out of range")
         self.insert(step, index)
-    
+
     def __iter__(self) -> Iterator[Step[ObsType, ActionType]]:
         """Iterate over the steps of the episode."""
         return self.iter_steps()
