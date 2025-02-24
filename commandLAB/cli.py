@@ -42,10 +42,10 @@ TASKS = {
     "generate_text": GenerateTextTask,
 }
 
-app = typer.Typer()
+cli = typer.Typer()
 
 
-@app.command()
+@cli.command()
 def test(
     computer: str,
     # more computer args

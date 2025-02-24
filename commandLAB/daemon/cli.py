@@ -22,8 +22,10 @@ from commandLAB.types import (
 )
 
 
+cli = typer.Typer()
 
-def main(port: int = 8000, backend: str = "pynput", **kwargs):
+@cli.command()
+def start(port: int = 8000, backend: str = "pynput", **kwargs):
     # Configure computer backend
     computer_cls = (
         LocalPynputComputer if backend == "pynput" else LocalPyAutoGUIComputer
@@ -36,4 +38,4 @@ def main(port: int = 8000, backend: str = "pynput", **kwargs):
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    cli()

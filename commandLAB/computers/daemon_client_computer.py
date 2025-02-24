@@ -19,8 +19,6 @@ from commandLAB.types import (
 )
 import requests
 from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
-from commandLAB.computers.provisioners.manual_provisioner import ManualProvisioner
-from commandLAB.computers.provisioners.docker_provisioner import DockerProvisioner
 
 
 class ProvisioningMethod(str, Enum):
@@ -31,40 +29,48 @@ class ProvisioningMethod(str, Enum):
     GCP = "gcp"
     MANUAL = "manual"
 
+    def get_provisioner_cls(self) -> type[BaseComputerProvisioner]:
+        """Return the appropriate provisioner class based on the provisioning method"""
+        match self:
+            case ProvisioningMethod.MANUAL:
+                from commandLAB.computers.provisioners.manual_provisioner import ManualProvisioner
+                return ManualProvisioner
+            case ProvisioningMethod.DOCKER:
+                from commandLAB.computers.provisioners.docker_provisioner import DockerProvisioner
+                return DockerProvisioner
+            case ProvisioningMethod.KUBERNETES:
+                from commandLAB.computers.provisioners.kubernetes_provisioner import KubernetesProvisioner
+                return KubernetesProvisioner
+            case ProvisioningMethod.AWS:
+                from commandLAB.computers.provisioners.aws_provisioner import AWSProvisioner
+                return AWSProvisioner
+            case ProvisioningMethod.AZURE:
+                from commandLAB.computers.provisioners.azure_provisioner import AzureProvisioner
+                return AzureProvisioner
+            case ProvisioningMethod.GCP:
+                from commandLAB.computers.provisioners.gcp_provisioner import GCPProvisioner
+                return GCPProvisioner
+            case _:
+                raise ImportError(f"No provisioner found for {self}")
 
 class DaemonClientComputer(BaseComputer):
-    base_url: str = "http://localhost"
-    port: int = 8000
-    provisioning_method: ProvisioningMethod = ProvisioningMethod.MANUAL
+    daemon_base_url: str = "http://localhost"
+    daemon_port: int = 8000
     provisioner: Optional[BaseComputerProvisioner] = None
 
-    def __init__(self, **data):
+    def __init__(self, provisioning_method: ProvisioningMethod = ProvisioningMethod.MANUAL, **data):
+        self.provisioner = provisioning_method.get_provisioner_cls()(port=self.daemon_port)
         super().__init__(**data)
-        self.provisioner = self._get_provisioner()
-        self._setup_daemon()
+        self.provisioner.setup()
 
-    def _get_provisioner(self) -> BaseComputerProvisioner:
-        """Get the appropriate provisioner based on the provisioning method"""
-        if self.provisioning_method == ProvisioningMethod.MANUAL:
-            return ManualProvisioner(port=self.port)
-        elif self.provisioning_method == ProvisioningMethod.DOCKER:
-            return DockerProvisioner(port=self.port)
-        else:
-            raise NotImplementedError(f"{self.provisioning_method} provisioning not yet implemented")
-
-    def _setup_daemon(self):
-        """Setup the daemon using the selected provisioner"""
-        if self.provisioner:
-            self.provisioner.setup()
-
-    def __del__(self):
+    def close(self):
         """Cleanup resources when the object is destroyed"""
         if self.provisioner:
             self.provisioner.teardown()
 
     def _get_endpoint_url(self, endpoint: str) -> str:
         """Helper method to construct endpoint URLs"""
-        return f"{self.base_url}:{self.port}/{endpoint}"
+        return f"{self.daemon_base_url}:{self.daemon_port}/{endpoint}"
 
     def get_screenshot(self) -> ScreenshotObservation:
         response = requests.get(self._get_endpoint_url("screenshot"))
