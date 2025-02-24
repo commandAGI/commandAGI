@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from commandLAB.agents.base_agent import BaseAgent
+from commandLAB.agents.base_agent import BaseComputerAgent
 from commandLAB.types import ComputerAction, ComputerObservation
 from commandLAB.agents._utils.llms import get_chat_model
 from langchain.schema import ChatMessage
@@ -11,7 +11,7 @@ from rich.panel import Panel
 console = Console()
 
 
-class SimpleComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
+class SimpleComputerAgent(BaseComputerAgent[ComputerObservation, ComputerAction]):
 
     def __init__(self, chat_model_options: dict):
         self.total_reward = 0.0

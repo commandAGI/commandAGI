@@ -3,8 +3,9 @@ from typing import Any, Dict, Generic, Iterator, Tuple, TypeVar
 
 from pydantic import BaseModel
 
-from commandLAB.gym.collection import Episode, Step, ObsType, ActionType
 
+ObsType = TypeVar("ObsType")
+ActionType = TypeVar("ActType")
 
 class BaseEnv(Generic[ObsType, ActionType], ABC):
     """Abstract base class for environments."""
