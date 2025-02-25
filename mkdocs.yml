@@ -40,8 +40,6 @@ plugins:
 exclude_docs: |
   /api/template.md
   /examples/template.md
-  # Temporarily exclude all API documentation files
-  /api/commandLAB/**/*.md
 
 nav:
   - User Guide:
