@@ -31,6 +31,10 @@ class BaseComputerProvisioner:
         
     def is_running(self) -> bool:
         """Check if the environment is running"""
+        
+    def get_status(self) -> str:
+        """Get the current status of the provisioner"""
+        return self._status
 ```
 
 ## Available Provisioners
@@ -134,3 +138,19 @@ class MyCustomProvisioner(BaseComputerProvisioner):
 ```
 
 This allows you to integrate CommandLAB with any infrastructure or deployment system.
+
+## Advanced Features
+
+The provisioners in CommandLAB include several advanced features:
+
+- **Retry Logic**: Automatically retry operations that fail transiently
+- **Timeouts**: Prevent operations from hanging indefinitely
+- **Status Tracking**: Monitor the state of resources
+- **Logging**: Detailed logging for troubleshooting
+- **Resource Cleanup**: Ensure proper cleanup of all resources
+
+## Further Reading
+
+- [Using Provisioners Guide](../guides/provisioners.md) - A user-focused guide on using provisioners
+- [Provisioner System for Developers](../developers/provisioners.md) - Detailed information for library developers
+- [Cloud Containers Guide](../guides/cloud_containers.md) - Guide for running CommandLAB in cloud container services

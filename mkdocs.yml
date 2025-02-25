@@ -29,7 +29,20 @@ plugins:
 nav:
   - User Guide:
     - 'Introduction': 'index.md'
-    - 'Concepts': 'overview/concepts.md'
+    - 'Installation': 'installation.md'
+    - 'Quick Start': 'quickstart.md'
+    - Concepts:
+      - 'Overview': 'concepts/index.md'
+      - 'Computers': 'concepts/computers.md'
+      - 'Provisioners': 'concepts/provisioners.md'
+      - 'Daemon': 'concepts/daemon.md'
+      - 'Gym Framework': 'concepts/gym.md'
+      - 'Types': 'concepts/types.md'
+    - Guides:
+      - 'Using Provisioners': 'guides/provisioners.md'
+      - 'Cloud Containers': 'guides/cloud_containers.md'
+    - Tutorials:
+      - 'Basic Automation': 'tutorials/basic_automation.md'
   - API Reference:
     - 'Computers': 'api/computers.md'
     - 'Processors': 'api/processors.md'
@@ -45,6 +58,8 @@ nav:
     - 'Document Editing': 'examples/document_editing.md'
     - 'Using the Internet': 'examples/using_internet.md'
     - 'Programming': 'examples/programming.md'
+  - For Developers:
+    - 'Provisioner System': 'developers/provisioners.md'
 
 markdown_extensions:
   - pymdownx.highlight:
