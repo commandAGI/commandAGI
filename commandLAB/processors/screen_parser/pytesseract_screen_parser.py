@@ -18,7 +18,7 @@ def parse_screenshot(screenshot_b64: str) -> ParsedScreenshot:
 
     Returns:
         ParsedScreenshot containing the detected text elements and their bounding boxes
-        
+
     Examples:
         >>> # This example demonstrates the expected pattern but won't run in doctest
         >>> # Create a mock base64 image with text
@@ -34,7 +34,7 @@ def parse_screenshot(screenshot_b64: str) -> ParsedScreenshot:
         >>> buffer = io.BytesIO()
         >>> img.save(buffer, format="PNG")
         >>> b64_str = base64.b64encode(buffer.getvalue()).decode('utf-8')
-        >>> 
+        >>>
         >>> # Parse the screenshot (this would be the actual test)
         >>> # result = parse_screenshot(b64_str)
         >>> # Check that we get a ParsedScreenshot

@@ -4,13 +4,19 @@ CommandLAB Scripting Computer Interactions Example
 
 This example demonstrates how to use the manual provisioner to script computer interactions.
 The manual provisioner is the simplest way to get started with CommandLAB.
+
+Status: ⚠️ Requires manual setup
+- Needs the daemon to be running in a separate terminal
 """
 
 import time
 import os
 
 try:
-    from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+    from commandLAB.computers.daemon_client_computer import (
+        DaemonClientComputer,
+        ProvisioningMethod,
+    )
     from commandLAB.types import (
         CommandAction,
         TypeAction,
@@ -18,22 +24,21 @@ try:
         KeyboardKeyPressAction,
         KeyboardKey,
         ClickAction,
-        MouseButton
+        MouseButton,
     )
 except ImportError:
     print("Error: Required modules not found. Make sure CommandLAB is installed:")
     print("pip install commandlab")
     exit(1)
 
+
 def main():
     print("Creating a DaemonClientComputer with Manual provisioning...")
-    
+
     try:
         # Create a computer with Manual provisioning
-        computer = DaemonClientComputer(
-            provisioning_method=ProvisioningMethod.MANUAL
-        )
-        
+        computer = DaemonClientComputer(provisioning_method=ProvisioningMethod.MANUAL)
+
         print("\nManual provisioning instructions:")
         print("1. Open a new terminal window")
         print("2. Run the following command to start the daemon:")
@@ -41,74 +46,81 @@ def main():
         print("   python -m commandlab.daemon.daemon --port 8000 --backend pynput")
         print("3. Once the daemon is running, press Enter to continue...")
         input()
-        
+
         # Give the daemon time to start if it was just started
         print("Waiting for daemon to be ready...")
         time.sleep(2)
-        
+
         # Execute a command
-        print("Executing a command to open Notepad (on Windows) or TextEdit (on macOS)...")
-        if os.name == 'nt':  # Windows
-            result = computer.execute_command(CommandAction(
-                command="notepad",
-                timeout=5
-            ))
+        print(
+            "Executing a command to open Notepad (on Windows) or TextEdit (on macOS)..."
+        )
+        if os.name == "nt":  # Windows
+            result = computer.execute_command(
+                CommandAction(command="notepad", timeout=5)
+            )
         else:  # macOS or Linux
-            result = computer.execute_command(CommandAction(
-                command="open -a TextEdit" if os.uname().sysname == 'Darwin' else "gedit",
-                timeout=5
-            ))
-        
+            result = computer.execute_command(
+                CommandAction(
+                    command=(
+                        "open -a TextEdit"
+                        if os.uname().sysname == "Darwin"
+                        else "gedit"
+                    ),
+                    timeout=5,
+                )
+            )
+
         print(f"Command execution {'succeeded' if result else 'failed'}")
         print("Waiting for the application to open...")
         time.sleep(3)
-        
+
         # Type some text
         print("Typing text...")
-        computer.execute_type(TypeAction(
-            text="Hello from CommandLAB!\n\nThis is an example of scripting computer interactions."
-        ))
+        computer.execute_type(
+            TypeAction(
+                text="Hello from CommandLAB!\n\nThis is an example of scripting computer interactions."
+            )
+        )
         time.sleep(1)
-        
+
         # Press a keyboard hotkey (Ctrl+S to save)
         print("Pressing Ctrl+S to save...")
-        computer.execute_keyboard_hotkey(KeyboardHotkeyAction(
-            keys=[KeyboardKey.CTRL, KeyboardKey.S]
-        ))
+        computer.execute_keyboard_hotkey(
+            KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S])
+        )
         time.sleep(1)
-        
+
         # Type a filename
         print("Typing filename...")
-        computer.execute_type(TypeAction(
-            text="commandlab_example.txt"
-        ))
+        computer.execute_type(TypeAction(text="commandlab_example.txt"))
         time.sleep(1)
-        
+
         # Press Enter to save
         print("Pressing Enter to save...")
-        computer.execute_keyboard_key_press(KeyboardKeyPressAction(
-            key=KeyboardKey.ENTER,
-            duration=0.1
-        ))
+        computer.execute_keyboard_key_press(
+            KeyboardKeyPressAction(key=KeyboardKey.ENTER, duration=0.1)
+        )
         time.sleep(1)
-        
+
         # Close the application (Alt+F4)
         print("Pressing Alt+F4 to close the application...")
-        computer.execute_keyboard_hotkey(KeyboardHotkeyAction(
-            keys=[KeyboardKey.ALT, KeyboardKey.F4]
-        ))
-        
+        computer.execute_keyboard_hotkey(
+            KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4])
+        )
+
         print("\nExample completed successfully!")
         print("A file named 'commandlab_example.txt' should have been created.")
-        
+
     except Exception as e:
         print(f"Error: {e}")
     finally:
         # Clean up resources
-        if 'computer' in locals():
+        if "computer" in locals():
             computer.close()
             print("Resources cleaned up.")
             print("Note: The daemon is still running. You can stop it manually.")
+
 
 if __name__ == "__main__":
     main()

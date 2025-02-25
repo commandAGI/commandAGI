@@ -33,38 +33,63 @@ class ProvisioningMethod(str, Enum):
         """Return the appropriate provisioner class based on the provisioning method"""
         match self:
             case ProvisioningMethod.MANUAL:
-                from commandLAB.computers.provisioners.manual_provisioner import ManualProvisioner
+                from commandLAB.computers.provisioners.manual_provisioner import (
+                    ManualProvisioner,
+                )
+
                 return ManualProvisioner
             case ProvisioningMethod.DOCKER:
-                from commandLAB.computers.provisioners.docker_provisioner import DockerProvisioner
+                from commandLAB.computers.provisioners.docker_provisioner import (
+                    DockerProvisioner,
+                )
+
                 return DockerProvisioner
             case ProvisioningMethod.KUBERNETES:
-                from commandLAB.computers.provisioners.kubernetes_provisioner import KubernetesProvisioner
+                from commandLAB.computers.provisioners.kubernetes_provisioner import (
+                    KubernetesProvisioner,
+                )
+
                 return KubernetesProvisioner
             case ProvisioningMethod.AWS:
-                from commandLAB.computers.provisioners.aws_provisioner import AWSProvisioner
+                from commandLAB.computers.provisioners.aws_provisioner import (
+                    AWSProvisioner,
+                )
+
                 return AWSProvisioner
             case ProvisioningMethod.AZURE:
-                from commandLAB.computers.provisioners.azure_provisioner import AzureProvisioner
+                from commandLAB.computers.provisioners.azure_provisioner import (
+                    AzureProvisioner,
+                )
+
                 return AzureProvisioner
             case ProvisioningMethod.GCP:
-                from commandLAB.computers.provisioners.gcp_provisioner import GCPProvisioner
+                from commandLAB.computers.provisioners.gcp_provisioner import (
+                    GCPProvisioner,
+                )
+
                 return GCPProvisioner
             case _:
                 raise ImportError(f"No provisioner found for {self}")
+
 
 class DaemonClientComputer(BaseComputer):
     daemon_base_url: str = "http://localhost"
     daemon_port: int = 8000
     provisioner: Optional[BaseComputerProvisioner] = None
-    
+
     model_config = {"arbitrary_types_allowed": True}
 
-    def __init__(self, provisioning_method: ProvisioningMethod = ProvisioningMethod.MANUAL, **data):
+    def __init__(
+        self,
+        provisioning_method: ProvisioningMethod = ProvisioningMethod.MANUAL,
+        **data,
+    ):
         # Initialize the base model first to ensure all fields are set
         super().__init__(**data)
         # Now we can safely access daemon_port
-        self.provisioner = provisioning_method.get_provisioner_cls()(port=self.daemon_port)
+        self.provisioner = provisioning_method.get_provisioner_cls()(
+            port=self.daemon_port
+        )
         self.provisioner.setup()
 
     def close(self):
@@ -93,49 +118,42 @@ class DaemonClientComputer(BaseComputer):
 
     def execute_command(self, action: CommandAction) -> bool:
         response = requests.post(
-            self._get_endpoint_url("command"),
-            json=action.model_dump()
+            self._get_endpoint_url("command"), json=action.model_dump()
         )
         return response.status_code == 200
 
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         response = requests.post(
-            self._get_endpoint_url("keyboard/key/down"),
-            json=action.model_dump()
+            self._get_endpoint_url("keyboard/key/down"), json=action.model_dump()
         )
         return response.status_code == 200
 
     def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         response = requests.post(
-            self._get_endpoint_url("keyboard/key/release"),
-            json=action.model_dump()
+            self._get_endpoint_url("keyboard/key/release"), json=action.model_dump()
         )
         return response.status_code == 200
 
     def execute_mouse_move(self, action: MouseMoveAction) -> bool:
         response = requests.post(
-            self._get_endpoint_url("mouse/move"),
-            json=action.model_dump()
+            self._get_endpoint_url("mouse/move"), json=action.model_dump()
         )
         return response.status_code == 200
 
     def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         response = requests.post(
-            self._get_endpoint_url("mouse/scroll"),
-            json=action.model_dump()
+            self._get_endpoint_url("mouse/scroll"), json=action.model_dump()
         )
         return response.status_code == 200
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         response = requests.post(
-            self._get_endpoint_url("mouse/button/down"),
-            json=action.model_dump()
+            self._get_endpoint_url("mouse/button/down"), json=action.model_dump()
         )
         return response.status_code == 200
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         response = requests.post(
-            self._get_endpoint_url("mouse/button/up"),
-            json=action.model_dump()
+            self._get_endpoint_url("mouse/button/up"), json=action.model_dump()
         )
-        return response.status_code == 200 
+        return response.status_code == 200

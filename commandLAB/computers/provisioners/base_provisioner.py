@@ -19,4 +19,4 @@ class BaseComputerProvisioner(ABC):
     @abstractmethod
     def is_running(self) -> bool:
         """Check if the daemon is running"""
-        pass 
+        pass

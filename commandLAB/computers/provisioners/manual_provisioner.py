@@ -12,4 +12,4 @@ class ManualProvisioner(BaseComputerProvisioner):
 
     def is_running(self) -> bool:
         # Could implement a basic health check here
-        return True 
+        return True

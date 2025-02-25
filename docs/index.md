@@ -80,6 +80,7 @@ computer.close()
 
 - [Installation Guide](installation.md) - Detailed installation instructions
 - [Quick Start Guide](quickstart.md) - Get up and running quickly
+- [Examples](examples.md) - Example scripts with status and usage information
 - [Core Concepts](concepts/index.md) - Learn about the fundamental concepts
   - [Computers](concepts/computers.md) - Computer implementations
   - [Provisioners](concepts/provisioners.md) - Environment management

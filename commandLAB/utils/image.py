@@ -6,13 +6,13 @@ from PIL import Image
 def b64ToImage(b64: str) -> Image.Image:
     """
     Convert a base64 encoded image string to a PIL Image.
-    
+
     Args:
         b64: Base64 encoded image string
-        
+
     Returns:
         PIL Image object
-        
+
     Examples:
         >>> # This example shows the pattern but won't actually run in doctest
         >>> import base64
@@ -34,13 +34,13 @@ def b64ToImage(b64: str) -> Image.Image:
 def imageToB64(image: Image.Image) -> str:
     """
     Convert a PIL Image to a base64 encoded string.
-    
+
     Args:
         image: PIL Image object
-        
+
     Returns:
         Base64 encoded string of the image
-        
+
     Examples:
         >>> # This example shows the pattern but won't actually run in doctest
         >>> from PIL import Image
@@ -59,13 +59,13 @@ def imageToB64(image: Image.Image) -> str:
 def imageToBytes(image: Image.Image) -> bytes:
     """
     Convert a PIL Image to bytes.
-    
+
     Args:
         image: PIL Image object
-        
+
     Returns:
         Bytes representation of the image
-        
+
     Examples:
         >>> # This example shows the pattern but won't actually run in doctest
         >>> from PIL import Image
@@ -84,13 +84,13 @@ def imageToBytes(image: Image.Image) -> bytes:
 def bytesToImage(bytes_data: bytes) -> Image.Image:
     """
     Convert bytes to a PIL Image.
-    
+
     Args:
         bytes_data: Bytes representation of an image
-        
+
     Returns:
         PIL Image object
-        
+
     Examples:
         >>> # This example shows the pattern but won't actually run in doctest
         >>> from PIL import Image

@@ -20,6 +20,7 @@ from commandLAB.types import (
     MouseButtonUpAction,
 )
 
+
 class ComputerDaemon:
     def __init__(
         self,

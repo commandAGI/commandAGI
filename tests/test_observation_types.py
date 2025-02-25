@@ -7,7 +7,7 @@ from commandLAB.types import (
     KeyboardStateObservation,
     MouseButton,
     KeyboardKey,
-    ComputerObservation
+    ComputerObservation,
 )
 
 
@@ -15,11 +15,13 @@ class TestScreenshotObservation(unittest.TestCase):
     def test_screenshot_observation_creation(self):
         # Test creating a ScreenshotObservation
         observation = ScreenshotObservation(screenshot="base64_encoded_data")
-        
+
         # Check attributes
         self.assertEqual(observation.screenshot, "base64_encoded_data")
-        self.assertEqual(observation.observation_type, ComputerObservationType.SCREENSHOT)
-        
+        self.assertEqual(
+            observation.observation_type, ComputerObservationType.SCREENSHOT
+        )
+
     def test_screenshot_observation_validation(self):
         # Test validation of screenshot data
         with self.assertRaises(ValueError):
@@ -33,50 +35,51 @@ class TestMouseStateObservation(unittest.TestCase):
             buttons={
                 MouseButton.LEFT: False,
                 MouseButton.RIGHT: False,
-                MouseButton.MIDDLE: False
+                MouseButton.MIDDLE: False,
             },
-            position=(100, 200)
+            position=(100, 200),
         )
-        
+
         # Check attributes
         self.assertEqual(observation.buttons[MouseButton.LEFT], False)
         self.assertEqual(observation.buttons[MouseButton.RIGHT], False)
         self.assertEqual(observation.buttons[MouseButton.MIDDLE], False)
         self.assertEqual(observation.position, (100, 200))
-        self.assertEqual(observation.observation_type, ComputerObservationType.MOUSE_STATE)
-        
+        self.assertEqual(
+            observation.observation_type, ComputerObservationType.MOUSE_STATE
+        )
+
         # Test with some buttons pressed
         observation_pressed = MouseStateObservation(
             buttons={
                 MouseButton.LEFT: True,
                 MouseButton.RIGHT: False,
-                MouseButton.MIDDLE: True
+                MouseButton.MIDDLE: True,
             },
-            position=(300, 400)
+            position=(300, 400),
         )
-        
+
         self.assertEqual(observation_pressed.buttons[MouseButton.LEFT], True)
         self.assertEqual(observation_pressed.buttons[MouseButton.RIGHT], False)
         self.assertEqual(observation_pressed.buttons[MouseButton.MIDDLE], True)
         self.assertEqual(observation_pressed.position, (300, 400))
-        
+
     def test_mouse_state_observation_validation(self):
         # Test validation of buttons
         with self.assertRaises(ValueError):
             MouseStateObservation(
-                buttons={},  # Empty buttons should fail
-                position=(100, 200)
+                buttons={}, position=(100, 200)  # Empty buttons should fail
             )
-            
+
         # Test validation of position
         with self.assertRaises(ValueError):
             MouseStateObservation(
                 buttons={
                     MouseButton.LEFT: False,
                     MouseButton.RIGHT: False,
-                    MouseButton.MIDDLE: False
+                    MouseButton.MIDDLE: False,
                 },
-                position=()  # Empty position should fail
+                position=(),  # Empty position should fail
             )
 
 
@@ -89,18 +92,20 @@ class TestKeyboardStateObservation(unittest.TestCase):
                 KeyboardKey.CTRL: False,
                 KeyboardKey.ALT: False,
                 KeyboardKey.A: False,
-                KeyboardKey.B: False
+                KeyboardKey.B: False,
             }
         )
-        
+
         # Check attributes
         self.assertEqual(observation.keys[KeyboardKey.SHIFT], False)
         self.assertEqual(observation.keys[KeyboardKey.CTRL], False)
         self.assertEqual(observation.keys[KeyboardKey.ALT], False)
         self.assertEqual(observation.keys[KeyboardKey.A], False)
         self.assertEqual(observation.keys[KeyboardKey.B], False)
-        self.assertEqual(observation.observation_type, ComputerObservationType.KEYBOARD_STATE)
-        
+        self.assertEqual(
+            observation.observation_type, ComputerObservationType.KEYBOARD_STATE
+        )
+
         # Test with some keys pressed
         observation_pressed = KeyboardStateObservation(
             keys={
@@ -108,22 +113,20 @@ class TestKeyboardStateObservation(unittest.TestCase):
                 KeyboardKey.CTRL: True,
                 KeyboardKey.ALT: False,
                 KeyboardKey.A: True,
-                KeyboardKey.B: False
+                KeyboardKey.B: False,
             }
         )
-        
+
         self.assertEqual(observation_pressed.keys[KeyboardKey.SHIFT], True)
         self.assertEqual(observation_pressed.keys[KeyboardKey.CTRL], True)
         self.assertEqual(observation_pressed.keys[KeyboardKey.ALT], False)
         self.assertEqual(observation_pressed.keys[KeyboardKey.A], True)
         self.assertEqual(observation_pressed.keys[KeyboardKey.B], False)
-        
+
     def test_keyboard_state_observation_validation(self):
         # Test validation of keys
         with self.assertRaises(ValueError):
-            KeyboardStateObservation(
-                keys={}  # Empty keys should fail
-            )
+            KeyboardStateObservation(keys={})  # Empty keys should fail
 
 
 class TestComputerObservation(unittest.TestCase):
@@ -131,45 +134,45 @@ class TestComputerObservation(unittest.TestCase):
         # Test creating a ComputerObservation with a ScreenshotObservation
         screenshot = ScreenshotObservation(screenshot="base64_encoded_data")
         observation = ComputerObservation(screenshot=screenshot)
-        
+
         # Check that only the screenshot field is set
         self.assertEqual(observation.get("screenshot"), screenshot)
         self.assertIsNone(observation.get("mouse_state"))
         self.assertIsNone(observation.get("keyboard_state"))
-        
+
     def test_computer_observation_with_mouse_state(self):
         # Test creating a ComputerObservation with a MouseStateObservation
         mouse_state = MouseStateObservation(
             buttons={
                 MouseButton.LEFT: False,
                 MouseButton.RIGHT: False,
-                MouseButton.MIDDLE: False
+                MouseButton.MIDDLE: False,
             },
-            position=(100, 200)
+            position=(100, 200),
         )
         observation = ComputerObservation(mouse_state=mouse_state)
-        
+
         # Check that only the mouse_state field is set
         self.assertEqual(observation.get("mouse_state"), mouse_state)
         self.assertIsNone(observation.get("screenshot"))
         self.assertIsNone(observation.get("keyboard_state"))
-        
+
     def test_computer_observation_with_keyboard_state(self):
         # Test creating a ComputerObservation with a KeyboardStateObservation
         keyboard_state = KeyboardStateObservation(
             keys={
                 KeyboardKey.SHIFT: False,
                 KeyboardKey.CTRL: False,
-                KeyboardKey.ALT: False
+                KeyboardKey.ALT: False,
             }
         )
         observation = ComputerObservation(keyboard_state=keyboard_state)
-        
+
         # Check that only the keyboard_state field is set
         self.assertEqual(observation.get("keyboard_state"), keyboard_state)
         self.assertIsNone(observation.get("screenshot"))
         self.assertIsNone(observation.get("mouse_state"))
-        
+
     def test_computer_observation_with_all_fields(self):
         # Test creating a ComputerObservation with all fields
         screenshot = ScreenshotObservation(screenshot="base64_encoded_data")
@@ -177,38 +180,38 @@ class TestComputerObservation(unittest.TestCase):
             buttons={
                 MouseButton.LEFT: False,
                 MouseButton.RIGHT: False,
-                MouseButton.MIDDLE: False
+                MouseButton.MIDDLE: False,
             },
-            position=(100, 200)
+            position=(100, 200),
         )
         keyboard_state = KeyboardStateObservation(
             keys={
                 KeyboardKey.SHIFT: False,
                 KeyboardKey.CTRL: False,
-                KeyboardKey.ALT: False
+                KeyboardKey.ALT: False,
             }
         )
-        
+
         observation = ComputerObservation(
             screenshot=screenshot,
             mouse_state=mouse_state,
-            keyboard_state=keyboard_state
+            keyboard_state=keyboard_state,
         )
-        
+
         # Check that all fields are set
         self.assertEqual(observation.get("screenshot"), screenshot)
         self.assertEqual(observation.get("mouse_state"), mouse_state)
         self.assertEqual(observation.get("keyboard_state"), keyboard_state)
-        
+
     def test_computer_observation_empty(self):
         # Test creating an empty ComputerObservation
         observation = ComputerObservation()
-        
+
         # Check that all fields are None
         self.assertIsNone(observation.get("screenshot"))
         self.assertIsNone(observation.get("mouse_state"))
         self.assertIsNone(observation.get("keyboard_state"))
 
 
-if __name__ == '__main__':
-    unittest.main() 
+if __name__ == "__main__":
+    unittest.main()

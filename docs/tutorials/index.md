@@ -36,6 +36,8 @@ Real-world examples of CommandLAB in action:
 - [Data Collection](examples/data-collection.md) - Collect data from applications and websites
 - [Process Automation](examples/process-automation.md) - Automate business processes
 
+For a complete list of example scripts with their status and usage information, see the [Examples](../examples.md) page.
+
 ## Tutorial Structure
 
 Each tutorial follows a consistent structure:
@@ -53,4 +55,4 @@ We welcome contributions to our tutorials! If you've created a useful automation
 
 ## Requesting Tutorials
 
-If you'd like to see a tutorial on a specific topic, please [open an issue](https://github.com/your-org/commandlab/issues/new) on our GitHub repository with the label "tutorial request". 
+If you'd like to see a tutorial on a specific topic, please [open an issue](https://github.com/commandAGI/commandLAB/issues/new) on our GitHub repository with the label "tutorial request". 

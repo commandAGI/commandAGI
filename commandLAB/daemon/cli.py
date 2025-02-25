@@ -24,6 +24,7 @@ from commandLAB.types import (
 
 cli = typer.Typer()
 
+
 @cli.command()
 def start(port: int = 8000, backend: str = "pynput", **kwargs):
     # Configure computer backend

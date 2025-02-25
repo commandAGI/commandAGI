@@ -192,16 +192,32 @@ class KeyboardKey(str, Enum):
             if pynput_key == key:
                 return cls(enum_key)
             # Special case for shift keys
-            if key in (PynputKey.shift, PynputKey.shift_l, PynputKey.shift_r) and pynput_key in (PynputKey.shift, PynputKey.shift_l, PynputKey.shift_r):
+            if key in (
+                PynputKey.shift,
+                PynputKey.shift_l,
+                PynputKey.shift_r,
+            ) and pynput_key in (PynputKey.shift, PynputKey.shift_l, PynputKey.shift_r):
                 return cls.SHIFT
             # Special case for ctrl keys
-            if key in (PynputKey.ctrl, PynputKey.ctrl_l, PynputKey.ctrl_r) and pynput_key in (PynputKey.ctrl, PynputKey.ctrl_l, PynputKey.ctrl_r):
+            if key in (
+                PynputKey.ctrl,
+                PynputKey.ctrl_l,
+                PynputKey.ctrl_r,
+            ) and pynput_key in (PynputKey.ctrl, PynputKey.ctrl_l, PynputKey.ctrl_r):
                 return cls.CTRL
             # Special case for alt keys
-            if key in (PynputKey.alt, PynputKey.alt_l, PynputKey.alt_r) and pynput_key in (PynputKey.alt, PynputKey.alt_l, PynputKey.alt_r):
+            if key in (
+                PynputKey.alt,
+                PynputKey.alt_l,
+                PynputKey.alt_r,
+            ) and pynput_key in (PynputKey.alt, PynputKey.alt_l, PynputKey.alt_r):
                 return cls.ALT
             # Special case for meta keys
-            if key in (PynputKey.cmd, PynputKey.cmd_l, PynputKey.cmd_r) and pynput_key in (PynputKey.cmd, PynputKey.cmd_l, PynputKey.cmd_r):
+            if key in (
+                PynputKey.cmd,
+                PynputKey.cmd_l,
+                PynputKey.cmd_r,
+            ) and pynput_key in (PynputKey.cmd, PynputKey.cmd_l, PynputKey.cmd_r):
                 return cls.META
         # Handle character keys
         if isinstance(key, PynputKeyCode) and key.char:
@@ -301,8 +317,8 @@ class BaseComputerObservation(BaseModel):
 class ScreenshotObservation(BaseComputerObservation):
     observation_type: Literal["screenshot"] = ComputerObservationType.SCREENSHOT.value
     screenshot: str
-    
-    @field_validator('screenshot')
+
+    @field_validator("screenshot")
     @classmethod
     def validate_screenshot(cls, v):
         if not v:
@@ -314,23 +330,27 @@ class MouseStateObservation(BaseComputerObservation):
     observation_type: Literal["mouse_state"] = ComputerObservationType.MOUSE_STATE.value
     buttons: dict[MouseButton, bool]  # 0=released, 1=pressed
     position: tuple[int, int]
-    
-    @field_validator('buttons')
+
+    @field_validator("buttons")
     @classmethod
     def validate_buttons(cls, v):
         if not v:
             raise ValueError("Buttons dictionary cannot be empty")
         for button in v:
-            if not isinstance(button, MouseButton) and not MouseButton.is_valid_button(button):
+            if not isinstance(button, MouseButton) and not MouseButton.is_valid_button(
+                button
+            ):
                 raise ValueError(f"Invalid mouse button: {button}")
         return v
 
 
 class KeyboardStateObservation(BaseComputerObservation):
-    observation_type: Literal["keyboard_state"] = ComputerObservationType.KEYBOARD_STATE.value
+    observation_type: Literal["keyboard_state"] = (
+        ComputerObservationType.KEYBOARD_STATE.value
+    )
     keys: dict[KeyboardKey, bool]  # 0=released, 1=pressed
-    
-    @field_validator('keys')
+
+    @field_validator("keys")
     @classmethod
     def validate_keys(cls, v):
         if not v:
@@ -342,7 +362,9 @@ class KeyboardStateObservation(BaseComputerObservation):
 
 
 # Define a Union type for computer observations
-ComputerObservationUnion = Union[ScreenshotObservation, MouseStateObservation, KeyboardStateObservation]
+ComputerObservationUnion = Union[
+    ScreenshotObservation, MouseStateObservation, KeyboardStateObservation
+]
 
 
 class ComputerObservation(TypedDict):
@@ -381,34 +403,46 @@ class CommandAction(BaseComputerAction):
 
 
 class KeyboardKeysPressAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_press"] = ComputerActionType.KEYBOARD_KEY_PRESS.value
+    action_type: Literal["keyboard_key_press"] = (
+        ComputerActionType.KEYBOARD_KEY_PRESS.value
+    )
     keys: List[KeyboardKey]
     duration: float = 0.1
 
 
 class KeyboardKeyPressAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_press"] = ComputerActionType.KEYBOARD_KEY_PRESS.value
+    action_type: Literal["keyboard_key_press"] = (
+        ComputerActionType.KEYBOARD_KEY_PRESS.value
+    )
     key: KeyboardKey
     duration: float = 0.1
 
 
 class KeyboardKeysDownAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_down"] = ComputerActionType.KEYBOARD_KEY_DOWN.value
+    action_type: Literal["keyboard_key_down"] = (
+        ComputerActionType.KEYBOARD_KEY_DOWN.value
+    )
     keys: List[KeyboardKey]
 
 
 class KeyboardKeyDownAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_down"] = ComputerActionType.KEYBOARD_KEY_DOWN.value
+    action_type: Literal["keyboard_key_down"] = (
+        ComputerActionType.KEYBOARD_KEY_DOWN.value
+    )
     key: KeyboardKey
 
 
 class KeyboardKeysReleaseAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_release"] = ComputerActionType.KEYBOARD_KEY_RELEASE.value
+    action_type: Literal["keyboard_key_release"] = (
+        ComputerActionType.KEYBOARD_KEY_RELEASE.value
+    )
     keys: List[KeyboardKey]
 
 
 class KeyboardKeyReleaseAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_release"] = ComputerActionType.KEYBOARD_KEY_RELEASE.value
+    action_type: Literal["keyboard_key_release"] = (
+        ComputerActionType.KEYBOARD_KEY_RELEASE.value
+    )
     key: KeyboardKey
 
 
@@ -435,7 +469,9 @@ class MouseScrollAction(BaseComputerAction):
 
 
 class MouseButtonDownAction(BaseComputerAction):
-    action_type: Literal["mouse_button_down"] = ComputerActionType.MOUSE_BUTTON_DOWN.value
+    action_type: Literal["mouse_button_down"] = (
+        ComputerActionType.MOUSE_BUTTON_DOWN.value
+    )
     button: MouseButton = MouseButton.LEFT
 
 
@@ -490,8 +526,9 @@ ComputerActionUnion = Union[
     MouseButtonUpAction,
     ClickAction,
     DoubleClickAction,
-    DragAction
+    DragAction,
 ]
+
 
 class ComputerAction(TypedDict):
     command: Optional[CommandAction] = None

@@ -14,7 +14,7 @@ def overlay_grid(img: Image.Image, grid_px_size: int = 100) -> Image.Image:
 
     Returns:
         PIL Image with grid overlaid
-        
+
     Examples:
         >>> # Create a test image
         >>> from PIL import Image
@@ -30,7 +30,7 @@ def overlay_grid(img: Image.Image, grid_px_size: int = 100) -> Image.Image:
         >>> # Check that it's a different image object (copy was made)
         >>> result is not test_img
         True
-        
+
         >>> # Test with different grid size
         >>> small_grid = overlay_grid(test_img, grid_px_size=50)
         >>> small_grid.size
