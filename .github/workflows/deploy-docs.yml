@@ -20,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.12'  # Updated to match requires-python in pyproject.toml
       
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -31,6 +31,8 @@ jobs:
       
       - name: Install dependencies
         run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
           poetry install --with docs
       
       - name: Build documentation
