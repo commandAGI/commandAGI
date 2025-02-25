@@ -22,3 +22,12 @@ repos:
     rev: 24.2.0
     hooks:
     -   id: black
+
+-   repo: local
+    hooks:
+      - id: build-docs
+        name: Build Documentation
+        entry: python docs/build_docs.py
+        language: system
+        pass_filenames: false
+        files: ^(examples/.*\.py|commandLAB/.*\.py|docs/.*\.md|mkdocs\.yml)$

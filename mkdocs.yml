@@ -22,6 +22,14 @@ plugins:
       handlers:
         python:
           paths: [commandLAB]
+          rendering:
+            show_source: true
+            show_category_heading: true
+            show_root_heading: true
+            show_object_full_path: true
+            heading_level: 2
+  - macros:
+      module_name: macros
   # - jupyter:
   #     execute: false  # Set to true if you want to execute notebooks during build
   #     include_source: true
@@ -44,22 +52,50 @@ nav:
     - Tutorials:
       - 'Basic Automation': 'tutorials/basic_automation.md'
   - API Reference:
-    - 'Computers': 'api/computers.md'
-    - 'Processors': 'api/processors.md'
-    - 'Utilities': 'api/utilities.md'
+    - 'Overview': 'api/index.md'
+    - 'Core':
+      - 'BaseComputer': 'api/core/base_computer.md'
+      - 'Types': 'api/core/types.md'
+      - 'Utilities': 'api/core/utils.md'
+    - 'Computers':
+      - 'LocalPynputComputer': 'api/computers/local_pynput_computer.md'
+      - 'LocalPyAutoGUIComputer': 'api/computers/local_pyautogui_computer.md'
+      - 'E2BDesktopComputer': 'api/computers/e2b_desktop_computer.md'
+      - 'DaemonClientComputer': 'api/computers/daemon_client_computer.md'
+    - 'Provisioners':
+      - 'BaseProvisioner': 'api/provisioners/base_provisioner.md'
+      - 'DockerProvisioner': 'api/provisioners/docker_provisioner.md'
+      - 'KubernetesProvisioner': 'api/provisioners/kubernetes_provisioner.md'
+      - 'AWSProvisioner': 'api/provisioners/aws_provisioner.md'
+      - 'AzureProvisioner': 'api/provisioners/azure_provisioner.md'
+      - 'GCPProvisioner': 'api/provisioners/gcp_provisioner.md'
+    - 'Daemon':
+      - 'ComputerDaemon': 'api/daemon/computer_daemon.md'
+      - 'DaemonClient': 'api/daemon/daemon_client.md'
+      - 'CLI': 'api/daemon/cli.md'
+    - 'Gym Framework':
+      - 'BaseEnv': 'api/gym/base_env.md'
+      - 'ComputerEnv': 'api/gym/computer_env.md'
+      - 'BaseAgent': 'api/gym/base_agent.md'
+      - 'NaiveComputerAgent': 'api/gym/naive_computer_agent.md'
+    - 'Processors':
+      - 'ScreenParser': 'api/processors/screen_parser.md'
+      - 'GridOverlay': 'api/processors/grid_overlay.md'
   - Examples:
+    - 'Overview': 'examples/index.md'
     - 'Getting Started': 'examples/getting_started.md'
     - 'Basic Concepts': 'examples/concepts.md'
     - 'Advanced Concepts': 'examples/advanced_concepts.md'
     - 'Using Docker': 'examples/using_docker.md'
     - 'Using Kubernetes': 'examples/using_kubernetes.md'
-    - 'Scripting Interactions': 'examples/scripting_interactions.md'
-    - 'Automation': 'examples/automation.md'
+    - 'Scripting Interactions': 'examples/scripting_computer_interactions.md'
+    - 'Automation': 'examples/automating_computer_interactions.md'
     - 'Document Editing': 'examples/document_editing.md'
-    - 'Using the Internet': 'examples/using_internet.md'
+    - 'Using the Internet': 'examples/using_the_internet.md'
     - 'Programming': 'examples/programming.md'
   - For Developers:
     - 'Provisioner System': 'developers/provisioners.md'
+    - 'Custom Computers': 'developers/custom_computers.md'
 
 markdown_extensions:
   - pymdownx.highlight:
