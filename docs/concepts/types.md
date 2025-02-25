@@ -134,10 +134,10 @@ This allows CommandLAB to provide a consistent interface while supporting multip
 CommandLAB uses strong typing for several reasons:
 
 1. **API Clarity**: Makes it clear what data is expected
-2. **Error Prevention**: Catches type errors at development time
-3. **Documentation**: Types serve as documentation
-4. **IDE Support**: Enables autocomplete and type hints
-5. **Serialization**: Simplifies conversion to/from JSON
+1. **Error Prevention**: Catches type errors at development time
+1. **Documentation**: Types serve as documentation
+1. **IDE Support**: Enables autocomplete and type hints
+1. **Serialization**: Simplifies conversion to/from JSON
 
 ## Using Types in Your Code
 

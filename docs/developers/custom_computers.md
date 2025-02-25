@@ -500,15 +500,15 @@ env = ComputerEnv(ComputerEnvConfig(
 ### Common Issues
 
 1. **Method Not Implemented**: If you forget to implement a required method, you'll get a `NotImplementedError`.
-   
+
    **Solution**: Implement all required methods from the `BaseComputer` interface.
 
-2. **Type Errors**: If your method returns the wrong type, you'll get a type error.
-   
+1. **Type Errors**: If your method returns the wrong type, you'll get a type error.
+
    **Solution**: Make sure your methods return the correct types as specified in the interface.
 
-3. **Resource Leaks**: If you don't properly clean up resources, you may experience resource leaks.
-   
+1. **Resource Leaks**: If you don't properly clean up resources, you may experience resource leaks.
+
    **Solution**: Implement the `close` method to clean up all resources.
 
 ### Debugging Tips
@@ -540,4 +540,4 @@ def execute_command(self, action: CommandAction) -> bool:
 
 - Learn about [Creating Custom Provisioners](custom_provisioners.md)
 - Explore [Creating Custom Agents](custom_agents.md)
-- Contribute your implementation to the CommandLAB project 
+- Contribute your implementation to the CommandLAB project

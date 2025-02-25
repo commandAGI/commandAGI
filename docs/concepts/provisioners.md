@@ -9,8 +9,8 @@
 A provisioner is responsible for:
 
 1. **Setting up** a computer environment (e.g., starting a Docker container)
-2. **Checking** if the environment is running
-3. **Tearing down** the environment when it's no longer needed
+1. **Checking** if the environment is running
+1. **Tearing down** the environment when it's no longer needed
 
 This allows CommandLAB to work with ephemeral environments that can be created and destroyed as needed.
 

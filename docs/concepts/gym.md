@@ -77,9 +77,9 @@ episode = driver.collect_episode()
 The gym framework implements the standard reinforcement learning loop:
 
 1. The environment provides an observation
-2. The agent selects an action based on the observation
-3. The environment executes the action and returns a new observation, reward, and done flag
-4. The process repeats until the episode is complete
+1. The agent selects an action based on the observation
+1. The environment executes the action and returns a new observation, reward, and done flag
+1. The process repeats until the episode is complete
 
 ```python
 # Reset the environment

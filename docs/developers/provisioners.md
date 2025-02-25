@@ -7,8 +7,8 @@ This guide provides detailed information about the CommandLAB provisioner system
 The provisioner system is designed to handle the setup, management, and teardown of computer environments across various platforms. It follows a modular architecture with the following components:
 
 1. **BaseComputerProvisioner**: Abstract base class that defines the common interface for all provisioners
-2. **Platform-specific Provisioners**: Concrete implementations for different platforms (AWS, Azure, GCP, Docker, Kubernetes)
-3. **Build System**: Tools for building and packaging images for different platforms
+1. **Platform-specific Provisioners**: Concrete implementations for different platforms (AWS, Azure, GCP, Docker, Kubernetes)
+1. **Build System**: Tools for building and packaging images for different platforms
 
 ## BaseComputerProvisioner Interface
 
@@ -43,6 +43,7 @@ All provisioners follow these common implementation patterns:
 ### Status Tracking
 
 Provisioners track their status using a `_status` field with these standard values:
+
 - `"not_started"`: Initial state
 - `"starting"`: During setup
 - `"running"`: Successfully running
@@ -118,6 +119,7 @@ class AWSProvisioner(BaseComputerProvisioner):
 ```
 
 Key implementation details:
+
 - Uses boto3 EC2 client
 - Configurable AMI ID and security groups
 - Implements retry logic and timeouts
@@ -144,6 +146,7 @@ class AzureProvisioner(BaseComputerProvisioner):
 ```
 
 Key implementation details:
+
 - Uses Azure Compute Management Client
 - Supports environment variable fallback for credentials
 - Configurable VM size and image ID
@@ -168,6 +171,7 @@ class GCPProvisioner(BaseComputerProvisioner):
 ```
 
 Key implementation details:
+
 - Uses Google Cloud Compute API
 - Configurable project, zone, and machine type
 - Configurable source image
@@ -197,6 +201,7 @@ class DockerProvisioner(BaseComputerProvisioner):
 ```
 
 Key implementation details:
+
 - Supports multiple platforms (LOCAL, AWS_ECS, AZURE_CONTAINER_INSTANCES, GCP_CLOUD_RUN)
 - Platform-specific setup and teardown methods
 - Configurable container name and version
@@ -224,6 +229,7 @@ class KubernetesProvisioner(BaseComputerProvisioner):
 ```
 
 Key implementation details:
+
 - Supports multiple platforms (LOCAL, AWS_EKS, AZURE_AKS, GCP_GKE)
 - Creates Kubernetes deployments and services
 - Configurable namespace and cluster
@@ -287,8 +293,8 @@ These templates define how to build the images with the necessary dependencies.
 To create a new provisioner:
 
 1. Create a new class that inherits from `BaseComputerProvisioner`
-2. Implement the required methods: `setup()`, `teardown()`, and `is_running()`
-3. Follow the common implementation patterns for status tracking, logging, error handling, and timeouts
+1. Implement the required methods: `setup()`, `teardown()`, and `is_running()`
+1. Follow the common implementation patterns for status tracking, logging, error handling, and timeouts
 
 Example:
 
@@ -319,8 +325,8 @@ class MyCustomProvisioner(BaseComputerProvisioner):
 To add build support for a new platform:
 
 1. Add a new command to `build_images.py`
-2. Implement the build logic for the new platform
-3. Add the new command to `build_all_images()`
+1. Implement the build logic for the new platform
+1. Add the new command to `build_all_images()`
 
 Example:
 
@@ -342,11 +348,11 @@ def build_all_images(version: Optional[str] = ...):
 ## Best Practices
 
 1. **Error Handling**: Always implement robust error handling with retry logic
-2. **Logging**: Use the standard logging module with appropriate log levels
-3. **Timeouts**: Implement timeouts for all long-running operations
-4. **Status Tracking**: Use the standard status values for consistency
-5. **Configuration**: Make all platform-specific parameters configurable
-6. **Resource Cleanup**: Ensure proper cleanup in the `teardown()` method
-7. **Validation**: Validate required parameters in the constructor
+1. **Logging**: Use the standard logging module with appropriate log levels
+1. **Timeouts**: Implement timeouts for all long-running operations
+1. **Status Tracking**: Use the standard status values for consistency
+1. **Configuration**: Make all platform-specific parameters configurable
+1. **Resource Cleanup**: Ensure proper cleanup in the `teardown()` method
+1. **Validation**: Validate required parameters in the constructor
 
-By following these guidelines, you can create robust and maintainable provisioners that integrate seamlessly with the CommandLAB ecosystem. 
+By following these guidelines, you can create robust and maintainable provisioners that integrate seamlessly with the CommandLAB ecosystem.

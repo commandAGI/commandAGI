@@ -1,3 +1,3 @@
 # MODULE_NAME
 
-::: MODULE_PATH 
+::: MODULE_PATH

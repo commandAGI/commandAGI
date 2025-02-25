@@ -9,10 +9,10 @@ CommandLAB is built around several key concepts that work together to provide a 
 CommandLAB's architecture is designed to be modular, extensible, and cloud-ready. The key components are:
 
 1. **Computers**: The core interfaces for controlling computers
-2. **Provisioners**: Tools for setting up and managing computer environments
-3. **Gym Framework**: A reinforcement learning framework for training agents
-4. **Daemon**: A service for remote computer control
-5. **Types**: The data models that define actions and observations
+1. **Provisioners**: Tools for setting up and managing computer environments
+1. **Gym Framework**: A reinforcement learning framework for training agents
+1. **Daemon**: A service for remote computer control
+1. **Types**: The data models that define actions and observations
 
 ## Computers
 
@@ -39,8 +39,8 @@ Available computer implementations include:
 A provisioner is responsible for:
 
 1. **Setting up** a computer environment (e.g., starting a Docker container)
-2. **Checking** if the environment is running
-3. **Tearing down** the environment when it's no longer needed
+1. **Checking** if the environment is running
+1. **Tearing down** the environment when it's no longer needed
 
 Available provisioner implementations include:
 
@@ -66,9 +66,9 @@ Key components of the gym framework include:
 The gym framework implements the standard reinforcement learning loop:
 
 1. The environment provides an observation
-2. The agent selects an action based on the observation
-3. The environment executes the action and returns a new observation, reward, and done flag
-4. The process repeats until the episode is complete
+1. The agent selects an action based on the observation
+1. The environment executes the action and returns a new observation, reward, and done flag
+1. The process repeats until the episode is complete
 
 ## Daemon
 
@@ -127,15 +127,15 @@ CommandLAB follows several key design principles:
 
 1. **Unified Interface**: All computer implementations share the same interface, making it easy to switch between different backends.
 
-2. **Modularity**: Components can be used independently or together. For example, you can use a computer without the gym framework, or use the gym framework with any computer implementation.
+1. **Modularity**: Components can be used independently or together. For example, you can use a computer without the gym framework, or use the gym framework with any computer implementation.
 
-3. **Extensibility**: It's easy to add new implementations of core interfaces. For example, you can create a new computer implementation that controls a specialized system while leveraging existing provisioners and the gym framework.
+1. **Extensibility**: It's easy to add new implementations of core interfaces. For example, you can create a new computer implementation that controls a specialized system while leveraging existing provisioners and the gym framework.
 
-4. **Type Safety**: Strong typing throughout the codebase ensures that errors are caught at development time rather than runtime.
+1. **Type Safety**: Strong typing throughout the codebase ensures that errors are caught at development time rather than runtime.
 
-5. **Cloud-Ready**: Support for various deployment environments, from local development to cloud-based production.
+1. **Cloud-Ready**: Support for various deployment environments, from local development to cloud-based production.
 
-6. **Separation of Concerns**: Each component has a clear responsibility, making the system easier to understand and extend.
+1. **Separation of Concerns**: Each component has a clear responsibility, making the system easier to understand and extend.
 
 ## Next Steps
 

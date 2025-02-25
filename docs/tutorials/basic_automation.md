@@ -44,4 +44,4 @@ computer.type_text("Hello, world!")
 After completing this tutorial, you can explore more advanced features:
 
 - [Using Provisioners](../guides/provisioners.md)
-- [Cloud Containers](../guides/cloud_containers.md) 
+- [Cloud Containers](../guides/cloud_containers.md)

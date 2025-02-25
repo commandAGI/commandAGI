@@ -1,10 +1,6 @@
----
-name: Bug Report
-about: Report a bug in CommandLab
-title: '[BUG] '
-labels: bug
-assignees: ''
----
+______________________________________________________________________
+
+## name: Bug Report about: Report a bug in CommandLab title: '[BUG] ' labels: bug assignees: ''
 
 **Description**
 Clear description of the bug.

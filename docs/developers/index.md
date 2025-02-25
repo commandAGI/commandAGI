@@ -88,4 +88,4 @@ For step-by-step guides on extending CommandLAB, see these tutorials:
 - [Community Guidelines](community_guidelines.md) - Guidelines for the CommandLAB community
 - [Code of Conduct](code_of_conduct.md) - Code of conduct for contributors
 - [Governance](governance.md) - Project governance
-- [Roadmap](roadmap.md) - Project roadmap 
+- [Roadmap](roadmap.md) - Project roadmap

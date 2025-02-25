@@ -136,12 +136,12 @@ CommandLAB uses the following versioning scheme:
 When an API is deprecated:
 
 1. It is marked with a `@deprecated` decorator
-2. A warning is issued when the API is used
-3. The API continues to work for at least one major version
-4. The API is removed in the next major version
+1. A warning is issued when the API is used
+1. The API continues to work for at least one major version
+1. The API is removed in the next major version
 
 ## Next Steps
 
 - [Core Concepts](../concepts/index.md) - Learn about the fundamental concepts
 - [Tutorials](../tutorials/index.md) - Step-by-step guides
-- [Guides](../guides/index.md) - How-to guides for specific tasks 
+- [Guides](../guides/index.md) - How-to guides for specific tasks

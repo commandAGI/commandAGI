@@ -37,6 +37,7 @@ pip install "commandlab[local]"
 ```
 
 This installs dependencies for controlling your local computer:
+
 - `pynput` for keyboard and mouse control
 - `pyautogui` for alternative input control
 - `mss` for fast screenshots
@@ -44,13 +45,16 @@ This installs dependencies for controlling your local computer:
 #### Platform-Specific Notes
 
 **Windows**:
+
 - No additional requirements
 
 **macOS**:
+
 - You may need to grant accessibility permissions to your terminal or Python application
 - Go to System Preferences > Security & Privacy > Privacy > Accessibility and add your terminal application
 
 **Linux**:
+
 - X11 is required for input control
 - Install X11 dependencies: `sudo apt-get install python3-xlib python3-tk python3-dev`
 
@@ -63,6 +67,7 @@ pip install "commandlab[daemon]"
 ```
 
 This installs:
+
 - `fastapi` and `uvicorn` for the API server
 - `requests` for client communication
 
@@ -75,6 +80,7 @@ pip install "commandlab[docker]"
 ```
 
 This requires:
+
 - Docker installed and running on your system
 - Python Docker SDK
 
@@ -85,6 +91,7 @@ pip install "commandlab[kubernetes]"
 ```
 
 This requires:
+
 - `kubernetes` Python client
 - `kubectl` configured with access to a cluster
 
@@ -123,6 +130,7 @@ pip install "commandlab[pytesseract]"
 ```
 
 This requires:
+
 - Tesseract OCR installed on your system
   - Windows: Download from [GitHub](https://github.com/UB-Mannheim/tesseract/wiki)
   - macOS: `brew install tesseract`
@@ -193,6 +201,7 @@ pip install "commandlab[local,daemon]"
 **Problem**: `PermissionError` when trying to control mouse or keyboard
 
 **Solution**:
+
 - Run your script with administrator/root privileges
 - On macOS, grant accessibility permissions to your terminal
 - On Linux, ensure you have the necessary X11 permissions
@@ -202,6 +211,7 @@ pip install "commandlab[local,daemon]"
 **Problem**: `ImportError: No module named 'pynput'` or similar
 
 **Solution**:
+
 - Ensure you've installed the correct extras: `pip install "commandlab[local]"`
 - Check if your virtual environment is activated
 
@@ -210,6 +220,7 @@ pip install "commandlab[local,daemon]"
 **Problem**: `docker.errors.DockerException: Error while fetching server API version`
 
 **Solution**:
+
 - Ensure Docker is installed and running
 - Check if your user has permissions to access Docker
 
@@ -218,6 +229,7 @@ pip install "commandlab[local,daemon]"
 **Problem**: Authentication errors with cloud providers
 
 **Solution**:
+
 - Ensure you've configured credentials:
   - AWS: Configure AWS CLI or set environment variables
   - Azure: Log in with Azure CLI or set environment variables
@@ -228,8 +240,8 @@ pip install "commandlab[local,daemon]"
 If you encounter issues not covered here:
 
 1. Check the [GitHub Issues](https://github.com/your-org/commandlab/issues) for similar problems
-2. Join our [Discord community](https://discord.gg/your-discord) for support
-3. Open a new issue with details about your problem
+1. Join our [Discord community](https://discord.gg/your-discord) for support
+1. Open a new issue with details about your problem
 
 ## Verifying Installation
 

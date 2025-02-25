@@ -43,11 +43,11 @@ For a complete list of example scripts with their status and usage information, 
 Each tutorial follows a consistent structure:
 
 1. **Introduction** - What you'll learn and why it's useful
-2. **Prerequisites** - What you need to know and have installed
-3. **Step-by-Step Instructions** - Detailed instructions with code examples
-4. **Explanation** - Why things work the way they do
-5. **Exercises** - Optional exercises to reinforce learning
-6. **Next Steps** - Suggestions for what to learn next
+1. **Prerequisites** - What you need to know and have installed
+1. **Step-by-Step Instructions** - Detailed instructions with code examples
+1. **Explanation** - Why things work the way they do
+1. **Exercises** - Optional exercises to reinforce learning
+1. **Next Steps** - Suggestions for what to learn next
 
 ## Contributing Tutorials
 
@@ -55,4 +55,4 @@ We welcome contributions to our tutorials! If you've created a useful automation
 
 ## Requesting Tutorials
 
-If you'd like to see a tutorial on a specific topic, please [open an issue](https://github.com/commandAGI/commandLAB/issues/new) on our GitHub repository with the label "tutorial request". 
+If you'd like to see a tutorial on a specific topic, please [open an issue](https://github.com/commandAGI/commandLAB/issues/new) on our GitHub repository with the label "tutorial request".

@@ -44,6 +44,7 @@ black = "~=25.1"
 isort = "~=6.0"
 ruff = "~=0.9"
 pillow = "~=11.1"
+mdformat = "^0.7.22"
 
 
 [project.optional-dependencies]

@@ -17,6 +17,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates how to import the CommandLAB library and print its version.
 
 **Status**: ✅ Works perfectly
+
 - Correctly displays version information
 
 **Run with**: `poetry run python examples/1_getting_started.py`
@@ -28,6 +29,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates basic concepts of CommandLAB, including creating a computer instance, taking a screenshot, and saving it to a file.
 
 **Status**: ✅ Works perfectly
+
 - Successfully takes a screenshot and saves it to a file
 
 **Run with**: `poetry run python examples/2_concepts.py`
@@ -39,6 +41,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates advanced concepts of CommandLAB, including mouse movement and clicking, keyboard typing, keyboard hotkeys, and getting mouse and keyboard state.
 
 **Status**: ✅ Works perfectly
+
 - Successfully performs mouse and keyboard actions
 
 **Run with**: `poetry run python examples/3_advanced_concepts.py`
@@ -50,6 +53,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates how to use the Docker provisioner to create and control a Docker container.
 
 **Status**: ⚠️ Works with limitations
+
 - Handles the error gracefully when the Docker image doesn't exist
 - Provides helpful information about building the image
 
@@ -62,6 +66,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates how to use the Kubernetes provisioner to create and control a Kubernetes pod running the CommandLAB daemon.
 
 **Status**: ❌ Not implemented yet
+
 - This is a placeholder for future implementation
 
 **Run with**: `poetry run python examples/5_using_kubernetes.py`
@@ -73,6 +78,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates how to use the manual provisioner to script computer interactions. The manual provisioner is the simplest way to get started with CommandLAB.
 
 **Status**: ⚠️ Requires manual setup
+
 - Needs the daemon to be running in a separate terminal
 
 **Run with**: `poetry run python examples/6_scripting_computer_interactions.py`
@@ -84,6 +90,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates how to use the grid overlay utility to help with positioning when automating computer interactions.
 
 **Status**: ✅ Works perfectly
+
 - Successfully creates a grid overlay image and demonstrates mouse actions
 
 **Run with**: `poetry run python examples/7_automating_computer_interactions.py`
@@ -95,6 +102,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates how to use the screen parser to extract text from a screenshot, which can be useful for document editing and text extraction tasks.
 
 **Status**: ✅ Works perfectly
+
 - Successfully extracts text from a screenshot and saves it to a file
 
 **Run with**: `poetry run python examples/8_document_editing.py`
@@ -106,6 +114,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates how to use CommandLAB for web automation tasks, such as opening a browser, navigating to a website, and interacting with web elements.
 
 **Status**: ⚠️ Works with minor issues
+
 - Successfully opens a browser, navigates to a website, and takes a screenshot
 - Encounters an error when closing the browser
 
@@ -118,6 +127,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 **Description**: Demonstrates how to use CommandLAB for programming tasks, such as opening a code editor, writing code, and running it.
 
 **Status**: ⚠️ Works with limitations
+
 - Successfully creates a Python script
 - Encounters an error when trying to edit the script
 - The script itself works correctly when run directly
@@ -156,6 +166,6 @@ poetry run python examples/1_getting_started.py
 If you encounter issues running the examples:
 
 1. Make sure you have all the required dependencies installed
-2. Check that you're running the examples from the root of the CommandLAB repository
-3. For Docker examples, ensure Docker is installed and running
-4. For examples that require manual setup, follow the instructions in the console output 
+1. Check that you're running the examples from the root of the CommandLAB repository
+1. For Docker examples, ensure Docker is installed and running
+1. For examples that require manual setup, follow the instructions in the console output

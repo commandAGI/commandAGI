@@ -9,8 +9,8 @@ The CommandLAB daemon is a service that allows remote control of computers throu
 The daemon is a FastAPI server that:
 
 1. Exposes computer functionality through HTTP endpoints
-2. Provides authentication via API tokens
-3. Can be deployed in various environments (local, Docker, cloud)
+1. Provides authentication via API tokens
+1. Can be deployed in various environments (local, Docker, cloud)
 
 This allows you to control computers remotely, even across networks or cloud environments.
 
