@@ -87,12 +87,9 @@ computer.close()
   - [Daemon](concepts/daemon.md) - Remote control
   - [Types](concepts/types.md) - Data models
 - [Tutorials](tutorials/index.md) - Step-by-step guides
-  - [Basic Automation](tutorials/basic_automation.md) - Simple automation example
-  - [Remote Control](tutorials/remote_control.md) - Control remote computers
-  - [Training Agents](tutorials/training_agents.md) - Train AI agents
-- [Guides](guides/index.md) - How-to guides for specific tasks
-  - [Using Provisioners](guides/provisioners.md) - Work with provisioners
-  - [Cloud Containers](guides/cloud_containers.md) - Deploy in cloud containers
+  - [Getting Started](tutorials/index.md#getting-started) - Basic tutorials
+  - [Advanced](tutorials/index.md#advanced) - Advanced topics
+  - [Examples](tutorials/index.md#examples) - Real-world examples
 - [API Reference](api/index.md) - Detailed API documentation
 - [Developer Guide](developers/index.md) - Contributing to CommandLAB
 

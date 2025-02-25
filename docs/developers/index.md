@@ -50,6 +50,7 @@ Welcome to the CommandLAB developer guide! This section provides detailed inform
 - [Security Considerations](security_considerations.md) - Security considerations for developers
 - [Cross-Platform Development](cross_platform_development.md) - Developing for multiple platforms
 - [Cloud Integration](cloud_integration.md) - Integrating with cloud providers
+- [CI/CD Integration](ci_cd_integration.md) - Integrating with CI/CD pipelines
 
 ## API Reference
 
@@ -72,6 +73,15 @@ Welcome to the CommandLAB developer guide! This section provides detailed inform
 - [Example: Custom Provisioner](example_custom_provisioner.md) - Example of creating a custom provisioner
 - [Example: Custom Agent](example_custom_agent.md) - Example of creating a custom agent
 - [Example: Custom Environment](example_custom_environment.md) - Example of creating a custom environment
+
+## Related Tutorials
+
+For step-by-step guides on extending CommandLAB, see these tutorials:
+
+- [Custom Computers](../tutorials/advanced/custom-computers.md) - Implementing custom computer backends
+- [Custom Provisioners](../tutorials/advanced/custom-provisioners.md) - Creating custom provisioning solutions
+- [Custom Agents](../tutorials/advanced/custom-agents.md) - Creating your own AI agents
+- [CI/CD Integration](../tutorials/advanced/ci-cd-integration.md) - Integrating CommandLAB into CI/CD pipelines
 
 ## Community
 

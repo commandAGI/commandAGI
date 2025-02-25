@@ -4,56 +4,37 @@ Welcome to the CommandLAB tutorials section! These step-by-step guides will help
 
 ## Getting Started
 
-If you're new to CommandLAB, we recommend starting with these introductory tutorials:
+These tutorials cover the basics of CommandLAB:
 
-- [Basic Automation](basic_automation.md) - Learn how to automate a simple text editing task
-- [Remote Control](remote_control.md) - Control a remote computer using the daemon
-- [Training Agents](training_agents.md) - Train an AI agent to use a computer
+- [Basic Automation](getting-started/basic-automation.md) - Learn how to automate a simple text editing task
+- [Local Computer Control](getting-started/local-computer-control.md) - Control your local computer with CommandLAB
+- [Remote Control](getting-started/remote-control.md) - Control a remote computer using the daemon
 
-## Automation Tutorials
+## Advanced
 
-These tutorials focus on automating common tasks:
+These tutorials cover more advanced topics:
 
-- [Web Automation](web_automation.md) - Automate web browsing and form filling
-- [Desktop Application Automation](desktop_automation.md) - Automate desktop applications
-- [File Management Automation](file_automation.md) - Automate file operations
-- [Text Processing Automation](text_automation.md) - Automate text editing and processing
+- [Training Agents](advanced/training-agents.md) - Train AI agents to use computers
+- [Cloud Deployment](advanced/cloud-deployment.md) - Deploy CommandLAB in cloud environments
+- [Provisioner Usage](advanced/provisioner-usage.md) - Use provisioners to manage computer environments
+- [Custom Agents](advanced/custom-agents.md) - Create your own AI agents
+- [Custom Computers](advanced/custom-computers.md) - Implement custom computer backends
+- [Custom Provisioners](advanced/custom-provisioners.md) - Create custom provisioning solutions
+- [CI/CD Integration](advanced/ci-cd-integration.md) - Integrate CommandLAB into CI/CD pipelines
+- [Multi-Agent Systems](advanced/multi-agent-systems.md) - Create systems with multiple agents
+- [Distributed Automation](advanced/distributed-automation.md) - Run automation tasks across multiple machines
 
-## Cloud and Container Tutorials
+## Examples
 
-Learn how to use CommandLAB with cloud and container technologies:
+Real-world examples of CommandLAB in action:
 
-- [Docker Automation](docker_automation.md) - Automate tasks in Docker containers
-- [AWS Automation](aws_automation.md) - Automate tasks in AWS EC2 instances
-- [Azure Automation](azure_automation.md) - Automate tasks in Azure VMs
-- [GCP Automation](gcp_automation.md) - Automate tasks in Google Cloud Platform VMs
-
-## AI Agent Tutorials
-
-These tutorials focus on training and using AI agents:
-
-- [Creating a Custom Agent](custom_agent.md) - Create your own AI agent
-- [Vision-Language Agents](vision_language_agent.md) - Use vision-language models as agents
-- [Reinforcement Learning](reinforcement_learning.md) - Train agents using reinforcement learning
-- [Evaluating Agents](evaluating_agents.md) - Evaluate agent performance
-
-## Advanced Tutorials
-
-For more experienced users, these tutorials cover advanced topics:
-
-- [Custom Computer Implementation](custom_computer.md) - Create your own computer implementation
-- [Custom Provisioner](custom_provisioner.md) - Create your own provisioner
-- [Multi-Agent Systems](multi_agent.md) - Create systems with multiple agents
-- [Distributed Automation](distributed_automation.md) - Run automation tasks across multiple machines
-
-## Real-World Examples
-
-These tutorials demonstrate real-world applications of CommandLAB:
-
-- [Automated Testing](automated_testing.md) - Use CommandLAB for UI testing
-- [Data Collection](data_collection.md) - Collect data from applications and websites
-- [Process Automation](process_automation.md) - Automate business processes
-- [Continuous Integration](continuous_integration.md) - Integrate CommandLAB into CI/CD pipelines
+- [Web Automation](examples/web-automation.md) - Automate web browsing and form filling
+- [Desktop Application Automation](examples/desktop-automation.md) - Automate desktop applications
+- [File Management Automation](examples/file-automation.md) - Automate file operations
+- [Text Processing Automation](examples/text-automation.md) - Automate text editing and processing
+- [Automated Testing](examples/automated-testing.md) - Use CommandLAB for UI testing
+- [Data Collection](examples/data-collection.md) - Collect data from applications and websites
+- [Process Automation](examples/process-automation.md) - Automate business processes
 
 ## Tutorial Structure
 
