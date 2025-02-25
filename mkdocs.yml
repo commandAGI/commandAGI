@@ -22,6 +22,8 @@ plugins:
       handlers:
         python:
           paths: [.]
+          selection:
+            docstring_style: google
           rendering:
             show_source: true
             show_category_heading: true
@@ -38,6 +40,7 @@ plugins:
 exclude_docs: |
   /api/template.md
   /examples/template.md
+  # Temporarily exclude all API documentation files
   /api/commandLAB/**/*.md
 
 nav:
@@ -60,33 +63,33 @@ nav:
   - API Reference:
     - 'Overview': 'api/index.md'
     - 'Core':
-      - 'BaseComputer': 'api/core/base_computer.md'
-      - 'Types': 'api/core/types.md'
-      - 'Utilities': 'api/core/utils.md'
+      - 'BaseComputer': 'api/commandLAB/computers/base_computer.md'
+      - 'Types': 'api/commandLAB/types.md'
+      - 'Utilities': 'api/commandLAB/utils/image.md'
     - 'Computers':
-      - 'LocalPynputComputer': 'api/computers/local_pynput_computer.md'
-      - 'LocalPyAutoGUIComputer': 'api/computers/local_pyautogui_computer.md'
-      - 'E2BDesktopComputer': 'api/computers/e2b_desktop_computer.md'
-      - 'DaemonClientComputer': 'api/computers/daemon_client_computer.md'
+      - 'LocalPynputComputer': 'api/commandLAB/computers/local_pynput_computer.md'
+      - 'LocalPyAutoGUIComputer': 'api/commandLAB/computers/local_pyautogui_computer.md'
+      - 'E2BDesktopComputer': 'api/commandLAB/computers/e2b_desktop_computer.md'
+      - 'DaemonClientComputer': 'api/commandLAB/computers/daemon_client_computer.md'
     - 'Provisioners':
-      - 'BaseProvisioner': 'api/provisioners/base_provisioner.md'
-      - 'DockerProvisioner': 'api/provisioners/docker_provisioner.md'
-      - 'KubernetesProvisioner': 'api/provisioners/kubernetes_provisioner.md'
-      - 'AWSProvisioner': 'api/provisioners/aws_provisioner.md'
-      - 'AzureProvisioner': 'api/provisioners/azure_provisioner.md'
-      - 'GCPProvisioner': 'api/provisioners/gcp_provisioner.md'
+      - 'BaseProvisioner': 'api/commandLAB/computers/provisioners/base_provisioner.md'
+      - 'DockerProvisioner': 'api/commandLAB/computers/provisioners/docker_provisioner.md'
+      - 'KubernetesProvisioner': 'api/commandLAB/computers/provisioners/kubernetes_provisioner.md'
+      - 'AWSProvisioner': 'api/commandLAB/computers/provisioners/aws_provisioner.md'
+      - 'AzureProvisioner': 'api/commandLAB/computers/provisioners/azure_provisioner.md'
+      - 'GCPProvisioner': 'api/commandLAB/computers/provisioners/gcp_provisioner.md'
     - 'Daemon':
-      - 'ComputerDaemon': 'api/daemon/computer_daemon.md'
-      - 'DaemonClient': 'api/daemon/daemon_client.md'
-      - 'CLI': 'api/daemon/cli.md'
+      - 'ComputerDaemon': 'api/commandLAB/daemon/server.md'
+      - 'DaemonClient': 'api/commandLAB/daemon/client.md'
+      - 'CLI': 'api/commandLAB/daemon/cli.md'
     - 'Gym Framework':
-      - 'BaseEnv': 'api/gym/base_env.md'
-      - 'ComputerEnv': 'api/gym/computer_env.md'
-      - 'BaseAgent': 'api/gym/base_agent.md'
-      - 'NaiveComputerAgent': 'api/gym/naive_computer_agent.md'
+      - 'BaseEnv': 'api/commandLAB/gym/environments/base_env.md'
+      - 'ComputerEnv': 'api/commandLAB/gym/environments/computer_env.md'
+      - 'BaseAgent': 'api/commandLAB/gym/agents/base_agent.md'
+      - 'NaiveComputerAgent': 'api/commandLAB/gym/agents/naive_vision_language_computer_agent.md'
     - 'Processors':
-      - 'ScreenParser': 'api/processors/screen_parser.md'
-      - 'GridOverlay': 'api/processors/grid_overlay.md'
+      - 'ScreenParser': 'api/commandLAB/processors/screen_parser/pytesseract_screen_parser.md'
+      - 'GridOverlay': 'api/commandLAB/processors/grid_overlay.md'
   - Examples:
     - 'Overview': 'examples/index.md'
     - 'Getting Started': 'examples/getting_started.md'
