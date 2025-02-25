@@ -4,7 +4,7 @@ This guide provides detailed instructions for installing CommandLAB and its depe
 
 ## System Requirements
 
-- **Python**: Python 3.9 or higher
+- **Python**: Python 3.12 or higher
 - **Operating System**:
   - Windows 10 or higher
   - macOS 10.14 (Mojave) or higher
