@@ -57,6 +57,8 @@ class DaemonClientComputer(BaseComputer):
     daemon_base_url: str = "http://localhost"
     daemon_port: int = 8000
     provisioner: Optional[BaseComputerProvisioner] = None
+    
+    model_config = {"arbitrary_types_allowed": True}
 
     def __init__(self, provisioning_method: ProvisioningMethod = ProvisioningMethod.MANUAL, **data):
         self.provisioner = provisioning_method.get_provisioner_cls()(port=self.daemon_port)

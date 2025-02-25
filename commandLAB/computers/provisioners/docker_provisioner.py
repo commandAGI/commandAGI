@@ -7,6 +7,7 @@ import boto3
 from azure.mgmt.containerinstance import ContainerInstanceManagementClient
 from azure.identity import DefaultAzureCredential
 from google.cloud import container_v1
+from google.cloud import run_v2
 from .base_provisioner import BaseComputerProvisioner
 from commandLAB.version import get_container_version
 
@@ -51,7 +52,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         self.timeout = timeout
         self._status = "not_started"
         self.container_id = None
-        self.task_arn = None
+        self._task_arn = None
         
         # Initialize cloud clients if needed
         if platform == DockerPlatform.AWS_ECS:
@@ -68,7 +69,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         elif platform == DockerPlatform.GCP_CLOUD_RUN:
             if not self.project_id:
                 raise ValueError("Project ID must be specified for GCP Cloud Run")
-            self.cloud_run_client = container_v1.CloudRunClient()
+            self.cloud_run_client = run_v2.ServicesClient()
 
     def setup(self) -> None:
         self._status = "starting"
@@ -112,18 +113,37 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _setup_local(self):
         """Setup local Docker container"""
         logger.info(f"Starting local Docker container {self.container_name}")
-        cmd = [
-            "docker", "run",
-            "-d",  # detached mode
-            "--name", self.container_name,
-            "-p", f"{self.port}:{self.port}",
-            f"commandlab-daemon:{self.version}",
-            "--port", str(self.port),
-            "--backend", "pynput"
-        ]
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        self.container_id = result.stdout.strip()
-        logger.info(f"Started Docker container with ID: {self.container_id}")
+        
+        try:
+            import docker
+            # Use Docker client
+            docker_client = docker.from_env()
+            
+            container = docker_client.containers.run(
+                f"commandlab-daemon:{self.version}",
+                name=self.container_name,
+                detach=True,
+                ports={f"{self.port}/tcp": self.port},
+                command=["--port", str(self.port), "--backend", "pynput"]
+            )
+            
+            self.container_id = container.id
+            logger.info(f"Started Docker container with ID: {self.container_id}")
+        except ImportError:
+            # Fall back to subprocess if docker-py is not available
+            logger.warning("Docker Python client not available, falling back to subprocess")
+            cmd = [
+                "docker", "run",
+                "-d",  # detached mode
+                "--name", self.container_name,
+                "-p", f"{self.port}:{self.port}",
+                f"commandlab-daemon:{self.version}",
+                "--port", str(self.port),
+                "--backend", "pynput"
+            ]
+            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+            self.container_id = result.stdout.strip()
+            logger.info(f"Started Docker container with ID: {self.container_id}")
 
     def _setup_aws_ecs(self):
         """Setup AWS ECS container"""
@@ -147,8 +167,8 @@ class DockerProvisioner(BaseComputerProvisioner):
                 }]
             }
         )
-        self.task_arn = response['tasks'][0]['taskArn']
-        logger.info(f"Started ECS task with ARN: {self.task_arn}")
+        self._task_arn = response['tasks'][0]['taskArn']
+        logger.info(f"Started ECS task with ARN: {self._task_arn}")
 
     def _setup_azure_container_instances(self):
         """Setup Azure Container Instances"""
@@ -246,34 +266,50 @@ class DockerProvisioner(BaseComputerProvisioner):
     
     def _teardown_local(self):
         """Teardown local Docker container"""
-        if not self.container_id and self.container_name:
-            # Try to get container ID from name
+        try:
+            import docker
+            # Use Docker client
+            docker_client = docker.from_env()
+            
             try:
-                result = subprocess.run(
-                    ["docker", "ps", "-aqf", f"name={self.container_name}"],
-                    check=True, capture_output=True, text=True
-                )
-                self.container_id = result.stdout.strip()
-            except Exception as e:
-                logger.warning(f"Could not get container ID for {self.container_name}: {e}")
-        
-        if self.container_id or self.container_name:
-            logger.info(f"Stopping Docker container {self.container_name}")
-            try:
-                subprocess.run(["docker", "stop", self.container_name], check=True)
+                container = docker_client.containers.get(self.container_name)
+                logger.info(f"Stopping Docker container {self.container_name}")
+                container.stop()
                 logger.info(f"Removing Docker container {self.container_name}")
-                subprocess.run(["docker", "rm", self.container_name], check=True)
-            except Exception as e:
-                logger.error(f"Error stopping/removing Docker container: {e}")
+                container.remove()
+            except docker.errors.NotFound:
+                logger.info(f"Docker container {self.container_name} not found")
+        except ImportError:
+            # Fall back to subprocess if docker-py is not available
+            logger.warning("Docker Python client not available, falling back to subprocess")
+            if not self.container_id and self.container_name:
+                # Try to get container ID from name
+                try:
+                    result = subprocess.run(
+                        ["docker", "ps", "-aqf", f"name={self.container_name}"],
+                        check=True, capture_output=True, text=True
+                    )
+                    self.container_id = result.stdout.strip()
+                except Exception as e:
+                    logger.warning(f"Could not get container ID for {self.container_name}: {e}")
+            
+            if self.container_id or self.container_name:
+                logger.info(f"Stopping Docker container {self.container_name}")
+                try:
+                    subprocess.run(["docker", "stop", self.container_name], check=True)
+                    logger.info(f"Removing Docker container {self.container_name}")
+                    subprocess.run(["docker", "rm", self.container_name], check=True)
+                except Exception as e:
+                    logger.error(f"Error stopping/removing Docker container: {e}")
     
     def _teardown_aws_ecs(self):
         """Teardown AWS ECS task"""
-        if self.task_arn:
-            logger.info(f"Stopping ECS task {self.task_arn}")
+        if self._task_arn:
+            logger.info(f"Stopping ECS task {self._task_arn}")
             try:
                 self.ecs_client.stop_task(
                     cluster="commandlab-cluster",
-                    task=self.task_arn
+                    task=self._task_arn
                 )
                 
                 # Wait for the task to stop
@@ -282,18 +318,18 @@ class DockerProvisioner(BaseComputerProvisioner):
                     try:
                         response = self.ecs_client.describe_tasks(
                             cluster="commandlab-cluster",
-                            tasks=[self.task_arn]
+                            tasks=[self._task_arn]
                         )
                         if not response['tasks']:
                             break
                         status = response['tasks'][0]['lastStatus']
                         if status == 'STOPPED':
-                            logger.info(f"ECS task {self.task_arn} stopped successfully")
+                            logger.info(f"ECS task {self._task_arn} stopped successfully")
                             break
                         logger.debug(f"ECS task status: {status}")
                         time.sleep(5)
                     except Exception as e:
-                        logger.info(f"Task {self.task_arn} no longer exists: {e}")
+                        logger.info(f"Task {self._task_arn} no longer exists: {e}")
                         break
             except Exception as e:
                 logger.error(f"Error stopping ECS task: {e}")
@@ -356,28 +392,44 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _is_local_running(self) -> bool:
         """Check if local Docker container is running"""
         try:
-            result = subprocess.run(
-                ["docker", "inspect", "-f", "{{.State.Running}}", self.container_name],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            is_running = result.stdout.strip() == "true"
-            logger.debug(f"Docker container {self.container_name} running status: {is_running}")
-            return is_running
-        except Exception as e:
-            logger.error(f"Error checking Docker container status: {e}")
-            return False
+            import docker
+            # Use Docker client
+            docker_client = docker.from_env()
+            
+            try:
+                container = docker_client.containers.get(self.container_name)
+                is_running = container.status == "running"
+                logger.debug(f"Docker container {self.container_name} running status: {is_running}")
+                return is_running
+            except docker.errors.NotFound:
+                logger.debug(f"Docker container {self.container_name} not found")
+                return False
+        except ImportError:
+            # Fall back to subprocess if docker-py is not available
+            logger.warning("Docker Python client not available, falling back to subprocess")
+            try:
+                result = subprocess.run(
+                    ["docker", "inspect", "-f", "{{.State.Running}}", self.container_name],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                is_running = result.stdout.strip() == "true"
+                logger.debug(f"Docker container {self.container_name} running status: {is_running}")
+                return is_running
+            except Exception as e:
+                logger.error(f"Error checking Docker container status: {e}")
+                return False
     
     def _is_aws_ecs_running(self) -> bool:
         """Check if AWS ECS task is running"""
         try:
-            if not self.task_arn:
+            if not self._task_arn:
                 return False
             
             response = self.ecs_client.describe_tasks(
                 cluster="commandlab-cluster",
-                tasks=[self.task_arn]
+                tasks=[self._task_arn]
             )
             
             if not response['tasks']:
@@ -385,7 +437,7 @@ class DockerProvisioner(BaseComputerProvisioner):
             
             status = response['tasks'][0]['lastStatus']
             is_running = status == 'RUNNING'
-            logger.debug(f"ECS task {self.task_arn} status: {status}")
+            logger.debug(f"ECS task {self._task_arn} status: {status}")
             return is_running
         except Exception as e:
             logger.error(f"Error checking ECS task status: {e}")
