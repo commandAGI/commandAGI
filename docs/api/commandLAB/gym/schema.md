@@ -1,0 +1,3 @@
+# Schema
+
+::: commandLAB.gym.schema
