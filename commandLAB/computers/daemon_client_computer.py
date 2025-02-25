@@ -61,8 +61,10 @@ class DaemonClientComputer(BaseComputer):
     model_config = {"arbitrary_types_allowed": True}
 
     def __init__(self, provisioning_method: ProvisioningMethod = ProvisioningMethod.MANUAL, **data):
-        self.provisioner = provisioning_method.get_provisioner_cls()(port=self.daemon_port)
+        # Initialize the base model first to ensure all fields are set
         super().__init__(**data)
+        # Now we can safely access daemon_port
+        self.provisioner = provisioning_method.get_provisioner_cls()(port=self.daemon_port)
         self.provisioner.setup()
 
     def close(self):

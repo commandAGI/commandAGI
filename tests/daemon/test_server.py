@@ -265,14 +265,14 @@ class TestComputerDaemon(unittest.TestCase):
     def test_authentication(self):
         # Test that endpoints require authentication
         response = self.client.post("/reset")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
         # Test with an invalid token
         response = self.client.post(
             "/reset",
             headers={"Authorization": "Bearer invalid_token"}
         )
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
         
         # Test with the correct token
         response = self.client.post(

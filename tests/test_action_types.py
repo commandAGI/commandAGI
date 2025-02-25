@@ -246,10 +246,22 @@ class TestComputerAction(unittest.TestCase):
         action = ComputerAction(command=command)
         
         # Check that only the command field is set
-        self.assertEqual(action["command"], command)
-        self.assertIsNone(action["click"])
-        self.assertIsNone(action["type"])
-        # ... check other fields are None
+        self.assertEqual(action.get("command"), command)
+        self.assertIsNone(action.get("click"))
+        self.assertIsNone(action.get("type"))
+        self.assertIsNone(action.get("double_click"))
+        self.assertIsNone(action.get("drag"))
+        self.assertIsNone(action.get("keyboard_hotkey"))
+        self.assertIsNone(action.get("keyboard_key_down"))
+        self.assertIsNone(action.get("keyboard_key_press")) 
+        self.assertIsNone(action.get("keyboard_key_release"))
+        self.assertIsNone(action.get("keyboard_keys_down"))
+        self.assertIsNone(action.get("keyboard_keys_press"))
+        self.assertIsNone(action.get("keyboard_keys_release"))
+        self.assertIsNone(action.get("mouse_button_down"))
+        self.assertIsNone(action.get("mouse_button_up"))
+        self.assertIsNone(action.get("mouse_move"))
+        self.assertIsNone(action.get("mouse_scroll"))
         
     def test_computer_action_with_click(self):
         # Test creating a ComputerAction with a ClickAction
@@ -257,10 +269,22 @@ class TestComputerAction(unittest.TestCase):
         action = ComputerAction(click=click)
         
         # Check that only the click field is set
-        self.assertEqual(action["click"], click)
-        self.assertIsNone(action["command"])
-        self.assertIsNone(action["type"])
-        # ... check other fields are None
+        self.assertEqual(action.get("click"), click)
+        self.assertIsNone(action.get("command"))
+        self.assertIsNone(action.get("type"))
+        self.assertIsNone(action.get("double_click"))
+        self.assertIsNone(action.get("drag"))
+        self.assertIsNone(action.get("keyboard_hotkey"))
+        self.assertIsNone(action.get("keyboard_key_down"))
+        self.assertIsNone(action.get("keyboard_key_press"))
+        self.assertIsNone(action.get("keyboard_key_release"))
+        self.assertIsNone(action.get("keyboard_keys_down"))
+        self.assertIsNone(action.get("keyboard_keys_press"))
+        self.assertIsNone(action.get("keyboard_keys_release"))
+        self.assertIsNone(action.get("mouse_button_down"))
+        self.assertIsNone(action.get("mouse_button_up"))
+        self.assertIsNone(action.get("mouse_move"))
+        self.assertIsNone(action.get("mouse_scroll"))
         
     def test_computer_action_with_type(self):
         # Test creating a ComputerAction with a TypeAction
@@ -268,10 +292,22 @@ class TestComputerAction(unittest.TestCase):
         action = ComputerAction(type=type_action)
         
         # Check that only the type field is set
-        self.assertEqual(action["type"], type_action)
-        self.assertIsNone(action["command"])
-        self.assertIsNone(action["click"])
-        # ... check other fields are None
+        self.assertEqual(action.get("type"), type_action)
+        self.assertIsNone(action.get("command"))
+        self.assertIsNone(action.get("click"))
+        self.assertIsNone(action.get("double_click"))
+        self.assertIsNone(action.get("drag"))
+        self.assertIsNone(action.get("keyboard_hotkey"))
+        self.assertIsNone(action.get("keyboard_key_down"))
+        self.assertIsNone(action.get("keyboard_key_press"))
+        self.assertIsNone(action.get("keyboard_key_release"))
+        self.assertIsNone(action.get("keyboard_keys_down"))
+        self.assertIsNone(action.get("keyboard_keys_press"))
+        self.assertIsNone(action.get("keyboard_keys_release"))
+        self.assertIsNone(action.get("mouse_button_down"))
+        self.assertIsNone(action.get("mouse_button_up"))
+        self.assertIsNone(action.get("mouse_move"))
+        self.assertIsNone(action.get("mouse_scroll"))
 
 
 if __name__ == '__main__':

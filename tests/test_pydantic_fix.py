@@ -1,6 +1,6 @@
 import unittest
-from pydantic import BaseModel, Field
-from typing import Literal
+from pydantic import BaseModel, Field, field_serializer
+from typing import Literal, Union, Annotated
 
 
 class TestPydanticFix(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestPydanticFix(unittest.TestCase):
         
         # Define a base model with a discriminator field
         class BaseAction(BaseModel):
-            action_type: str = Field(discriminator="action_type")
+            action_type: str
             
         # Define subclasses with string literals
         class CommandAction(BaseAction):
@@ -31,6 +31,22 @@ class TestPydanticFix(unittest.TestCase):
         # Check that the instances have the correct attributes
         self.assertEqual(command_action.command, "echo hello")
         self.assertEqual(type_action.text, "hello")
+        
+        # Test with Union
+        ActionUnion = Union[CommandAction, TypeAction]
+        
+        # Create a function that accepts the union
+        def process_action(action: ActionUnion) -> str:
+            if isinstance(action, CommandAction):
+                return f"Command: {action.command}"
+            elif isinstance(action, TypeAction):
+                return f"Type: {action.text}"
+            else:
+                return "Unknown action"
+        
+        # Test the function
+        self.assertEqual(process_action(command_action), "Command: echo hello")
+        self.assertEqual(process_action(type_action), "Type: hello")
 
 
 if __name__ == "__main__":

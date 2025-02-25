@@ -133,9 +133,9 @@ class TestComputerObservation(unittest.TestCase):
         observation = ComputerObservation(screenshot=screenshot)
         
         # Check that only the screenshot field is set
-        self.assertEqual(observation["screenshot"], screenshot)
-        self.assertIsNone(observation["mouse_state"])
-        self.assertIsNone(observation["keyboard_state"])
+        self.assertEqual(observation.get("screenshot"), screenshot)
+        self.assertIsNone(observation.get("mouse_state"))
+        self.assertIsNone(observation.get("keyboard_state"))
         
     def test_computer_observation_with_mouse_state(self):
         # Test creating a ComputerObservation with a MouseStateObservation
@@ -150,9 +150,9 @@ class TestComputerObservation(unittest.TestCase):
         observation = ComputerObservation(mouse_state=mouse_state)
         
         # Check that only the mouse_state field is set
-        self.assertEqual(observation["mouse_state"], mouse_state)
-        self.assertIsNone(observation["screenshot"])
-        self.assertIsNone(observation["keyboard_state"])
+        self.assertEqual(observation.get("mouse_state"), mouse_state)
+        self.assertIsNone(observation.get("screenshot"))
+        self.assertIsNone(observation.get("keyboard_state"))
         
     def test_computer_observation_with_keyboard_state(self):
         # Test creating a ComputerObservation with a KeyboardStateObservation
@@ -166,9 +166,9 @@ class TestComputerObservation(unittest.TestCase):
         observation = ComputerObservation(keyboard_state=keyboard_state)
         
         # Check that only the keyboard_state field is set
-        self.assertEqual(observation["keyboard_state"], keyboard_state)
-        self.assertIsNone(observation["screenshot"])
-        self.assertIsNone(observation["mouse_state"])
+        self.assertEqual(observation.get("keyboard_state"), keyboard_state)
+        self.assertIsNone(observation.get("screenshot"))
+        self.assertIsNone(observation.get("mouse_state"))
         
     def test_computer_observation_with_all_fields(self):
         # Test creating a ComputerObservation with all fields
@@ -196,18 +196,18 @@ class TestComputerObservation(unittest.TestCase):
         )
         
         # Check that all fields are set
-        self.assertEqual(observation["screenshot"], screenshot)
-        self.assertEqual(observation["mouse_state"], mouse_state)
-        self.assertEqual(observation["keyboard_state"], keyboard_state)
+        self.assertEqual(observation.get("screenshot"), screenshot)
+        self.assertEqual(observation.get("mouse_state"), mouse_state)
+        self.assertEqual(observation.get("keyboard_state"), keyboard_state)
         
     def test_computer_observation_empty(self):
         # Test creating an empty ComputerObservation
         observation = ComputerObservation()
         
         # Check that all fields are None
-        self.assertIsNone(observation["screenshot"])
-        self.assertIsNone(observation["mouse_state"])
-        self.assertIsNone(observation["keyboard_state"])
+        self.assertIsNone(observation.get("screenshot"))
+        self.assertIsNone(observation.get("mouse_state"))
+        self.assertIsNone(observation.get("keyboard_state"))
 
 
 if __name__ == '__main__':

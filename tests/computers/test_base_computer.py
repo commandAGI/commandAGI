@@ -26,32 +26,34 @@ from commandLAB.types import (
     KeyboardKey,
     MouseButton
 )
+from pydantic import Field
 
 
 class MockComputer(BaseComputer):
     """Mock implementation of BaseComputer for testing."""
     
-    def __init__(self):
-        super().__init__()
-        self.get_screenshot_called = False
-        self.get_mouse_state_called = False
-        self.get_keyboard_state_called = False
-        self.execute_command_called = False
-        self.execute_keyboard_key_down_called = False
-        self.execute_keyboard_key_release_called = False
-        self.execute_mouse_move_called = False
-        self.execute_mouse_scroll_called = False
-        self.execute_mouse_button_down_called = False
-        self.execute_mouse_button_up_called = False
-        
-        # Store the last action parameters
-        self.last_command = None
-        self.last_key_down = None
-        self.last_key_release = None
-        self.last_mouse_move = None
-        self.last_mouse_scroll = None
-        self.last_mouse_button_down = None
-        self.last_mouse_button_up = None
+    # Define fields with default values
+    get_screenshot_called: bool = Field(default=False)
+    get_mouse_state_called: bool = Field(default=False)
+    get_keyboard_state_called: bool = Field(default=False)
+    execute_command_called: bool = Field(default=False)
+    execute_keyboard_key_down_called: bool = Field(default=False)
+    execute_keyboard_key_release_called: bool = Field(default=False)
+    execute_mouse_move_called: bool = Field(default=False)
+    execute_mouse_scroll_called: bool = Field(default=False)
+    execute_mouse_button_down_called: bool = Field(default=False)
+    execute_mouse_button_up_called: bool = Field(default=False)
+    
+    # Store the last action parameters
+    last_command: CommandAction = Field(default=None)
+    last_key_down: KeyboardKeyDownAction = Field(default=None)
+    last_key_release: KeyboardKeyReleaseAction = Field(default=None)
+    last_mouse_move: MouseMoveAction = Field(default=None)
+    last_mouse_scroll: MouseScrollAction = Field(default=None)
+    last_mouse_button_down: MouseButtonDownAction = Field(default=None)
+    last_mouse_button_up: MouseButtonUpAction = Field(default=None)
+    
+    model_config = {"arbitrary_types_allowed": True, "extra": "allow"}
     
     def get_screenshot(self) -> ScreenshotObservation:
         self.get_screenshot_called = True
