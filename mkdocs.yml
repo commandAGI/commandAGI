@@ -21,7 +21,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [commandLAB]
+          paths: [.]
           rendering:
             show_source: true
             show_category_heading: true
@@ -33,6 +33,12 @@ plugins:
   # - jupyter:
   #     execute: false  # Set to true if you want to execute notebooks during build
   #     include_source: true
+
+# Exclude template files from being processed during build
+exclude_docs: |
+  /api/template.md
+  /examples/template.md
+  /api/commandLAB/**/*.md
 
 nav:
   - User Guide:
