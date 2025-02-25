@@ -1,3 +1,0 @@
-# Trainer
-
-::: commandLAB.gym.trainer

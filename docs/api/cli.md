@@ -1,3 +1,0 @@
-# Cli
-
-::: commandLAB.cli

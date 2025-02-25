@@ -1,3 +1,0 @@
-# MODULE_NAME
-
-::: MODULE_PATH

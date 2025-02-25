@@ -1,3 +1,0 @@
-# Client
-
-::: commandLAB.daemon.client

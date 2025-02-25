@@ -1,3 +1,0 @@
-# Image
-
-::: commandLAB.utils.image

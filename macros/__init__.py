@@ -15,6 +15,8 @@ from .doc_generator import (
     build_docs,
 )
 
+from .utils import generate_single_page_api_docs
+
 # Import the define_env function for MkDocs integration
 from .mkdocs_integration import define_env
 
@@ -31,6 +33,7 @@ __all__ = [
     'generate_example_docs',
     'generate_api_docs',
     'build_docs',
+    'generate_single_page_api_docs',
     
     # MkDocs integration
     'define_env',

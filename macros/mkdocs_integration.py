@@ -15,6 +15,8 @@ from .doc_generator import (
     build_docs,
 )
 
+from .utils import generate_single_page_api_docs
+
 
 def define_env(env):
     """
@@ -36,4 +38,5 @@ def define_env(env):
     # Register documentation generator macros
     env.macro(generate_example_docs)
     env.macro(generate_api_docs)
-    env.macro(build_docs) 
+    env.macro(build_docs)
+    env.macro(generate_single_page_api_docs) 

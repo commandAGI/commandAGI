@@ -1,3 +1,0 @@
-# Server
-
-::: commandLAB.daemon.server
