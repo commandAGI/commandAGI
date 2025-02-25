@@ -32,6 +32,7 @@ plugins:
             heading_level: 2
   - macros:
       module_name: macros
+  - awesome-pages
   # - jupyter:
   #     execute: false  # Set to true if you want to execute notebooks during build
   #     include_source: true
@@ -58,20 +59,10 @@ nav:
       - 'Cloud Containers': 'guides/cloud_containers.md'
     - Tutorials:
       - 'Basic Automation': 'tutorials/basic_automation.md'
-  - API Reference:
-    - 'Complete API Reference': 'api/index.md'
-  - Examples:
-    - 'Overview': 'examples/index.md'
-    - 'Getting Started': 'examples/getting_started.md'
-    - 'Basic Concepts': 'examples/concepts.md'
-    - 'Advanced Concepts': 'examples/advanced_concepts.md'
-    - 'Using Docker': 'examples/using_docker.md'
-    - 'Using Kubernetes': 'examples/using_kubernetes.md'
-    - 'Scripting Interactions': 'examples/scripting_computer_interactions.md'
-    - 'Automation': 'examples/automating_computer_interactions.md'
-    - 'Document Editing': 'examples/document_editing.md'
-    - 'Using the Internet': 'examples/using_the_internet.md'
-    - 'Programming': 'examples/programming.md'
+  - 'API Reference': 'api/index.md'
+  - Examples: 
+      - examples/index.md
+      - ... # This will automatically include all other .md files in the examples directory
   - For Developers:
     - 'Provisioner System': 'developers/provisioners.md'
     - 'Custom Computers': 'developers/custom_computers.md'
@@ -85,4 +76,4 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.tabbed:
-      alternate_style: true 
+      alternate_style: true

@@ -16,10 +16,36 @@ RUN apt-get update && apt-get install -y \
     dbus-x11 \
     python3 \
     python3-pip \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt-get update && \
+    apt-get install -y python3.12 python3.12-venv python3.12-dev python3-distutils && \
+    ln -sf /usr/bin/python3.12 /usr/bin/python3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install CommandLAB with specific version
-RUN pip3 install commandlab[local,daemon]==${COMMANDLAB_VERSION}
+# Test Python version and fail if not 3.12
+RUN python3 -c 'import sys; assert sys.version_info >= (3,12), "Python 3.12+ required"'
+#test if distutils is installed
+#RUN apt-get install python3.12-distutils
+#RUN python3 -c 'import distutils'
+# Copy the local codebase, update pip, install poetry, configure it to not use virtualenvs, and install dependencies
+RUN python3 -m ensurepip --upgrade 
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install --upgrade setuptools
+RUN python3 -m pip install --upgrade six
+RUN python3 -m pip install poetry
+RUN python3 -m pip install --upgrade urllib3
+# RUN poetry config virtualenvs.create false
+
+COPY . /commandlab
+WORKDIR /commandlab
+RUN poetry --version
+RUN apt-get update
+RUN apt-get install -y libssl-dev openssl
+#RUN poetry install
+RUN poetry install --extras "local daemon-host"
+
+WORKDIR /
 
 # Configure VNC by setting a password (using 'secret' as default)
 RUN mkdir -p /root/.vnc && \

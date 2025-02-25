@@ -1,56 +1,86 @@
 import os
+from pathlib import Path
 import subprocess
 import logging
 import sys
 from typing import Optional, List, Dict, Any
 import typer
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.status import Status
 from commandLAB.version import get_container_version, get_package_version
 
-# Configure logging
+# Configure rich logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
+    format="%(message)s",
+    handlers=[RichHandler(rich_tracebacks=True)]
 )
 logger = logging.getLogger("build_images")
+console = Console()
 
 cli = typer.Typer(help="Build CommandLAB daemon images for different platforms")
 
 
 def get_base_paths():
     """Get base directory paths for resources"""
-    # First check if resources are in the dev directory
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    dev_resources_path = os.path.join(base_dir, "resources")
+    with Status("[bold blue]Checking resource paths...", console=console):
+        # First check if resources are in the dev directory
+        base_dir = Path(__file__).parent.parent.parent
+        dev_resources_path = base_dir / "resources"
 
-    # If not found, check if resources are at project root
-    if not os.path.exists(dev_resources_path):
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        # If not found, check if resources are at project root
+        if not dev_resources_path.exists():
+            base_dir = Path(__file__).parent.parent
 
-    dockerfile_path = os.path.join(base_dir, "resources", "docker")
-    packer_path = os.path.join(base_dir, "resources", "packer")
+        dockerfile_path = base_dir / "resources" / "docker"
+        packer_path = base_dir / "resources" / "packer"
 
-    # Create packer directory if it doesn't exist
-    os.makedirs(packer_path, exist_ok=True)
+        # Create packer directory if it doesn't exist
+        packer_path.mkdir(parents=True, exist_ok=True)
 
     return base_dir, dockerfile_path, packer_path
 
 
 def run_command(cmd: List[str], description: str) -> bool:
-    """Run a command with proper error handling and logging"""
-    logger.info(f"Running: {' '.join(cmd)}")
-    try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info(f"{description} completed successfully")
-        return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"{description} failed with exit code {e.returncode}")
-        logger.error(f"Command output: {e.stdout}")
-        logger.error(f"Command error: {e.stderr}")
-        return False
-    except Exception as e:
-        logger.error(f"{description} failed with exception: {e}")
-        return False
+    """Run a command with real-time stdout streaming and proper error handling and logging"""
+    with Status(f"[bold blue]{description}...", console=console) as status:
+        logger.info(f"Running: {' '.join(cmd)}")
+        try:
+            # Open the process and merge stdout and stderr
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True
+            )
+            # Stream the output line by line
+            while True:
+                line = process.stdout.readline()
+                if line:
+                    console.print(line.rstrip())
+                elif process.poll() is not None:
+                    # No more output and the process is finished
+                    break
+
+            # Read and print any remaining output
+            remainder = process.stdout.read()
+            if remainder:
+                console.print(remainder.rstrip())
+
+            return_code = process.wait()
+            if return_code == 0:
+                status.update(f"[bold green]✓ {description} completed successfully")
+                return True
+            else:
+                status.update(f"[bold red]✗ {description} failed")
+                logger.error(f"{description} failed with exit code {return_code}")
+                return False
+        except Exception as e:
+            status.update(f"[bold red]✗ {description} failed")
+            logger.error(f"{description} failed with exception: {e}")
+            return False
 
 
 def ensure_packer_template(
@@ -59,12 +89,14 @@ def ensure_packer_template(
     """Ensure the packer template exists with the correct content"""
     import json
 
-    if not os.path.exists(template_path):
-        logger.info(f"Creating packer template: {template_path}")
-        with open(template_path, "w") as f:
-            json.dump(template_content, f, indent=2)
-    else:
-        logger.info(f"Packer template already exists: {template_path}")
+    with Status("[bold blue]Checking packer template...", console=console) as status:
+        if not os.path.exists(template_path):
+            status.update("[bold blue]Creating packer template...")
+            with open(template_path, "w") as f:
+                json.dump(template_content, f, indent=2)
+            status.update("[bold green]✓ Packer template created")
+        else:
+            status.update("[bold green]✓ Packer template exists")
 
 
 @cli.command()
@@ -292,38 +324,49 @@ def build_all_images(
     )
 ) -> None:
     """Build images for all platforms"""
-    logger.info("Starting build of all images")
+    console.print("[bold blue]Starting build of all images[/]")
 
-    # Build Docker image
-    logger.info("Building Docker image...")
-    build_docker_image(version)
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console
+    ) as progress:
+        # Build Docker image
+        task = progress.add_task("Building Docker image...", total=None)
+        build_docker_image(version)
+        progress.update(task, completed=True)
 
-    # Build Kubernetes image
-    logger.info("Building Kubernetes image...")
-    build_kubernetes_image(version)
+        # Build Kubernetes image
+        task = progress.add_task("Building Kubernetes image...", total=None)
+        build_kubernetes_image(version)
+        progress.update(task, completed=True)
 
-    # Check if packer is installed before attempting to build cloud images
-    try:
-        subprocess.run(["packer", "--version"], check=True, capture_output=True)
+        # Check if packer is installed before attempting to build cloud images
+        try:
+            subprocess.run(["packer", "--version"], check=True, capture_output=True)
 
-        # Build AWS AMI
-        logger.info("Building AWS AMI...")
-        build_aws_ami(version)
+            # Build AWS AMI
+            task = progress.add_task("Building AWS AMI...", total=None)
+            build_aws_ami(version)
+            progress.update(task, completed=True)
 
-        # Build Azure VM image
-        logger.info("Building Azure image...")
-        build_azure_vm(version)
+            # Build Azure VM image
+            task = progress.add_task("Building Azure image...", total=None)
+            build_azure_vm(version)
+            progress.update(task, completed=True)
 
-        # Build GCP VM image
-        logger.info("Building GCP image...")
-        build_gcp_vm(version)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.warning("Packer not found. Skipping cloud image builds.")
-        logger.info(
-            "To build cloud images, please install Packer: https://www.packer.io/downloads"
-        )
+            # Build GCP VM image
+            task = progress.add_task("Building GCP image...", total=None)
+            build_gcp_vm(version)
+            progress.update(task, completed=True)
 
-    logger.info("All image builds completed")
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            console.print("[bold yellow]⚠️ Packer not found. Skipping cloud image builds.[/]")
+            console.print(
+                "[bold yellow]To build cloud images, please install Packer: https://www.packer.io/downloads[/]"
+            )
+
+    console.print("[bold green]✓ All image builds completed[/]")
 
 
 if __name__ == "__main__":

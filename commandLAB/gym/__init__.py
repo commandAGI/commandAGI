@@ -5,7 +5,8 @@ This package contains the gym framework for training and evaluating agents that 
 """
 
 # Import core components
-from commandLAB.gym.schema import BaseEnv, BaseAgent
+from commandLAB.gym.environments.base_env import BaseEnv
+from commandLAB.gym.agents.base_agent import BaseAgent
 from commandLAB.gym.drivers import BaseDriver, SimpleDriver, ThreadedDriver, MultiprocessDriver
 from commandLAB.gym.trainer import BaseTrainer, OnlineTrainer, OfflineTrainer, BatchTrainer
 

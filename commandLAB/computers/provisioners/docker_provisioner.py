@@ -1,4 +1,5 @@
 from enum import Enum
+from pathlib import Path
 import subprocess
 import time
 import logging
@@ -38,6 +39,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         subscription_id: str = None,
         max_retries: int = 3,
         timeout: int = 300,  # 5 minutes
+        dockerfile_path: Optional[str] = Path(__file__).parent.parent.parent.parent / "resources" / "docker" / "Dockerfile",
     ):
         super().__init__(port)
         self.container_name = container_name
@@ -54,6 +56,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         self._status = "not_started"
         self.container_id = None
         self._task_arn = None
+        self.dockerfile_path = dockerfile_path
 
         # Initialize cloud clients if needed
         if platform == DockerPlatform.AWS_ECS:
@@ -121,7 +124,23 @@ class DockerProvisioner(BaseComputerProvisioner):
         """Setup local Docker container"""
         logger.info(f"Starting local Docker container {self.container_name}")
 
-        try:
+        if self.dockerfile_path:
+            dockerfile = self.dockerfile_path if self.dockerfile_path else "Dockerfile"
+            build_cmd = [
+                "docker", "build",
+                "-t", f"commandlab-daemon:{self.version}",
+                "-f", dockerfile,
+                "."
+            ]
+            logger.info(f"Building Docker image from Dockerfile: {dockerfile}")
+            import subprocess
+            build_result = subprocess.run(build_cmd, capture_output=True, text=True)
+            if build_result.returncode != 0:
+                logger.error(f"Docker build failed: {build_result.stderr}")
+                raise RuntimeError(f"Docker build failed: {build_result.stderr}")
+            else:
+                logger.info(f"Docker image built successfully")
+        else:
             import docker
 
             # Use Docker client
@@ -136,28 +155,6 @@ class DockerProvisioner(BaseComputerProvisioner):
             )
 
             self.container_id = container.id
-            logger.info(f"Started Docker container with ID: {self.container_id}")
-        except ImportError:
-            # Fall back to subprocess if docker-py is not available
-            logger.warning(
-                "Docker Python client not available, falling back to subprocess"
-            )
-            cmd = [
-                "docker",
-                "run",
-                "-d",  # detached mode
-                "--name",
-                self.container_name,
-                "-p",
-                f"{self.port}:{self.port}",
-                f"commandlab-daemon:{self.version}",
-                "--port",
-                str(self.port),
-                "--backend",
-                "pynput",
-            ]
-            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-            self.container_id = result.stdout.strip()
             logger.info(f"Started Docker container with ID: {self.container_id}")
 
     def _setup_aws_ecs(self):
