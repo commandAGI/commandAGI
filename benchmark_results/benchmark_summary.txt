@@ -1,0 +1,12 @@
+CommandLAB Benchmark Summary
+===========================
+
+Date: 2025-02-24 20:50:44
+Total time: 0.48s
+
+Results:
+  benchmark_provisioners: Failed
+  benchmark_computers: Failed
+  benchmark_daemon: Failed
+  benchmark_image_utils: Failed
+  benchmark_screen_parser: Failed

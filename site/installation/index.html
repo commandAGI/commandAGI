@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../quickstart/">
+        <link rel="prev" href="..">
       
       
-        <link rel="next" href="computers/">
+        <link rel="next" href="../quickstart/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Overview - commandLAB</title>
+        <title>Installation - commandLAB</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#core-concepts" class="md-skip">
+        <a href="#installation-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Installation
             
           </span>
         </div>
@@ -286,10 +286,31 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -299,6 +320,239 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#system-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Requirements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-with-backends" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation with Backends
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation with Backends">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-computer-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Computer Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Local Computer Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-specific-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platform-Specific Notes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-daemon" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote Daemon
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#container-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Container Support
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloud-provider-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cloud Provider Support
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#all-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      All Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#virtual-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Virtual Environment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#permission-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permission Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloud-provider-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cloud Provider Authentication
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Help
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verifying Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -330,19 +584,17 @@
                 
   
   
-    
   
   
-  
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_4" >
         
           
           <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="0">
@@ -357,7 +609,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_4">
             <span class="md-nav__icon md-icon"></span>
             Concepts
@@ -368,31 +620,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Overview
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -402,107 +633,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#computers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Computers
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#provisioners" class="md-nav__link">
-    <span class="md-ellipsis">
-      Provisioners
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gym-framework" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gym Framework
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#daemon" class="md-nav__link">
-    <span class="md-ellipsis">
-      Daemon
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Types
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-they-work-together" class="md-nav__link">
-    <span class="md-ellipsis">
-      How They Work Together
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design-philosophy" class="md-nav__link">
-    <span class="md-ellipsis">
-      Design Philosophy
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      Next Steps
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -515,7 +645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="computers/" class="md-nav__link">
+      <a href="../concepts/computers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -537,7 +667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="provisioners/" class="md-nav__link">
+      <a href="../concepts/provisioners/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -559,7 +689,7 @@
   
   
     <li class="md-nav__item">
-      <a href="daemon/" class="md-nav__link">
+      <a href="../concepts/daemon/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -581,7 +711,7 @@
   
   
     <li class="md-nav__item">
-      <a href="gym/" class="md-nav__link">
+      <a href="../concepts/gym/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -603,7 +733,7 @@
   
   
     <li class="md-nav__item">
-      <a href="types/" class="md-nav__link">
+      <a href="../concepts/types/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1251,72 +1381,204 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#system-requirements" class="md-nav__link">
     <span class="md-ellipsis">
-      Overview
+      System Requirements
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#computers" class="md-nav__link">
+  <a href="#basic-installation" class="md-nav__link">
     <span class="md-ellipsis">
-      Computers
+      Basic Installation
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#provisioners" class="md-nav__link">
+  <a href="#installation-with-backends" class="md-nav__link">
     <span class="md-ellipsis">
-      Provisioners
+      Installation with Backends
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation with Backends">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-computer-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Computer Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Local Computer Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-specific-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platform-Specific Notes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-daemon" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remote Daemon
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#container-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Container Support
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloud-provider-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cloud Provider Support
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#all-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      All Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Installation
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#gym-framework" class="md-nav__link">
+  <a href="#virtual-environment" class="md-nav__link">
     <span class="md-ellipsis">
-      Gym Framework
+      Virtual Environment
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#daemon" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
-      Daemon
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#permission-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permission Errors
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#types" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#import-errors" class="md-nav__link">
     <span class="md-ellipsis">
-      Types
+      Import Errors
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#how-they-work-together" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#docker-issues" class="md-nav__link">
     <span class="md-ellipsis">
-      How They Work Together
+      Docker Issues
     </span>
   </a>
   
 </li>
+        
+          <li class="md-nav__item">
+  <a href="#cloud-provider-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cloud Provider Authentication
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Help
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#design-philosophy" class="md-nav__link">
+  <a href="#verifying-installation" class="md-nav__link">
     <span class="md-ellipsis">
-      Design Philosophy
+      Verifying Installation
     </span>
   </a>
   
@@ -1347,140 +1609,174 @@
 
 
 
-<h1 id="core-concepts">Core Concepts</h1>
-<p>CommandLAB is built around several key concepts that work together to provide a flexible and powerful framework for computer automation. This section explains these concepts in detail and how they interact with each other.</p>
-<p><img alt="Core Concepts" src="../assets/images/core_concepts.png" /></p>
-<h2 id="overview">Overview</h2>
-<p>CommandLAB's architecture is designed to be modular, extensible, and cloud-ready. The key components are:</p>
-<ol>
-<li><strong>Computers</strong>: The core interfaces for controlling computers</li>
-<li><strong>Provisioners</strong>: Tools for setting up and managing computer environments</li>
-<li><strong>Gym Framework</strong>: A reinforcement learning framework for training agents</li>
-<li><strong>Daemon</strong>: A service for remote computer control</li>
-<li><strong>Types</strong>: The data models that define actions and observations</li>
-</ol>
-<h2 id="computers">Computers</h2>
-<p><a href="computers/">Computers</a> are the central abstraction in CommandLAB. A Computer represents any system that can be controlled programmatically, whether it's your local machine, a remote server, or a virtual environment.</p>
-<p>All computers implement the <code>BaseComputer</code> interface, which provides methods for:</p>
+<h1 id="installation-guide">Installation Guide</h1>
+<p>This guide provides detailed instructions for installing CommandLAB and its dependencies on different operating systems.</p>
+<h2 id="system-requirements">System Requirements</h2>
 <ul>
-<li>Taking screenshots</li>
-<li>Getting mouse and keyboard state</li>
-<li>Executing commands</li>
-<li>Controlling the mouse and keyboard</li>
+<li><strong>Python</strong>: Python 3.9 or higher</li>
+<li><strong>Operating System</strong>:</li>
+<li>Windows 10 or higher</li>
+<li>macOS 10.14 (Mojave) or higher</li>
+<li>Ubuntu 18.04 or higher, or other Linux distributions with X11</li>
+<li><strong>Hardware</strong>:</li>
+<li>Recommended: 2GB RAM, 1GHz CPU</li>
+<li><strong>Permissions</strong>:</li>
+<li>Local control requires permissions to simulate keyboard and mouse input</li>
+<li>Docker support requires Docker installed and running</li>
+<li>Cloud deployments require appropriate cloud provider credentials</li>
 </ul>
-<p>Available computer implementations include:</p>
-<ul>
-<li><code>LocalPynputComputer</code>: Controls your local computer using pynput</li>
-<li><code>LocalPyAutoGUIComputer</code>: Controls your local computer using PyAutoGUI</li>
-<li><code>E2BDesktopComputer</code>: Uses E2B Desktop Sandbox for secure interactions</li>
-<li><code>DaemonClientComputer</code>: Connects to a remote daemon for computer control</li>
-</ul>
-<h2 id="provisioners">Provisioners</h2>
-<p><a href="provisioners/">Provisioners</a> handle the setup, management, and teardown of computer environments. They're especially useful for cloud and container deployments.</p>
-<p>A provisioner is responsible for:</p>
-<ol>
-<li><strong>Setting up</strong> a computer environment (e.g., starting a Docker container)</li>
-<li><strong>Checking</strong> if the environment is running</li>
-<li><strong>Tearing down</strong> the environment when it's no longer needed</li>
-</ol>
-<p>Available provisioner implementations include:</p>
-<ul>
-<li><code>ManualProvisioner</code>: For manually managed environments</li>
-<li><code>DockerProvisioner</code>: For Docker container environments</li>
-<li><code>KubernetesProvisioner</code>: For Kubernetes deployments</li>
-<li><code>AWSProvisioner</code>: For AWS EC2 instances</li>
-<li><code>AzureProvisioner</code>: For Azure VMs</li>
-<li><code>GCPProvisioner</code>: For Google Cloud Platform VMs</li>
-</ul>
-<h2 id="gym-framework">Gym Framework</h2>
-<p>The <a href="gym/">Gym Framework</a> is a reinforcement learning framework inspired by OpenAI Gym, designed specifically for training agents to use computers.</p>
-<p>Key components of the gym framework include:</p>
-<ul>
-<li><strong>Environments</strong>: Represent tasks that agents can interact with</li>
-<li><strong>Agents</strong>: Entities that interact with environments by taking actions</li>
-<li><strong>Episodes</strong>: Sequences of interactions between agents and environments</li>
-<li><strong>Drivers</strong>: Manage the interaction between agents and environments</li>
-<li><strong>Trainers</strong>: Train agents using episodes collected by drivers</li>
-</ul>
-<p>The gym framework implements the standard reinforcement learning loop:</p>
-<ol>
-<li>The environment provides an observation</li>
-<li>The agent selects an action based on the observation</li>
-<li>The environment executes the action and returns a new observation, reward, and done flag</li>
-<li>The process repeats until the episode is complete</li>
-</ol>
-<h2 id="daemon">Daemon</h2>
-<p>The <a href="daemon/">Daemon</a> is a service that allows remote control of computers through a REST API. It exposes computer functionality through HTTP endpoints, providing authentication via API tokens.</p>
-<p>The daemon can be deployed in various environments:</p>
-<ul>
-<li>Locally on your machine</li>
-<li>In Docker containers</li>
-<li>In Kubernetes clusters</li>
-<li>On cloud VMs</li>
-</ul>
-<p>The <code>DaemonClientComputer</code> can use provisioners to automatically set up and manage daemon environments, making it easy to create and control remote computers.</p>
-<h2 id="types">Types</h2>
-<p>The <a href="types/">Types</a> system defines the data models used throughout CommandLAB. These include:</p>
-<ul>
-<li><strong>Actions</strong>: Operations that can be performed on a computer (e.g., <code>ClickAction</code>, <code>TypeAction</code>)</li>
-<li><strong>Observations</strong>: Information about the computer's state (e.g., <code>ScreenshotObservation</code>, <code>MouseStateObservation</code>)</li>
-<li><strong>Enums</strong>: Standardized values for keys, mouse buttons, etc.</li>
-</ul>
-<p>The type system includes mappings to convert between CommandLAB's standard types and backend-specific types, allowing CommandLAB to provide a consistent interface while supporting multiple backends.</p>
-<h2 id="how-they-work-together">How They Work Together</h2>
-<p>CommandLAB's components are designed to work together in a modular way:</p>
-<ul>
-<li><strong>Computers</strong> provide a unified interface for controlling different types of computers</li>
-<li><strong>Provisioners</strong> handle the setup and teardown of computer environments</li>
-<li>The <strong>Gym Framework</strong> uses computers to train agents through reinforcement learning</li>
-<li>The <strong>Daemon</strong> exposes computer functionality through a REST API</li>
-<li><strong>Types</strong> define the common language for actions and observations across the framework</li>
-</ul>
-<p>This diagram illustrates how the components interact:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│    Agent    │────▶│ Environment │────▶│  Computer   │
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>└─────────────┘     └─────────────┘     └─────────────┘
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                                              │
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                                              ▼
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                                        ┌─────────────┐
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                        │ Provisioner │
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                                        └─────────────┘
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                                              │
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                                              ▼
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                                        ┌─────────────┐
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                                        │   Daemon    │
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                                        └─────────────┘
+<h2 id="basic-installation">Basic Installation</h2>
+<p>The simplest way to install CommandLAB is using pip:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>commandlab
 </code></pre></div>
-<h2 id="design-philosophy">Design Philosophy</h2>
-<p>CommandLAB follows several key design principles:</p>
+<p>This installs the core framework without specific backends. You'll need to install additional components based on your use case.</p>
+<h2 id="installation-with-backends">Installation with Backends</h2>
+<h3 id="local-computer-control">Local Computer Control</h3>
+<p>To control your local computer, install the local backend:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[local]&quot;</span>
+</code></pre></div>
+<p>This installs dependencies for controlling your local computer:
+- <code>pynput</code> for keyboard and mouse control
+- <code>pyautogui</code> for alternative input control
+- <code>mss</code> for fast screenshots</p>
+<h4 id="platform-specific-notes">Platform-Specific Notes</h4>
+<p><strong>Windows</strong>:
+- No additional requirements</p>
+<p><strong>macOS</strong>:
+- You may need to grant accessibility permissions to your terminal or Python application
+- Go to System Preferences &gt; Security &amp; Privacy &gt; Privacy &gt; Accessibility and add your terminal application</p>
+<p><strong>Linux</strong>:
+- X11 is required for input control
+- Install X11 dependencies: <code>sudo apt-get install python3-xlib python3-tk python3-dev</code></p>
+<h3 id="remote-daemon">Remote Daemon</h3>
+<p>To use the remote control daemon:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[daemon]&quot;</span>
+</code></pre></div>
+<p>This installs:
+- <code>fastapi</code> and <code>uvicorn</code> for the API server
+- <code>requests</code> for client communication</p>
+<h3 id="container-support">Container Support</h3>
+<p>For Docker container support:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[docker]&quot;</span>
+</code></pre></div>
+<p>This requires:
+- Docker installed and running on your system
+- Python Docker SDK</p>
+<p>For Kubernetes support:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[kubernetes]&quot;</span>
+</code></pre></div>
+<p>This requires:
+- <code>kubernetes</code> Python client
+- <code>kubectl</code> configured with access to a cluster</p>
+<h3 id="cloud-provider-support">Cloud Provider Support</h3>
+<p>For AWS support:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[aws]&quot;</span>
+</code></pre></div>
+<p>For Azure support:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[azure]&quot;</span>
+</code></pre></div>
+<p>For Google Cloud Platform support:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[gcp]&quot;</span>
+</code></pre></div>
+<p>For all cloud providers:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[cloud]&quot;</span>
+</code></pre></div>
+<h3 id="integration-components">Integration Components</h3>
+<p>For OCR capabilities:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[pytesseract]&quot;</span>
+</code></pre></div>
+<p>This requires:
+- Tesseract OCR installed on your system
+  - Windows: Download from <a href="https://github.com/UB-Mannheim/tesseract/wiki">GitHub</a>
+  - macOS: <code>brew install tesseract</code>
+  - Linux: <code>sudo apt-get install tesseract-ocr</code></p>
+<p>For E2B Desktop integration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[e2b-desktop]&quot;</span>
+</code></pre></div>
+<p>For LangChain integration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[langchain]&quot;</span>
+</code></pre></div>
+<h3 id="all-features">All Features</h3>
+<p>To install all available backends and features:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[all]&quot;</span>
+</code></pre></div>
+<p>Note that this will install all dependencies, which may include conflicting packages. It's generally better to install only the components you need.</p>
+<h2 id="development-installation">Development Installation</h2>
+<p>For contributing to CommandLAB:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Clone the repository</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/your-org/commandlab.git
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">cd</span><span class="w"> </span>commandlab
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># Install in development mode with development dependencies</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="c1"># Run tests</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>pytest
+</code></pre></div>
+<h2 id="virtual-environment">Virtual Environment</h2>
+<p>It's recommended to install CommandLAB in a virtual environment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Create a virtual environment</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>commandlab-env
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Activate the environment</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># On Windows:</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>commandlab-env<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># On macOS/Linux:</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="nb">source</span><span class="w"> </span>commandlab-env/bin/activate
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="c1"># Install CommandLAB</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[local,daemon]&quot;</span>
+</code></pre></div>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<h4 id="permission-errors">Permission Errors</h4>
+<p><strong>Problem</strong>: <code>PermissionError</code> when trying to control mouse or keyboard</p>
+<p><strong>Solution</strong>:
+- Run your script with administrator/root privileges
+- On macOS, grant accessibility permissions to your terminal
+- On Linux, ensure you have the necessary X11 permissions</p>
+<h4 id="import-errors">Import Errors</h4>
+<p><strong>Problem</strong>: <code>ImportError: No module named 'pynput'</code> or similar</p>
+<p><strong>Solution</strong>:
+- Ensure you've installed the correct extras: <code>pip install "commandlab[local]"</code>
+- Check if your virtual environment is activated</p>
+<h4 id="docker-issues">Docker Issues</h4>
+<p><strong>Problem</strong>: <code>docker.errors.DockerException: Error while fetching server API version</code></p>
+<p><strong>Solution</strong>:
+- Ensure Docker is installed and running
+- Check if your user has permissions to access Docker</p>
+<h4 id="cloud-provider-authentication">Cloud Provider Authentication</h4>
+<p><strong>Problem</strong>: Authentication errors with cloud providers</p>
+<p><strong>Solution</strong>:
+- Ensure you've configured credentials:
+  - AWS: Configure AWS CLI or set environment variables
+  - Azure: Log in with Azure CLI or set environment variables
+  - GCP: Set up application default credentials</p>
+<h3 id="getting-help">Getting Help</h3>
+<p>If you encounter issues not covered here:</p>
 <ol>
-<li>
-<p><strong>Unified Interface</strong>: All computer implementations share the same interface, making it easy to switch between different backends.</p>
-</li>
-<li>
-<p><strong>Modularity</strong>: Components can be used independently or together. For example, you can use a computer without the gym framework, or use the gym framework with any computer implementation.</p>
-</li>
-<li>
-<p><strong>Extensibility</strong>: It's easy to add new implementations of core interfaces. For example, you can create a new computer implementation that controls a specialized system while leveraging existing provisioners and the gym framework.</p>
-</li>
-<li>
-<p><strong>Type Safety</strong>: Strong typing throughout the codebase ensures that errors are caught at development time rather than runtime.</p>
-</li>
-<li>
-<p><strong>Cloud-Ready</strong>: Support for various deployment environments, from local development to cloud-based production.</p>
-</li>
-<li>
-<p><strong>Separation of Concerns</strong>: Each component has a clear responsibility, making the system easier to understand and extend.</p>
-</li>
+<li>Check the <a href="https://github.com/your-org/commandlab/issues">GitHub Issues</a> for similar problems</li>
+<li>Join our <a href="https://discord.gg/your-discord">Discord community</a> for support</li>
+<li>Open a new issue with details about your problem</li>
 </ol>
+<h2 id="verifying-installation">Verifying Installation</h2>
+<p>To verify your installation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">commandLAB</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CommandLAB version: </span><span class="si">{</span><span class="n">commandLAB</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Test local computer if installed</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="n">computer</span> <span class="o">=</span> <span class="n">LocalPynputComputer</span><span class="p">()</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Local computer control is working&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Local computer control is not installed&quot;</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="next-steps">Next Steps</h2>
-<p>Now that you understand the core concepts, you can explore each one in more detail:</p>
 <ul>
-<li><a href="computers/">Computers</a>: Learn about the different computer implementations</li>
-<li><a href="provisioners/">Provisioners</a>: Understand how to manage computer environments</li>
-<li><a href="gym/">Gym Framework</a>: Discover how to train agents to use computers</li>
-<li><a href="daemon/">Daemon</a>: Learn about remote computer control</li>
-<li><a href="types/">Types</a>: Explore the data models used throughout CommandLAB</li>
+<li>Follow the <a href="../quickstart/">Quick Start Guide</a> to begin using CommandLAB</li>
+<li>Explore the <a href="../concepts/">Core Concepts</a> to understand the framework</li>
+<li>Try the <a href="tutorials/basic_automation.md">Basic Automation Tutorial</a> for a hands-on example</li>
 </ul>
 
 
