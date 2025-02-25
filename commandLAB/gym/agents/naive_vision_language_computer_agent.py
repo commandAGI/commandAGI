@@ -2,9 +2,11 @@ from collections.abc import Callable
 import inspect
 import re
 from textwrap import dedent
-from typing import List
+from typing import List, Optional
 
-from commandLAB.gym.agents.base_agent import BaseComputerAgent
+from pydantic import Field
+
+from commandLAB.gym.agents.base_agent import BaseAgent
 from commandLAB.gym.schema import Episode
 from commandLAB.types import (
     ClickAction,
@@ -38,11 +40,14 @@ from commandLAB.utils.image import imageToB64
 console = Console()
 
 
-class NaiveComputerAgent(BaseComputerAgent[ComputerObservation, ComputerAction]):
+class NaiveComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
+    total_reward: float = Field(default=0.0)
+    chat_model_options: dict
+    chat_model: Optional[object] = None
+    str_output_parser: Optional[object] = None
 
     def __init__(self, chat_model_options: dict):
-        self.total_reward = 0.0
-        self.chat_model_options = chat_model_options
+        super().__init__(chat_model_options=chat_model_options)
         self.chat_model = get_chat_model(**self.chat_model_options)
         self.str_output_parser = StrOutputParser()
 

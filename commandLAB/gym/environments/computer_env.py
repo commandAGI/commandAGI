@@ -63,28 +63,16 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
         }
 
         action_fns = {
-            "command": lambda x: self._computer.execute_command(x.command, x.timeout),
-            "keyboard_keys_press": lambda x: self._computer.execute_keyboard_keys_press(
-                x.keys
-            ),
-            "keyboard_keys_down": lambda x: self._computer.execute_keyboard_keys_down(
-                x.keys
-            ),
-            "keyboard_keys_release": lambda x: self._computer.execute_keyboard_keys_release(
-                x.keys
-            ),
-            "keyboard_hotkey": lambda x: self._computer.execute_keyboard_hotkey(x.keys),
-            "type": lambda x: self._computer.execute_type(x.text),
-            "mouse_move": lambda x: self._computer.execute_mouse_move(
-                x.x, x.y, x.move_duration
-            ),
-            "mouse_scroll": lambda x: self._computer.execute_mouse_scroll(x.amount),
-            "mouse_button_down": lambda x: self._computer.execute_mouse_button_down(
-                x.button
-            ),
-            "mouse_button_up": lambda x: self._computer.execute_mouse_button_up(
-                x.button
-            ),
+            "command": lambda x: self._computer.execute_command(x),
+            "keyboard_keys_press": lambda x: self._computer.execute_keyboard_keys_press(x),
+            "keyboard_keys_down": lambda x: self._computer.execute_keyboard_keys_down(x),
+            "keyboard_keys_release": lambda x: self._computer.execute_keyboard_keys_release(x),
+            "keyboard_hotkey": lambda x: self._computer.execute_keyboard_hotkey(x),
+            "type": lambda x: self._computer.execute_type(x),
+            "mouse_move": lambda x: self._computer.execute_mouse_move(x),
+            "mouse_scroll": lambda x: self._computer.execute_mouse_scroll(x),
+            "mouse_button_down": lambda x: self._computer.execute_mouse_button_down(x),
+            "mouse_button_up": lambda x: self._computer.execute_mouse_button_up(x),
             "click": lambda x: self._computer.execute_click(x),
             "double_click": lambda x: self._computer.execute_double_click(x),
             "drag": lambda x: self._computer.execute_drag(x),

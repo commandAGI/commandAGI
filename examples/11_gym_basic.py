@@ -12,18 +12,25 @@ Status: not tested
 import time
 import os
 import traceback
+import random
+from typing import List, Optional
 
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+    from commandLAB.gym.agents.base_agent import BaseAgent
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
         CommandAction,
         TypeAction,
         KeyboardHotkeyAction,
         KeyboardKey,
+        ComputerAction,
+        ComputerObservation,
+        MouseMoveAction,
     )
+    from commandLAB.gym.schema import Episode
+    from pydantic import Field
 except ImportError as e:
     print(f"Detailed import error: {e}")
     print("Traceback:")
@@ -31,6 +38,35 @@ except ImportError as e:
     print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
     print("pip install commandlab[local,gym]")
     exit(1)
+
+
+# Create a simple mock agent for testing
+class MockAgent(BaseAgent[ComputerObservation, ComputerAction]):
+    """A simple mock agent that returns random actions for testing."""
+    
+    total_reward: float = Field(default=0.0)
+    
+    def __init__(self):
+        super().__init__()
+        
+    def reset(self) -> None:
+        """Reset the agent's internal state."""
+        self.total_reward = 0.0
+        
+    def act(self, observation: ComputerObservation) -> ComputerAction:
+        """Given an observation, determine the next action."""
+        # Use a mouse move action that should work
+        return ComputerAction(
+            mouse_move=MouseMoveAction(x=100, y=100, move_duration=0.5)
+        )
+        
+    def update(self, reward: float) -> None:
+        """Update the agent's internal state based on the reward."""
+        self.total_reward += reward
+        
+    def train(self, episodes: list[Episode]) -> None:
+        """Train the agent on an episode."""
+        pass
 
 
 def main():
@@ -53,17 +89,14 @@ def main():
         print("Creating the environment...")
         computer = LocalPynputComputer()
         env = ComputerEnv(config, computer=computer)
-
-        # Create an agent
+        
+        # Enable logging of modality errors for debugging
+        from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+        MultiModalEnv._LOG_MODALITY_ERRORS = True
+        
+        # Create a mock agent instead of the NaiveComputerAgent
         print("Creating the agent...")
-        # Note: This requires an OpenAI API key or other LLM provider
-        # You can set OPENAI_API_KEY environment variable or pass it directly
-        agent = NaiveComputerAgent(chat_model_options={
-            "model_provider": "openai",
-            "model": "gpt-4-vision-preview",
-            # Add your API key here if not set as environment variable
-            # "api_key": "your-api-key",
-        })
+        agent = MockAgent()
 
         # Create a driver
         print("Creating the driver...")

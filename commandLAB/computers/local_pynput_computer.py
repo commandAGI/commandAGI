@@ -29,6 +29,7 @@ from commandLAB.types import (
     MouseStateObservation,
     ScreenshotObservation,
     TypeAction,
+    ComputerObservation,
 )
 from PIL import Image
 
@@ -137,6 +138,18 @@ class LocalPynputComputer(BaseComputer):
             if conv_key is not None and conv_key in keys_state:
                 keys_state[conv_key] = True
         return KeyboardStateObservation(keys=keys_state)
+
+    def get_observation(self):
+        """Get the current observation of the computer state."""
+        screenshot = self.get_screenshot()
+        mouse_state = self.get_mouse_state()
+        keyboard_state = self.get_keyboard_state()
+        
+        return ComputerObservation(
+            screenshot=screenshot,
+            mouse_state=mouse_state,
+            keyboard_state=keyboard_state
+        )
 
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command using subprocess."""

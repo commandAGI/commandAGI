@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from transformers import Agent
 
-from commandLAB.gym.agents.base_agent import BaseComputerAgent
+from commandLAB.gym.agents.base_agent import BaseAgent
 from commandLAB.gym.schema import Episode
 from commandLAB.types import (
     ClickAction,
@@ -40,7 +40,7 @@ from commandLAB.utils.image import imageToB64
 console = Console()
 
 
-class ReactComputerAgent(BaseComputerAgent[ComputerObservation, ComputerAction]):
+class ReactComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
 
     def __init__(self, model: str, device: Optional[str] = None):
         """Initialize the React agent with a Hugging Face model.

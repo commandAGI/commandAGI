@@ -6,8 +6,10 @@ from pydantic import BaseModel
 from commandLAB.gym.schema import Episode
 from commandLAB.types import ComputerAction, ComputerObservation
 
+ObsType = TypeVar('ObsType')
+ActionType = TypeVar('ActionType')
 
-class BaseComputerAgent(BaseModel, ABC):
+class BaseAgent(BaseModel, Generic[ObsType, ActionType], ABC):
     """Base class for agents"""
 
     @abstractmethod
@@ -15,14 +17,14 @@ class BaseComputerAgent(BaseModel, ABC):
         """Reset the agent's internal state."""
 
     @abstractmethod
-    def act(self, observation: ComputerObservation) -> ComputerAction:
+    def act(self, observation: ObsType) -> ActionType:
         """Given an observation, determine the next action.
 
         Args:
-            observation (ComputerObservation): The current environment observation.
+            observation (ObsType): The current environment observation.
 
         Returns:
-            ComputerAction: The chosen action.
+            ActionType: The chosen action.
         """
 
     @abstractmethod

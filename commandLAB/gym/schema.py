@@ -11,14 +11,14 @@ ObsType = TypeVar("ObsType")
 ActionType = TypeVar("ActType")
 
 
-class Step(Generic[ObsType, ActionType], BaseModel):
+class Step(BaseModel, Generic[ObsType, ActionType]):
     observation: ObsType
     action: ActionType
     reward: float
     info: Dict[str, Any]
 
 
-class Episode(Generic[ObsType, ActionType], ABC):
+class Episode(ABC, Generic[ObsType, ActionType]):
     """Abstract base class for episodes."""
 
     @property
