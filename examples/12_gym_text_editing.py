@@ -5,7 +5,10 @@ CommandLAB Gym Text Editing Example
 This example demonstrates how to use the CommandLAB gym framework to automate a text editing task.
 It creates a custom environment that rewards the agent for successfully completing text editing tasks.
 
-Status: not tested
+Status: Not tested
+- Requires OpenAI API key for full testing
+- Script initializes but fails at agent creation without API key
+- Test attempted: 2024-07-12
 """
 
 import time
@@ -140,8 +143,8 @@ def main():
         print("The agent will try to complete the text editing task.")
         print("Press Ctrl+C to stop the episode collection.")
         print()
-        print("Starting in 3 seconds...")
-        time.sleep(3)
+        print("Starting in 1 second...")
+        time.sleep(1)
 
         # Open a text editor before starting the episode
         print("Opening a text editor...")

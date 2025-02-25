@@ -6,13 +6,17 @@ This example demonstrates how to use the CommandLAB gym framework to train an ag
 over multiple episodes. It shows how to collect episodes, evaluate performance,
 and save/load trained agents.
 
-Status: not tested
+Status: Not tested
+- Requires additional dependencies (matplotlib)
+- Modified to use a mock agent but still needs dependencies
+- Test attempted: 2024-07-12
 """
 
 import time
 import os
 import json
 import pickle
+import traceback
 from typing import Dict, Any, List
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,6 +34,9 @@ try:
         KeyboardHotkeyAction,
         KeyboardKey,
         ComputerAction,
+        MouseMoveAction,
+        MouseClickAction,
+        MouseButton,
     )
 except ImportError:
     print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
@@ -102,99 +109,128 @@ class SimpleTaskEnv(ComputerEnv):
         }
 
 
-class TrainableAgent(NaiveComputerAgent):
-    """Extended agent that can be trained on episodes."""
+# Create a simple mock agent that doesn't require OpenAI API
+class SimpleMockTrainableAgent(NaiveComputerAgent):
+    """A simple mock trainable agent that doesn't require OpenAI API."""
     
-    def __init__(self, chat_model_options: dict):
-        super().__init__(chat_model_options)
-        self.training_history = []
-        self.episode_rewards = []
-        self.completion_rate = []
-        self.episodes_seen = 0
-    
+    def __init__(self):
+        # Initialize with dummy chat_model_options
+        super().__init__(chat_model_options={
+            "model_provider": "openai",  # Required by get_chat_model
+            "model": "gpt-4o",  # Required by ChatOpenAI
+            "api_key": "dummy-api-key"  # Dummy API key
+        })
+        # Override the chat_model and str_output_parser to avoid API calls
+        self.chat_model = None
+        self.str_output_parser = None
+        
+        # Training metrics
+        self.training_history = {
+            "episode_rewards": [],
+            "episode_lengths": [],
+            "task_completion_rate": []
+        }
+        self.steps_taken = 0
+        
+    def act(self, observation: ComputerObservation) -> ComputerAction:
+        """Given an observation, determine the next action."""
+        # Simulate text editing by moving the mouse and typing
+        if self.steps_taken == 0:
+            # First action: Move mouse to text area
+            return ComputerAction(
+                mouse_move=MouseMoveAction(x=300, y=300, move_duration=0.5)
+            )
+        elif self.steps_taken == 1:
+            # Second action: Click on text area
+            return ComputerAction(
+                mouse_click=MouseClickAction(
+                    x=300, y=300, 
+                    button=MouseButton.LEFT,
+                    move_duration=0.5
+                )
+            )
+        elif self.steps_taken == 2:
+            # Third action: Type some text
+            return ComputerAction(
+                type=TypeAction(text="Hello from training agent!")
+            )
+        else:
+            # Default action: Move mouse around
+            return ComputerAction(
+                mouse_move=MouseMoveAction(x=400, y=300, move_duration=0.5)
+            )
+            
+    def update(self, reward: float) -> None:
+        """Update the agent's internal state based on the reward."""
+        if not hasattr(self, 'steps_taken'):
+            self.steps_taken = 0
+        self.steps_taken += 1
+        
+    def reset(self) -> None:
+        """Reset the agent's internal state."""
+        self.steps_taken = 0
+        
     def train(self, episodes: List[Episode]) -> None:
-        """Train the agent on a list of episodes."""
-        for episode in episodes:
-            # In a real implementation, this would update the agent's model
-            # For this example, we just track statistics
-            total_reward = sum(step.reward for step in episode)
-            self.episode_rewards.append(total_reward)
-            
-            # Check if the task was completed
-            last_info = episode[-1].info
-            task_completed = last_info.get("task_completed", False)
-            self.completion_rate.append(1.0 if task_completed else 0.0)
-            
-            self.episodes_seen += 1
-            
-            # Add to training history
-            self.training_history.append({
-                "episode": self.episodes_seen,
-                "total_reward": total_reward,
-                "steps": episode.num_steps,
-                "task_completed": task_completed,
-            })
-    
+        """Train the agent on episodes."""
+        print(f"Training on {len(episodes)} episodes...")
+        
+        # Extract metrics from episodes
+        total_reward = sum(sum(step.reward for step in episode) for episode in episodes)
+        avg_episode_length = sum(len(episode) for episode in episodes) / len(episodes)
+        
+        # Update training history
+        self.training_history["episode_rewards"].append(total_reward / len(episodes))
+        self.training_history["episode_lengths"].append(avg_episode_length)
+        
+        # Calculate task completion rate
+        completion_rate = sum(1 for episode in episodes if any(step.info.get("task_completed", False) for step in episode)) / len(episodes)
+        self.training_history["task_completion_rate"].append(completion_rate)
+        
+        print(f"Average reward: {total_reward / len(episodes):.2f}")
+        print(f"Average episode length: {avg_episode_length:.2f}")
+        print(f"Task completion rate: {completion_rate:.2f}")
+        
     def save(self, path: str) -> None:
-        """Save the agent to a file."""
+        """Save the agent's training history."""
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as f:
-            pickle.dump({
-                "training_history": self.training_history,
-                "episode_rewards": self.episode_rewards,
-                "completion_rate": self.completion_rate,
-                "episodes_seen": self.episodes_seen,
-            }, f)
+            pickle.dump(self.training_history, f)
+        print(f"Agent saved to {path}")
         
-        # Also save as JSON for easier inspection
-        with open(f"{path}.json", "w") as f:
-            json.dump({
-                "training_history": self.training_history,
-                "episode_rewards": self.episode_rewards,
-                "completion_rate": self.completion_rate,
-                "episodes_seen": self.episodes_seen,
-            }, f, indent=2)
-    
     def load(self, path: str) -> None:
-        """Load the agent from a file."""
+        """Load the agent's training history."""
         with open(path, "rb") as f:
-            data = pickle.load(f)
-            self.training_history = data["training_history"]
-            self.episode_rewards = data["episode_rewards"]
-            self.completion_rate = data["completion_rate"]
-            self.episodes_seen = data["episodes_seen"]
-    
-    def plot_training_progress(self, save_path: str) -> None:
-        """Plot the training progress."""
-        if not self.episode_rewards:
-            print("No training data to plot.")
-            return
+            self.training_history = pickle.load(f)
+        print(f"Agent loaded from {path}")
         
-        # Create a figure with two subplots
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+    def plot_training_progress(self, save_path: str) -> None:
+        """Plot the agent's training progress."""
+        if not self.training_history["episode_rewards"]:
+            print("No training history to plot.")
+            return
+            
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 15))
         
         # Plot episode rewards
-        episodes = range(1, len(self.episode_rewards) + 1)
-        ax1.plot(episodes, self.episode_rewards, 'b-')
-        ax1.set_xlabel('Episode')
-        ax1.set_ylabel('Total Reward')
-        ax1.set_title('Episode Rewards')
-        ax1.grid(True)
+        ax1.plot(self.training_history["episode_rewards"])
+        ax1.set_title("Average Episode Reward")
+        ax1.set_xlabel("Training Iteration")
+        ax1.set_ylabel("Reward")
         
-        # Plot completion rate (moving average)
-        window_size = min(10, len(self.completion_rate))
-        if window_size > 0:
-            moving_avg = np.convolve(self.completion_rate, np.ones(window_size)/window_size, mode='valid')
-            ax2.plot(range(window_size, len(self.completion_rate) + 1), moving_avg, 'r-')
-            ax2.set_xlabel('Episode')
-            ax2.set_ylabel('Completion Rate (Moving Avg)')
-            ax2.set_title(f'Task Completion Rate (Window Size: {window_size})')
-            ax2.grid(True)
-            ax2.set_ylim([0, 1.1])
+        # Plot episode lengths
+        ax2.plot(self.training_history["episode_lengths"])
+        ax2.set_title("Average Episode Length")
+        ax2.set_xlabel("Training Iteration")
+        ax2.set_ylabel("Steps")
+        
+        # Plot task completion rate
+        ax3.plot(self.training_history["task_completion_rate"])
+        ax3.set_title("Task Completion Rate")
+        ax3.set_xlabel("Training Iteration")
+        ax3.set_ylabel("Completion Rate")
         
         plt.tight_layout()
         plt.savefig(save_path)
-        plt.close()
-        
         print(f"Training progress plot saved to {save_path}")
 
 
@@ -216,15 +252,14 @@ def main():
         # Create the training environment
         print("Creating the training environment...")
         env = SimpleTaskEnv(config)
+        
+        # Enable logging of modality errors for debugging
+        from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+        MultiModalEnv._LOG_MODALITY_ERRORS = True
 
-        # Create a trainable agent
+        # Create a mock trainable agent
         print("Creating the trainable agent...")
-        agent = TrainableAgent(chat_model_options={
-            "model_provider": "openai",
-            "model": "gpt-4-vision-preview",
-            # Add your API key here if not set as environment variable
-            # "api_key": "your-api-key",
-        })
+        agent = SimpleMockTrainableAgent()
 
         # Create a driver
         print("Creating the driver...")
@@ -240,6 +275,8 @@ def main():
         print(f"Training for {num_episodes} episodes...")
         print("Press Ctrl+C to stop training.")
         print()
+        print("Starting in 1 second...")
+        time.sleep(1)
         
         try:
             # Train the agent

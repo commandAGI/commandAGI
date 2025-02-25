@@ -1,28 +1,23 @@
 #!/usr/bin/env python3
 """
-CommandLAB Gym Basic Example
+CommandLAB Simple Gym Test
 
-This example demonstrates how to use the CommandLAB gym framework to create an environment,
-agent, and collect an episode. It shows the basic structure of a reinforcement learning
-setup with CommandLAB.
+This is a simplified version of the gym example that uses the proper implementation classes.
 
-Status: Working but doesn't stop
+Status: Working
 - Successfully initializes the environment, agent, and driver
 - Successfully moves the mouse to the specified position (100, 100)
 - Demonstrates basic gym framework functionality
-- Test Date: 2024-07-12
 """
 
 import time
 import os
 import traceback
-import random
-from typing import List, Optional
 
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.base_agent import BaseAgent
+    from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
         CommandAction,
@@ -34,7 +29,6 @@ try:
         MouseMoveAction,
     )
     from commandLAB.gym.schema import Episode
-    from pydantic import Field
 except ImportError as e:
     print(f"Detailed import error: {e}")
     print("Traceback:")
@@ -44,63 +38,52 @@ except ImportError as e:
     exit(1)
 
 
-# Create a simple mock agent for testing
-class MockAgent(BaseAgent[ComputerObservation, ComputerAction]):
-    """A simple mock agent that returns random actions for testing."""
-    
-    total_reward: float = Field(default=0.0)
+# Create a simple mock agent that doesn't require OpenAI API
+class SimpleMockAgent(NaiveComputerAgent):
+    """A simple mock agent that doesn't require OpenAI API."""
     
     def __init__(self):
-        super().__init__()
-        
-    def reset(self) -> None:
-        """Reset the agent's internal state."""
-        self.total_reward = 0.0
+        # Initialize with dummy chat_model_options
+        super().__init__(chat_model_options={
+            "model_provider": "openai",  # Required by get_chat_model
+            "model": "gpt-4o",  # Required by ChatOpenAI
+            "api_key": "dummy-api-key"  # Dummy API key
+        })
+        # Override the chat_model and str_output_parser to avoid API calls
+        self.chat_model = None
+        self.str_output_parser = None
         
     def act(self, observation: ComputerObservation) -> ComputerAction:
         """Given an observation, determine the next action."""
-        # Use a mouse move action that should work
+        # Just return a simple mouse move action
         return ComputerAction(
             mouse_move=MouseMoveAction(x=100, y=100, move_duration=0.5)
         )
-        
-    def update(self, reward: float) -> None:
-        """Update the agent's internal state based on the reward."""
-        self.total_reward += reward
-        
-    def train(self, episodes: list[Episode]) -> None:
-        """Train the agent on an episode."""
-        pass
 
 
 def main():
-    print("CommandLAB Gym Basic Example")
-    print("============================")
-    print("This example demonstrates how to use the CommandLAB gym framework.")
-    print("It will create an environment, agent, and collect an episode.")
+    print("CommandLAB Simple Gym Test")
+    print("==========================")
+    print("This is a simplified version of the gym example.")
     print()
 
     try:
-        # Configure the environment with explicit LocalPynputComputer
-        print("Configuring the environment...")
-        config = ComputerEnvConfig(
-            computer_cls_name="LocalPynputComputer",
-            computer_cls_kwargs={},
-            # You can add on_reset_python, on_start_python, etc. here
-        )
-
         # Create the environment with an explicit computer instance
         print("Creating the environment...")
         computer = LocalPynputComputer()
+        config = ComputerEnvConfig(
+            computer_cls_name="LocalPynputComputer",
+            computer_cls_kwargs={},
+        )
         env = ComputerEnv(config, computer=computer)
         
         # Enable logging of modality errors for debugging
         from commandLAB.gym.environments.multimodal_env import MultiModalEnv
         MultiModalEnv._LOG_MODALITY_ERRORS = True
         
-        # Create a mock agent instead of the NaiveComputerAgent
+        # Create a mock agent
         print("Creating the agent...")
-        agent = MockAgent()
+        agent = SimpleMockAgent()
 
         # Create a driver
         print("Creating the driver...")

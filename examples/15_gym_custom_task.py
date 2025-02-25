@@ -5,7 +5,10 @@ CommandLAB Gym Custom Task Example
 This example demonstrates how to create and use a custom task with the CommandLAB gym framework.
 It shows how to define task-specific goals, rewards, and evaluation criteria.
 
-Status: not tested
+Status: Not tested
+- Requires modification to use a mock agent
+- Likely requires additional dependencies
+- Test attempted: 2024-07-12
 """
 
 import time

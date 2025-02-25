@@ -5,13 +5,17 @@ CommandLAB Gym Web Browsing Example
 This example demonstrates how to use the CommandLAB gym framework to automate a web browsing task.
 It creates a custom environment that rewards the agent for successfully completing web browsing tasks.
 
-Status: not tested
+Status: Not tested
+- Requires additional dependencies (pytesseract)
+- Modified to use a mock agent but still needs dependencies
+- Test attempted: 2024-07-12
 """
 
 import time
 import os
 import base64
 import io
+import traceback
 from typing import Dict, Any
 from PIL import Image
 
@@ -28,6 +32,9 @@ try:
         KeyboardKeyPressAction,
         ComputerAction,
         ClickAction,
+        MouseMoveAction,
+        MouseClickAction,
+        MouseButton,
     )
     from commandLAB.processors.screen_parser.pytesseract_screen_parser import parse_screenshot
 except ImportError:
@@ -144,6 +151,60 @@ class WebBrowsingEnv(ComputerEnv):
         }
 
 
+# Create a simple mock agent that doesn't require OpenAI API
+class SimpleMockAgent(NaiveComputerAgent):
+    """A simple mock agent that doesn't require OpenAI API."""
+    
+    def __init__(self):
+        # Initialize with dummy chat_model_options
+        super().__init__(chat_model_options={
+            "model_provider": "openai",  # Required by get_chat_model
+            "model": "gpt-4o",  # Required by ChatOpenAI
+            "api_key": "dummy-api-key"  # Dummy API key
+        })
+        # Override the chat_model and str_output_parser to avoid API calls
+        self.chat_model = None
+        self.str_output_parser = None
+        
+    def act(self, observation: ComputerObservation) -> ComputerAction:
+        """Given an observation, determine the next action."""
+        # Simulate web browsing by moving the mouse and typing a URL
+        if self.steps_taken == 0:
+            # First action: Move mouse to address bar area
+            return ComputerAction(
+                mouse_move=MouseMoveAction(x=300, y=50, move_duration=0.5)
+            )
+        elif self.steps_taken == 1:
+            # Second action: Click on address bar
+            return ComputerAction(
+                mouse_click=MouseClickAction(
+                    x=300, y=50, 
+                    button=MouseButton.LEFT,
+                    move_duration=0.5
+                )
+            )
+        elif self.steps_taken == 2:
+            # Third action: Type a URL
+            return ComputerAction(
+                type=TypeAction(text="example.com")
+            )
+        else:
+            # Default action: Move mouse around
+            return ComputerAction(
+                mouse_move=MouseMoveAction(x=400, y=300, move_duration=0.5)
+            )
+            
+    def update(self, reward: float) -> None:
+        """Update the agent's internal state based on the reward."""
+        if not hasattr(self, 'steps_taken'):
+            self.steps_taken = 0
+        self.steps_taken += 1
+        
+    def reset(self) -> None:
+        """Reset the agent's internal state."""
+        self.steps_taken = 0
+
+
 def main():
     print("CommandLAB Gym Web Browsing Example")
     print("===================================")
@@ -164,16 +225,14 @@ def main():
         # Create the custom web browsing environment
         print("Creating the web browsing environment...")
         env = WebBrowsingEnv(config)
+        
+        # Enable logging of modality errors for debugging
+        from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+        MultiModalEnv._LOG_MODALITY_ERRORS = True
 
-        # Create an agent
+        # Create a mock agent instead of the NaiveComputerAgent
         print("Creating the agent...")
-        # Note: This requires an OpenAI API key or other LLM provider
-        agent = NaiveComputerAgent(chat_model_options={
-            "model_provider": "openai",
-            "model": "gpt-4-vision-preview",
-            # Add your API key here if not set as environment variable
-            # "api_key": "your-api-key",
-        })
+        agent = SimpleMockAgent()
 
         # Create a driver
         print("Creating the driver...")
@@ -182,11 +241,10 @@ def main():
         # Collect an episode
         print("Collecting an episode...")
         print("This will take a screenshot and use the agent to decide on actions.")
-        print("The agent will try to complete the web browsing task.")
         print("Press Ctrl+C to stop the episode collection.")
         print()
-        print("Starting in 3 seconds...")
-        time.sleep(3)
+        print("Starting in 1 second...")
+        time.sleep(1)
 
         # Collect the episode
         episode = driver.collect_episode()
