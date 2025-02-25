@@ -33,7 +33,7 @@ jobs:
         run: |
           poetry config virtualenvs.create true
           poetry config virtualenvs.in-project true
-          poetry install --with docs
+          poetry install --with docs --no-root
       
       - name: Build documentation
         run: |

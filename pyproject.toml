@@ -32,6 +32,11 @@ dependencies = [
     "openai~=1.64",
 ]
 
+[tool.poetry]
+packages = [
+    { include = "commandLAB" }
+]
+
 [tool.poetry.group.dev.dependencies]
 mkdocs-autorefs = "~=1.4"
 mkdocs = "~=1.6"
