@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Generic, List, Optional, Dict, Any
 import numpy as np
 
-from commandLAB.agents.base_agent import BaseAgent
-from commandLAB.gym.collection import Episode, ObsType, ActionType
-from commandLAB.gym.driver import BaseDriver
+from commandLAB.gym.agents.base_agent import BaseAgent
+from commandLAB.gym.schema import Episode, ObsType, ActionType
+from commandLAB.gym.drivers import BaseDriver
 
 
 class BaseTrainer(Generic[ObsType, ActionType], ABC):

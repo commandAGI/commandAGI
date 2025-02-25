@@ -3,7 +3,7 @@ from typing import ClassVar, Dict, Callable, Any, TypeVar, Generic, Optional
 from pydantic import BaseModel, Field
 
 from commandLAB.computers.base_computer import BaseComputer
-from commandLAB.computers.lxde_vnc_docker_computer import LXDEVNCDockerComputer
+from commandLAB.computers.local_pynput_computer import LocalPynputComputer
 from commandLAB.gym.environments.base_env import BaseEnv
 from commandLAB.gym.environments.multimodal_env import MultiModalEnv
 from commandLAB.types import CommandAction, ComputerAction, ComputerObservation
@@ -13,7 +13,7 @@ from rich.console import Console
 class ComputerEnvConfig(BaseModel):
     """Configuration for the computer environment."""
 
-    computer_cls_name: str = LXDEVNCDockerComputer.__name__
+    computer_cls_name: str = LocalPynputComputer.__name__
     computer_cls_kwargs: dict = {}
 
     # NOTE: we might not be able to run this if the daemon is not running

@@ -4,7 +4,7 @@ import re
 from textwrap import dedent
 from typing import List
 
-from commandLAB.agents.base_agent import BaseComputerAgent
+from commandLAB.gym.agents.base_agent import BaseComputerAgent
 from commandLAB.gym.schema import Episode
 from commandLAB.types import (
     ClickAction,
@@ -28,7 +28,7 @@ from commandLAB.types import (
     MouseScrollAction,
     TypeAction,
 )
-from commandLAB.agents._utils.llms import get_chat_model
+from commandLAB.gym._utils.llms import get_chat_model
 from langchain.schema import ChatMessage
 from langchain_core.output_parsers.string import StrOutputParser
 from rich.console import Console
