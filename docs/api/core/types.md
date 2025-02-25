@@ -1,3 +1,0 @@
-# Types
-
-::: commandLAB.types 

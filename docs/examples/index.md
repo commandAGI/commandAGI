@@ -20,3 +20,4 @@ This section contains examples demonstrating various aspects of CommandLAB.
 - [CommandLAB Automating Computer Interactions Example](automating_computer_interactions.md)
 - [CommandLAB Document Editing Example](document_editing.md)
 - [CommandLAB Web Automation Example](using_the_internet.md)
+- [CommandLAB Simple Gym Test](simple_gym_test.md)

@@ -9,103 +9,130 @@ authors = [
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.12,<4"
-dependencies = ["rich==13.9.4", "pydantic==2.10.6", "typer==0.15.1", "azure-mgmt-containerinstance (>=10.1.0,<11.0.0)", "boto3 (>=1.37.0,<2.0.0)", "azure-identity (>=1.20.0,<2.0.0)", "azure-mgmt-compute (>=34.0.0,<35.0.0)", "google-cloud-compute (>=1.26.0,<2.0.0)", "google-cloud-container (>=2.56.0,<3.0.0)", "google-cloud-run (>=0.10.16,<0.11.0)", "docker (>=7.1.0,<8.0.0)", "kubernetes (>=32.0.1,<33.0.0)", "pynput (>=1.7.7,<2.0.0)", "pyautogui (>=0.9.54,<0.10.0)", "mss (>=10.0.0,<11.0.0)", "pillow (>=11.1.0,<12.0.0)", "pytesseract (>=0.3.13,<0.4.0)", "fastapi (>=0.115.8,<0.116.0)", "uvicorn (>=0.34.0,<0.35.0)", "pytest (>=8.3.4,<9.0.0)", "pytest-cov (>=6.0.0,<7.0.0)", "langchain-core (>=0.3.39,<0.4.0)", "langchain (>=0.3.19,<0.4.0)", "langchain-openai (>=0.3.7,<0.4.0)", "langchain-huggingface (>=0.1.2,<0.2.0)", "openai (>=1.64.0,<2.0.0)"]
+dependencies = [
+    "rich~=13.9",
+    "pydantic~=2.10",
+    "typer~=0.15",
+    "boto3~=1.37",
+    "azure-identity~=1.20",
+    "azure-mgmt-compute~=34.0",
+    "azure-mgmt-containerinstance~=10.1",
+    "google-cloud-compute~=1.26",
+    "google-cloud-container~=2.56",
+    "google-cloud-run~=0.10",
+    "docker~=7.1",
+    "kubernetes~=32.0",
+    "pynput~=1.7",
+    "pyautogui~=0.9",
+    "mss~=10.0",
+    "pillow~=11.1",
+    "pytesseract~=0.3",
+    "fastapi~=0.115",
+    "uvicorn~=0.34",
+    "openai~=1.64",
+]
 
 [tool.poetry.group.dev.dependencies]
-mkdocs-autorefs = "^1.3.1"
-mkdocs = "^1.6.1"
-mkdocs-material = "^9.6.5"
-mkdocstrings = { extras = ["python"], version = "^0.28.1" }
-mkdocs-jupyter = "^0.25.1"
-pytest = "^8.3.4"
-black = "^25.1.0"
-isort = "^6.0.0"
-ruff = "^0.9.7"
-pillow = "^11.1.0"
+mkdocs-autorefs = "~=1.4"
+mkdocs = "~=1.6"
+mkdocs-material = "~=9.6"
+mkdocstrings = { extras = ["python"], version = "~=0.28" }
+mkdocs-jupyter = "~=0.25"
+pytest = "~=8.3"
+pytest-cov = "~=6.0"
+black = "~=25.1"
+isort = "~=6.0"
+ruff = "~=0.9"
+pillow = "~=11.1"
 
 
 [project.optional-dependencies]
 # Legacy/existing extras for compatibility
-local = ["pynput==1.7.7", "pyautogui==0.9.54", "mss==10.0.0"]
-vnc = ["vncdotool==1.2.0"]
-docker = ["docker==7.1.0"]
-kubernetes = ["kubernetes==32.0.1"]
-e2b-desktop = ["e2b-desktop==1.0.2"]
-scrapybara = ["scrapybara==2.2.7"]
-langchain = ["langchain==0.3.19"]
-pig = ["pig-python==0.1.1"]
-pytesseract = ["pytesseract==0.3.13"]
-gymnasium = ["gymnasium==1.0.0", "numpy==2.2.3", "pillow==11.1.0"]
+local = ["pynput~=1.7", "pyautogui~=0.9", "mss~=10.0"]
+vnc = ["vncdotool~=1.2"]
+docker = ["docker~=7.1"]
+kubernetes = ["kubernetes~=32.0"]
+e2b-desktop = ["e2b-desktop~=1.0"]
+scrapybara = ["scrapybara~=2.2"]
+langchain = [
+    "langchain-core~=0.3",
+    "langchain~=0.3",
+    "langchain-openai~=0.3",
+    "langchain-huggingface~=0.1",
+]
+pig = ["pig-python~=0.1"]
+pytesseract = ["pytesseract~=0.3"]
+gymnasium = ["gymnasium~=1.0", "numpy~=2.2", "pillow~=11.1", "matplotlib~=3.10"]
 
 # Cloud provider specific daemon clients
 daemon-client-aws = [
     # AWS dependencies
-    "boto3==1.37.0",
+    "boto3~=1.37",
     # base daemon client
-    "requests==2.32.3",
-    "pillow==11.1.0",
+    "requests~=2.32",
+    "pillow~=11.1",
 ]
 
 daemon-client-azure = [
     # Azure dependencies
-    "azure-mgmt-containerinstance==10.1.0",
-    "azure-identity==1.20.0",
+    "azure-mgmt-containerinstance~=10.1",
+    "azure-identity~=1.20",
     # base daemon client
-    "requests==2.32.3",
-    "pillow==11.1.0",
+    "requests~=2.32",
+    "pillow~=11.1",
 ]
 
 daemon-client-gcp = [
     # GCP dependencies
-    "google-cloud-container==2.56.0",
+    "google-cloud-container~=2.56",
     # base daemon client
-    "requests==2.32.3",
-    "pillow==11.1.0",
+    "requests~=2.32",
+    "pillow~=11.1",
 ]
 
 # Docker and Kubernetes daemon clients
 daemon-client-docker = [
     # Include daemon-client dependencies explicitly
-    "requests==2.32.3",
-    "pillow==11.1.0",
+    "requests~=2.32",
+    "pillow~=11.1",
     # Include docker dependencies
-    "docker==7.1.0",
+    "docker~=7.1",
 ]
 
 daemon-client-kubernetes = [
     # Include daemon-client dependencies explicitly
-    "requests==2.32.3",
-    "pillow==11.1.0",
+    "requests~=2.32",
+    "pillow~=11.1",
     # Include kubernetes dependencies
-    "kubernetes==32.0.1",
+    "kubernetes~=32.0",
 ]
 
 # All daemon client capabilities
 daemon-client-all = [
     # AWS dependencies
-    "boto3==1.37.0",
+    "boto3~=1.37",
     # Azure dependencies
-    "azure-mgmt-containerinstance==10.1.0",
-    "azure-identity==1.20.0",
+    "azure-mgmt-containerinstance~=10.1",
+    "azure-identity~=1.20",
     # GCP dependencies
-    "google-cloud-container==2.56.0",
+    "google-cloud-container~=2.56",
     # Docker dependencies
-    "docker==7.1.0",
+    "docker~=7.1",
     # Kubernetes dependencies
-    "kubernetes==32.0.1",
+    "kubernetes~=32.0",
     # Base daemon client
-    "requests==2.32.3",
-    "pillow==11.1.0",
+    "requests~=2.32",
+    "pillow~=11.1",
 ]
 
 # Daemon host dependencies
 daemon-host = [
-    "fastapi==0.115.8",
-    "uvicorn==0.34.0",
+    "fastapi~=0.115",
+    "uvicorn~=0.34",
     # Local dependencies
-    "pynput==1.7.7",
-    "pyautogui==0.9.54",
-    "mss==10.0.0",
+    "pynput~=1.7",
+    "pyautogui~=0.9",
+    "mss~=10.0",
 ]
 
 
