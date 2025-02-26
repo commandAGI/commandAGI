@@ -11,9 +11,10 @@ try:
     from pynput.keyboard import Key as PynputKey
     from pynput.keyboard import KeyCode as PynputKeyCode
     from pynput.mouse import Button as PynputButton
+    from PIL import Image
 except ImportError:
     raise ImportError(
-        "pynput is not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
+        "The local dependencies are not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
     )
 
 from commandLAB.computers.base_computer import BaseComputer
@@ -35,7 +36,6 @@ from commandLAB.types import (
     TypeAction,
     ComputerObservation,
 )
-from PIL import Image
 
 
 # Pynput-specific mappings

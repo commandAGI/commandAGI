@@ -7,7 +7,7 @@ try:
     from PIL import Image
 except ImportError:
     raise ImportError(
-        "pig-python and Pillow are not installed. Please install commandLAB with the pigdev extra:\n\npip install commandLAB[pigdev]"
+        "The PigDev dependencies are not installed. Please install commandLAB with the pigdev extra:\n\npip install commandLAB[pigdev]"
     )
 
 from commandLAB.computers.base_computer import BaseComputer

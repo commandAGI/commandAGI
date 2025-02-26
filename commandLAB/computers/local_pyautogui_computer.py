@@ -8,12 +8,12 @@ from typing import Union, Optional
 try:
     import mss
     import pyautogui
+    from PIL import Image
 except ImportError:
     raise ImportError(
-        "pyautogui is not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
+        "The local dependencies are not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
     )
 
-from PIL import Image
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
     CommandAction,

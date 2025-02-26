@@ -26,36 +26,41 @@ from commandLAB.types import (
 from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
 
 # Import the proper client classes
-from commandLAB.daemon.client import AuthenticatedClient
-from commandLAB.daemon.client.api.default.execute_command_execute_command_post import sync as execute_command_sync
-from commandLAB.daemon.client.api.default.execute_keyboard_key_down_execute_keyboard_key_down_post import sync as execute_keyboard_key_down_sync
-from commandLAB.daemon.client.api.default.execute_keyboard_key_release_execute_keyboard_key_release_post import sync as execute_keyboard_key_release_sync
-from commandLAB.daemon.client.api.default.execute_keyboard_key_press_execute_keyboard_key_press_post import sync as execute_keyboard_key_press_sync
-from commandLAB.daemon.client.api.default.execute_keyboard_hotkey_execute_keyboard_hotkey_post import sync as execute_keyboard_hotkey_sync
-from commandLAB.daemon.client.api.default.execute_type_execute_type_post import sync as execute_type_sync
-from commandLAB.daemon.client.api.default.execute_mouse_move_execute_mouse_move_post import sync as execute_mouse_move_sync
-from commandLAB.daemon.client.api.default.execute_mouse_scroll_execute_mouse_scroll_post import sync as execute_mouse_scroll_sync
-from commandLAB.daemon.client.api.default.execute_mouse_button_down_execute_mouse_button_down_post import sync as execute_mouse_button_down_sync
-from commandLAB.daemon.client.api.default.execute_mouse_button_up_execute_mouse_button_up_post import sync as execute_mouse_button_up_sync
-from commandLAB.daemon.client.api.default.get_observation_observation_get import sync as get_observation_sync
-from commandLAB.daemon.client.api.default.get_screenshot_observation_screenshot_get import sync as get_screenshot_sync
-from commandLAB.daemon.client.api.default.get_mouse_state_observation_mouse_state_get import sync as get_mouse_state_sync
-from commandLAB.daemon.client.api.default.get_keyboard_state_observation_keyboard_state_get import sync as get_keyboard_state_sync
-from commandLAB.daemon.client.api.default.reset_reset_post import sync as reset_sync
-from commandLAB.daemon.client.models import (
-    CommandAction as ClientCommandAction,
-    KeyboardKeyDownAction as ClientKeyboardKeyDownAction,
-    KeyboardKeyReleaseAction as ClientKeyboardKeyReleaseAction,
-    KeyboardKeyPressAction as ClientKeyboardKeyPressAction,
-    KeyboardHotkeyAction as ClientKeyboardHotkeyAction,
-    TypeAction as ClientTypeAction,
-    MouseMoveAction as ClientMouseMoveAction,
-    MouseScrollAction as ClientMouseScrollAction,
-    MouseButtonDownAction as ClientMouseButtonDownAction,
-    MouseButtonUpAction as ClientMouseButtonUpAction,
-    KeyboardKey as ClientKeyboardKey,
-    MouseButton as ClientMouseButton,
-)
+try:
+    from commandLAB.daemon.client import AuthenticatedClient
+    from commandLAB.daemon.client.api.default.execute_command_execute_command_post import sync as execute_command_sync
+    from commandLAB.daemon.client.api.default.execute_keyboard_key_down_execute_keyboard_key_down_post import sync as execute_keyboard_key_down_sync
+    from commandLAB.daemon.client.api.default.execute_keyboard_key_release_execute_keyboard_key_release_post import sync as execute_keyboard_key_release_sync
+    from commandLAB.daemon.client.api.default.execute_keyboard_key_press_execute_keyboard_key_press_post import sync as execute_keyboard_key_press_sync
+    from commandLAB.daemon.client.api.default.execute_keyboard_hotkey_execute_keyboard_hotkey_post import sync as execute_keyboard_hotkey_sync
+    from commandLAB.daemon.client.api.default.execute_type_execute_type_post import sync as execute_type_sync
+    from commandLAB.daemon.client.api.default.execute_mouse_move_execute_mouse_move_post import sync as execute_mouse_move_sync
+    from commandLAB.daemon.client.api.default.execute_mouse_scroll_execute_mouse_scroll_post import sync as execute_mouse_scroll_sync
+    from commandLAB.daemon.client.api.default.execute_mouse_button_down_execute_mouse_button_down_post import sync as execute_mouse_button_down_sync
+    from commandLAB.daemon.client.api.default.execute_mouse_button_up_execute_mouse_button_up_post import sync as execute_mouse_button_up_sync
+    from commandLAB.daemon.client.api.default.get_observation_observation_get import sync as get_observation_sync
+    from commandLAB.daemon.client.api.default.get_screenshot_observation_screenshot_get import sync as get_screenshot_sync
+    from commandLAB.daemon.client.api.default.get_mouse_state_observation_mouse_state_get import sync as get_mouse_state_sync
+    from commandLAB.daemon.client.api.default.get_keyboard_state_observation_keyboard_state_get import sync as get_keyboard_state_sync
+    from commandLAB.daemon.client.api.default.reset_reset_post import sync as reset_sync
+    from commandLAB.daemon.client.models import (
+        CommandAction as ClientCommandAction,
+        KeyboardKeyDownAction as ClientKeyboardKeyDownAction,
+        KeyboardKeyReleaseAction as ClientKeyboardKeyReleaseAction,
+        KeyboardKeyPressAction as ClientKeyboardKeyPressAction,
+        KeyboardHotkeyAction as ClientKeyboardHotkeyAction,
+        TypeAction as ClientTypeAction,
+        MouseMoveAction as ClientMouseMoveAction,
+        MouseScrollAction as ClientMouseScrollAction,
+        MouseButtonDownAction as ClientMouseButtonDownAction,
+        MouseButtonUpAction as ClientMouseButtonUpAction,
+        KeyboardKey as ClientKeyboardKey,
+        MouseButton as ClientMouseButton,
+    )
+except ImportError:
+    raise ImportError(
+        "commandLAB daemon client is not installed. Please install commandLAB with the daemon extra:\n\npip install commandLAB[daemon-client-all] (or one of the other `daemon-client-*` extras)"
+    )
 
 # Daemon client-specific mappings
 def keyboard_key_to_daemon(key: Union[KeyboardKey, str]) -> ClientKeyboardKey:

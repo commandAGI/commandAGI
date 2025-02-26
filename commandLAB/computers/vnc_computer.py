@@ -7,7 +7,7 @@ try:
     from PIL import Image
 except ImportError:
     raise ImportError(
-        "vncdotool and Pillow are not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]"
+        "The VNC dependencies are not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]"
     )
 
 from commandLAB.computers.base_computer import BaseComputer

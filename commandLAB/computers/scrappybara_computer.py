@@ -7,7 +7,7 @@ try:
     from PIL import Image
 except ImportError:
     raise ImportError(
-        "scrapybara and Pillow are not installed. Please install commandLAB with the scrapybara extra:\n\npip install commandLAB[scrapybara]"
+        "The Scrapybara dependencies are not installed. Please install commandLAB with the scrapybara extra:\n\npip install commandLAB[scrapybara]"
     )
 
 from commandLAB.computers.base_computer import BaseComputer
