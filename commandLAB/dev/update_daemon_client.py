@@ -38,6 +38,7 @@ def generate_openapi_client():
             [
                 "openapi-python-client",
                 "generate",
+                "--overwrite",
                 "--url",
                 "http://localhost:8000/openapi.json",
                 "--meta",

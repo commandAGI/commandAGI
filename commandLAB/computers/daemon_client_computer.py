@@ -35,6 +35,9 @@ from commandLAB.daemon.client.api.default.execute_mouse_scroll_execute_mouse_scr
 from commandLAB.daemon.client.api.default.execute_mouse_button_down_execute_mouse_button_down_post import sync as execute_mouse_button_down_sync
 from commandLAB.daemon.client.api.default.execute_mouse_button_up_execute_mouse_button_up_post import sync as execute_mouse_button_up_sync
 from commandLAB.daemon.client.api.default.get_observation_observation_get import sync as get_observation_sync
+from commandLAB.daemon.client.api.default.get_screenshot_observation_screenshot_get import sync as get_screenshot_sync
+from commandLAB.daemon.client.api.default.get_mouse_state_observation_mouse_state_get import sync as get_mouse_state_sync
+from commandLAB.daemon.client.api.default.get_keyboard_state_observation_keyboard_state_get import sync as get_keyboard_state_sync
 from commandLAB.daemon.client.api.default.reset_reset_post import sync as reset_sync
 from commandLAB.daemon.client.models import (
     CommandAction as ClientCommandAction,
@@ -51,51 +54,6 @@ from commandLAB.daemon.client.models import (
     MouseButton,
 )
 
-# Just directly pas the provisioning method to the DaemonClientComputer
-# class ProvisioningMethod(str, Enum):
-#     DOCKER = "docker"
-#     KUBERNETES = "kubernetes"
-#     AWS = "aws"
-#     AZURE = "azure"
-#     GCP = "gcp"
-#     MANUAL = "manual"
-#     def get_provisioner_cls(self) -> type[BaseComputerProvisioner]:
-#         """Return the appropriate provisioner class based on the provisioning method"""
-#         match self:
-#             case ProvisioningMethod.MANUAL:
-#                 from commandLAB.computers.provisioners.manual_provisioner import (
-#                     ManualProvisioner,
-#                 )
-#                 return ManualProvisioner
-#             case ProvisioningMethod.DOCKER:
-#                 from commandLAB.computers.provisioners.docker_provisioner import (
-#                     DockerProvisioner,
-#                 )
-#                 return DockerProvisioner
-#             case ProvisioningMethod.KUBERNETES:
-#                 from commandLAB.computers.provisioners.kubernetes_provisioner import (
-#                     KubernetesProvisioner,
-#                 )
-#                 return KubernetesProvisioner
-#             case ProvisioningMethod.AWS:
-#                 from commandLAB.computers.provisioners.aws_provisioner import (
-#                     AWSProvisioner,
-#                 )
-#                 return AWSProvisioner
-#             case ProvisioningMethod.AZURE:
-#                 from commandLAB.computers.provisioners.azure_provisioner import (
-#                     AzureProvisioner,
-#                 )
-#                 return AzureProvisioner
-#             case ProvisioningMethod.GCP:
-#                 from commandLAB.computers.provisioners.gcp_provisioner import (
-#                     GCPProvisioner,
-#                 )
-#                 return GCPProvisioner
-#             case _:
-#                 raise ImportError(f"No provisioner found for {self}")
-
-
 class DaemonClientComputer(BaseComputer):
     provisioner: Optional[BaseComputerProvisioner] = None
     client: Optional[AuthenticatedClient] = None
@@ -104,13 +62,19 @@ class DaemonClientComputer(BaseComputer):
 
     def __init__(
         self,
+        daemon_base_url: str,
+        daemon_port: int,
+        daemon_token: str,
         provisioner: BaseComputerProvisioner,
     ):
         super().__init__()
 
         # Store the provisioner
         self.provisioner = provisioner
-            
+        self.daemon_base_url = daemon_base_url
+        self.daemon_port = daemon_port
+        self.daemon_token = daemon_token
+
         # Setup the provisioner
         self.provisioner.setup()
 
@@ -141,27 +105,32 @@ class DaemonClientComputer(BaseComputer):
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Get a screenshot of the computer"""
-        observation = self.get_observation()
-        # Parse the observation data into a ScreenshotObservation
-        # This assumes the observation endpoint returns screenshot data
-        if "screenshot" in observation:
-            return ScreenshotObservation(**observation["screenshot"])
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        response = get_screenshot_sync(client=self.client)
+        if response:
+            return ScreenshotObservation(**response)
         return ScreenshotObservation()
 
     def get_mouse_state(self) -> MouseStateObservation:
         """Get the current mouse state"""
-        observation = self.get_observation()
-        # Extract mouse state from observation
-        if "mouse" in observation:
-            return MouseStateObservation(**observation["mouse"])
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        response = get_mouse_state_sync(client=self.client)
+        if response:
+            return MouseStateObservation(**response)
         return MouseStateObservation()
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
         """Get the current keyboard state"""
-        observation = self.get_observation()
-        # Extract keyboard state from observation
-        if "keyboard" in observation:
-            return KeyboardStateObservation(**observation["keyboard"])
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        response = get_keyboard_state_sync(client=self.client)
+        if response:
+            return KeyboardStateObservation(**response)
         return KeyboardStateObservation()
 
     def execute_command(self, action: CommandAction) -> bool:
