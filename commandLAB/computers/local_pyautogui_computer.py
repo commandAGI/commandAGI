@@ -39,17 +39,18 @@ class LocalPyAutoGUIComputer(BaseComputer):
 
     def _start(self):
         """Start the local computer environment."""
-        if not hasattr(self, '_sct') or self._sct is None:
+        if not self._sct:
             self._sct = mss.mss()
-        self._temp_dir = tempfile.mkdtemp()
+        if not self._temp_dir:
+            self._temp_dir = tempfile.mkdtemp()
         return True
 
     def _stop(self):
         """Stop the local computer environment."""
-        if hasattr(self, '_sct') and self._sct is not None:
+        if self._sct:
             self._sct.close()
             self._sct = None
-        if self._temp_dir is not None:
+        if self._temp_dir:
             self._temp_dir = None
         return True
 

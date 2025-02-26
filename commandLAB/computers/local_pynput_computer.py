@@ -37,8 +37,8 @@ from PIL import Image
 class LocalPynputComputer(BaseComputer):
     def __init__(self):
         super().__init__()
-        self._sct = mss.mss()
-        self._temp_dir = tempfile.mkdtemp()
+        self._sct = None
+        self._temp_dir = None
 
         # These will hold the listener objects and controllers
         self._keyboard_listener = None
@@ -57,8 +57,10 @@ class LocalPynputComputer(BaseComputer):
 
     def _start(self):
         """Start the local computer environment with pynput listeners."""
-        if not hasattr(self, '_sct') or self._sct is None:
+        if not self._sct:
             self._sct = mss.mss()
+        if not self._temp_dir:
+            self._temp_dir = tempfile.mkdtemp()
             
         # Start the keyboard listener if not already running
         if self._keyboard_listener is None or not self._keyboard_listener.running:
@@ -81,9 +83,11 @@ class LocalPynputComputer(BaseComputer):
 
     def _stop(self):
         """Stop the local computer environment and pynput listeners."""
-        if hasattr(self, '_sct') and self._sct is not None:
+        if self._sct:
             self._sct.close()
             self._sct = None
+        if self._temp_dir:
+            self._temp_dir = None
             
         if self._keyboard_listener:
             self._keyboard_listener.stop()
