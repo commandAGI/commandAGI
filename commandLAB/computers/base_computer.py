@@ -1,5 +1,6 @@
 import time
 from abc import abstractmethod
+from typing import Literal
 
 from commandLAB.types import (
     ClickAction,
@@ -31,6 +32,22 @@ from pydantic import BaseModel
 
 
 class BaseComputer(BaseModel):
+
+    _state: Literal["stopped", "started"] = "stopped"
+
+    def start(self):
+        """Start the computer."""
+        raise NotImplementedError(f"{self.__class__.__name__}.start")
+
+    def stop(self):
+        """Stop the computer."""
+        raise NotImplementedError(f"{self.__class__.__name__}.stop")
+
+    def reset_state(self):
+        """Reset the computer state."""
+        self.stop()
+        self.start()
+
     def get_screenshot(self, display_id: int = 0) -> ScreenshotObservation:
         """Return a ScreenshotObservation containing the screenshot encoded as a base64 string.
         

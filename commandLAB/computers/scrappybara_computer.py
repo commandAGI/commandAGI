@@ -40,29 +40,32 @@ class ScrapybaraComputer(BaseComputer):
         super().__init__()
         self.api_key = api_key
         self.client = None
-        self._connect()
+        self.start()
 
-    def _connect(self):
-        """Connect to the Scrapybara service - to be implemented by subclasses"""
-        if self.api_key:
-            scrapybara.api_key = self.api_key
+    def start(self):
+        """Start the Scrapybara environment."""
+        if not self.client:
+            if self.api_key:
+                scrapybara.api_key = self.api_key
+            # Note: Actual client initialization should be done in subclasses
+        return True
 
-    def reset(self):
-        """Reset the Scrapybara environment and return initial observation"""
-        self.close()
-        self._connect()
-        return self.get_observation()
-
-    def close(self):
-        """Clean up resources - to be implemented by subclasses"""
+    def stop(self):
+        """Stop the Scrapybara environment."""
         if self.client:
             self.client.stop()
             self.client = None
+        return True
+
+    def reset_state(self):
+        """Reset the Scrapybara environment"""
+        self.stop()
+        self.start()
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         if not self.client:
-            self._connect()
+            self.start()
             
         # Capture the screenshot using Scrapybara
         screenshot_data = self.client.screenshot().base_64_image
@@ -227,10 +230,13 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key=api_key)
 
-    def _connect(self):
+    def start(self):
         """Connect to the Scrapybara Ubuntu service"""
-        super()._connect()
-        self.client = scrapybara.client.start_ubuntu()
+        if not self.client:
+            if self.api_key:
+                scrapybara.api_key = self.api_key
+            self.client = scrapybara.client.start_ubuntu()
+        return True
         
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the Ubuntu environment using bash."""
@@ -258,10 +264,13 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key=api_key)
 
-    def _connect(self):
+    def start(self):
         """Connect to the Scrapybara Browser service"""
-        super()._connect()
-        self.client = scrapybara.client.start_browser()
+        if not self.client:
+            if self.api_key:
+                scrapybara.api_key = self.api_key
+            self.client = scrapybara.client.start_browser()
+        return True
         
     def get_cdp_url(self) -> str:
         """Get the Playwright CDP URL."""
@@ -306,10 +315,13 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key=api_key)
 
-    def _connect(self):
+    def start(self):
         """Connect to the Scrapybara Windows service"""
-        super()._connect()
-        self.client = scrapybara.client.start_windows()
+        if not self.client:
+            if self.api_key:
+                scrapybara.api_key = self.api_key
+            self.client = scrapybara.client.start_windows()
+        return True
         
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the Windows environment."""

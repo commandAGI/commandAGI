@@ -91,19 +91,33 @@ class DaemonClientComputer(BaseComputer):
         )
         self.logger.info(f"Successfully connected to daemon services")
 
-    def close(self):
-        """Cleanup resources when the object is destroyed"""
-        self.logger.info("Shutting down MCP and FastAPI daemon services")
-        self.provisioner.teardown()
-        self.logger.info("MCP and FastAPI daemon services successfully stopped")
+    def start(self):
+        """Start the daemon services"""
+        if not self.client:
+            self.logger.info(f"Starting MCP and FastAPI daemon services at {self.daemon_base_url}:{self.daemon_port}")
+            self.provisioner.setup()
+            
+            # Create the authenticated client
+            self.client = AuthenticatedClient(
+                base_url=f"{self.daemon_base_url}:{self.daemon_port}",
+                token=self.daemon_token
+            )
+            self.logger.info(f"Successfully connected to daemon services")
+        return True
 
-    def reset(self) -> bool:
-        """Reset the computer state"""
+    def stop(self):
+        """Stop the daemon services"""
         if self.client:
-            self.logger.debug("Resetting computer state")
-            result = reset_sync(client=self.client)
-            return result is not None and result.get("success", False)
-        return False
+            self.logger.info("Shutting down MCP and FastAPI daemon services")
+            self.provisioner.teardown()
+            self.client = None
+            self.logger.info("MCP and FastAPI daemon services successfully stopped")
+        return True
+
+    def reset_state(self) -> bool:
+        """Reset the computer state"""
+        # If the client reset failed, fall back to the default implementation
+        return super().reset_state()
 
     def get_observation(self) -> Dict[str, Any]:
         """Get a complete observation of the computer state"""

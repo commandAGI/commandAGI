@@ -31,12 +31,25 @@ class E2BDesktopComputer(BaseComputer):
 
     def __init__(self, video_stream=False):
         super().__init__()
+        self.video_stream = video_stream
         self.desktop = Sandbox(video_stream=video_stream)
 
-    def reset(self):
+    def start(self):
+        """Start the E2B desktop environment."""
+        if not hasattr(self, 'desktop') or self.desktop is None:
+            self.desktop = Sandbox(video_stream=self.video_stream)
+        return True
+
+    def stop(self):
+        """Stop the E2B desktop environment."""
+        if hasattr(self, 'desktop') and self.desktop is not None:
+            self.desktop = None  # E2B sandbox automatically closes when object is destroyed
+        return True
+
+    def reset_state(self):
         """Reset the desktop environment and return initial observation"""
-        self.desktop.hotkey("win", "d")  # Show desktop
-        return self.get_observation()
+        # Show desktop to reset the environment state
+        self.desktop.hotkey("win", "d")
 
     def step(self, action):
         """Execute action and return (observation, reward, done, info)"""
@@ -48,10 +61,6 @@ class E2BDesktopComputer(BaseComputer):
         info = {"action_success": success}
 
         return observation, reward, done, info
-
-    def close(self):
-        """Clean up resources"""
-        self.desktop = None  # E2B sandbox automatically closes when object is destroyed
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""

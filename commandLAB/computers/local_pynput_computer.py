@@ -55,15 +55,12 @@ class LocalPynputComputer(BaseComputer):
         }
         self._mouse_pos = (0, 0)
 
-    def reset(self):
-        """Reset environment, initialize pynput listener threads, and return the initial observation."""
-        # Use keyboard hotkey to simulate Win+D
-        self.execute_keyboard_hotkey(
-            KeyboardHotkeyAction(keys=[KeyboardKey.META, KeyboardKey.D])
-        )
-        time.sleep(1)  # Give Windows time to minimize
-
-        # Start the keyboard listener if not already running.
+    def start(self):
+        """Start the local computer environment with pynput listeners."""
+        if not hasattr(self, '_sct') or self._sct is None:
+            self._sct = mss.mss()
+            
+        # Start the keyboard listener if not already running
         if self._keyboard_listener is None or not self._keyboard_listener.running:
             self._keyboard_listener = keyboard.Listener(
                 on_press=self._on_keyboard_press,
@@ -71,7 +68,7 @@ class LocalPynputComputer(BaseComputer):
             )
             self._keyboard_listener.start()
 
-        # Start the mouse listener if not already running.
+        # Start the mouse listener if not already running
         if self._mouse_listener is None or not self._mouse_listener.running:
             self._mouse_listener = mouse.Listener(
                 on_move=self._on_mouse_move,
@@ -79,16 +76,35 @@ class LocalPynputComputer(BaseComputer):
                 on_scroll=self._on_mouse_scroll,
             )
             self._mouse_listener.start()
+            
+        return True
 
-        return self.get_observation()
-
-    def close(self):
-        """Clean up resources, including stopping pynput listeners."""
-        self._sct.close()
+    def stop(self):
+        """Stop the local computer environment and pynput listeners."""
+        if hasattr(self, '_sct') and self._sct is not None:
+            self._sct.close()
+            self._sct = None
+            
         if self._keyboard_listener:
             self._keyboard_listener.stop()
+            self._keyboard_listener = None
+            
         if self._mouse_listener:
             self._mouse_listener.stop()
+            self._mouse_listener = None
+            
+        return True
+
+    def reset_state(self):
+        """Reset environment, initialize pynput listener threads, and return the initial observation."""
+        # Use keyboard hotkey to simulate Win+D
+        self.execute_keyboard_hotkey(
+            KeyboardHotkeyAction(keys=[KeyboardKey.META, KeyboardKey.D])
+        )
+        time.sleep(1)  # Give Windows time to minimize
+
+        # Make sure listeners are running
+        self.start()
 
     def _on_keyboard_press(self, key):
         """Callback for when a key is pressed."""

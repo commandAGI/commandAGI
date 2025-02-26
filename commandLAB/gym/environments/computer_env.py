@@ -100,7 +100,7 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
                     timeout=self.config.on_reset_timeout,
                 )
             )
-        return self._computer.reset()
+        return self._computer.reset_state()
 
     def close(self):
         if self.config.on_stop_python:

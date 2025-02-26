@@ -37,30 +37,31 @@ class VNCComputer(BaseComputer):
         self.port = port
         self.password = password
         self.client = None
-        self._connect()
+        self.start()
 
-    def _connect(self):
-        """Connect to the VNC server"""
-        connection_string = f"{self.host}::{self.port}"
-        self.client = vnc.connect(connection_string, password=self.password)
+    def start(self):
+        """Start the VNC connection."""
+        if not self.client:
+            connection_string = f"{self.host}::{self.port}"
+            self.client = vnc.connect(connection_string, password=self.password)
+        return True
 
-    def reset(self):
-        """Reset the VNC connection and return initial observation"""
-        if self.client:
-            self.client.disconnect()
-        self._connect()
-        return self.get_observation()
-
-    def close(self):
-        """Clean up resources"""
+    def stop(self):
+        """Stop the VNC connection."""
         if self.client:
             self.client.disconnect()
             self.client = None
+        return True
+
+    def reset_state(self):
+        """Reset the VNC connection"""
+        self.stop()
+        self.start()
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         if not self.client:
-            self._connect()
+            self.start()
             
         # Capture the screenshot using vncdotool
         png_data = self.client.capture()

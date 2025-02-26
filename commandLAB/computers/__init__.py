@@ -27,10 +27,36 @@ try:
 except ImportError:
     pass
 
+try:
+    from commandLAB.computers.vnc_computer import VNCComputer
+except ImportError:
+    pass
+
+try:
+    from commandLAB.computers.pigdev_computer import PigDevComputer
+except ImportError:
+    pass
+
+try:
+    from commandLAB.computers.scrappybara_computer import (
+        ScrapybaraComputer,
+        UbuntuScrapybaraComputer,
+        BrowserScrapybaraComputer,
+        WindowsScrapybaraComputer,
+    )
+except ImportError:
+    pass
+
 __all__ = [
     "BaseComputer",
     "LocalPynputComputer",
     "LocalPyAutoGUIComputer",
     "E2BDesktopComputer",
     "DaemonClientComputer",
+    "VNCComputer",
+    "PigDevComputer",
+    "ScrapybaraComputer",
+    "UbuntuScrapybaraComputer",
+    "BrowserScrapybaraComputer",
+    "WindowsScrapybaraComputer",
 ] 

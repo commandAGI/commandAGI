@@ -101,7 +101,7 @@ class ComputerDaemon:
 
         @app.post("/reset")
         async def reset(token: str = Depends(verify_token)):
-            return self._computer.reset()
+            return self._computer.reset_state()
 
         @app.post("/execute/command")
         async def execute_command(
@@ -683,7 +683,7 @@ class ComputerDaemon:
         @mcp.tool()
         def reset_computer() -> dict:
             """Reset the computer state"""
-            return self._computer.reset()
+            return self._computer.reset_state()
         
         return mcp
 

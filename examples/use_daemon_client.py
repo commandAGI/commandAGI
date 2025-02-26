@@ -89,7 +89,7 @@ def main():
         
         # Example 8: Reset the computer state
         print("\nExample 8: Resetting computer state...")
-        reset_result = computer.reset()
+        reset_result = computer.reset_state()
         print(f"Reset completed: {reset_result}")
         
     finally:

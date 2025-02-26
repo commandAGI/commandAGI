@@ -34,19 +34,30 @@ from commandLAB.types import (
 class LocalPyAutoGUIComputer(BaseComputer):
     def __init__(self):
         super().__init__()
-        self._sct = mss.mss()
-        self._temp_dir = tempfile.mkdtemp()
+        self._sct = None
+        self._temp_dir = None
 
-    def reset(self):
+    def start(self):
+        """Start the local computer environment."""
+        if not hasattr(self, '_sct') or self._sct is None:
+            self._sct = mss.mss()
+        self._temp_dir = tempfile.mkdtemp()
+        return True
+
+    def stop(self):
+        """Stop the local computer environment."""
+        if hasattr(self, '_sct') and self._sct is not None:
+            self._sct.close()
+            self._sct = None
+        if self._temp_dir is not None:
+            self._temp_dir = None
+        return True
+
+    def reset_state(self):
         """Reset environment and return initial observation"""
+        # Show desktop to reset the environment state
         pyautogui.hotkey("win", "d")
         time.sleep(1)  # Give windows time to minimize
-
-        return self.get_observation()
-
-    def close(self):
-        """Clean up resources"""
-        self._sct.close()
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""

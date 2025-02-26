@@ -40,32 +40,35 @@ class PigDevComputer(BaseComputer):
         super().__init__()
         self.api_key = api_key
         self.client = None
-        self._connect()
+        self.start()
 
-    def _connect(self):
-        """Connect to the PigDev service"""
-        if self.api_key:
-            pig.api_key = self.api_key
-        self.client = pig.VM()
-        self.client.start()
+    def start(self):
+        """Start the PigDev environment."""
+        if not self.client:
+            if self.api_key:
+                pig.api_key = self.api_key
+            self.client = pig.VM()
+            self.client.start()
+        return True
 
-    def reset(self):
-        """Reset the PigDev environment and return initial observation"""
-        if self.client:
-            self.client.stop()
-        self._connect()
-        return self.get_observation()
-
-    def close(self):
-        """Clean up resources"""
+    def stop(self):
+        """Stop the PigDev environment."""
         if self.client:
             self.client.stop()
             self.client = None
+        return True
+
+    def reset_state(self):
+        """Reset the PigDev environment"""
+        # For PigDev, it's more efficient to stop and restart the VM
+        # than to try to reset the desktop state
+        self.stop()
+        self.start()
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         if not self.client:
-            self._connect()
+            self.start()
             
         # Capture the screenshot using PigDev
         screenshot = self.client.screenshot()
