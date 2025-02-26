@@ -44,6 +44,19 @@ API Token: abcdef1234567890abcdef1234567890
 
 Make note of this token, as you'll need it to authenticate with the daemon.
 
+### Configuring VNC and RDP Options
+
+The daemon includes built-in support for starting and stopping VNC and RDP servers, which can be useful for remote viewing and control. You can configure these options when starting the daemon:
+
+```bash
+python -m commandLAB.daemon.cli start --port 8000 --backend pynput \
+    --vnc-windows-executables-str "ultravnc.exe,tightvnc.exe" \
+    --vnc-unix-executables-str "tigervnc,x11vnc" \
+    --rdp-use-system-commands true
+```
+
+For more detailed configuration options, see the [VNC/RDP Configuration Tutorial](../advanced/vnc-rdp-configuration.md).
+
 ## Step 2: Connect to the Daemon from the Controller Machine
 
 Now, on the controller machine, you can connect to the daemon using the `DaemonClientComputer` class:
@@ -101,7 +114,36 @@ else:
     print("Command failed")
 ```
 
-## Step 5: Clean Up
+## Step 5: Using VNC and RDP for Remote Viewing
+
+In addition to programmatic control, you can use VNC and RDP for remote viewing and interactive control:
+
+```python
+from commandLAB.computers.daemon_client_computer import DaemonClientComputer
+
+# Connect to the daemon
+computer = DaemonClientComputer(
+    daemon_base_url="http://target-machine-ip",
+    daemon_port=8000,
+    daemon_token="your-api-token"
+)
+
+# Start a VNC server on the remote machine
+result = computer.client.vnc_start_vnc_server()
+print(f"VNC server started: {result.success}, Message: {result.message}")
+
+# When done, stop the VNC server
+computer.client.vnc_stop_vnc_server()
+
+# For Windows machines, you can also start/stop RDP
+result = computer.client.rdp_start_rdp_server()
+print(f"RDP server started: {result.success}, Message: {result.message}")
+computer.client.rdp_stop_rdp_server()
+```
+
+Once the VNC or RDP server is running, you can connect to it using any VNC or RDP client.
+
+## Step 6: Clean Up
 
 When you're done, make sure to close the connection:
 

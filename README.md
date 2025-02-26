@@ -68,6 +68,9 @@ poetry add commandLAB[docker]
 
 # For Kubernetes support
 poetry add commandLAB[kubernetes]
+
+# For daemon support
+poetry add commandLAB[daemon]
 ```
 
 ## Quick Start
@@ -83,6 +86,40 @@ agent = Agent()
 # Run a simple desktop automation task
 agent.execute("open_browser")
 ```
+
+### Using the Daemon
+
+CommandLAB includes a daemon server that allows remote control of computers:
+
+```python
+from commandLAB.daemon.server import ComputerDaemon
+from commandLAB.computers.local_pynput_computer import LocalPynputComputer
+
+# Create a computer instance
+computer = LocalPynputComputer()
+
+# Create a daemon with default settings
+daemon = ComputerDaemon(computer=computer)
+
+# Or with custom VNC and RDP configurations
+daemon = ComputerDaemon(
+    computer=computer,
+    vnc_windows_executables=["ultravnc.exe", "tightvnc.exe"],
+    vnc_unix_executables=["tigervnc", "x11vnc"],
+    rdp_use_system_commands=True
+)
+
+# Start the daemon server
+daemon.start_server(host="0.0.0.0", port=8000)
+```
+
+You can also start the daemon from the command line:
+
+```bash
+python -m commandLAB.daemon.cli start --port 8000
+```
+
+For more details on configuring VNC and RDP options, see the [VNC/RDP Configuration Tutorial](docs/tutorials/advanced/vnc-rdp-configuration.md).
 
 ## Development
 

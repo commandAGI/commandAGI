@@ -51,98 +51,68 @@ from commandLAB.daemon.client.models import (
     MouseButton,
 )
 
-
-class ProvisioningMethod(str, Enum):
-    DOCKER = "docker"
-    KUBERNETES = "kubernetes"
-    AWS = "aws"
-    AZURE = "azure"
-    GCP = "gcp"
-    MANUAL = "manual"
-
-    def get_provisioner_cls(self) -> type[BaseComputerProvisioner]:
-        """Return the appropriate provisioner class based on the provisioning method"""
-        match self:
-            case ProvisioningMethod.MANUAL:
-                from commandLAB.computers.provisioners.manual_provisioner import (
-                    ManualProvisioner,
-                )
-
-                return ManualProvisioner
-            case ProvisioningMethod.DOCKER:
-                from commandLAB.computers.provisioners.docker_provisioner import (
-                    DockerProvisioner,
-                )
-
-                return DockerProvisioner
-            case ProvisioningMethod.KUBERNETES:
-                from commandLAB.computers.provisioners.kubernetes_provisioner import (
-                    KubernetesProvisioner,
-                )
-
-                return KubernetesProvisioner
-            case ProvisioningMethod.AWS:
-                from commandLAB.computers.provisioners.aws_provisioner import (
-                    AWSProvisioner,
-                )
-
-                return AWSProvisioner
-            case ProvisioningMethod.AZURE:
-                from commandLAB.computers.provisioners.azure_provisioner import (
-                    AzureProvisioner,
-                )
-
-                return AzureProvisioner
-            case ProvisioningMethod.GCP:
-                from commandLAB.computers.provisioners.gcp_provisioner import (
-                    GCPProvisioner,
-                )
-
-                return GCPProvisioner
-            case _:
-                raise ImportError(f"No provisioner found for {self}")
+# Just directly pas the provisioning method to the DaemonClientComputer
+# class ProvisioningMethod(str, Enum):
+#     DOCKER = "docker"
+#     KUBERNETES = "kubernetes"
+#     AWS = "aws"
+#     AZURE = "azure"
+#     GCP = "gcp"
+#     MANUAL = "manual"
+#     def get_provisioner_cls(self) -> type[BaseComputerProvisioner]:
+#         """Return the appropriate provisioner class based on the provisioning method"""
+#         match self:
+#             case ProvisioningMethod.MANUAL:
+#                 from commandLAB.computers.provisioners.manual_provisioner import (
+#                     ManualProvisioner,
+#                 )
+#                 return ManualProvisioner
+#             case ProvisioningMethod.DOCKER:
+#                 from commandLAB.computers.provisioners.docker_provisioner import (
+#                     DockerProvisioner,
+#                 )
+#                 return DockerProvisioner
+#             case ProvisioningMethod.KUBERNETES:
+#                 from commandLAB.computers.provisioners.kubernetes_provisioner import (
+#                     KubernetesProvisioner,
+#                 )
+#                 return KubernetesProvisioner
+#             case ProvisioningMethod.AWS:
+#                 from commandLAB.computers.provisioners.aws_provisioner import (
+#                     AWSProvisioner,
+#                 )
+#                 return AWSProvisioner
+#             case ProvisioningMethod.AZURE:
+#                 from commandLAB.computers.provisioners.azure_provisioner import (
+#                     AzureProvisioner,
+#                 )
+#                 return AzureProvisioner
+#             case ProvisioningMethod.GCP:
+#                 from commandLAB.computers.provisioners.gcp_provisioner import (
+#                     GCPProvisioner,
+#                 )
+#                 return GCPProvisioner
+#             case _:
+#                 raise ImportError(f"No provisioner found for {self}")
 
 
 class DaemonClientComputer(BaseComputer):
-    daemon_base_url: str = "http://localhost"
-    daemon_port: int = 8000
-    daemon_token: str = ""
     provisioner: Optional[BaseComputerProvisioner] = None
-    should_provision: bool = False
     client: Optional[AuthenticatedClient] = None
 
     model_config = {"arbitrary_types_allowed": True}
 
     def __init__(
         self,
-        daemon_base_url: str = "http://localhost",
-        daemon_port: int = 8000,
-        daemon_token: Optional[str] = None,
-        provisioning_method: ProvisioningMethod = ProvisioningMethod.MANUAL,
-        should_provision: bool = False,
-        **data,
+        provisioner: BaseComputerProvisioner,
     ):
-        # Initialize the base model first to ensure all fields are set
-        data.update({
-            "daemon_base_url": daemon_base_url,
-            "daemon_port": daemon_port,
-            "should_provision": should_provision,
-        })
-        super().__init__(**data)
-        
-        # If no token was provided and we should provision, we'll get the token from the provisioner
-        if daemon_token is not None:
-            self.daemon_token = daemon_token
+        super().__init__()
+
+        # Store the provisioner
+        self.provisioner = provisioner
             
-        # Initialize provisioner if we should provision
-        if should_provision:
-            self.provisioner = provisioning_method.get_provisioner_cls()(
-                port=self.daemon_port
-            )
-            self.provisioner.setup()
-            # If the provisioner provides a token, use that
-            if hasattr(self.provisioner, "token") and self.daemon_token == "":
-                self.daemon_token = self.provisioner.token
+        # Setup the provisioner
+        self.provisioner.setup()
 
         # Create the authenticated client
         self.client = AuthenticatedClient(
@@ -152,43 +122,47 @@ class DaemonClientComputer(BaseComputer):
 
     def close(self):
         """Cleanup resources when the object is destroyed"""
-        if self.should_provision and self.provisioner:
-            self.provisioner.teardown()
+        self.provisioner.teardown()
 
     def reset(self) -> bool:
         """Reset the computer state"""
         if self.client:
             result = reset_sync(client=self.client)
-            return result is None  # Success returns None
+            return result is not None and result.get("success", False)
         return False
+
+    def get_observation(self) -> Dict[str, Any]:
+        """Get a complete observation of the computer state"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        response = get_observation_sync(client=self.client)
+        return response if response else {}
 
     def get_screenshot(self) -> ScreenshotObservation:
         """Get a screenshot of the computer"""
-        if not self.client:
-            raise RuntimeError("Client not initialized")
-        
-        response = get_observation_sync(client=self.client)
+        observation = self.get_observation()
         # Parse the observation data into a ScreenshotObservation
-        # This assumes the observation endpoint returns the appropriate data format
-        return ScreenshotObservation(**response) if response else ScreenshotObservation()
+        # This assumes the observation endpoint returns screenshot data
+        if "screenshot" in observation:
+            return ScreenshotObservation(**observation["screenshot"])
+        return ScreenshotObservation()
 
     def get_mouse_state(self) -> MouseStateObservation:
         """Get the current mouse state"""
-        if not self.client:
-            raise RuntimeError("Client not initialized")
-        
-        response = get_observation_sync(client=self.client)
+        observation = self.get_observation()
         # Extract mouse state from observation
-        return MouseStateObservation(**response.get("mouse", {})) if response else MouseStateObservation()
+        if "mouse" in observation:
+            return MouseStateObservation(**observation["mouse"])
+        return MouseStateObservation()
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
         """Get the current keyboard state"""
-        if not self.client:
-            raise RuntimeError("Client not initialized")
-        
-        response = get_observation_sync(client=self.client)
+        observation = self.get_observation()
         # Extract keyboard state from observation
-        return KeyboardStateObservation(**response.get("keyboard", {})) if response else KeyboardStateObservation()
+        if "keyboard" in observation:
+            return KeyboardStateObservation(**observation["keyboard"])
+        return KeyboardStateObservation()
 
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a shell command on the computer"""
@@ -202,7 +176,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_command_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Press down a keyboard key"""
@@ -215,7 +189,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_keyboard_key_down_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Release a keyboard key"""
@@ -228,7 +202,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_keyboard_key_release_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
         """Press and release a keyboard key"""
@@ -242,7 +216,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_keyboard_key_press_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey (multiple keys pressed simultaneously)"""
@@ -255,7 +229,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_keyboard_hotkey_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_type(self, action: TypeAction) -> bool:
         """Type text on the keyboard"""
@@ -268,7 +242,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_type_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_mouse_move(self, action: MouseMoveAction) -> bool:
         """Move the mouse to a position"""
@@ -283,7 +257,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_mouse_move_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         """Scroll the mouse wheel"""
@@ -296,7 +270,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_mouse_scroll_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press down a mouse button"""
@@ -309,7 +283,7 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_mouse_button_down_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         """Release a mouse button"""
@@ -322,4 +296,4 @@ class DaemonClientComputer(BaseComputer):
         )
         
         response = execute_mouse_button_up_sync(client=self.client, body=client_action)
-        return response is None  # Success returns None
+        return response is not None and response.get("success", False)

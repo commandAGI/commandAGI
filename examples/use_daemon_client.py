@@ -20,11 +20,27 @@ def main():
     api_token = "your_api_token_here"  # Replace with your actual token
     
     print("Initializing DaemonClientComputer...")
+    # Connect to an existing daemon (no provisioning)
     computer = DaemonClientComputer(
-        provisioning_method=ProvisioningMethod.MANUAL,
-        api_token=api_token,
         daemon_base_url="http://localhost",
         daemon_port=8000,
+        daemon_token="my-token"
+    )
+
+    # Use with manual provisioning
+    from commandLAB.computers.provisioners.manual_provisioner import ManualProvisioner
+    provisioner = ManualProvisioner(port=8000)
+    computer = DaemonClientComputer(
+        daemon_port=8000,
+        provisioner=provisioner
+    )
+
+    # Use with Docker provisioning 
+    from commandLAB.computers.provisioners.docker_provisioner import DockerProvisioner
+    provisioner = DockerProvisioner(port=8000)
+    computer = DaemonClientComputer(
+        daemon_port=8000,
+        provisioner=provisioner
     )
     
     try:
