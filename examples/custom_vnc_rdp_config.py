@@ -229,13 +229,13 @@ def use_computer_daemon_class_directly():
     
     # Start the daemon in a separate thread
     daemon_thread = threading.Thread(
-        target=daemon.start_server,
+        target=daemon.start_fastapi_server,
         kwargs={"host": "localhost", "port": 8005}
     )
     daemon_thread.daemon = True
     daemon_thread.start()
     
-    print(f"Daemon started with API token: {daemon.api_token}")
+    print(f"Daemon started with API token: {daemon._api_token}")
     
     # Wait a moment for the server to start
     time.sleep(2)

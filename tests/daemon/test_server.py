@@ -34,7 +34,7 @@ class TestComputerDaemon(unittest.TestCase):
         self.daemon = ComputerDaemon(computer_cls=self.mock_computer_cls)
 
         # Create a test client
-        self.client = TestClient(self.daemon.app)
+        self.client = TestClient(self.daemon._fastapi_server)
 
         # Store the mock token for later use
         self.token = "test_token"

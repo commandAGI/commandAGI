@@ -21,30 +21,59 @@ from commandLAB.types import (
     MouseStateObservation,
     ScreenshotObservation,
     TypeAction,
+    LayoutTreeObservation,
+    ProcessesObservation,
+    WindowsObservation,
+    DisplaysObservation,
+    RunProcessAction,
 )
 from pydantic import BaseModel
 
 
 class BaseComputer(BaseModel):
-    @abstractmethod
-    def get_screenshot(self) -> ScreenshotObservation:
-        """Return a ScreenshotObservation containing the screenshot encoded as a base64 string."""
+    def get_screenshot(self, display_id: int = 0) -> ScreenshotObservation:
+        """Return a ScreenshotObservation containing the screenshot encoded as a base64 string.
+        
+        Args:
+            display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}.get_screenshot")
 
-    @abstractmethod
     def get_mouse_state(self) -> MouseStateObservation:
         """Return a MouseStateObservation containing the current mouse button states and position."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_mouse_state")
 
-    @abstractmethod
     def get_keyboard_state(self) -> KeyboardStateObservation:
         """Return a KeyboardStateObservation with the current keyboard keys mapped to their states."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_keyboard_state")
 
-    @abstractmethod
+    def get_layout_tree(self) -> LayoutTreeObservation:
+        """Return a LayoutTreeObservation containing the accessibility tree of the current UI."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_layout_tree")
+
+    def get_processes(self) -> ProcessesObservation:
+        """Return a ProcessesObservation containing information about running processes."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_processes")
+
+    def get_windows(self) -> WindowsObservation:
+        """Return a WindowsObservation containing information about open windows."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_windows")
+
+    def get_displays(self) -> DisplaysObservation:
+        """Return a DisplaysObservation containing information about connected displays."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_displays")
+
+    def run_process(self, action: RunProcessAction) -> bool:
+        """Run a process with the specified parameters and return True if successful."""
+        raise NotImplementedError(f"{self.__class__.__name__}.run_process")
+
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the environment and return True if successful.
 
         The timeout parameter indicates how long (in seconds) to wait before giving up,
         with None meaning no timeout.
         """
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_command")
 
     def execute_keyboard_keys_press(self, action: KeyboardKeysPressAction):
         """Execute pressing keyboard keys."""
@@ -72,13 +101,13 @@ class BaseComputer(BaseModel):
         self.execute_keyboard_key_release(KeyboardKeyReleaseAction(key=action.key))
         return True
 
-    @abstractmethod
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_keyboard_key_down")
 
-    @abstractmethod
     def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_keyboard_key_release")
 
     def execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
@@ -99,21 +128,21 @@ class BaseComputer(BaseModel):
             self.execute_keyboard_key_press(KeyboardKeyPressAction(key=char))
         return True
 
-    @abstractmethod
     def execute_mouse_move(self, action: MouseMoveAction):
         """Execute moving the mouse to (x, y) over the move duration."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_move")
 
-    @abstractmethod
     def execute_mouse_scroll(self, action: MouseScrollAction):
         """Execute mouse scroll by a given amount."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_scroll")
 
-    @abstractmethod
     def execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Execute mouse button down action."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_button_down")
 
-    @abstractmethod
     def execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Execute mouse button up action."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_button_up")
 
     def execute_click(self, action: ClickAction) -> bool:
         """Execute a click action at the given coordinates using press and release operations with a duration.

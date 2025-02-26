@@ -1,6 +1,7 @@
 import os
 import platform
 import subprocess
+import logging
 from enum import Enum
 from typing import Optional, Dict, Any
 
@@ -57,6 +58,7 @@ from commandLAB.daemon.client.models import (
 class DaemonClientComputer(BaseComputer):
     provisioner: Optional[BaseComputerProvisioner] = None
     client: Optional[AuthenticatedClient] = None
+    logger: logging.Logger
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -69,6 +71,9 @@ class DaemonClientComputer(BaseComputer):
     ):
         super().__init__()
 
+        # Setup logging
+        self.logger = logging.getLogger(__name__)
+        
         # Store the provisioner
         self.provisioner = provisioner
         self.daemon_base_url = daemon_base_url
@@ -76,6 +81,7 @@ class DaemonClientComputer(BaseComputer):
         self.daemon_token = daemon_token
 
         # Setup the provisioner
+        self.logger.info(f"Starting MCP and FastAPI daemon services at {daemon_base_url}:{daemon_port}")
         self.provisioner.setup()
 
         # Create the authenticated client
@@ -83,14 +89,18 @@ class DaemonClientComputer(BaseComputer):
             base_url=f"{self.daemon_base_url}:{self.daemon_port}",
             token=self.daemon_token
         )
+        self.logger.info(f"Successfully connected to daemon services")
 
     def close(self):
         """Cleanup resources when the object is destroyed"""
+        self.logger.info("Shutting down MCP and FastAPI daemon services")
         self.provisioner.teardown()
+        self.logger.info("MCP and FastAPI daemon services successfully stopped")
 
     def reset(self) -> bool:
         """Reset the computer state"""
         if self.client:
+            self.logger.debug("Resetting computer state")
             result = reset_sync(client=self.client)
             return result is not None and result.get("success", False)
         return False

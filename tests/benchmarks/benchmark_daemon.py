@@ -63,7 +63,7 @@ def start_daemon_server(port=8000, computer_cls=LocalPynputComputer):
 
     server_thread = threading.Thread(
         target=uvicorn.run,
-        args=(daemon.app,),
+        args=(daemon._fastapi_server,),
         kwargs={"host": "127.0.0.1", "port": port, "log_level": "error"},
     )
     server_thread.daemon = True

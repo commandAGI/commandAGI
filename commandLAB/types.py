@@ -308,6 +308,10 @@ class ComputerObservationType(str, Enum):
     SCREENSHOT = "screenshot"
     MOUSE_STATE = "mouse_state"
     KEYBOARD_STATE = "keyboard_state"
+    LAYOUT_TREE = "layout_tree"
+    PROCESSES = "processes"
+    WINDOWS = "windows"
+    DISPLAYS = "displays"
 
 
 class BaseComputerObservation(BaseModel):
@@ -361,9 +365,35 @@ class KeyboardStateObservation(BaseComputerObservation):
         return v
 
 
+class LayoutTreeObservation(BaseComputerObservation):
+    observation_type: Literal["layout_tree"] = ComputerObservationType.LAYOUT_TREE.value
+    tree: dict  # Structure containing the accessibility tree
+
+
+class ProcessesObservation(BaseComputerObservation):
+    observation_type: Literal["processes"] = ComputerObservationType.PROCESSES.value
+    processes: List[dict]  # List of process information dictionaries
+
+
+class WindowsObservation(BaseComputerObservation):
+    observation_type: Literal["windows"] = ComputerObservationType.WINDOWS.value
+    windows: List[dict]  # List of window information dictionaries
+
+
+class DisplaysObservation(BaseComputerObservation):
+    observation_type: Literal["displays"] = ComputerObservationType.DISPLAYS.value
+    displays: List[dict]  # List of display information dictionaries
+
+
 # Define a Union type for computer observations
 ComputerObservationUnion = Union[
-    ScreenshotObservation, MouseStateObservation, KeyboardStateObservation
+    ScreenshotObservation, 
+    MouseStateObservation, 
+    KeyboardStateObservation,
+    LayoutTreeObservation,
+    ProcessesObservation,
+    WindowsObservation,
+    DisplaysObservation
 ]
 
 
@@ -371,6 +401,10 @@ class ComputerObservation(TypedDict):
     screenshot: Optional[ScreenshotObservation] = None
     mouse_state: Optional[MouseStateObservation] = None
     keyboard_state: Optional[KeyboardStateObservation] = None
+    layout_tree: Optional[LayoutTreeObservation] = None
+    processes: Optional[ProcessesObservation] = None
+    windows: Optional[WindowsObservation] = None
+    displays: Optional[DisplaysObservation] = None
     # TODO: also add keyboard_events and mouse_events where you store the events that were collected since last observation
 
 
@@ -388,6 +422,7 @@ class ComputerActionType(str, Enum):
     CLICK = "click"
     DOUBLE_CLICK = "double_click"
     DRAG = "drag"
+    RUN_PROCESS = "run_process"
 
 
 class BaseComputerAction(BaseModel):
@@ -509,6 +544,15 @@ class DragAction(BaseComputerAction):
     button: MouseButton = MouseButton.LEFT
 
 
+class RunProcessAction(BaseComputerAction):
+    action_type: Literal["run_process"] = ComputerActionType.RUN_PROCESS.value
+    command: str
+    args: List[str] = Field(default_factory=list)
+    cwd: Optional[str] = None
+    env: Optional[dict] = None
+    timeout: Optional[float] = None
+
+
 # Define a Union type for computer actions
 ComputerActionUnion = Union[
     CommandAction,
@@ -527,6 +571,7 @@ ComputerActionUnion = Union[
     ClickAction,
     DoubleClickAction,
     DragAction,
+    RunProcessAction,
 ]
 
 
@@ -547,3 +592,4 @@ class ComputerAction(TypedDict):
     click: Optional[ClickAction] = None
     double_click: Optional[DoubleClickAction] = None
     drag: Optional[DragAction] = None
+    run_process: Optional[RunProcessAction] = None
