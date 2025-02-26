@@ -1,6 +1,6 @@
 import base64
 import io
-from typing import Optional
+from typing import Optional, Union
 
 try:
     import vncdotool.api as vnc
@@ -26,6 +26,88 @@ from commandLAB.types import (
     ScreenshotObservation,
     TypeAction,
 )
+
+
+# VNC-specific mappings
+def mouse_button_to_vnc(button: Union[MouseButton, str]) -> int:
+    """Convert MouseButton to VNC mouse button code.
+    
+    VNC uses integers for mouse buttons:
+    1 = left button
+    2 = middle button
+    3 = right button
+    4 = wheel up
+    5 = wheel down
+    """
+    if isinstance(button, str):
+        button = MouseButton(button)
+    
+    # VNC mouse button mapping
+    vnc_button_mapping = {
+        MouseButton.LEFT: 1,
+        MouseButton.MIDDLE: 2,
+        MouseButton.RIGHT: 3
+    }
+    
+    return vnc_button_mapping.get(button, 1)  # Default to left button if not found
+
+def keyboard_key_to_vnc(key: Union[KeyboardKey, str]) -> str:
+    """Convert KeyboardKey to VNC key name.
+    
+    VNC uses specific key names that may differ from our standard KeyboardKey values.
+    """
+    if isinstance(key, str):
+        key = KeyboardKey(key)
+    
+    # VNC-specific key mappings
+    vnc_key_mapping = {
+        # Special keys
+        KeyboardKey.ENTER: "return",
+        KeyboardKey.TAB: "tab",
+        KeyboardKey.SPACE: "space",
+        KeyboardKey.BACKSPACE: "backspace",
+        KeyboardKey.DELETE: "delete",
+        KeyboardKey.ESCAPE: "escape",
+        KeyboardKey.HOME: "home",
+        KeyboardKey.END: "end",
+        KeyboardKey.PAGE_UP: "page_up",
+        KeyboardKey.PAGE_DOWN: "page_down",
+        
+        # Arrow keys
+        KeyboardKey.UP: "up",
+        KeyboardKey.DOWN: "down",
+        KeyboardKey.LEFT: "left",
+        KeyboardKey.RIGHT: "right",
+        
+        # Modifier keys
+        KeyboardKey.SHIFT: "shift",
+        KeyboardKey.CTRL: "control",
+        KeyboardKey.LCTRL: "control",
+        KeyboardKey.RCTRL: "control",
+        KeyboardKey.ALT: "alt",
+        KeyboardKey.LALT: "alt",
+        KeyboardKey.RALT: "alt",
+        KeyboardKey.META: "meta",
+        KeyboardKey.LMETA: "meta",
+        KeyboardKey.RMETA: "meta",
+        
+        # Function keys
+        KeyboardKey.F1: "f1",
+        KeyboardKey.F2: "f2",
+        KeyboardKey.F3: "f3",
+        KeyboardKey.F4: "f4",
+        KeyboardKey.F5: "f5",
+        KeyboardKey.F6: "f6",
+        KeyboardKey.F7: "f7",
+        KeyboardKey.F8: "f8",
+        KeyboardKey.F9: "f9",
+        KeyboardKey.F10: "f10",
+        KeyboardKey.F11: "f11",
+        KeyboardKey.F12: "f12",
+    }
+    
+    # For letter keys and number keys, use the value directly
+    return vnc_key_mapping.get(key, key.value)
 
 
 class VNCComputer(BaseComputer):
@@ -107,7 +189,7 @@ class VNCComputer(BaseComputer):
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key using VNC."""
         try:
-            vnc_key = KeyboardKey.to_vnc(action.key)
+            vnc_key = keyboard_key_to_vnc(action.key)
             self.client.keyDown(vnc_key)
             return True
         except Exception as e:
@@ -117,7 +199,7 @@ class VNCComputer(BaseComputer):
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key using VNC."""
         try:
-            vnc_key = KeyboardKey.to_vnc(action.key)
+            vnc_key = keyboard_key_to_vnc(action.key)
             self.client.keyUp(vnc_key)
             return True
         except Exception as e:
@@ -162,7 +244,7 @@ class VNCComputer(BaseComputer):
     def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press mouse button down using VNC."""
         try:
-            vnc_button = MouseButton.to_vnc(action.button)
+            vnc_button = mouse_button_to_vnc(action.button)
             self.client.mouseDown(vnc_button)
             return True
         except Exception as e:
@@ -172,7 +254,7 @@ class VNCComputer(BaseComputer):
     def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         """Release mouse button using VNC."""
         try:
-            vnc_button = MouseButton.to_vnc(action.button)
+            vnc_button = mouse_button_to_vnc(action.button)
             self.client.mouseUp(vnc_button)
             return True
         except Exception as e:

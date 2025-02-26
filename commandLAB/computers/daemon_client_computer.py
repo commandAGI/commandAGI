@@ -3,7 +3,7 @@ import platform
 import subprocess
 import logging
 from enum import Enum
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
@@ -20,6 +20,8 @@ from commandLAB.types import (
     MouseStateObservation,
     KeyboardStateObservation,
     ScreenshotObservation,
+    KeyboardKey,
+    MouseButton,
 )
 from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
 
@@ -51,9 +53,46 @@ from commandLAB.daemon.client.models import (
     MouseScrollAction as ClientMouseScrollAction,
     MouseButtonDownAction as ClientMouseButtonDownAction,
     MouseButtonUpAction as ClientMouseButtonUpAction,
-    KeyboardKey,
-    MouseButton,
+    KeyboardKey as ClientKeyboardKey,
+    MouseButton as ClientMouseButton,
 )
+
+# Daemon client-specific mappings
+def keyboard_key_to_daemon(key: Union[KeyboardKey, str]) -> ClientKeyboardKey:
+    """Convert KeyboardKey to Daemon client KeyboardKey.
+    
+    The daemon client uses its own KeyboardKey enum that should match our KeyboardKey values.
+    This function ensures proper conversion between the two.
+    """
+    if isinstance(key, str):
+        key = KeyboardKey(key)
+    
+    # The daemon client's KeyboardKey enum should have the same values as our KeyboardKey enum
+    # We just need to convert to the client's enum type
+    try:
+        return ClientKeyboardKey(key.value)
+    except ValueError:
+        # If the key value doesn't exist in the client's enum, use a fallback
+        logging.warning(f"Key {key} not found in daemon client KeyboardKey enum, using fallback")
+        return ClientKeyboardKey.ENTER  # Use a safe default
+
+def mouse_button_to_daemon(button: Union[MouseButton, str]) -> ClientMouseButton:
+    """Convert MouseButton to Daemon client MouseButton.
+    
+    The daemon client uses its own MouseButton enum that should match our MouseButton values.
+    This function ensures proper conversion between the two.
+    """
+    if isinstance(button, str):
+        button = MouseButton(button)
+    
+    # The daemon client's MouseButton enum should have the same values as our MouseButton enum
+    # We just need to convert to the client's enum type
+    try:
+        return ClientMouseButton(button.value)
+    except ValueError:
+        # If the button value doesn't exist in the client's enum, use a fallback
+        logging.warning(f"Button {button} not found in daemon client MouseButton enum, using fallback")
+        return ClientMouseButton.LEFT  # Use a safe default
 
 class DaemonClientComputer(BaseComputer):
     provisioner: Optional[BaseComputerProvisioner] = None
@@ -116,7 +155,6 @@ class DaemonClientComputer(BaseComputer):
 
     def reset_state(self) -> bool:
         """Reset the computer state"""
-        # If the client reset failed, fall back to the default implementation
         return super().reset_state()
 
     def get_observation(self) -> Dict[str, Any]:
@@ -178,7 +216,7 @@ class DaemonClientComputer(BaseComputer):
         
         # Convert the BaseComputer KeyboardKeyDownAction to the client's KeyboardKeyDownAction
         client_action = ClientKeyboardKeyDownAction(
-            key=KeyboardKey(action.key)
+            key=keyboard_key_to_daemon(action.key)
         )
         
         response = execute_keyboard_key_down_sync(client=self.client, body=client_action)
@@ -191,7 +229,7 @@ class DaemonClientComputer(BaseComputer):
         
         # Convert the BaseComputer KeyboardKeyReleaseAction to the client's KeyboardKeyReleaseAction
         client_action = ClientKeyboardKeyReleaseAction(
-            key=KeyboardKey(action.key)
+            key=keyboard_key_to_daemon(action.key)
         )
         
         response = execute_keyboard_key_release_sync(client=self.client, body=client_action)
@@ -204,7 +242,7 @@ class DaemonClientComputer(BaseComputer):
         
         # Convert the BaseComputer KeyboardKeyPressAction to the client's KeyboardKeyPressAction
         client_action = ClientKeyboardKeyPressAction(
-            key=KeyboardKey(action.key),
+            key=keyboard_key_to_daemon(action.key),
             duration=action.duration
         )
         
@@ -218,7 +256,7 @@ class DaemonClientComputer(BaseComputer):
         
         # Convert the BaseComputer KeyboardHotkeyAction to the client's KeyboardHotkeyAction
         client_action = ClientKeyboardHotkeyAction(
-            keys=[KeyboardKey(k) for k in action.keys]
+            keys=[keyboard_key_to_daemon(k) for k in action.keys]
         )
         
         response = execute_keyboard_hotkey_sync(client=self.client, body=client_action)
@@ -272,7 +310,7 @@ class DaemonClientComputer(BaseComputer):
         
         # Convert the BaseComputer MouseButtonDownAction to the client's MouseButtonDownAction
         client_action = ClientMouseButtonDownAction(
-            button=MouseButton(action.button) if action.button else None
+            button=mouse_button_to_daemon(action.button) if action.button else None
         )
         
         response = execute_mouse_button_down_sync(client=self.client, body=client_action)
@@ -285,7 +323,7 @@ class DaemonClientComputer(BaseComputer):
         
         # Convert the BaseComputer MouseButtonUpAction to the client's MouseButtonUpAction
         client_action = ClientMouseButtonUpAction(
-            button=MouseButton(action.button) if action.button else None
+            button=mouse_button_to_daemon(action.button) if action.button else None
         )
         
         response = execute_mouse_button_up_sync(client=self.client, body=client_action)

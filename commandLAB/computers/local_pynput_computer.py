@@ -3,10 +3,14 @@ import io
 import subprocess
 import tempfile
 import time
+from typing import Union, Optional
 
 try:
     import mss
     from pynput import keyboard, mouse
+    from pynput.keyboard import Key as PynputKey
+    from pynput.keyboard import KeyCode as PynputKeyCode
+    from pynput.mouse import Button as PynputButton
 except ImportError:
     raise ImportError(
         "pynput is not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
@@ -32,6 +36,162 @@ from commandLAB.types import (
     ComputerObservation,
 )
 from PIL import Image
+
+
+# Pynput-specific mappings
+def mouse_button_to_pynput(button: Union[MouseButton, str]) -> PynputButton:
+    """Convert MouseButton to Pynput mouse button.
+    
+    Pynput uses Button enum for mouse buttons:
+    Button.left = left button
+    Button.middle = middle button
+    Button.right = right button
+    """
+    if isinstance(button, str):
+        button = MouseButton(button)
+    
+    # Pynput mouse button mapping
+    pynput_button_mapping = {
+        MouseButton.LEFT: PynputButton.left,
+        MouseButton.MIDDLE: PynputButton.middle,
+        MouseButton.RIGHT: PynputButton.right
+    }
+    
+    return pynput_button_mapping.get(button, PynputButton.left)  # Default to left button if not found
+
+def mouse_button_from_pynput(button: PynputButton) -> Optional[MouseButton]:
+    """Convert Pynput mouse button to MouseButton.
+    
+    Maps from pynput.mouse.Button to our MouseButton enum.
+    """
+    # Pynput to MouseButton mapping
+    pynput_to_mouse_button = {
+        PynputButton.left: MouseButton.LEFT,
+        PynputButton.middle: MouseButton.MIDDLE,
+        PynputButton.right: MouseButton.RIGHT
+    }
+    
+    return pynput_to_mouse_button.get(button)  # Returns None if not found
+
+def keyboard_key_to_pynput(key: Union[KeyboardKey, str]) -> Union[PynputKey, PynputKeyCode]:
+    """Convert KeyboardKey to Pynput key.
+    
+    Pynput uses Key enum for special keys and KeyCode for character keys.
+    """
+    if isinstance(key, str):
+        key = KeyboardKey(key)
+    
+    # Pynput-specific key mappings for special keys
+    pynput_key_mapping = {
+        # Special keys
+        KeyboardKey.ENTER: PynputKey.enter,
+        KeyboardKey.TAB: PynputKey.tab,
+        KeyboardKey.SPACE: PynputKey.space,
+        KeyboardKey.BACKSPACE: PynputKey.backspace,
+        KeyboardKey.DELETE: PynputKey.delete,
+        KeyboardKey.ESCAPE: PynputKey.esc,
+        KeyboardKey.HOME: PynputKey.home,
+        KeyboardKey.END: PynputKey.end,
+        KeyboardKey.PAGE_UP: PynputKey.page_up,
+        KeyboardKey.PAGE_DOWN: PynputKey.page_down,
+        
+        # Arrow keys
+        KeyboardKey.UP: PynputKey.up,
+        KeyboardKey.DOWN: PynputKey.down,
+        KeyboardKey.LEFT: PynputKey.left,
+        KeyboardKey.RIGHT: PynputKey.right,
+        
+        # Modifier keys
+        KeyboardKey.SHIFT: PynputKey.shift,
+        KeyboardKey.CTRL: PynputKey.ctrl,
+        KeyboardKey.LCTRL: PynputKey.ctrl_l,
+        KeyboardKey.RCTRL: PynputKey.ctrl_r,
+        KeyboardKey.ALT: PynputKey.alt,
+        KeyboardKey.LALT: PynputKey.alt_l,
+        KeyboardKey.RALT: PynputKey.alt_r,
+        KeyboardKey.META: PynputKey.cmd,  # Command/Windows key
+        KeyboardKey.LMETA: PynputKey.cmd_l,
+        KeyboardKey.RMETA: PynputKey.cmd_r,
+        
+        # Function keys
+        KeyboardKey.F1: PynputKey.f1,
+        KeyboardKey.F2: PynputKey.f2,
+        KeyboardKey.F3: PynputKey.f3,
+        KeyboardKey.F4: PynputKey.f4,
+        KeyboardKey.F5: PynputKey.f5,
+        KeyboardKey.F6: PynputKey.f6,
+        KeyboardKey.F7: PynputKey.f7,
+        KeyboardKey.F8: PynputKey.f8,
+        KeyboardKey.F9: PynputKey.f9,
+        KeyboardKey.F10: PynputKey.f10,
+        KeyboardKey.F11: PynputKey.f11,
+        KeyboardKey.F12: PynputKey.f12,
+    }
+    
+    # Check if it's a special key
+    if key in pynput_key_mapping:
+        return pynput_key_mapping[key]
+    
+    # For letter keys and number keys, create a KeyCode
+    return PynputKeyCode.from_char(key.value)
+
+def keyboard_key_from_pynput(key) -> Optional[KeyboardKey]:
+    """Convert Pynput key to KeyboardKey.
+    
+    Maps from pynput.keyboard.Key or KeyCode to our KeyboardKey enum.
+    """
+    # Handle character keys (KeyCode objects)
+    if hasattr(key, 'char') and key.char:
+        # Try to find a matching key in KeyboardKey
+        for k in KeyboardKey:
+            if k.value == key.char:
+                return k
+        return None
+    
+    # Handle special keys (Key enum values)
+    # Pynput Key to KeyboardKey mapping
+    pynput_to_keyboard_key = {
+        PynputKey.enter: KeyboardKey.ENTER,
+        PynputKey.tab: KeyboardKey.TAB,
+        PynputKey.space: KeyboardKey.SPACE,
+        PynputKey.backspace: KeyboardKey.BACKSPACE,
+        PynputKey.delete: KeyboardKey.DELETE,
+        PynputKey.esc: KeyboardKey.ESCAPE,
+        PynputKey.home: KeyboardKey.HOME,
+        PynputKey.end: KeyboardKey.END,
+        PynputKey.page_up: KeyboardKey.PAGE_UP,
+        PynputKey.page_down: KeyboardKey.PAGE_DOWN,
+        PynputKey.up: KeyboardKey.UP,
+        PynputKey.down: KeyboardKey.DOWN,
+        PynputKey.left: KeyboardKey.LEFT,
+        PynputKey.right: KeyboardKey.RIGHT,
+        PynputKey.shift: KeyboardKey.SHIFT,
+        PynputKey.shift_l: KeyboardKey.SHIFT,
+        PynputKey.shift_r: KeyboardKey.SHIFT,
+        PynputKey.ctrl: KeyboardKey.CTRL,
+        PynputKey.ctrl_l: KeyboardKey.LCTRL,
+        PynputKey.ctrl_r: KeyboardKey.RCTRL,
+        PynputKey.alt: KeyboardKey.ALT,
+        PynputKey.alt_l: KeyboardKey.LALT,
+        PynputKey.alt_r: KeyboardKey.RALT,
+        PynputKey.cmd: KeyboardKey.META,
+        PynputKey.cmd_l: KeyboardKey.LMETA,
+        PynputKey.cmd_r: KeyboardKey.RMETA,
+        PynputKey.f1: KeyboardKey.F1,
+        PynputKey.f2: KeyboardKey.F2,
+        PynputKey.f3: KeyboardKey.F3,
+        PynputKey.f4: KeyboardKey.F4,
+        PynputKey.f5: KeyboardKey.F5,
+        PynputKey.f6: KeyboardKey.F6,
+        PynputKey.f7: KeyboardKey.F7,
+        PynputKey.f8: KeyboardKey.F8,
+        PynputKey.f9: KeyboardKey.F9,
+        PynputKey.f10: KeyboardKey.F10,
+        PynputKey.f11: KeyboardKey.F11,
+        PynputKey.f12: KeyboardKey.F12,
+    }
+    
+    return pynput_to_keyboard_key.get(key)  # Returns None if not found
 
 
 class LocalPynputComputer(BaseComputer):
@@ -125,7 +285,7 @@ class LocalPynputComputer(BaseComputer):
 
     def _on_mouse_click(self, x, y, button, pressed):
         """Callback for mouse click events."""
-        converted = MouseButton.from_pynput(button)
+        converted = mouse_button_from_pynput(button)
         if converted is not None:
             self._mouse_buttons[converted] = pressed
         self._mouse_pos = (x, y)
@@ -154,7 +314,7 @@ class LocalPynputComputer(BaseComputer):
         """Return the keyboard state collected via pynput listeners."""
         keys_state = {key: False for key in KeyboardKey}
         for pressed in self._pressed_keys:
-            conv_key = KeyboardKey.from_pynput(pressed)
+            conv_key = keyboard_key_from_pynput(pressed)
             if conv_key is not None and conv_key in keys_state:
                 keys_state[conv_key] = True
         return KeyboardStateObservation(keys=keys_state)
@@ -188,13 +348,13 @@ class LocalPynputComputer(BaseComputer):
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key."""
-        pynput_key = KeyboardKey.to_pynput(action.key)
+        pynput_key = keyboard_key_to_pynput(action.key)
         self._keyboard_controller.press(pynput_key)
         return True
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key."""
-        pynput_key = KeyboardKey.to_pynput(action.key)
+        pynput_key = keyboard_key_to_pynput(action.key)
         self._keyboard_controller.release(pynput_key)
         return True
 
@@ -226,19 +386,19 @@ class LocalPynputComputer(BaseComputer):
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press mouse button using pynput mouse controller."""
-        pynput_button = MouseButton.to_pynput(action.button)
+        pynput_button = mouse_button_to_pynput(action.button)
         self._mouse_controller.press(pynput_button)
         return True
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         """Release mouse button using pynput mouse controller."""
-        pynput_button = MouseButton.to_pynput(action.button)
+        pynput_button = mouse_button_to_pynput(action.button)
         self._mouse_controller.release(pynput_button)
         return True
 
     def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
         """Press and release a keyboard key."""
-        pynput_key = KeyboardKey.to_pynput(action.key)
+        pynput_key = keyboard_key_to_pynput(action.key)
         self._keyboard_controller.press(pynput_key)
         time.sleep(action.duration)
         self._keyboard_controller.release(pynput_key)
@@ -247,8 +407,8 @@ class LocalPynputComputer(BaseComputer):
     def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey using pynput's context manager."""
         # Convert all modifier keys except the last key
-        modifier_keys = [KeyboardKey.to_pynput(key) for key in action.keys[:-1]]
-        final_key = KeyboardKey.to_pynput(action.keys[-1])
+        modifier_keys = [keyboard_key_to_pynput(key) for key in action.keys[:-1]]
+        final_key = keyboard_key_to_pynput(action.keys[-1])
 
         # Use pynput's context manager for pressed keys
         for modifier in modifier_keys:
