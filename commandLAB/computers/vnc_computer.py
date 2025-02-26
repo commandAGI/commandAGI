@@ -37,16 +37,16 @@ class VNCComputer(BaseComputer):
         self.port = port
         self.password = password
         self.client = None
-        self.start()
+        self._start()
 
-    def start(self):
+    def _start(self):
         """Start the VNC connection."""
         if not self.client:
             connection_string = f"{self.host}::{self.port}"
             self.client = vnc.connect(connection_string, password=self.password)
         return True
 
-    def stop(self):
+    def _stop(self):
         """Stop the VNC connection."""
         if self.client:
             self.client.disconnect()
@@ -55,13 +55,13 @@ class VNCComputer(BaseComputer):
 
     def reset_state(self):
         """Reset the VNC connection"""
-        self.stop()
-        self.start()
+        self._stop()
+        self._start()
 
-    def get_screenshot(self) -> ScreenshotObservation:
+    def _get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         if not self.client:
-            self.start()
+            self._start()
             
         # Capture the screenshot using vncdotool
         png_data = self.client.capture()
@@ -70,15 +70,15 @@ class VNCComputer(BaseComputer):
         b64_screenshot = base64.b64encode(png_data).decode("utf-8")
         return ScreenshotObservation(screenshot=b64_screenshot)
 
-    def get_mouse_state(self) -> MouseStateObservation:
+    def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from VNC."""
         raise NotImplementedError("VNC does not support getting mouse state")
 
-    def get_keyboard_state(self) -> KeyboardStateObservation:
+    def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Return keyboard state from VNC."""
         raise NotImplementedError("VNC does not support getting keyboard state")
 
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command on the remote system.
         
         Note: This is limited by VNC capabilities and may not work for all commands.
@@ -104,7 +104,7 @@ class VNCComputer(BaseComputer):
             print(f"Error executing command via VNC: {e}")
             return False
 
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key using VNC."""
         try:
             vnc_key = KeyboardKey.to_vnc(action.key)
@@ -114,7 +114,7 @@ class VNCComputer(BaseComputer):
             print(f"Error executing key down via VNC: {e}")
             return False
 
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key using VNC."""
         try:
             vnc_key = KeyboardKey.to_vnc(action.key)
@@ -124,7 +124,7 @@ class VNCComputer(BaseComputer):
             print(f"Error executing key release via VNC: {e}")
             return False
 
-    def execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction) -> bool:
         """Type text using VNC."""
         try:
             self.client.type(action.text)
@@ -133,7 +133,7 @@ class VNCComputer(BaseComputer):
             print(f"Error typing text via VNC: {e}")
             return False
 
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
         """Move mouse to specified coordinates using VNC."""
         try:
             # VNC doesn't have a direct move duration parameter, so we just move
@@ -143,7 +143,7 @@ class VNCComputer(BaseComputer):
             print(f"Error moving mouse via VNC: {e}")
             return False
 
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         """Scroll mouse using VNC."""
         try:
             # VNC scroll is typically done by wheel events
@@ -159,7 +159,7 @@ class VNCComputer(BaseComputer):
             print(f"Error scrolling mouse via VNC: {e}")
             return False
 
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press mouse button down using VNC."""
         try:
             vnc_button = MouseButton.to_vnc(action.button)
@@ -169,7 +169,7 @@ class VNCComputer(BaseComputer):
             print(f"Error pressing mouse button via VNC: {e}")
             return False
 
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         """Release mouse button using VNC."""
         try:
             vnc_button = MouseButton.to_vnc(action.button)

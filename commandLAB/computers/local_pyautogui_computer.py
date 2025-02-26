@@ -37,14 +37,14 @@ class LocalPyAutoGUIComputer(BaseComputer):
         self._sct = None
         self._temp_dir = None
 
-    def start(self):
+    def _start(self):
         """Start the local computer environment."""
         if not hasattr(self, '_sct') or self._sct is None:
             self._sct = mss.mss()
         self._temp_dir = tempfile.mkdtemp()
         return True
 
-    def stop(self):
+    def _stop(self):
         """Stop the local computer environment."""
         if hasattr(self, '_sct') and self._sct is not None:
             self._sct.close()
@@ -59,7 +59,7 @@ class LocalPyAutoGUIComputer(BaseComputer):
         pyautogui.hotkey("win", "d")
         time.sleep(1)  # Give windows time to minimize
 
-    def get_screenshot(self) -> ScreenshotObservation:
+    def _get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         screenshot = self._sct.grab(self._sct.monitors[1])  # Primary monitor
         img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
@@ -68,19 +68,19 @@ class LocalPyAutoGUIComputer(BaseComputer):
         b64_screenshot = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return ScreenshotObservation(screenshot=b64_screenshot)
 
-    def get_mouse_state(self) -> MouseStateObservation:
+    def _get_mouse_state(self) -> MouseStateObservation:
         """Return dummy mouse state using pyautogui (pyautogui doesn't provide state, so we return a default value)."""
         raise NotImplementedError(
             "LocalComputeEnv does not support mouse state observation"
         )
 
-    def get_keyboard_state(self) -> KeyboardStateObservation:
+    def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Return dummy keyboard state as pyautogui doesn't track key states."""
         raise NotImplementedError(
             "LocalComputeEnv does not support keyboard state observation"
         )
 
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command using subprocess."""
         try:
             result = subprocess.run(
@@ -95,36 +95,36 @@ class LocalPyAutoGUIComputer(BaseComputer):
             print(f"Error executing command: {e}")
             return False
 
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key."""
         pyautogui_key = KeyboardKey.to_pyautogui(action.key)
         pyautogui.keyDown(pyautogui_key)
         return True
 
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key."""
         pyautogui_key = KeyboardKey.to_pyautogui(action.key)
         pyautogui.keyUp(pyautogui_key)
         return True
 
-    def execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction) -> bool:
         pyautogui.write(action.text)
         return True
 
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
         pyautogui.moveTo(action.x, action.y, duration=action.move_duration)
         return True
 
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         pyautogui.scroll(action.amount)
         return True
 
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         pyautogui_button = MouseButton.to_pyautogui(action.button)
         pyautogui.mouseDown(button=pyautogui_button)
         return True
 
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         pyautogui_button = MouseButton.to_pyautogui(action.button)
         pyautogui.mouseUp(button=pyautogui_button)
         return True

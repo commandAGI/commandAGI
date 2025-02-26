@@ -40,9 +40,9 @@ class PigDevComputer(BaseComputer):
         super().__init__()
         self.api_key = api_key
         self.client = None
-        self.start()
+        self._start()
 
-    def start(self):
+    def _start(self):
         """Start the PigDev environment."""
         if not self.client:
             if self.api_key:
@@ -51,7 +51,7 @@ class PigDevComputer(BaseComputer):
             self.client.start()
         return True
 
-    def stop(self):
+    def _stop(self):
         """Stop the PigDev environment."""
         if self.client:
             self.client.stop()
@@ -62,13 +62,13 @@ class PigDevComputer(BaseComputer):
         """Reset the PigDev environment"""
         # For PigDev, it's more efficient to stop and restart the VM
         # than to try to reset the desktop state
-        self.stop()
-        self.start()
+        self._stop()
+        self._start()
 
-    def get_screenshot(self) -> ScreenshotObservation:
+    def _get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         if not self.client:
-            self.start()
+            self._start()
             
         # Capture the screenshot using PigDev
         screenshot = self.client.screenshot()
@@ -79,15 +79,15 @@ class PigDevComputer(BaseComputer):
         b64_screenshot = base64.b64encode(buffered.getvalue()).decode("utf-8")
         return ScreenshotObservation(screenshot=b64_screenshot)
 
-    def get_mouse_state(self) -> MouseStateObservation:
+    def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from PigDev."""
         raise NotImplementedError("PigDev does not support getting mouse state")
 
-    def get_keyboard_state(self) -> KeyboardStateObservation:
+    def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Return keyboard state from PigDev."""
         raise NotImplementedError("PigDev does not support getting keyboard state")
 
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the PigDev VM."""
         try:
             result = self.client.run(action.command, timeout=action.timeout)
@@ -96,7 +96,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error executing command via PigDev: {e}")
             return False
 
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key using PigDev."""
         try:
             # Convert to PigDev key format if needed
@@ -107,7 +107,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error executing key down via PigDev: {e}")
             return False
 
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key using PigDev."""
         try:
             # Convert to PigDev key format if needed
@@ -118,7 +118,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error executing key release via PigDev: {e}")
             return False
 
-    def execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction) -> bool:
         """Type text using PigDev."""
         try:
             self.client.type(action.text)
@@ -127,7 +127,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error typing text via PigDev: {e}")
             return False
 
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
         """Move mouse to specified coordinates using PigDev."""
         try:
             self.client.mouse_move(action.x, action.y)
@@ -136,7 +136,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error moving mouse via PigDev: {e}")
             return False
 
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         """Scroll mouse using PigDev."""
         try:
             self.client.mouse_scroll(int(action.amount))
@@ -145,7 +145,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error scrolling mouse via PigDev: {e}")
             return False
 
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press mouse button down using PigDev."""
         try:
             button = action.button.value
@@ -155,7 +155,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error pressing mouse button via PigDev: {e}")
             return False
 
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         """Release mouse button using PigDev."""
         try:
             button = action.button.value
@@ -165,7 +165,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error releasing mouse button via PigDev: {e}")
             return False
 
-    def execute_click(self, action: ClickAction) -> bool:
+    def _execute_click(self, action: ClickAction) -> bool:
         """Execute a click action at the given coordinates using PigDev's click method."""
         try:
             # Move to position first
@@ -178,7 +178,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error executing click via PigDev: {e}")
             return False
 
-    def execute_double_click(self, action: DoubleClickAction) -> bool:
+    def _execute_double_click(self, action: DoubleClickAction) -> bool:
         """Execute a double click action at the given coordinates using PigDev's double_click method."""
         try:
             # Move to position first
@@ -191,7 +191,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error executing double click via PigDev: {e}")
             return False
 
-    def execute_drag(self, action: DragAction) -> bool:
+    def _execute_drag(self, action: DragAction) -> bool:
         """Execute a drag action using PigDev's drag method."""
         try:
             # PigDev has a direct drag method
@@ -202,7 +202,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error executing drag via PigDev: {e}")
             return False
 
-    def execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
+    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
         """Execute pressing a keyboard key using PigDev's key_press method."""
         try:
             key = action.key.value
@@ -212,7 +212,7 @@ class PigDevComputer(BaseComputer):
             print(f"Error executing key press via PigDev: {e}")
             return False
 
-    def execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
+    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey using PigDev's hotkey method."""
         try:
             # Convert keys to a list of key values

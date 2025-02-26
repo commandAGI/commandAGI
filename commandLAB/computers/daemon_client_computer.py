@@ -91,7 +91,7 @@ class DaemonClientComputer(BaseComputer):
         )
         self.logger.info(f"Successfully connected to daemon services")
 
-    def start(self):
+    def _start(self):
         """Start the daemon services"""
         if not self.client:
             self.logger.info(f"Starting MCP and FastAPI daemon services at {self.daemon_base_url}:{self.daemon_port}")
@@ -105,7 +105,7 @@ class DaemonClientComputer(BaseComputer):
             self.logger.info(f"Successfully connected to daemon services")
         return True
 
-    def stop(self):
+    def _stop(self):
         """Stop the daemon services"""
         if self.client:
             self.logger.info("Shutting down MCP and FastAPI daemon services")
@@ -127,7 +127,7 @@ class DaemonClientComputer(BaseComputer):
         response = get_observation_sync(client=self.client)
         return response if response else {}
 
-    def get_screenshot(self) -> ScreenshotObservation:
+    def _get_screenshot(self) -> ScreenshotObservation:
         """Get a screenshot of the computer"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -137,7 +137,7 @@ class DaemonClientComputer(BaseComputer):
             return ScreenshotObservation(**response)
         return ScreenshotObservation()
 
-    def get_mouse_state(self) -> MouseStateObservation:
+    def _get_mouse_state(self) -> MouseStateObservation:
         """Get the current mouse state"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -147,7 +147,7 @@ class DaemonClientComputer(BaseComputer):
             return MouseStateObservation(**response)
         return MouseStateObservation()
 
-    def get_keyboard_state(self) -> KeyboardStateObservation:
+    def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Get the current keyboard state"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -157,7 +157,7 @@ class DaemonClientComputer(BaseComputer):
             return KeyboardStateObservation(**response)
         return KeyboardStateObservation()
 
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute a shell command on the computer"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -171,7 +171,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_command_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Press down a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -184,7 +184,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_keyboard_key_down_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Release a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -197,7 +197,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_keyboard_key_release_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
+    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
         """Press and release a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -211,7 +211,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_keyboard_key_press_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
+    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey (multiple keys pressed simultaneously)"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -224,7 +224,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_keyboard_hotkey_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction) -> bool:
         """Type text on the keyboard"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -237,7 +237,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_type_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
         """Move the mouse to a position"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -252,7 +252,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_mouse_move_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         """Scroll the mouse wheel"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -265,7 +265,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_mouse_scroll_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press down a mouse button"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -278,7 +278,7 @@ class DaemonClientComputer(BaseComputer):
         response = execute_mouse_button_down_sync(client=self.client, body=client_action)
         return response is not None and response.get("success", False)
 
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         """Release a mouse button"""
         if not self.client:
             raise RuntimeError("Client not initialized")

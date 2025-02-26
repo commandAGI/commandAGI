@@ -34,13 +34,13 @@ class E2BDesktopComputer(BaseComputer):
         self.video_stream = video_stream
         self.desktop = Sandbox(video_stream=video_stream)
 
-    def start(self):
+    def _start(self):
         """Start the E2B desktop environment."""
         if not hasattr(self, 'desktop') or self.desktop is None:
             self.desktop = Sandbox(video_stream=self.video_stream)
         return True
 
-    def stop(self):
+    def _stop(self):
         """Stop the E2B desktop environment."""
         if hasattr(self, 'desktop') and self.desktop is not None:
             self.desktop = None  # E2B sandbox automatically closes when object is destroyed
@@ -62,25 +62,25 @@ class E2BDesktopComputer(BaseComputer):
 
         return observation, reward, done, info
 
-    def get_screenshot(self) -> ScreenshotObservation:
+    def _get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         screenshot = self.desktop.take_screenshot()
         b64_screenshot = base64.b64encode(screenshot).decode("utf-8")
         return ScreenshotObservation(screenshot=b64_screenshot)
 
-    def get_mouse_state(self) -> MouseStateObservation:
+    def _get_mouse_state(self) -> MouseStateObservation:
         """Return dummy mouse state as Sandbox does not provide real-time states."""
         raise NotImplementedError(
             "E2BDesktopEnv does not support mouse state observation"
         )
 
-    def get_keyboard_state(self) -> KeyboardStateObservation:
+    def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Return dummy keyboard state as Sandbox does not track key states."""
         raise NotImplementedError(
             "E2BDesktopEnv does not support keyboard state observation"
         )
 
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the host environment using subprocess."""
         try:
             result = subprocess.run(
@@ -95,29 +95,29 @@ class E2BDesktopComputer(BaseComputer):
             print(f"Error executing command: {e}")
             return False
 
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key using action signature."""
         e2b_key = KeyboardKey.to_e2b(action.key)
         return self.desktop.pyautogui(f"pyautogui.keyDown('{e2b_key}')")
 
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key using action signature."""
         e2b_key = KeyboardKey.to_e2b(action.key)
         return self.desktop.pyautogui(f"pyautogui.keyUp('{e2b_key}')")
 
-    def execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction) -> bool:
         return self.desktop.write(action.text)
 
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
         return self.desktop.mouse_move(action.x, action.y)
 
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         return self.desktop.pyautogui(f"pyautogui.scroll({action.amount})")
 
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         e2b_button = MouseButton.to_e2b(action.button)
         return self.desktop.pyautogui(f"pyautogui.mouseDown(button='{e2b_button}')")
 
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         e2b_button = MouseButton.to_e2b(action.button)
         return self.desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")

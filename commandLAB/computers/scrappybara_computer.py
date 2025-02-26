@@ -40,9 +40,9 @@ class ScrapybaraComputer(BaseComputer):
         super().__init__()
         self.api_key = api_key
         self.client = None
-        self.start()
+        self._start()
 
-    def start(self):
+    def _start(self):
         """Start the Scrapybara environment."""
         if not self.client:
             if self.api_key:
@@ -50,7 +50,7 @@ class ScrapybaraComputer(BaseComputer):
             # Note: Actual client initialization should be done in subclasses
         return True
 
-    def stop(self):
+    def _stop(self):
         """Stop the Scrapybara environment."""
         if self.client:
             self.client.stop()
@@ -59,32 +59,32 @@ class ScrapybaraComputer(BaseComputer):
 
     def reset_state(self):
         """Reset the Scrapybara environment"""
-        self.stop()
-        self.start()
+        self._stop()
+        self._start()
 
-    def get_screenshot(self) -> ScreenshotObservation:
+    def _get_screenshot(self) -> ScreenshotObservation:
         """Return a screenshot of the current state as base64 encoded string."""
         if not self.client:
-            self.start()
+            self._start()
             
         # Capture the screenshot using Scrapybara
         screenshot_data = self.client.screenshot().base_64_image
         return ScreenshotObservation(screenshot=screenshot_data)
 
-    def get_mouse_state(self) -> MouseStateObservation:
+    def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from Scrapybara."""
         raise NotImplementedError("Scrapybara does not support getting mouse state")
 
-    def get_keyboard_state(self) -> KeyboardStateObservation:
+    def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Return keyboard state from Scrapybara."""
         raise NotImplementedError("Scrapybara does not support getting keyboard state")
 
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the Scrapybara environment."""
         # This is a base method that should be overridden by subclasses
         raise NotImplementedError("Command execution must be implemented by subclasses")
 
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key using Scrapybara."""
         try:
             # Scrapybara uses the computer action with key_down
@@ -94,12 +94,12 @@ class ScrapybaraComputer(BaseComputer):
             print(f"Error executing key down via Scrapybara: {e}")
             return False
 
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key using Scrapybara."""
         # Scrapybara doesn't have a direct key release method in its API
         raise NotImplementedError("Scrapybara does not support key release actions")
 
-    def execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction) -> bool:
         """Type text using Scrapybara."""
         try:
             self.client.computer(action="type", text=action.text)
@@ -108,7 +108,7 @@ class ScrapybaraComputer(BaseComputer):
             print(f"Error typing text via Scrapybara: {e}")
             return False
 
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
         """Move mouse to specified coordinates using Scrapybara."""
         try:
             self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
@@ -117,7 +117,7 @@ class ScrapybaraComputer(BaseComputer):
             print(f"Error moving mouse via Scrapybara: {e}")
             return False
 
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         """Scroll mouse using Scrapybara."""
         try:
             # Scrapybara expects scroll as [x, y] coordinates
@@ -130,17 +130,17 @@ class ScrapybaraComputer(BaseComputer):
             print(f"Error scrolling mouse via Scrapybara: {e}")
             return False
 
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press mouse button down using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError("Scrapybara does not support mouse button down actions")
 
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         """Release mouse button using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError("Scrapybara does not support mouse button up actions")
 
-    def execute_click(self, action: ClickAction) -> bool:
+    def _execute_click(self, action: ClickAction) -> bool:
         """Execute a click action at the given coordinates using Scrapybara's click action."""
         try:
             # Scrapybara has a direct click action
@@ -150,7 +150,7 @@ class ScrapybaraComputer(BaseComputer):
             print(f"Error executing click via Scrapybara: {e}")
             return False
             
-    def execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
+    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
         """Execute pressing a keyboard key using Scrapybara's key action."""
         try:
             # Scrapybara uses the computer action with key
@@ -160,7 +160,7 @@ class ScrapybaraComputer(BaseComputer):
             print(f"Error executing key press via Scrapybara: {e}")
             return False
             
-    def execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
+    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey using Scrapybara's key action with combined keys."""
         try:
             # Combine keys with + for Scrapybara hotkey format
@@ -171,7 +171,7 @@ class ScrapybaraComputer(BaseComputer):
             print(f"Error executing hotkey via Scrapybara: {e}")
             return False
 
-    def execute_double_click(self, action: DoubleClickAction) -> bool:
+    def _execute_double_click(self, action: DoubleClickAction) -> bool:
         """Execute a double click action at the given coordinates using Scrapybara's double click action."""
         try:
             # Scrapybara has a direct double click action
@@ -181,7 +181,7 @@ class ScrapybaraComputer(BaseComputer):
             print(f"Error executing double click via Scrapybara: {e}")
             return False
 
-    def execute_drag(self, action: DragAction) -> bool:
+    def _execute_drag(self, action: DragAction) -> bool:
         """Execute a drag action using Scrapybara's drag action."""
         try:
             # Scrapybara has a direct drag action
@@ -230,7 +230,7 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key=api_key)
 
-    def start(self):
+    def _start(self):
         """Connect to the Scrapybara Ubuntu service"""
         if not self.client:
             if self.api_key:
@@ -238,7 +238,7 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
             self.client = scrapybara.client.start_ubuntu()
         return True
         
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the Ubuntu environment using bash."""
         try:
             # Ubuntu-specific command execution via bash
@@ -264,7 +264,7 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key=api_key)
 
-    def start(self):
+    def _start(self):
         """Connect to the Scrapybara Browser service"""
         if not self.client:
             if self.api_key:
@@ -297,7 +297,7 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
             print(f"Error authenticating browser: {e}")
             return False
             
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute JavaScript in the browser context."""
         try:
             # For browser, we interpret commands as JavaScript
@@ -315,7 +315,7 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
     def __init__(self, api_key: Optional[str] = None):
         super().__init__(api_key=api_key)
 
-    def start(self):
+    def _start(self):
         """Connect to the Scrapybara Windows service"""
         if not self.client:
             if self.api_key:
@@ -323,7 +323,7 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
             self.client = scrapybara.client.start_windows()
         return True
         
-    def execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command in the Windows environment."""
         try:
             # Windows doesn't have a direct command execution method in the docs
