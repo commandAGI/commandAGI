@@ -2,23 +2,54 @@ import os
 import platform
 import subprocess
 from enum import Enum
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
     CommandAction,
+    KeyboardHotkeyAction,
     KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
-    KeyboardStateObservation,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
+    TypeAction,
     MouseMoveAction,
     MouseScrollAction,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
     MouseStateObservation,
+    KeyboardStateObservation,
     ScreenshotObservation,
 )
-import requests
 from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
+
+# Import the proper client classes
+from commandLAB.daemon.client import AuthenticatedClient
+from commandLAB.daemon.client.api.default.execute_command_execute_command_post import sync as execute_command_sync
+from commandLAB.daemon.client.api.default.execute_keyboard_key_down_execute_keyboard_key_down_post import sync as execute_keyboard_key_down_sync
+from commandLAB.daemon.client.api.default.execute_keyboard_key_release_execute_keyboard_key_release_post import sync as execute_keyboard_key_release_sync
+from commandLAB.daemon.client.api.default.execute_keyboard_key_press_execute_keyboard_key_press_post import sync as execute_keyboard_key_press_sync
+from commandLAB.daemon.client.api.default.execute_keyboard_hotkey_execute_keyboard_hotkey_post import sync as execute_keyboard_hotkey_sync
+from commandLAB.daemon.client.api.default.execute_type_execute_type_post import sync as execute_type_sync
+from commandLAB.daemon.client.api.default.execute_mouse_move_execute_mouse_move_post import sync as execute_mouse_move_sync
+from commandLAB.daemon.client.api.default.execute_mouse_scroll_execute_mouse_scroll_post import sync as execute_mouse_scroll_sync
+from commandLAB.daemon.client.api.default.execute_mouse_button_down_execute_mouse_button_down_post import sync as execute_mouse_button_down_sync
+from commandLAB.daemon.client.api.default.execute_mouse_button_up_execute_mouse_button_up_post import sync as execute_mouse_button_up_sync
+from commandLAB.daemon.client.api.default.get_observation_observation_get import sync as get_observation_sync
+from commandLAB.daemon.client.api.default.reset_reset_post import sync as reset_sync
+from commandLAB.daemon.client.models import (
+    CommandAction as ClientCommandAction,
+    KeyboardKeyDownAction as ClientKeyboardKeyDownAction,
+    KeyboardKeyReleaseAction as ClientKeyboardKeyReleaseAction,
+    KeyboardKeyPressAction as ClientKeyboardKeyPressAction,
+    KeyboardHotkeyAction as ClientKeyboardHotkeyAction,
+    TypeAction as ClientTypeAction,
+    MouseMoveAction as ClientMouseMoveAction,
+    MouseScrollAction as ClientMouseScrollAction,
+    MouseButtonDownAction as ClientMouseButtonDownAction,
+    MouseButtonUpAction as ClientMouseButtonUpAction,
+    KeyboardKey,
+    MouseButton,
+)
 
 
 class ProvisioningMethod(str, Enum):
@@ -75,85 +106,220 @@ class ProvisioningMethod(str, Enum):
 class DaemonClientComputer(BaseComputer):
     daemon_base_url: str = "http://localhost"
     daemon_port: int = 8000
+    daemon_token: str = ""
     provisioner: Optional[BaseComputerProvisioner] = None
+    should_provision: bool = False
+    client: Optional[AuthenticatedClient] = None
 
     model_config = {"arbitrary_types_allowed": True}
 
     def __init__(
         self,
+        daemon_base_url: str = "http://localhost",
+        daemon_port: int = 8000,
+        daemon_token: Optional[str] = None,
         provisioning_method: ProvisioningMethod = ProvisioningMethod.MANUAL,
+        should_provision: bool = False,
         **data,
     ):
         # Initialize the base model first to ensure all fields are set
+        data.update({
+            "daemon_base_url": daemon_base_url,
+            "daemon_port": daemon_port,
+            "should_provision": should_provision,
+        })
         super().__init__(**data)
-        # Now we can safely access daemon_port
-        self.provisioner = provisioning_method.get_provisioner_cls()(
-            port=self.daemon_port
+        
+        # If no token was provided and we should provision, we'll get the token from the provisioner
+        if daemon_token is not None:
+            self.daemon_token = daemon_token
+            
+        # Initialize provisioner if we should provision
+        if should_provision:
+            self.provisioner = provisioning_method.get_provisioner_cls()(
+                port=self.daemon_port
+            )
+            self.provisioner.setup()
+            # If the provisioner provides a token, use that
+            if hasattr(self.provisioner, "token") and self.daemon_token == "":
+                self.daemon_token = self.provisioner.token
+
+        # Create the authenticated client
+        self.client = AuthenticatedClient(
+            base_url=f"{self.daemon_base_url}:{self.daemon_port}",
+            token=self.daemon_token
         )
-        self.provisioner.setup()
 
     def close(self):
         """Cleanup resources when the object is destroyed"""
-        if self.provisioner:
+        if self.should_provision and self.provisioner:
             self.provisioner.teardown()
 
-    def _get_endpoint_url(self, endpoint: str) -> str:
-        """Helper method to construct endpoint URLs"""
-        return f"{self.daemon_base_url}:{self.daemon_port}/{endpoint}"
+    def reset(self) -> bool:
+        """Reset the computer state"""
+        if self.client:
+            result = reset_sync(client=self.client)
+            return result is None  # Success returns None
+        return False
 
     def get_screenshot(self) -> ScreenshotObservation:
-        response = requests.get(self._get_endpoint_url("screenshot"))
-        response.raise_for_status()
-        return ScreenshotObservation(**response.json())
+        """Get a screenshot of the computer"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        response = get_observation_sync(client=self.client)
+        # Parse the observation data into a ScreenshotObservation
+        # This assumes the observation endpoint returns the appropriate data format
+        return ScreenshotObservation(**response) if response else ScreenshotObservation()
 
     def get_mouse_state(self) -> MouseStateObservation:
-        response = requests.get(self._get_endpoint_url("mouse/state"))
-        response.raise_for_status()
-        return MouseStateObservation(**response.json())
+        """Get the current mouse state"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        response = get_observation_sync(client=self.client)
+        # Extract mouse state from observation
+        return MouseStateObservation(**response.get("mouse", {})) if response else MouseStateObservation()
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
-        response = requests.get(self._get_endpoint_url("keyboard/state"))
-        response.raise_for_status()
-        return KeyboardStateObservation(**response.json())
+        """Get the current keyboard state"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        response = get_observation_sync(client=self.client)
+        # Extract keyboard state from observation
+        return KeyboardStateObservation(**response.get("keyboard", {})) if response else KeyboardStateObservation()
 
     def execute_command(self, action: CommandAction) -> bool:
-        response = requests.post(
-            self._get_endpoint_url("command"), json=action.model_dump()
+        """Execute a shell command on the computer"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer CommandAction to the client's CommandAction
+        client_action = ClientCommandAction(
+            command=action.command,
+            timeout=action.timeout
         )
-        return response.status_code == 200
+        
+        response = execute_command_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
 
     def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
-        response = requests.post(
-            self._get_endpoint_url("keyboard/key/down"), json=action.model_dump()
+        """Press down a keyboard key"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer KeyboardKeyDownAction to the client's KeyboardKeyDownAction
+        client_action = ClientKeyboardKeyDownAction(
+            key=KeyboardKey(action.key)
         )
-        return response.status_code == 200
+        
+        response = execute_keyboard_key_down_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
 
     def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
-        response = requests.post(
-            self._get_endpoint_url("keyboard/key/release"), json=action.model_dump()
+        """Release a keyboard key"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer KeyboardKeyReleaseAction to the client's KeyboardKeyReleaseAction
+        client_action = ClientKeyboardKeyReleaseAction(
+            key=KeyboardKey(action.key)
         )
-        return response.status_code == 200
+        
+        response = execute_keyboard_key_release_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
+
+    def execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
+        """Press and release a keyboard key"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer KeyboardKeyPressAction to the client's KeyboardKeyPressAction
+        client_action = ClientKeyboardKeyPressAction(
+            key=KeyboardKey(action.key),
+            duration=action.duration
+        )
+        
+        response = execute_keyboard_key_press_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
+
+    def execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
+        """Execute a keyboard hotkey (multiple keys pressed simultaneously)"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer KeyboardHotkeyAction to the client's KeyboardHotkeyAction
+        client_action = ClientKeyboardHotkeyAction(
+            keys=[KeyboardKey(k) for k in action.keys]
+        )
+        
+        response = execute_keyboard_hotkey_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
+
+    def execute_type(self, action: TypeAction) -> bool:
+        """Type text on the keyboard"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer TypeAction to the client's TypeAction
+        client_action = ClientTypeAction(
+            text=action.text
+        )
+        
+        response = execute_type_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
 
     def execute_mouse_move(self, action: MouseMoveAction) -> bool:
-        response = requests.post(
-            self._get_endpoint_url("mouse/move"), json=action.model_dump()
+        """Move the mouse to a position"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer MouseMoveAction to the client's MouseMoveAction
+        client_action = ClientMouseMoveAction(
+            x=action.x,
+            y=action.y,
+            move_duration=action.move_duration
         )
-        return response.status_code == 200
+        
+        response = execute_mouse_move_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
 
     def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
-        response = requests.post(
-            self._get_endpoint_url("mouse/scroll"), json=action.model_dump()
+        """Scroll the mouse wheel"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer MouseScrollAction to the client's MouseScrollAction
+        client_action = ClientMouseScrollAction(
+            amount=action.amount
         )
-        return response.status_code == 200
+        
+        response = execute_mouse_scroll_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
 
     def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        response = requests.post(
-            self._get_endpoint_url("mouse/button/down"), json=action.model_dump()
+        """Press down a mouse button"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer MouseButtonDownAction to the client's MouseButtonDownAction
+        client_action = ClientMouseButtonDownAction(
+            button=MouseButton(action.button) if action.button else None
         )
-        return response.status_code == 200
+        
+        response = execute_mouse_button_down_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None
 
     def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        response = requests.post(
-            self._get_endpoint_url("mouse/button/up"), json=action.model_dump()
+        """Release a mouse button"""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        # Convert the BaseComputer MouseButtonUpAction to the client's MouseButtonUpAction
+        client_action = ClientMouseButtonUpAction(
+            button=MouseButton(action.button) if action.button else None
         )
-        return response.status_code == 200
+        
+        response = execute_mouse_button_up_sync(client=self.client, body=client_action)
+        return response is None  # Success returns None

@@ -5,11 +5,11 @@ This package contains the daemon server and client components for remote compute
 """
 
 from commandLAB.daemon.server import ComputerDaemon
-from commandLAB.daemon.client import DaemonClient
+from commandLAB.daemon.client import AuthenticatedClient
 from commandLAB.daemon.cli import cli
 
 __all__ = [
     "ComputerDaemon",
-    "DaemonClient",
+    "AuthenticatedClient",
     "cli",
 ] 
