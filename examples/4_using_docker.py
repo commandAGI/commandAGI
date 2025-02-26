@@ -14,6 +14,9 @@ Status: ⚠️ Works with limitations
 
 import time
 
+from commandLAB.computers.provisioners.qemu_provisioner import QEMUProvisioner
+from commandLAB.computers.provisioners.virtualbox_provisioner import VirtualBoxProvisioner
+
 try:
     from commandLAB.computers.provisioners.docker_provisioner import (
         DockerProvisioner,
@@ -46,7 +49,9 @@ def main():
         print("This may take a while if the image needs to be pulled...")
 
         try:
+            print("Provisioner status:", provisioner.get_status())
             provisioner.setup()
+            print("Provisioner status:", provisioner.get_status())
             print("Docker container started successfully!")
 
             # Check if the container is running
