@@ -7,7 +7,6 @@ from abc import abstractmethod
 from typing import ClassVar, Literal, List, Optional
 from commandLAB._utils.config import APPDIR, SCREENSHOTS_DIR
 from commandLAB._utils.counter import next_for_cls
-from faker import Faker
 
 from commandLAB.types import (
     ClickAction,
@@ -112,9 +111,16 @@ class BaseComputer(BaseModel):
         self.stop()
         self.start()
 
+
+    _checked_and_created_artifact_dir = False
     @property
     def artifact_dir(self) -> Path:
-        return APPDIR / self.name
+        artifact_dir_path = APPDIR / self.name
+        
+        if not self._checked_and_created_artifact_dir and not artifact_dir_path.exists():
+            artifact_dir_path.mkdir(parents=True, exist_ok=True)
+            self._checked_and_created_artifact_dir = True
+        return artifact_dir_path
 
     @property
     def logfile_path(self) -> Path:

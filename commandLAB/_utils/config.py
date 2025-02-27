@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import platformdirs
 
-APPDIR = platformdirs.user_data_dir(appname="commandLAB", appauthor="commandLAB")
+APPDIR = Path(platformdirs.user_data_dir(appname="commandLAB", appauthor="commandLAB"))
