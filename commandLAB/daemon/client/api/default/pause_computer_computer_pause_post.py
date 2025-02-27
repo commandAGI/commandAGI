@@ -5,23 +5,23 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.execute_keyboard_hotkey_execute_keyboard_hotkey_post_response_execute_keyboard_hotkey_execute_keyboard_hotkey_post import (
-    ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
-)
+from ...models.computer_pause_action import ComputerPauseAction
 from ...models.http_validation_error import HTTPValidationError
-from ...models.keyboard_hotkey_action import KeyboardHotkeyAction
+from ...models.pause_computer_computer_pause_post_response_pause_computer_computer_pause_post import (
+    PauseComputerComputerPausePostResponsePauseComputerComputerPausePost,
+)
 from ...types import Response
 
 
 def _get_kwargs(
     *,
-    body: KeyboardHotkeyAction,
+    body: ComputerPauseAction,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/execute/keyboard/hotkey",
+        "url": "/computer/pause",
     }
 
     _body = body.to_dict()
@@ -37,12 +37,12 @@ def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
         HTTPValidationError,
+        PauseComputerComputerPausePostResponsePauseComputerComputerPausePost,
     ]
 ]:
     if response.status_code == 200:
-        response_200 = ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost.from_dict(
+        response_200 = PauseComputerComputerPausePostResponsePauseComputerComputerPausePost.from_dict(
             response.json()
         )
 
@@ -61,8 +61,8 @@ def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Response[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
         HTTPValidationError,
+        PauseComputerComputerPausePostResponsePauseComputerComputerPausePost,
     ]
 ]:
     return Response(
@@ -76,24 +76,24 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: KeyboardHotkeyAction,
+    body: ComputerPauseAction,
 ) -> Response[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
         HTTPValidationError,
+        PauseComputerComputerPausePostResponsePauseComputerComputerPausePost,
     ]
 ]:
-    """Execute Keyboard Hotkey
+    """Pause Computer
 
     Args:
-        body (KeyboardHotkeyAction):
+        body (ComputerPauseAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost, HTTPValidationError]]
+        Response[Union[HTTPValidationError, PauseComputerComputerPausePostResponsePauseComputerComputerPausePost]]
     """
 
     kwargs = _get_kwargs(
@@ -110,24 +110,24 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: KeyboardHotkeyAction,
+    body: ComputerPauseAction,
 ) -> Optional[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
         HTTPValidationError,
+        PauseComputerComputerPausePostResponsePauseComputerComputerPausePost,
     ]
 ]:
-    """Execute Keyboard Hotkey
+    """Pause Computer
 
     Args:
-        body (KeyboardHotkeyAction):
+        body (ComputerPauseAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost, HTTPValidationError]
+        Union[HTTPValidationError, PauseComputerComputerPausePostResponsePauseComputerComputerPausePost]
     """
 
     return sync_detailed(
@@ -139,24 +139,24 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: KeyboardHotkeyAction,
+    body: ComputerPauseAction,
 ) -> Response[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
         HTTPValidationError,
+        PauseComputerComputerPausePostResponsePauseComputerComputerPausePost,
     ]
 ]:
-    """Execute Keyboard Hotkey
+    """Pause Computer
 
     Args:
-        body (KeyboardHotkeyAction):
+        body (ComputerPauseAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost, HTTPValidationError]]
+        Response[Union[HTTPValidationError, PauseComputerComputerPausePostResponsePauseComputerComputerPausePost]]
     """
 
     kwargs = _get_kwargs(
@@ -171,24 +171,24 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: KeyboardHotkeyAction,
+    body: ComputerPauseAction,
 ) -> Optional[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
         HTTPValidationError,
+        PauseComputerComputerPausePostResponsePauseComputerComputerPausePost,
     ]
 ]:
-    """Execute Keyboard Hotkey
+    """Pause Computer
 
     Args:
-        body (KeyboardHotkeyAction):
+        body (ComputerPauseAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost, HTTPValidationError]
+        Union[HTTPValidationError, PauseComputerComputerPausePostResponsePauseComputerComputerPausePost]
     """
 
     return (

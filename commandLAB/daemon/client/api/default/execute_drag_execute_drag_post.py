@@ -5,23 +5,23 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.execute_keyboard_hotkey_execute_keyboard_hotkey_post_response_execute_keyboard_hotkey_execute_keyboard_hotkey_post import (
-    ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
+from ...models.drag_action import DragAction
+from ...models.execute_drag_execute_drag_post_response_execute_drag_execute_drag_post import (
+    ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost,
 )
 from ...models.http_validation_error import HTTPValidationError
-from ...models.keyboard_hotkey_action import KeyboardHotkeyAction
 from ...types import Response
 
 
 def _get_kwargs(
     *,
-    body: KeyboardHotkeyAction,
+    body: DragAction,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/execute/keyboard/hotkey",
+        "url": "/execute/drag",
     }
 
     _body = body.to_dict()
@@ -37,13 +37,15 @@ def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
+        ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost,
         HTTPValidationError,
     ]
 ]:
     if response.status_code == 200:
-        response_200 = ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost.from_dict(
-            response.json()
+        response_200 = (
+            ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost.from_dict(
+                response.json()
+            )
         )
 
         return response_200
@@ -61,7 +63,7 @@ def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Response[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
+        ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost,
         HTTPValidationError,
     ]
 ]:
@@ -76,24 +78,24 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: KeyboardHotkeyAction,
+    body: DragAction,
 ) -> Response[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
+        ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost,
         HTTPValidationError,
     ]
 ]:
-    """Execute Keyboard Hotkey
+    """Execute Drag
 
     Args:
-        body (KeyboardHotkeyAction):
+        body (DragAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost, HTTPValidationError]]
+        Response[Union[ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -110,24 +112,24 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: KeyboardHotkeyAction,
+    body: DragAction,
 ) -> Optional[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
+        ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost,
         HTTPValidationError,
     ]
 ]:
-    """Execute Keyboard Hotkey
+    """Execute Drag
 
     Args:
-        body (KeyboardHotkeyAction):
+        body (DragAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost, HTTPValidationError]
+        Union[ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost, HTTPValidationError]
     """
 
     return sync_detailed(
@@ -139,24 +141,24 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: KeyboardHotkeyAction,
+    body: DragAction,
 ) -> Response[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
+        ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost,
         HTTPValidationError,
     ]
 ]:
-    """Execute Keyboard Hotkey
+    """Execute Drag
 
     Args:
-        body (KeyboardHotkeyAction):
+        body (DragAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost, HTTPValidationError]]
+        Response[Union[ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -171,24 +173,24 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: KeyboardHotkeyAction,
+    body: DragAction,
 ) -> Optional[
     Union[
-        ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost,
+        ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost,
         HTTPValidationError,
     ]
 ]:
-    """Execute Keyboard Hotkey
+    """Execute Drag
 
     Args:
-        body (KeyboardHotkeyAction):
+        body (DragAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ExecuteKeyboardHotkeyExecuteKeyboardHotkeyPostResponseExecuteKeyboardHotkeyExecuteKeyboardHotkeyPost, HTTPValidationError]
+        Union[ExecuteDragExecuteDragPostResponseExecuteDragExecuteDragPost, HTTPValidationError]
     """
 
     return (

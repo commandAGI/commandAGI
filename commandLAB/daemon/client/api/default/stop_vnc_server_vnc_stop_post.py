@@ -5,23 +5,51 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.http_validation_error import HTTPValidationError
+from ...models.stop_vnc_server_vnc_stop_post_response_stop_vnc_server_vnc_stop_post import (
+    StopVncServerVncStopPostResponseStopVncServerVncStopPost,
+)
+from ...models.vnc_stop_server_action import VncStopServerAction
 from ...types import Response
 
 
-def _get_kwargs() -> dict[str, Any]:
+def _get_kwargs(
+    *,
+    body: VncStopServerAction,
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     _kwargs: dict[str, Any] = {
         "method": "post",
         "url": "/vnc/stop",
     }
 
+    _body = body.to_dict()
+
+    _kwargs["json"] = _body
+    headers["Content-Type"] = "application/json"
+
+    _kwargs["headers"] = headers
     return _kwargs
 
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Any]:
+) -> Optional[
+    Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]
+]:
     if response.status_code == 200:
-        return None
+        response_200 = (
+            StopVncServerVncStopPostResponseStopVncServerVncStopPost.from_dict(
+                response.json()
+            )
+        )
+
+        return response_200
+    if response.status_code == 422:
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -30,7 +58,9 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Any]:
+) -> Response[
+    Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]
+]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -42,18 +72,26 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-) -> Response[Any]:
+    body: VncStopServerAction,
+) -> Response[
+    Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]
+]:
     """Stop Vnc Server
+
+    Args:
+        body (VncStopServerAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any]
+        Response[Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]]
     """
 
-    kwargs = _get_kwargs()
+    kwargs = _get_kwargs(
+        body=body,
+    )
 
     response = client.get_httpx_client().request(
         **kwargs,
@@ -62,22 +100,84 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio_detailed(
+def sync(
     *,
     client: AuthenticatedClient,
-) -> Response[Any]:
+    body: VncStopServerAction,
+) -> Optional[
+    Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]
+]:
     """Stop Vnc Server
+
+    Args:
+        body (VncStopServerAction):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any]
+        Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]
     """
 
-    kwargs = _get_kwargs()
+    return sync_detailed(
+        client=client,
+        body=body,
+    ).parsed
+
+
+async def asyncio_detailed(
+    *,
+    client: AuthenticatedClient,
+    body: VncStopServerAction,
+) -> Response[
+    Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]
+]:
+    """Stop Vnc Server
+
+    Args:
+        body (VncStopServerAction):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]]
+    """
+
+    kwargs = _get_kwargs(
+        body=body,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    *,
+    client: AuthenticatedClient,
+    body: VncStopServerAction,
+) -> Optional[
+    Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]
+]:
+    """Stop Vnc Server
+
+    Args:
+        body (VncStopServerAction):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Union[HTTPValidationError, StopVncServerVncStopPostResponseStopVncServerVncStopPost]
+    """
+
+    return (
+        await asyncio_detailed(
+            client=client,
+            body=body,
+        )
+    ).parsed

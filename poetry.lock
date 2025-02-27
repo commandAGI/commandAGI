@@ -7207,7 +7207,7 @@ daemon-client-kubernetes = ["kubernetes", "pillow", "requests"]
 daemon-host = ["fastapi", "mcp", "mss", "pyautogui", "pynput", "uvicorn"]
 docker = ["docker"]
 gymnasium = ["gymnasium", "matplotlib", "numpy", "pillow"]
-jupyter = ["jupyter-client", "nbconvert", "nbformat"]
+jupyter = ["jupyter-client", "nbclient", "nbconvert", "nbformat"]
 kubernetes = ["kubernetes"]
 langchain = ["langchain", "langchain-core", "langchain-huggingface", "langchain-openai"]
 local = ["mss", "pyautogui", "pynput", "uiautomation"]
@@ -7219,4 +7219,4 @@ vnc = ["vncdotool"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "6bbbe92c5f2b5b43e000624d42b1d834b4555d22e46d5560e4bc92cc2761784b"
+content-hash = "c64cb8e643d12e6e3f650157e5319c7441a3a5058355f8b26944250ae23f4758"

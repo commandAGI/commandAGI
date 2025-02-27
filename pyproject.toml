@@ -97,6 +97,7 @@ pytesseract = ["pytesseract~=0.3"]
 gymnasium = ["gymnasium~=1.0", "numpy~=2.2", "pillow~=11.1", "matplotlib~=3.10"]
 jupyter = [
     "nbformat~=5.10",
+    "nbclient (>=0.10.2,<0.11.0)",
     "jupyter-client~=8.6",
     "nbconvert~=7.16",
 ]

@@ -17,11 +17,23 @@ from typing import Union, Optional, Literal, List, Dict, Any, IO, AnyStr
 import logging
 from pathlib import Path
 import shlex
-import pty
-import select
-import fcntl
-import termios
-import signal
+
+# Make Unix-specific imports conditional
+if platform.system() != "Windows":
+    import pty
+    import select
+    import fcntl
+    import termios
+    import signal
+else:
+    # For Windows, we need msvcrt for console I/O
+    import msvcrt
+    # Define dummy imports for Unix-specific modules
+    pty = None
+    select = None
+    fcntl = None
+    termios = None
+    signal = None
 
 try:
     import mss
@@ -33,7 +45,8 @@ except ImportError:
 
 try:
     import nbformat
-    from nbclient import NotebookClient, CellExecutionError
+    from nbclient import NotebookClient
+    from nbclient.exceptions import CellExecutionError
 except ImportError:
     raise ImportError(
         "Jupyter notebook dependencies are not installed. Please install with:\n\npip install nbformat nbclient"
@@ -77,6 +90,17 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
     This class provides methods to create, read, modify, and execute notebooks
     using the nbformat and nbclient libraries.
     """
+
+    def __init__(self):
+        """Initialize the notebook client."""
+        super().__init__()
+        self._client = None
+
+    def _get_client(self, notebook: Dict[str, Any], timeout: int = 600) -> NotebookClient:
+        """Get or create a NotebookClient instance."""
+        if self._client is None:
+            self._client = NotebookClient(notebook, timeout=timeout, kernel_name="python3")
+        return self._client
 
     def create_notebook(self) -> Dict[str, Any]:
         """Create a new empty notebook and return the notebook object."""
@@ -173,7 +197,7 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
         self, notebook: Dict[str, Any], timeout: int = 600
     ) -> Dict[str, Any]:
         """Execute all cells in the notebook and return the executed notebook."""
-        client = NotebookClient(notebook, timeout=timeout, kernel_name="python3")
+        client = self._get_client(notebook, timeout)
         try:
             client.execute()
             return notebook
@@ -186,7 +210,7 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
     ) -> Dict[str, Any]:
         """Execute a specific cell in the notebook and return the executed notebook."""
         if 0 <= index < len(notebook.cells):
-            client = NotebookClient(notebook, timeout=timeout, kernel_name="python3")
+            client = self._get_client(notebook, timeout)
             try:
                 # Execute only the specified cell
                 client.execute_cell(notebook.cells[index], index)
@@ -291,23 +315,23 @@ class LocalShell(BaseShell):
                 env.update(self.env)
 
             if platform.system() == "Windows":
-                # Windows implementation using subprocess
+                # Windows implementation using subprocess with pipes
                 self._process = subprocess.Popen(
-                    self.executable,
+                    ["cmd.exe", "/c", self.executable],  # Use cmd.exe as the shell
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     cwd=self.cwd,
                     env=env,
-                    shell=True,
+                    shell=False,  # Don't create another shell layer
                     text=True,
                     bufsize=0,
+                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,  # New process group
                 )
                 self.pid = self._process.pid
             else:
                 # Unix implementation using pty
                 self._master_fd, self._slave_fd = pty.openpty()
-
                 # Make the master file descriptor non-blocking
                 flags = fcntl.fcntl(self._master_fd, fcntl.F_GETFL)
                 fcntl.fcntl(self._master_fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
@@ -320,7 +344,7 @@ class LocalShell(BaseShell):
                     stderr=self._slave_fd,
                     cwd=self.cwd,
                     env=env,
-                    preexec_fn=os.setsid,
+                    preexec_fn=os.setsid,  # Create new session
                 )
                 self.pid = self._process.pid
 
@@ -466,24 +490,18 @@ class LocalShell(BaseShell):
                 if not self._process:
                     return ""
 
-                # Check if there's any output available
-                if timeout is not None:
-                    ready_to_read, _, _ = select.select(
-                        [self._process.stdout], [], [], timeout
-                    )
-                    if not ready_to_read:
-                        return ""
-
-                # Read output
                 output = ""
                 try:
-                    while True:
-                        line = self._process.stdout.readline()
-                        if not line:
-                            break
-                        output += line
-                except Exception:
-                    pass
+                    # Use a non-blocking read approach for Windows
+                    if self._process.stdout.readable():
+                        # Read available output without blocking
+                        while msvcrt.kbhit():
+                            char = self._process.stdout.read(1)
+                            if not char:
+                                break
+                            output += char
+                except Exception as e:
+                    self._logger.error(f"Error reading output: {e}")
 
                 self._output_buffer += output
                 return output
@@ -494,9 +512,7 @@ class LocalShell(BaseShell):
 
                 # Check if there's any output available
                 if timeout is not None:
-                    ready_to_read, _, _ = select.select(
-                        [self._master_fd], [], [], timeout
-                    )
+                    ready_to_read, _, _ = select.select([self._master_fd], [], [], timeout)
                     if not ready_to_read:
                         return ""
 

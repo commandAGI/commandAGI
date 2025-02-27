@@ -5,51 +5,26 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.http_validation_error import HTTPValidationError
-from ...models.rdp_stop_server_action import RdpStopServerAction
-from ...models.stop_rdp_server_rdp_stop_post_response_stop_rdp_server_rdp_stop_post import (
-    StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost,
-)
+from ...models.windows_observation import WindowsObservation
 from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: RdpStopServerAction,
-) -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
+def _get_kwargs() -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/rdp/stop",
+        "method": "get",
+        "url": "/observation/windows",
     }
 
-    _body = body.to_dict()
-
-    _kwargs["json"] = _body
-    headers["Content-Type"] = "application/json"
-
-    _kwargs["headers"] = headers
     return _kwargs
 
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[
-    Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]
-]:
+) -> Optional[WindowsObservation]:
     if response.status_code == 200:
-        response_200 = (
-            StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost.from_dict(
-                response.json()
-            )
-        )
+        response_200 = WindowsObservation.from_dict(response.json())
 
         return response_200
-    if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -58,9 +33,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[
-    Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]
-]:
+) -> Response[WindowsObservation]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,26 +45,18 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: RdpStopServerAction,
-) -> Response[
-    Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]
-]:
-    """Stop Rdp Server
-
-    Args:
-        body (RdpStopServerAction):
+) -> Response[WindowsObservation]:
+    """Get Windows
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]]
+        Response[WindowsObservation]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs()
 
     response = client.get_httpx_client().request(
         **kwargs,
@@ -103,52 +68,37 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: RdpStopServerAction,
-) -> Optional[
-    Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]
-]:
-    """Stop Rdp Server
-
-    Args:
-        body (RdpStopServerAction):
+) -> Optional[WindowsObservation]:
+    """Get Windows
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]
+        WindowsObservation
     """
 
     return sync_detailed(
         client=client,
-        body=body,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: RdpStopServerAction,
-) -> Response[
-    Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]
-]:
-    """Stop Rdp Server
-
-    Args:
-        body (RdpStopServerAction):
+) -> Response[WindowsObservation]:
+    """Get Windows
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]]
+        Response[WindowsObservation]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs()
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -158,26 +108,19 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: RdpStopServerAction,
-) -> Optional[
-    Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]
-]:
-    """Stop Rdp Server
-
-    Args:
-        body (RdpStopServerAction):
+) -> Optional[WindowsObservation]:
+    """Get Windows
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StopRdpServerRdpStopPostResponseStopRdpServerRdpStopPost]
+        WindowsObservation
     """
 
     return (
         await asyncio_detailed(
             client=client,
-            body=body,
         )
     ).parsed
