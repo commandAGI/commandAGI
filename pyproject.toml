@@ -63,12 +63,31 @@ mkdocs-awesome-pages-plugin = "^2.10.1"
 
 [project.optional-dependencies]
 # Legacy/existing extras for compatibility
-local = ["pynput~=1.7", "pyautogui~=0.9", "mss~=10.0"]
+local = [
+    "pynput~=1.7",
+    "pyautogui~=0.9",
+    "mss~=10.0",
+    "uiautomation; platform_system == \"Windows\"",
+    "pyax; platform_system == \"Darwin\"",
+    "pyatspi; platform_system == \"Linux\"",
+    # "pty; platform_system != \"Windows\"",
+    # "termios; platform_system != \"Windows\"",
+    # "tty; platform_system != \"Windows\"",
+]
+
+
+
 vnc = ["vncdotool~=1.2"]
 docker = ["docker~=7.1"]
 kubernetes = ["kubernetes~=32.0"]
-e2b-desktop = ["e2b-desktop~=1.0"]
-scrapybara = ["scrapybara~=2.2"]
+scrapybara = [
+    "scrapybara~=2.2",
+    "pillow~=11.1",
+    # "base64",
+    # "io",
+    # "tempfile",
+]
+
 langchain = [
     "langchain-core~=0.3",
     "langchain~=0.3",
@@ -78,6 +97,11 @@ langchain = [
 pig = ["pig-python~=0.1"]
 pytesseract = ["pytesseract~=0.3"]
 gymnasium = ["gymnasium~=1.0", "numpy~=2.2", "pillow~=11.1", "matplotlib~=3.10"]
+jupyter = [
+    "nbformat",
+    "jupyter-client",
+    "nbconvert",
+]
 
 # Cloud provider specific daemon clients
 daemon-client-aws = [
