@@ -124,9 +124,13 @@ class DaemonClientComputerFile(BaseComputerFile):
 class DaemonClientComputer(BaseComputer):
     provisioner: Optional[BaseComputerProvisioner] = None
     client: Optional[AuthenticatedClient] = None
-    logger: logging.Logger
+    logger: Optional[logging.Logger] = None
+    daemon_base_url: str = ""
+    daemon_port: int = 0
+    daemon_token: str = ""
 
     model_config = {"arbitrary_types_allowed": True}
+    
 
     def __init__(
         self,
@@ -135,9 +139,10 @@ class DaemonClientComputer(BaseComputer):
         daemon_token: str,
         provisioner: BaseComputerProvisioner,
     ):
+        # First call super().__init__() to initialize the Pydantic model
         super().__init__()
-
-        # Setup logging
+        
+        # Now it's safe to set attributes
         self.logger = logging.getLogger(__name__)
         
         # Store the provisioner
