@@ -13,7 +13,7 @@ import sys
 import psutil
 import shutil
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from typing import Union, Optional, Literal, List, Dict, Any
+from typing import Union, Optional, Literal, List, Dict, Any, IO, AnyStr
 import logging
 from pathlib import Path
 import shlex
@@ -39,7 +39,12 @@ except ImportError:
         "Jupyter notebook dependencies are not installed. Please install with:\n\npip install nbformat nbclient"
     )
 
-from commandLAB.computers.base_computer import BaseComputer, BaseJupyterNotebook, BaseShell
+from commandLAB.computers.base_computer import (
+    BaseComputer,
+    BaseJupyterNotebook,
+    BaseShell,
+    BaseComputerFile,
+)
 from commandLAB.types import (
     ShellCommandAction,
     KeyboardKey,
@@ -68,22 +73,24 @@ from commandLAB._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 
 class NbFormatJupyterNotebook(BaseJupyterNotebook):
     """Implementation of BaseJupyterNotebook using nbformat and nbclient libraries.
-    
+
     This class provides methods to create, read, modify, and execute notebooks
     using the nbformat and nbclient libraries.
     """
-    
+
     def create_notebook(self) -> Dict[str, Any]:
         """Create a new empty notebook and return the notebook object."""
         return nbformat.v4.new_notebook()
-    
+
     def read_notebook(self, path: Union[str, Path]) -> Dict[str, Any]:
         """Read a notebook from a file and return the notebook object."""
         path = Path(path) if isinstance(path, str) else path
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, "r", encoding="utf-8") as f:
             return nbformat.read(f, as_version=4)
-    
-    def save_notebook(self, notebook: Dict[str, Any], path: Optional[Union[str, Path]] = None) -> Path:
+
+    def save_notebook(
+        self, notebook: Dict[str, Any], path: Optional[Union[str, Path]] = None
+    ) -> Path:
         """Save the notebook to a file and return the path."""
         if path is None:
             if self.notebook_path is None:
@@ -92,12 +99,14 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
         else:
             path = Path(path) if isinstance(path, str) else path
             self.notebook_path = path
-            
-        with open(path, 'w', encoding='utf-8') as f:
+
+        with open(path, "w", encoding="utf-8") as f:
             nbformat.write(notebook, f)
         return path
-    
-    def add_markdown_cell(self, notebook: Dict[str, Any], source: str, position: Optional[int] = None) -> Dict[str, Any]:
+
+    def add_markdown_cell(
+        self, notebook: Dict[str, Any], source: str, position: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Add a markdown cell to the notebook and return the updated notebook."""
         cell = nbformat.v4.new_markdown_cell(source)
         if position is None:
@@ -105,8 +114,10 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
         else:
             notebook.cells.insert(position, cell)
         return notebook
-    
-    def add_code_cell(self, notebook: Dict[str, Any], source: str, position: Optional[int] = None) -> Dict[str, Any]:
+
+    def add_code_cell(
+        self, notebook: Dict[str, Any], source: str, position: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Add a code cell to the notebook and return the updated notebook."""
         cell = nbformat.v4.new_code_cell(source)
         if position is None:
@@ -114,50 +125,68 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
         else:
             notebook.cells.insert(position, cell)
         return notebook
-    
-    def update_cell(self, notebook: Dict[str, Any], index: int, source: str) -> Dict[str, Any]:
+
+    def update_cell(
+        self, notebook: Dict[str, Any], index: int, source: str
+    ) -> Dict[str, Any]:
         """Update the source of a cell at the given index and return the updated notebook."""
         if 0 <= index < len(notebook.cells):
-            notebook.cells[index]['source'] = source
+            notebook.cells[index]["source"] = source
         else:
-            raise IndexError(f"Cell index {index} out of range (0-{len(notebook.cells)-1})")
+            raise IndexError(
+                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+            )
         return notebook
-    
+
     def remove_cell(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
         """Remove a cell at the given index and return the updated notebook."""
         if 0 <= index < len(notebook.cells):
             notebook.cells.pop(index)
         else:
-            raise IndexError(f"Cell index {index} out of range (0-{len(notebook.cells)-1})")
+            raise IndexError(
+                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+            )
         return notebook
-    
+
     def list_cells(self, notebook: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Return a list of cells in the notebook."""
         return [
             {
-                'index': i,
-                'cell_type': cell.get('cell_type', 'unknown'),
-                'source': cell.get('source', ''),
-                'execution_count': cell.get('execution_count', None) if cell.get('cell_type') == 'code' else None,
-                'has_output': bool(cell.get('outputs', [])) if cell.get('cell_type') == 'code' else False
+                "index": i,
+                "cell_type": cell.get("cell_type", "unknown"),
+                "source": cell.get("source", ""),
+                "execution_count": (
+                    cell.get("execution_count", None)
+                    if cell.get("cell_type") == "code"
+                    else None
+                ),
+                "has_output": (
+                    bool(cell.get("outputs", []))
+                    if cell.get("cell_type") == "code"
+                    else False
+                ),
             }
             for i, cell in enumerate(notebook.cells)
         ]
-    
-    def execute_notebook(self, notebook: Dict[str, Any], timeout: int = 600) -> Dict[str, Any]:
+
+    def execute_notebook(
+        self, notebook: Dict[str, Any], timeout: int = 600
+    ) -> Dict[str, Any]:
         """Execute all cells in the notebook and return the executed notebook."""
-        client = NotebookClient(notebook, timeout=timeout, kernel_name='python3')
+        client = NotebookClient(notebook, timeout=timeout, kernel_name="python3")
         try:
             client.execute()
             return notebook
         except CellExecutionError as e:
             # Continue execution even if a cell fails
             return notebook
-    
-    def execute_cell(self, notebook: Dict[str, Any], index: int, timeout: int = 60) -> Dict[str, Any]:
+
+    def execute_cell(
+        self, notebook: Dict[str, Any], index: int, timeout: int = 60
+    ) -> Dict[str, Any]:
         """Execute a specific cell in the notebook and return the executed notebook."""
         if 0 <= index < len(notebook.cells):
-            client = NotebookClient(notebook, timeout=timeout, kernel_name='python3')
+            client = NotebookClient(notebook, timeout=timeout, kernel_name="python3")
             try:
                 # Execute only the specified cell
                 client.execute_cell(notebook.cells[index], index)
@@ -166,61 +195,69 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
                 pass
             return notebook
         else:
-            raise IndexError(f"Cell index {index} out of range (0-{len(notebook.cells)-1})")
-    
-    def get_cell_output(self, notebook: Dict[str, Any], index: int) -> List[Dict[str, Any]]:
+            raise IndexError(
+                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+            )
+
+    def get_cell_output(
+        self, notebook: Dict[str, Any], index: int
+    ) -> List[Dict[str, Any]]:
         """Return the output of a cell at the given index."""
         if 0 <= index < len(notebook.cells):
             cell = notebook.cells[index]
-            if cell.get('cell_type') == 'code':
-                return cell.get('outputs', [])
+            if cell.get("cell_type") == "code":
+                return cell.get("outputs", [])
             else:
                 return []
         else:
-            raise IndexError(f"Cell index {index} out of range (0-{len(notebook.cells)-1})")
-    
+            raise IndexError(
+                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+            )
+
     def clear_cell_output(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
         """Clear the output of a cell at the given index and return the updated notebook."""
         if 0 <= index < len(notebook.cells):
             cell = notebook.cells[index]
-            if cell.get('cell_type') == 'code':
-                cell['outputs'] = []
-                cell['execution_count'] = None
+            if cell.get("cell_type") == "code":
+                cell["outputs"] = []
+                cell["execution_count"] = None
         else:
-            raise IndexError(f"Cell index {index} out of range (0-{len(notebook.cells)-1})")
+            raise IndexError(
+                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+            )
         return notebook
-    
+
     def clear_all_outputs(self, notebook: Dict[str, Any]) -> Dict[str, Any]:
         """Clear the outputs of all cells in the notebook and return the updated notebook."""
         for cell in notebook.cells:
-            if cell.get('cell_type') == 'code':
-                cell['outputs'] = []
-                cell['execution_count'] = None
+            if cell.get("cell_type") == "code":
+                cell["outputs"] = []
+                cell["execution_count"] = None
         return notebook
 
 
 class LocalShell(BaseShell):
     """Implementation of BaseShell for local system shells.
-    
+
     This class provides methods to interact with a persistent shell process
     on the local system.
     """
-    
+
     _process: Optional[subprocess.Popen] = None
     _master_fd: Optional[int] = None
     _slave_fd: Optional[int] = None
     _output_buffer: str = ""
     _lock: threading.Lock = threading.Lock()
-    
+
     def __init__(
-        self, 
+        self,
         executable: str = DEFAULT_SHELL_EXECUTIBLE,
         cwd: Optional[Union[str, Path]] = None,
         env: Optional[Dict[str, str]] = None,
-        logger: Optional[logging.Logger] = None
+        logger: Optional[logging.Logger] = None,
     ):
         """Initialize a LocalShell instance.
-        
+
         Args:
             executable: Path to the shell executable
             cwd: Initial working directory
@@ -231,28 +268,28 @@ class LocalShell(BaseShell):
             executable=executable,
             cwd=Path(cwd) if cwd else Path.cwd(),
             env=env or {},
-            logger=logger or logging.getLogger("commandLAB.shell")
+            logger=logger or logging.getLogger("commandLAB.shell"),
         )
         self._lock = threading.Lock()
-    
+
     def start(self) -> bool:
         """Start the shell process.
-        
+
         Returns:
             bool: True if the shell was started successfully, False otherwise.
         """
         if self.is_running():
             self.logger.info("Shell is already running")
             return True
-            
+
         try:
             self.logger.info(f"Starting shell with executable: {self.executable}")
-            
+
             # Set up environment
             env = os.environ.copy()
             if self.env:
                 env.update(self.env)
-                
+
             if platform.system() == "Windows":
                 # Windows implementation using subprocess
                 self._process = subprocess.Popen(
@@ -264,17 +301,17 @@ class LocalShell(BaseShell):
                     env=env,
                     shell=True,
                     text=True,
-                    bufsize=0
+                    bufsize=0,
                 )
                 self.pid = self._process.pid
             else:
                 # Unix implementation using pty
                 self._master_fd, self._slave_fd = pty.openpty()
-                
+
                 # Make the master file descriptor non-blocking
                 flags = fcntl.fcntl(self._master_fd, fcntl.F_GETFL)
                 fcntl.fcntl(self._master_fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
-                
+
                 # Start the shell process
                 self._process = subprocess.Popen(
                     [self.executable],
@@ -283,39 +320,39 @@ class LocalShell(BaseShell):
                     stderr=self._slave_fd,
                     cwd=self.cwd,
                     env=env,
-                    preexec_fn=os.setsid
+                    preexec_fn=os.setsid,
                 )
                 self.pid = self._process.pid
-                
+
             self.logger.info(f"Shell started with PID: {self.pid}")
-            
+
             # Change to the initial working directory if specified
             if self.cwd:
                 self.change_directory(self.cwd)
-                
+
             return True
         except Exception as e:
             self.logger.error(f"Error starting shell: {e}")
             self._cleanup()
             return False
-    
+
     def stop(self) -> bool:
         """Stop the shell process.
-        
+
         Returns:
             bool: True if the shell was stopped successfully, False otherwise.
         """
         if not self.is_running():
             self.logger.info("Shell is not running")
             return True
-            
+
         try:
             self.logger.info(f"Stopping shell with PID: {self.pid}")
-            
+
             if platform.system() == "Windows":
                 # Send exit command to gracefully exit
                 self.execute("exit", timeout=1)
-                
+
                 # If still running, terminate
                 if self._process and self._process.poll() is None:
                     self._process.terminate()
@@ -323,14 +360,14 @@ class LocalShell(BaseShell):
             else:
                 # Send SIGTERM to the process group
                 os.killpg(os.getpgid(self.pid), signal.SIGTERM)
-                
+
                 # Wait for the process to terminate
                 try:
                     self._process.wait(timeout=3)
                 except subprocess.TimeoutExpired:
                     # If still running, send SIGKILL
                     os.killpg(os.getpgid(self.pid), signal.SIGKILL)
-                    
+
             self._cleanup()
             self.logger.info("Shell stopped")
             return True
@@ -338,7 +375,7 @@ class LocalShell(BaseShell):
             self.logger.error(f"Error stopping shell: {e}")
             self._cleanup()
             return False
-    
+
     def _cleanup(self):
         """Clean up resources."""
         if platform.system() != "Windows" and self._master_fd is not None:
@@ -347,98 +384,96 @@ class LocalShell(BaseShell):
             except OSError:
                 pass
             self._master_fd = None
-            
+
         if platform.system() != "Windows" and self._slave_fd is not None:
             try:
                 os.close(self._slave_fd)
             except OSError:
                 pass
             self._slave_fd = None
-            
+
         self._process = None
         self.pid = None
-    
+
     def execute(self, command: str, timeout: Optional[float] = None) -> Dict[str, Any]:
         """Execute a command in the shell and return the result.
-        
+
         Args:
             command: The command to execute
             timeout: Optional timeout in seconds
-            
+
         Returns:
             Dict containing stdout, stderr, and return code
         """
         if not self.is_running():
             self.start()
-            
+
         try:
             self.logger.debug(f"Executing command: {command}")
-            
+
             # Clear the output buffer before sending the command
             with self._lock:
                 self._output_buffer = ""
-            
+
             # Send the command with a newline
             self.send_input(command + "\n")
-            
+
             # Read the output
             start_time = time.time()
             output = ""
-            
+
             # Wait for the command to complete
             while timeout is None or (time.time() - start_time) < timeout:
                 new_output = self.read_output(timeout=0.1)
                 if new_output:
                     output += new_output
-                
+
                 # Check if the command has completed (prompt is shown)
                 if output and (output.endswith("$ ") or output.endswith("> ")):
                     break
-                    
+
                 time.sleep(0.1)
-            
+
             # Remove the command from the output
             lines = output.splitlines()
             if lines and command in lines[0]:
                 output = "\n".join(lines[1:])
-            
+
             return {
                 "stdout": output,
                 "stderr": "",  # We can't separate stdout and stderr with pty
-                "returncode": 0  # We can't easily get the return code
+                "returncode": 0,  # We can't easily get the return code
             }
         except Exception as e:
             self.logger.error(f"Error executing command: {e}")
-            return {
-                "stdout": "",
-                "stderr": str(e),
-                "returncode": 1
-            }
-    
+            return {"stdout": "", "stderr": str(e), "returncode": 1}
+
     def read_output(self, timeout: Optional[float] = None) -> str:
         """Read any available output from the shell.
-        
+
         Args:
             timeout: Optional timeout in seconds
-            
+
         Returns:
             str: The output from the shell
         """
         if not self.is_running():
             return ""
-            
+
         with self._lock:
             if platform.system() == "Windows":
                 # Windows implementation
                 if not self._process:
                     return ""
-                    
+
                 # Check if there's any output available
                 if timeout is not None:
-                    ready_to_read, _, _ = select.select([self._process.stdout], [], [], timeout)
+                    ready_to_read, _, _ = select.select(
+                        [self._process.stdout], [], [], timeout
+                    )
                     if not ready_to_read:
                         return ""
-                
+
                 # Read output
                 output = ""
                 try:
@@ -449,20 +484,22 @@ class LocalShell(BaseShell):
                         output += line
                 except Exception:
                     pass
-                    
+
                 self._output_buffer += output
                 return output
             else:
                 # Unix implementation using pty
                 if self._master_fd is None:
                     return ""
-                    
+
                 # Check if there's any output available
                 if timeout is not None:
-                    ready_to_read, _, _ = select.select([self._master_fd], [], [], timeout)
+                    ready_to_read, _, _ = select.select(
+                        [self._master_fd], [], [], timeout
+                    )
                     if not ready_to_read:
                         return ""
-                
+
                 # Read output
                 output = ""
                 try:
@@ -470,70 +507,70 @@ class LocalShell(BaseShell):
                         data = os.read(self._master_fd, 1024)
                         if not data:
                             break
-                        output += data.decode('utf-8', errors='replace')
+                        output += data.decode("utf-8", errors="replace")
                 except (OSError, IOError):
                     pass
-                    
+
                 self._output_buffer += output
                 return output
-    
+
     def send_input(self, text: str) -> bool:
         """Send input to the shell.
-        
+
         Args:
             text: The text to send to the shell
-            
+
         Returns:
             bool: True if the input was sent successfully, False otherwise
         """
         if not self.is_running():
             self.start()
-            
+
         try:
             if platform.system() == "Windows":
                 # Windows implementation
                 if not self._process or not self._process.stdin:
                     return False
-                    
+
                 self._process.stdin.write(text)
                 self._process.stdin.flush()
             else:
                 # Unix implementation using pty
                 if self._master_fd is None:
                     return False
-                    
-                os.write(self._master_fd, text.encode('utf-8'))
-                
+
+                os.write(self._master_fd, text.encode("utf-8"))
+
             return True
         except Exception as e:
             self.logger.error(f"Error sending input: {e}")
             return False
-    
+
     def change_directory(self, path: Union[str, Path]) -> bool:
         """Change the current working directory of the shell.
-        
+
         Args:
             path: The path to change to
-            
+
         Returns:
             bool: True if the directory was changed successfully, False otherwise
         """
         path_str = str(path)
         result = self.execute(f"cd {shlex.quote(path_str)}")
-        
+
         # Update the internal cwd if the command was successful
         if result["returncode"] == 0:
             self.cwd = Path(path_str).resolve()
             return True
         return False
-    
+
     def set_environment_variable(self, name: str, value: str) -> bool:
         """Set an environment variable in the shell.
-        
+
         Args:
             name: The name of the environment variable
             value: The value to set
-            
+
         Returns:
             bool: True if the variable was set successfully, False otherwise
         """
@@ -541,21 +578,21 @@ class LocalShell(BaseShell):
             cmd = f"set {name}={value}"
         else:
             cmd = f"export {name}={shlex.quote(value)}"
-            
+
         result = self.execute(cmd)
-        
+
         # Update the internal env if the command was successful
         if result["returncode"] == 0:
             self.env[name] = value
             return True
         return False
-    
+
     def get_environment_variable(self, name: str) -> Optional[str]:
         """Get the value of an environment variable from the shell.
-        
+
         Args:
             name: The name of the environment variable
-            
+
         Returns:
             Optional[str]: The value of the environment variable, or None if it doesn't exist
         """
@@ -563,9 +600,9 @@ class LocalShell(BaseShell):
             cmd = f"echo %{name}%"
         else:
             cmd = f"echo ${name}"
-            
+
         result = self.execute(cmd)
-        
+
         if result["returncode"] == 0 and result["stdout"].strip():
             value = result["stdout"].strip()
             # If the variable doesn't exist, Windows will return the original string
@@ -573,16 +610,16 @@ class LocalShell(BaseShell):
                 return None
             return value
         return None
-    
+
     def is_running(self) -> bool:
         """Check if the shell process is running.
-        
+
         Returns:
             bool: True if the shell is running, False otherwise
         """
         if self._process is None or self.pid is None:
             return False
-            
+
         # Check if the process is still running
         try:
             if platform.system() == "Windows":
@@ -593,11 +630,11 @@ class LocalShell(BaseShell):
                 return True
         except (OSError, ProcessLookupError):
             return False
-    
+
     @property
     def current_directory(self) -> Path:
         """Get the current working directory of the shell.
-        
+
         Returns:
             Path: The current working directory
         """
@@ -605,9 +642,9 @@ class LocalShell(BaseShell):
             cmd = "cd"
         else:
             cmd = "pwd"
-            
+
         result = self.execute(cmd)
-        
+
         if result["returncode"] == 0 and result["stdout"].strip():
             return Path(result["stdout"].strip())
         return self.cwd  # Fall back to the stored cwd
@@ -686,6 +723,117 @@ class ThreadedHTTPServer(HTTPServer):
                 super().__init__(*args, computer=computer, **kwargs)
 
         super().__init__(server_address, Handler)
+
+
+class LocalComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for local computer files.
+
+    This class provides a direct passthrough to the built-in file object for local files.
+    No temporary files or copying is used - we directly access the file in its original location.
+    """
+
+    def __init__(
+        self,
+        computer: "BaseComputer",
+        path: Union[str, Path],
+        mode: str = "r",
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1,
+    ):
+        """Initialize a local computer file.
+
+        For local files, we directly open the file in its original location.
+
+        Args:
+            computer: The computer instance this file belongs to
+            path: Path to the file on the computer
+            mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
+            encoding: Text encoding to use (for text modes)
+            errors: How to handle encoding/decoding errors
+            buffering: Buffering policy (-1 for default)
+        """
+        # Store basic attributes
+        self.computer = computer
+        self.path = Path(path)
+        self.mode = mode
+
+        # Open the file directly
+        kwargs = {}
+        if encoding is not None and "b" not in mode:
+            kwargs["encoding"] = encoding
+        if errors is not None:
+            kwargs["errors"] = errors
+        if buffering != -1:
+            kwargs["buffering"] = buffering
+
+        # Just open the file directly - let the built-in open() handle all errors
+        self._file = open(path, mode, **kwargs)
+        self._closed = False
+
+    # Override base class methods to do nothing
+    def _setup_temp_file(self):
+        pass
+
+    def _copy_from_computer(self):
+        pass
+
+    def _copy_to_computer(self):
+        pass
+
+    def _open_temp_file(self):
+        pass
+
+    # Delegate all file operations directly to the underlying file object
+    def read(self, size=None):
+        return self._file.read() if size is None else self._file.read(size)
+
+    def write(self, data):
+        return self._file.write(data)
+
+    def seek(self, offset, whence=0):
+        return self._file.seek(offset, whence)
+
+    def tell(self):
+        return self._file.tell()
+
+    def flush(self):
+        self._file.flush()
+
+    def close(self):
+        if not self._closed:
+            self._file.close()
+            self._closed = True
+
+    def readable(self):
+        return self._file.readable()
+
+    def writable(self):
+        return self._file.writable()
+
+    def seekable(self):
+        return self._file.seekable()
+
+    def readline(self, size=-1):
+        return self._file.readline(size)
+
+    def readlines(self, hint=-1):
+        return self._file.readlines(hint)
+
+    def writelines(self, lines):
+        self._file.writelines(lines)
+
+    def __iter__(self):
+        return self._file.__iter__()
+
+    def __next__(self):
+        return self._file.__next__()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
 
 class LocalComputer(BaseComputer):
@@ -1116,21 +1264,23 @@ class LocalComputer(BaseComputer):
         """
         self.logger.info(f"Resuming {self.__class__.__name__} (no-op)")
         # No specific resume implementation for local computers
-    
+
     _jupyter_server_pid: Optional[int] = None
 
     def create_jupyter_notebook(self) -> NbFormatJupyterNotebook:
         """Create and return a new NbFormatJupyterNotebook instance.
-        
+
         Returns:
             NbFormatJupyterNotebook: A notebook client instance for creating and manipulating notebooks.
         """
         self.logger.info("Creating new Jupyter notebook client")
         return NbFormatJupyterNotebook()
-        
-    def start_jupyter_server(self, port: int = 8888, notebook_dir: Optional[str] = None):
+
+    def start_jupyter_server(
+        self, port: int = 8888, notebook_dir: Optional[str] = None
+    ):
         """Start a Jupyter notebook server.
-        
+
         Args:
             port: Port number to run the server on
             notebook_dir: Directory to serve notebooks from. If None, uses current directory.
@@ -1138,58 +1288,70 @@ class LocalComputer(BaseComputer):
         if self._jupyter_server_pid is not None:
             self.logger.info("Jupyter server is already running")
             return
-            
+
         notebook_dir = notebook_dir or os.getcwd()
-        self.logger.info(f"Starting Jupyter notebook server on port {port} in directory {notebook_dir}")
-        
+        self.logger.info(
+            f"Starting Jupyter notebook server on port {port} in directory {notebook_dir}"
+        )
+
         try:
             # Start the Jupyter notebook server as a subprocess
-            cmd = [sys.executable, "-m", "jupyter", "notebook", f"--port={port}", f"--notebook-dir={notebook_dir}", "--no-browser"]
+            cmd = [
+                sys.executable,
+                "-m",
+                "jupyter",
+                "notebook",
+                f"--port={port}",
+                f"--notebook-dir={notebook_dir}",
+                "--no-browser",
+            ]
             process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                start_new_session=True  # Create a new process group
+                start_new_session=True,  # Create a new process group
             )
-            
+
             self._jupyter_server_pid = process.pid
-            self.logger.info(f"Jupyter notebook server started with PID {self._jupyter_server_pid}")
-            
+            self.logger.info(
+                f"Jupyter notebook server started with PID {self._jupyter_server_pid}"
+            )
+
             # Wait a moment for the server to start
             time.sleep(2)
-            
+
             # Check if the server is running
             if process.poll() is not None:
-                stderr = process.stderr.read().decode('utf-8')
+                stderr = process.stderr.read().decode("utf-8")
                 self.logger.error(f"Jupyter notebook server failed to start: {stderr}")
                 self._jupyter_server_pid = None
                 return False
-                
+
             return True
         except Exception as e:
             self.logger.error(f"Error starting Jupyter notebook server: {e}")
             self._jupyter_server_pid = None
             return False
-            
+
     def stop_jupyter_server(self):
         """Stop the running Jupyter notebook server if one exists."""
         if self._jupyter_server_pid is None:
             self.logger.info("No Jupyter server is running")
             return True
-            
+
         try:
             # Try to terminate the process gracefully
             process = psutil.Process(self._jupyter_server_pid)
             process.terminate()
-            
+
             # Wait for the process to terminate
             gone, still_alive = psutil.wait_procs([process], timeout=3)
-            
+
             # If the process is still alive, kill it
             if still_alive:
                 for p in still_alive:
                     p.kill()
-                    
+
             self._jupyter_server_pid = None
             self.logger.info("Jupyter notebook server stopped")
             return True
@@ -1201,17 +1363,22 @@ class LocalComputer(BaseComputer):
             self.logger.error(f"Error stopping Jupyter notebook server: {e}")
             return False
 
-    def create_shell(self, executable: str = DEFAULT_SHELL_EXECUTIBLE, cwd: Optional[Union[str, Path]] = None, env: Optional[Dict[str, str]] = None) -> LocalShell:
+    def create_shell(
+        self,
+        executable: str = DEFAULT_SHELL_EXECUTIBLE,
+        cwd: Optional[Union[str, Path]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> LocalShell:
         """Create and return a new LocalShell instance.
-        
+
         This method creates a persistent shell that can be used to execute commands
         and interact with the system shell environment.
-        
+
         Args:
             executable: Path to the shell executable to use
             cwd: Initial working directory for the shell
             env: Environment variables to set in the shell
-            
+
         Returns:
             LocalShell: A shell instance for executing commands and interacting with the shell
         """
@@ -1220,9 +1387,9 @@ class LocalComputer(BaseComputer):
             executable=executable,
             cwd=cwd,
             env=env,
-            logger=self.logger.getChild("shell")
+            logger=self.logger.getChild("shell"),
         )
-        
+
         # Start the shell
         if shell.start():
             self.logger.info(f"Shell started successfully with PID: {shell.pid}")
@@ -1321,14 +1488,14 @@ class LocalComputer(BaseComputer):
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_to_computer functionality for LocalComputer.
-        
+
         For a local computer, this simply copies files from one location to another
         on the same machine using shutil.
-        
+
         Args:
             source_path: Path to the source file or directory on the local machine
             destination_path: Path where the file or directory should be copied on the computer
-            
+
         Raises:
             FileNotFoundError: If the source path does not exist
             PermissionError: If there are permission issues
@@ -1339,14 +1506,14 @@ class LocalComputer(BaseComputer):
 
     def _copy_from_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_from_computer functionality for LocalComputer.
-        
+
         For a local computer, this simply copies files from one location to another
         on the same machine using shutil.
-        
+
         Args:
             source_path: Path to the source file or directory on the computer
             destination_path: Path where the file or directory should be copied on the local machine
-            
+
         Raises:
             FileNotFoundError: If the source path does not exist
             PermissionError: If there are permission issues
@@ -1358,11 +1525,11 @@ class LocalComputer(BaseComputer):
 
     def _copy_local(self, source_path: Path, destination_path: Path) -> None:
         """Helper method to copy files or directories locally.
-        
+
         Args:
             source_path: Path to the source file or directory
             destination_path: Path where the file or directory should be copied
-            
+
         Raises:
             FileNotFoundError: If the source path does not exist
             PermissionError: If there are permission issues
@@ -1371,17 +1538,19 @@ class LocalComputer(BaseComputer):
         # Ensure source exists
         if not source_path.exists():
             raise FileNotFoundError(f"Source path does not exist: {source_path}")
-            
+
         # Create parent directories if they don't exist
         destination_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
         # Copy file or directory
         if source_path.is_dir():
             if destination_path.exists() and destination_path.is_dir():
                 # If destination exists and is a directory, copy contents into it
                 for item in source_path.iterdir():
                     if item.is_dir():
-                        shutil.copytree(item, destination_path / item.name, dirs_exist_ok=True)
+                        shutil.copytree(
+                            item, destination_path / item.name, dirs_exist_ok=True
+                        )
                     else:
                         shutil.copy2(item, destination_path / item.name)
             else:
@@ -1697,3 +1866,32 @@ class LocalComputer(BaseComputer):
             if display_index < len(displays):
                 display_info.update(displays[display_index])
         return display_info
+
+    def _open(
+        self,
+        path: Union[str, Path],
+        mode: str = "r",
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1,
+    ) -> LocalComputerFile:
+        """Open a file on the local computer.
+
+        Args:
+            path: Path to the file on the local computer
+            mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
+            encoding: Text encoding to use (for text modes)
+            errors: How to handle encoding/decoding errors
+            buffering: Buffering policy (-1 for default)
+
+        Returns:
+            A LocalComputerFile instance for the specified file
+        """
+        return LocalComputerFile(
+            computer=self,
+            path=path,
+            mode=mode,
+            encoding=encoding,
+            errors=errors,
+            buffering=buffering,
+        )

@@ -3,7 +3,8 @@ import io
 import os
 import datetime
 from pathlib import Path
-from typing import Optional, Union, Literal
+from typing import Optional, Union, Literal, List, Dict, Any, AnyStr
+import tempfile
 
 try:
     import vncdotool.api as vnc
@@ -19,7 +20,7 @@ except ImportError:
         "The VNC dependencies are not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]"
     )
 
-from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.base_computer import BaseComputer, BaseComputerFile
 from commandLAB.types import (
     ShellCommandAction,
     KeyboardKey,
@@ -121,6 +122,13 @@ def keyboard_key_to_vnc(key: Union[KeyboardKey, str]) -> str:
     # For letter keys and number keys, use the value directly
     return vnc_key_mapping.get(key, key.value)
 
+
+class VNCComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for VNC computer files.
+    
+    This class provides a file-like interface for working with files on a remote computer
+    accessed via VNC. It uses SFTP for file operations when available.
+    """
 
 class VNCComputer(BaseComputer):
     """Environment that uses VNC for remote computer interactions
@@ -576,3 +584,34 @@ class VNCComputer(BaseComputer):
         except Exception as e:
             self.logger.error(f"Error during SFTP transfer: {e}")
             raise
+
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> VNCComputerFile:
+        """Open a file on the remote computer.
+        
+        This method uses SFTP to access files on the remote computer.
+        
+        Args:
+            path: Path to the file on the remote computer
+            mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
+            encoding: Text encoding to use (for text modes)
+            errors: How to handle encoding/decoding errors
+            buffering: Buffering policy (-1 for default)
+            
+        Returns:
+            A VNCComputerFile instance for the specified file
+        """
+        return VNCComputerFile(
+            computer=self,
+            path=path,
+            mode=mode,
+            encoding=encoding,
+            errors=errors,
+            buffering=buffering
+        )

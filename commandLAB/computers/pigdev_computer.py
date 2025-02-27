@@ -2,7 +2,8 @@ import base64
 import io
 import os
 import datetime
-from typing import Dict, Any, Optional, Union, Literal
+import tempfile
+from typing import Dict, Any, Optional, Union, Literal, List, AnyStr
 
 try:
     from pig import Client
@@ -12,7 +13,7 @@ except ImportError:
         "The PigDev dependencies are not installed. Please install commandLAB with the pigdev extra:\n\npip install commandLAB[pigdev]"
     )
 
-from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.base_computer import BaseComputer, BaseComputerFile
 from commandLAB.types import (
     ShellCommandAction,
     KeyboardKey,
@@ -114,6 +115,14 @@ def keyboard_key_to_pigdev(key: Union[KeyboardKey, str]) -> str:
     # For letter keys and number keys, use the value directly
     return pigdev_key_mapping.get(key, key.value)
 
+
+class PigDevComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for PigDev computer files.
+    
+    This class provides a file-like interface for working with files on a remote computer
+    accessed via PigDev. It uses temporary local files and PigDev's file transfer
+    capabilities to provide file-like access.
+    """
 
 class PigDevComputer(BaseComputer):
     """Environment that uses PigDev for secure computer interactions"""
@@ -409,3 +418,35 @@ class PigDevComputer(BaseComputer):
         """
         self.logger.info(f"Running process via PigDev: {action.command} with args: {action.args}")
         return self._default_run_process(action=action)
+
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> PigDevComputerFile:
+        """Open a file on the remote computer.
+        
+        This method uses PigDev's file transfer capabilities to provide
+        file-like access to files on the remote computer.
+        
+        Args:
+            path: Path to the file on the remote computer
+            mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
+            encoding: Text encoding to use (for text modes)
+            errors: How to handle encoding/decoding errors
+            buffering: Buffering policy (-1 for default)
+            
+        Returns:
+            A PigDevComputerFile instance for the specified file
+        """
+        return PigDevComputerFile(
+            computer=self,
+            path=path,
+            mode=mode,
+            encoding=encoding,
+            errors=errors,
+            buffering=buffering
+        )

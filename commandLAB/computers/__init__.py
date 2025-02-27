@@ -9,7 +9,7 @@ import logging
 # Setup logging
 logger = logging.getLogger(__name__)
 
-from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.base_computer import BaseComputer, BaseComputerFile
 
 try:
     from commandLAB.computers.local_computer import LocalComputer
@@ -58,6 +58,7 @@ except ImportError:
 
 __all__ = [
     "BaseComputer",
+    "BaseComputerFile",
     "LocalComputer",
     "LocalPynputComputer",
     "LocalPyAutoGUIComputer",

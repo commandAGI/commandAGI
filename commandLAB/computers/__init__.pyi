@@ -7,8 +7,8 @@ and static type checking.
 """
 
 import logging
-from commandLAB.computers.base_computer import BaseComputer, BaseJupyterNotebook, BaseShell
-from commandLAB.computers.local_computer import LocalComputer, LocalShell, NbFormatJupyterNotebook
+from commandLAB.computers.base_computer import BaseComputer, BaseJupyterNotebook, BaseShell, BaseComputerFile
+from commandLAB.computers.local_computer import LocalComputer, LocalShell, NbFormatJupyterNotebook, LocalComputerFile
 from commandLAB.computers.local_pynput_computer import LocalPynputComputer
 from commandLAB.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandLAB.computers.e2b_desktop_computer import E2BDesktopComputer
@@ -26,8 +26,10 @@ __all__ = [
     "BaseComputer",
     "BaseJupyterNotebook",
     "BaseShell",
+    "BaseComputerFile",
     "LocalComputer",
     "LocalShell",
+    "LocalComputerFile",
     "NbFormatJupyterNotebook",
     "LocalPynputComputer",
     "LocalPyAutoGUIComputer",

@@ -6,11 +6,11 @@ the actual dependencies to be installed, which is helpful for development enviro
 and static type checking.
 """
 
-from typing import Dict, List, Optional, Tuple, Union, Any, Literal
+from typing import Dict, List, Optional, Tuple, Union, Any, Literal, IO, AnyStr
 import logging
 from pathlib import Path
 
-from commandLAB.computers.base_computer import BaseComputer, BaseJupyterNotebook, BaseShell
+from commandLAB.computers.base_computer import BaseComputer, BaseJupyterNotebook, BaseShell, BaseComputerFile
 from commandLAB.types import (
     ShellCommandAction,
     KeyboardHotkeyAction,
@@ -39,6 +39,76 @@ from commandLAB.types import (
     DisplaysObservation,
     RunProcessAction,
 )
+
+class LocalComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for local computer files."""
+    
+    def __init__(
+        self, 
+        computer: 'BaseComputer',
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> None: ...
+    
+    def read(self, size: Optional[int] = None) -> AnyStr: ...
+    
+    def write(self, data: AnyStr) -> int: ...
+    
+    def seek(self, offset: int, whence: int = 0) -> int: ...
+    
+    def tell(self) -> int: ...
+    
+    def flush(self) -> None: ...
+    
+    def close(self) -> None: ...
+    
+    def readable(self) -> bool: ...
+    
+    def writable(self) -> bool: ...
+    
+    def seekable(self) -> bool: ...
+    
+    def readline(self, size: int = -1) -> AnyStr: ...
+    
+    def readlines(self, hint: int = -1) -> List[AnyStr]: ...
+    
+    def writelines(self, lines: List[AnyStr]) -> None: ...
+    
+    def __iter__(self) -> 'LocalComputerFile': ...
+    
+    def __next__(self) -> AnyStr: ...
+    
+    def __enter__(self) -> 'LocalComputerFile': ...
+    
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None: ...
+
+class E2BDesktopComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for E2B Desktop computer files."""
+    # Same methods as LocalComputerFile
+    pass
+
+class VNCComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for VNC computer files."""
+    # Same methods as LocalComputerFile
+    pass
+
+class PigDevComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for PigDev computer files."""
+    # Same methods as LocalComputerFile
+    pass
+
+class ScrapybaraComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for Scrapybara computer files."""
+    # Same methods as LocalComputerFile
+    pass
+
+class DaemonClientComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for Daemon Client computer files."""
+    # Same methods as LocalComputerFile
+    pass
 
 class NbFormatJupyterNotebook(BaseJupyterNotebook):
     """Implementation of BaseJupyterNotebook using nbformat and nbclient libraries."""
@@ -172,6 +242,15 @@ class LocalComputer(BaseComputer):
     def start_video_stream(self) -> bool: ...
     
     def stop_video_stream(self) -> bool: ...
+    
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> LocalComputerFile: ...
 
 # Local PyAutoGUI Computer
 class LocalPyAutoGUIComputer(LocalComputer):
@@ -285,6 +364,14 @@ class VNCComputer(BaseComputer):
     def video_stream_url(self) -> str: ...
     def start_video_stream(self) -> bool: ...
     def stop_video_stream(self) -> bool: ...
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> VNCComputerFile: ...
 
 # E2B Desktop Computer
 class E2BDesktopComputer(BaseComputer):
@@ -321,6 +408,14 @@ class E2BDesktopComputer(BaseComputer):
     def video_stream_url(self) -> str: ...
     def start_video_stream(self) -> bool: ...
     def stop_video_stream(self) -> bool: ...
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> E2BDesktopComputerFile: ...
 
 # Daemon Client Computer
 class DaemonClientComputer(BaseComputer):
@@ -359,6 +454,14 @@ class DaemonClientComputer(BaseComputer):
     def video_stream_url(self) -> str: ...
     def start_video_stream(self) -> bool: ...
     def stop_video_stream(self) -> bool: ...
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> DaemonClientComputerFile: ...
 
 # PigDev Computer
 class PigDevComputer(BaseComputer):
@@ -393,6 +496,14 @@ class PigDevComputer(BaseComputer):
     def video_stream_url(self) -> str: ...
     def start_video_stream(self) -> bool: ...
     def stop_video_stream(self) -> bool: ...
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> PigDevComputerFile: ...
 
 # Scrapybara Computer
 class ScrapybaraComputer(BaseComputer):
@@ -428,6 +539,14 @@ class ScrapybaraComputer(BaseComputer):
     def video_stream_url(self) -> str: ...
     def start_video_stream(self) -> bool: ...
     def stop_video_stream(self) -> bool: ...
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> ScrapybaraComputerFile: ...
 
 class UbuntuScrapybaraComputer(ScrapybaraComputer):
     def __init__(self, api_key: Optional[str] = None) -> None: ...

@@ -2,7 +2,8 @@ import base64
 import io
 import os
 import datetime
-from typing import Dict, Any, Optional, Union, Literal
+import tempfile
+from typing import Dict, Any, Optional, Union, Literal, List, AnyStr
 
 try:
     import scrapybara
@@ -12,7 +13,7 @@ except ImportError:
         "The Scrapybara dependencies are not installed. Please install commandLAB with the scrapybara extra:\n\npip install commandLAB[scrapybara]"
     )
 
-from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.base_computer import BaseComputer, BaseComputerFile
 from commandLAB.types import (
     ShellCommandAction,
     KeyboardKey,
@@ -117,6 +118,15 @@ def keyboard_key_to_scrapybara(key: Union[KeyboardKey, str]) -> str:
     
     # For letter keys and number keys, use the value directly
     return scrapybara_key_mapping.get(key, key.value)
+
+
+class ScrapybaraComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for Scrapybara computer files.
+    
+    This class provides a file-like interface for working with files on a remote computer
+    accessed via Scrapybara. It uses temporary local files and Scrapybara's file transfer
+    capabilities to provide file-like access.
+    """
 
 
 class ScrapybaraComputer(BaseComputer):
@@ -360,6 +370,38 @@ class ScrapybaraComputer(BaseComputer):
         self.logger.info(f"Running process via Scrapybara: {action.command} with args: {action.args}")
         return self._default_run_process(action=action)
 
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> ScrapybaraComputerFile:
+        """Open a file on the remote computer.
+        
+        This method uses Scrapybara's capabilities to provide file-like access
+        to files on the remote computer.
+        
+        Args:
+            path: Path to the file on the remote computer
+            mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
+            encoding: Text encoding to use (for text modes)
+            errors: How to handle encoding/decoding errors
+            buffering: Buffering policy (-1 for default)
+            
+        Returns:
+            A ScrapybaraComputerFile instance for the specified file
+        """
+        return ScrapybaraComputerFile(
+            computer=self,
+            path=path,
+            mode=mode,
+            encoding=encoding,
+            errors=errors,
+            buffering=buffering
+        )
+
 class UbuntuScrapybaraComputer(ScrapybaraComputer):
     """Scrapybara computer specifically for Ubuntu instances"""
 
@@ -382,7 +424,23 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
         """Execute a bash command in the Ubuntu instance."""
         response = self.client.bash(command=action.command)
 
-    # scrappybara ubuntu clients support file editing/creating/appending: `client.edit(command=command, path=path, **kwargs)``
+    def edit_file(self, path: str, command: str, **kwargs) -> bool:
+        """Edit a file on the Ubuntu instance.
+        
+        Args:
+            path: Path to the file
+            command: Content to write to the file
+            **kwargs: Additional arguments to pass to the edit method
+            
+        Returns:
+            bool: True if the edit was successful
+        """
+        try:
+            self.client.edit(path=path, command=command, **kwargs)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error editing file: {e}")
+            return False
 
 
 class BrowserScrapybaraComputer(ScrapybaraComputer):

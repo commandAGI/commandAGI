@@ -5,10 +5,12 @@ import logging
 import base64
 import io
 import datetime
+import tempfile
 from enum import Enum
-from typing import Optional, Dict, Any, Union, Literal
+from typing import Optional, Dict, Any, Union, Literal, List, AnyStr
+from pathlib import Path
 
-from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.base_computer import BaseComputer, BaseComputerFile
 from commandLAB.types import (
     ShellCommandAction,
     KeyboardHotkeyAction,
@@ -109,6 +111,15 @@ def mouse_button_to_daemon(button: Union[MouseButton, str]) -> ClientMouseButton
         # If the button value doesn't exist in the client's enum, use a fallback
         logging.warning(f"Button {button} not found in daemon client MouseButton enum, using fallback")
         return ClientMouseButton.LEFT  # Use a safe default
+
+class DaemonClientComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for Daemon Client computer files.
+    
+    This class provides a file-like interface for working with files on a remote computer
+    accessed via the Daemon Client. It uses temporary local files and the daemon's file
+    transfer capabilities to provide file-like access.
+    """
+
 
 class DaemonClientComputer(BaseComputer):
     provisioner: Optional[BaseComputerProvisioner] = None
@@ -426,3 +437,35 @@ class DaemonClientComputer(BaseComputer):
         
         self.logger.info(f"Running process via daemon: {action.command} with args: {action.args}")
         # TODO: call the sync method
+
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> DaemonClientComputerFile:
+        """Open a file on the remote computer.
+        
+        This method uses the Daemon Client API to access files on the remote computer.
+        Note: File operations may not be implemented in the current Daemon Client API.
+        
+        Args:
+            path: Path to the file on the remote computer
+            mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
+            encoding: Text encoding to use (for text modes)
+            errors: How to handle encoding/decoding errors
+            buffering: Buffering policy (-1 for default)
+            
+        Returns:
+            A DaemonClientComputerFile instance for the specified file
+        """
+        return DaemonClientComputerFile(
+            computer=self,
+            path=path,
+            mode=mode,
+            encoding=encoding,
+            errors=errors,
+            buffering=buffering
+        )

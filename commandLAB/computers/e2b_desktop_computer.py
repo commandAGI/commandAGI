@@ -2,7 +2,9 @@ import base64
 import io
 import os
 import datetime
-from typing import Union, Optional, Literal
+from pathlib import Path
+import tempfile
+from typing import Union, Optional, Literal, List, AnyStr
 
 
 try:
@@ -13,9 +15,10 @@ except ImportError:
         "The E2B Desktop dependencies are not installed. Please install commandLAB with the e2b_desktop extra:\n\npip install commandLAB[e2b_desktop]"
     )
 
-from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.base_computer import BaseComputer, BaseComputerFile
 from commandLAB.types import (
     ClickAction,
+    KeyboardHotkeyAction,
     ShellCommandAction,
     DoubleClickAction,
     KeyboardKey,
@@ -113,6 +116,15 @@ def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
 
     # For letter keys and number keys, use the value directly
     return e2b_key_mapping.get(key, key.value)
+
+
+class E2BDesktopComputerFile(BaseComputerFile):
+    """Implementation of BaseComputerFile for E2B Desktop computer files.
+    
+    This class provides a file-like interface for working with files on a remote computer
+    accessed via E2B Desktop. It uses temporary local files and E2B Desktop's file transfer
+    capabilities to provide file-like access.
+    """
 
 
 class E2BDesktopComputer(BaseComputer):
@@ -358,4 +370,36 @@ class E2BDesktopComputer(BaseComputer):
         """
         self.logger.info(f"Running process in E2B Desktop: {action.command} with args: {action.args}")
         return self._default_run_process(action=action)
+
+    def _open(
+        self, 
+        path: Union[str, Path], 
+        mode: str = 'r', 
+        encoding: Optional[str] = None,
+        errors: Optional[str] = None,
+        buffering: int = -1
+    ) -> E2BDesktopComputerFile:
+        """Open a file on the E2B Desktop VM.
+        
+        This method uses E2B Desktop's file transfer capabilities to provide
+        file-like access to files on the VM.
+        
+        Args:
+            path: Path to the file on the E2B Desktop VM
+            mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
+            encoding: Text encoding to use (for text modes)
+            errors: How to handle encoding/decoding errors
+            buffering: Buffering policy (-1 for default)
+            
+        Returns:
+            An E2BDesktopComputerFile instance for the specified file
+        """
+        return E2BDesktopComputerFile(
+            computer=self,
+            path=path,
+            mode=mode,
+            encoding=encoding,
+            errors=errors,
+            buffering=buffering
+        )
 
