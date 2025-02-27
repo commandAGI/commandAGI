@@ -215,13 +215,13 @@ class PigDevComputer(BaseComputer):
         # PigDev doesn't provide keyboard state
         raise NotImplementedError("PigDev does not support getting keyboard state")
 
-    def _execute_shell_command(self, action: ShellCommandAction) -> bool:
+    def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a system command in the PigDev VM."""
         self.logger.debug("PigDev does not support direct command execution")
         # PigDev doesn't have a direct command execution method
         raise NotImplementedError("PigDev does not support direct command execution")
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key using PigDev."""
         try:
             # Convert to PigDev key format
@@ -230,12 +230,11 @@ class PigDevComputer(BaseComputer):
             
             # Use the existing connection
             self.connection.key_down(key)
-            return True
         except Exception as e:
             self.logger.error(f"Error executing key down via PigDev: {e}")
-            return False
+            raise
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key using PigDev."""
         try:
             # Convert to PigDev key format
@@ -244,34 +243,31 @@ class PigDevComputer(BaseComputer):
             
             # Use the existing connection
             self.connection.key_up(key)
-            return True
         except Exception as e:
             self.logger.error(f"Error executing key release via PigDev: {e}")
-            return False
+            raise
 
-    def _execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction):
         """Type text using PigDev."""
         try:
             self.logger.debug(f"Typing text: {action.text}")
             # Use the existing connection
             self.connection.type(action.text)
-            return True
         except Exception as e:
             self.logger.error(f"Error typing text via PigDev: {e}")
-            return False
+            raise
 
-    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction):
         """Move mouse to specified coordinates using PigDev."""
         try:
             self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
             # Use the existing connection
             self.connection.mouse_move(x=action.x, y=action.y)
-            return True
         except Exception as e:
             self.logger.error(f"Error moving mouse via PigDev: {e}")
-            return False
+            raise
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction):
         """Scroll mouse using PigDev."""
         self.logger.debug("PigDev does not support mouse scrolling")
         # PigDev doesn't have a direct scroll method

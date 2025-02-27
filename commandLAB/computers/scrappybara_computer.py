@@ -201,7 +201,7 @@ class ScrapybaraComputer(BaseComputer):
         # Note: This is a limitation as Scrapybara doesn't support key down without release
         self.client.computer(action="key", text=key)
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key using Scrapybara."""
         # Scrapybara doesn't have separate key down/up methods
         raise NotImplementedError("Scrapybara does not support key release actions")
@@ -223,12 +223,12 @@ class ScrapybaraComputer(BaseComputer):
         
         self.client.computer(action="scroll", coordinate=[x_scroll, y_scroll])
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Press mouse button down using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError("Scrapybara does not support mouse button down actions")
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Release mouse button using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError("Scrapybara does not support mouse button up actions")
@@ -382,20 +382,7 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
         """Execute a bash command in the Ubuntu instance."""
         response = self.client.bash(command=action.command)
 
-    def edit_file(self, path: str, command: str, **kwargs) -> bool:
-        """Edit a file in the Ubuntu instance.
-        
-        Args:
-            path: Path to the file to edit
-            command: Edit command ('create', 'replace', or 'insert')
-            **kwargs: Additional arguments for the specific command
-        """
-        try:
-            self.client.edit(command=command, path=path, **kwargs)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error editing file via Scrapybara: {e}")
-            return False
+    # scrappybara ubuntu clients support file editing/creating/appending: `client.edit(command=command, path=path, **kwargs)``
 
 
 class BrowserScrapybaraComputer(ScrapybaraComputer):
