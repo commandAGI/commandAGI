@@ -52,6 +52,31 @@ except ImportError:
         "Jupyter notebook dependencies are not installed. Please install with:\n\npip install nbformat nbclient"
     )
 
+# Accessibility imports - these are optional and will be checked at runtime
+# Windows UI Automation
+uiautomation_available = False
+try:
+    import uiautomation as auto
+    uiautomation_available = True
+except ImportError:
+    auto = None
+
+# macOS Accessibility API
+pyax_available = False
+try:
+    import pyax
+    pyax_available = True
+except ImportError:
+    pyax = None
+
+# Linux AT-SPI
+pyatspi_available = False
+try:
+    import pyatspi
+    pyatspi_available = True
+except ImportError:
+    pyatspi = None
+
 from commandLAB.computers.base_computer import (
     BaseComputer,
     BaseJupyterNotebook,
@@ -943,20 +968,15 @@ class LocalComputer(BaseComputer):
 
     def _get_windows_layout_tree(self) -> LayoutTreeObservation:
         """Get the UI component tree on Windows using UIAutomation."""
+        if not uiautomation_available:
+            self.logger.error(
+                "UIAutomation not available. Install with: pip install uiautomation"
+            )
+            return LayoutTreeObservation(
+                tree={"error": "UIAutomation not available"}
+            )
+            
         try:
-            if self._ui_automation is None:
-                try:
-                    import uiautomation as auto
-
-                    self._ui_automation = auto
-                except ImportError:
-                    self.logger.error(
-                        "UIAutomation not available. Install with: pip install uiautomation"
-                    )
-                    return LayoutTreeObservation(
-                        tree={"error": "UIAutomation not available"}
-                    )
-            auto = self._ui_automation
             desktop = auto.GetRootControl()
 
             def build_tree(element):
@@ -1031,19 +1051,13 @@ class LocalComputer(BaseComputer):
 
     def _get_macos_layout_tree(self) -> LayoutTreeObservation:
         """Get the UI component tree on macOS using pyax (Accessibility API)."""
+        if not pyax_available:
+            self.logger.error(
+                "pyax not available. Install with: pip install pyax"
+            )
+            return LayoutTreeObservation(tree={"error": "pyax not available"})
+            
         try:
-            if self._pyax is None:
-                try:
-                    import pyax
-
-                    self._pyax = pyax
-                except ImportError:
-                    self.logger.error(
-                        "pyax not available. Install with: pip install pyax"
-                    )
-                    return LayoutTreeObservation(tree={"error": "pyax not available"})
-            pyax = self._pyax
-
             def build_tree(element):
                 if not element:
                     return None
@@ -1131,21 +1145,15 @@ class LocalComputer(BaseComputer):
 
     def _get_linux_layout_tree(self) -> LayoutTreeObservation:
         """Get the UI component tree on Linux using AT-SPI."""
+        if not pyatspi_available:
+            self.logger.error(
+                "pyatspi not available. Install with: pip install pyatspi"
+            )
+            return LayoutTreeObservation(
+                tree={"error": "pyatspi not available"}
+            )
+            
         try:
-            if self._atspi is None:
-                try:
-                    import pyatspi
-
-                    self._atspi = pyatspi
-                except ImportError:
-                    self.logger.error(
-                        "pyatspi not available. Install with: pip install pyatspi"
-                    )
-                    return LayoutTreeObservation(
-                        tree={"error": "pyatspi not available"}
-                    )
-            pyatspi = self._atspi
-
             def build_tree(element):
                 if not element:
                     return None

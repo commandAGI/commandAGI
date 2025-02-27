@@ -40,7 +40,6 @@ local = [
     "mss~=10.0",
     "uiautomation>=2.0.20,<3.0.0; platform_system == 'Windows'",
     "pyax; platform_system == 'Darwin'",
-    "pyatspi; platform_system == 'Linux'",
 ]
 
 vnc = ["vncdotool~=1.2"]
