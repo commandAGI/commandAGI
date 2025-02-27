@@ -2,11 +2,18 @@ import base64
 import io
 import os
 import datetime
+from pathlib import Path
 from typing import Optional, Union, Literal
 
 try:
     import vncdotool.api as vnc
     from PIL import Image
+    # Try to import paramiko for SFTP file transfer
+    try:
+        import paramiko
+        SFTP_AVAILABLE = True
+    except ImportError:
+        SFTP_AVAILABLE = False
 except ImportError:
     raise ImportError(
         "The VNC dependencies are not installed. Please install commandLAB with the vnc extra:\n\npip install commandLAB[vnc]"
@@ -116,14 +123,57 @@ def keyboard_key_to_vnc(key: Union[KeyboardKey, str]) -> str:
 
 
 class VNCComputer(BaseComputer):
-    """Environment that uses VNC for remote computer interactions"""
+    """Environment that uses VNC for remote computer interactions
+    
+    This class provides functionality to interact with a remote computer via VNC.
+    It also supports file transfer via SFTP if the paramiko library is installed.
+    
+    Attributes:
+        host: Hostname or IP address of the VNC server
+        port: Port number of the VNC server (default: 5900)
+        password: Password for VNC authentication (optional)
+        ssh_host: Hostname or IP address for SSH/SFTP connection (defaults to VNC host)
+        ssh_port: Port number for SSH/SFTP connection (default: 22)
+        ssh_username: Username for SSH/SFTP authentication
+        ssh_password: Password for SSH/SFTP authentication (optional if ssh_key_path is provided)
+        ssh_key_path: Path to SSH private key file (optional if ssh_password is provided)
+    """
 
-    def __init__(self, host: str = "localhost", port: int = 5900, password: Optional[str] = None):
+    def __init__(
+        self, 
+        host: str = "localhost", 
+        port: int = 5900, 
+        password: Optional[str] = None,
+        ssh_host: Optional[str] = None,
+        ssh_port: int = 22,
+        ssh_username: Optional[str] = None,
+        ssh_password: Optional[str] = None,
+        ssh_key_path: Optional[str] = None
+    ):
+        """Initialize a VNC computer connection.
+        
+        Args:
+            host: Hostname or IP address of the VNC server
+            port: Port number of the VNC server (default: 5900)
+            password: Password for VNC authentication (optional)
+            ssh_host: Hostname or IP address for SSH/SFTP connection (defaults to VNC host)
+            ssh_port: Port number for SSH/SFTP connection (default: 22)
+            ssh_username: Username for SSH/SFTP authentication
+            ssh_password: Password for SSH/SFTP authentication (optional if ssh_key_path is provided)
+            ssh_key_path: Path to SSH private key file (optional if ssh_password is provided)
+        """
         super().__init__()
         self.host = host
         self.port = port
         self.password = password
         self.client = None
+        
+        # SSH parameters for file transfer
+        self.ssh_host = ssh_host if ssh_host is not None else host
+        self.ssh_port = ssh_port
+        self.ssh_username = ssh_username
+        self.ssh_password = ssh_password
+        self.ssh_key_path = ssh_key_path
 
     def _start(self):
         """Start the VNC connection."""
@@ -322,3 +372,207 @@ class VNCComputer(BaseComputer):
         """
         self.logger.info(f"Running process via VNC shell: {action.command} with args: {action.args}")
         return self._default_run_process(action=action)
+
+    def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
+        """Implementation of copy_to_computer functionality for VNCComputer.
+        
+        For VNC computers, we attempt to use SFTP if available, since VNC itself
+        doesn't support file transfer. This requires paramiko to be installed and
+        SSH/SFTP to be available on the remote system.
+        
+        Args:
+            source_path: Path to the source file or directory on the local machine
+            destination_path: Path where the file or directory should be copied on the computer
+            
+        Raises:
+            NotImplementedError: If SFTP is not available (paramiko not installed)
+            FileNotFoundError: If the source path does not exist
+            ValueError: If SSH credentials are not properly configured
+            PermissionError: If there are permission issues with SSH/SFTP
+            OSError: For other file operation errors
+        """
+        if not SFTP_AVAILABLE:
+            self.logger.warning("SFTP not available. Install paramiko to enable file transfer.")
+            raise NotImplementedError("File transfer not supported without paramiko installed. Run: pip install paramiko")
+            
+        # Ensure source exists
+        if not source_path.exists():
+            raise FileNotFoundError(f"Source path does not exist: {source_path}")
+            
+        # Verify SSH credentials are configured
+        if not self.ssh_username:
+            raise ValueError("SSH username not provided. Set ssh_username when initializing VNCComputer.")
+            
+        if not self.ssh_password and not self.ssh_key_path:
+            raise ValueError("Either ssh_password or ssh_key_path must be provided for SFTP file transfer.")
+            
+        # Create SSH client
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            # Connect to SSH server
+            self.logger.debug(f"Connecting to SSH server {self.ssh_host}:{self.ssh_port} as {self.ssh_username}")
+            if self.ssh_key_path:
+                ssh.connect(
+                    self.ssh_host, 
+                    port=self.ssh_port, 
+                    username=self.ssh_username, 
+                    key_filename=self.ssh_key_path
+                )
+            else:
+                ssh.connect(
+                    self.ssh_host, 
+                    port=self.ssh_port, 
+                    username=self.ssh_username, 
+                    password=self.ssh_password
+                )
+                
+            # Create SFTP client
+            sftp = ssh.open_sftp()
+            
+            # Create parent directories if they don't exist
+            try:
+                sftp.mkdir(str(destination_path.parent))
+            except IOError:
+                # Directory might already exist
+                pass
+                
+            # Copy file or directory
+            if source_path.is_dir():
+                # Create destination directory if it doesn't exist
+                try:
+                    sftp.mkdir(str(destination_path))
+                except IOError:
+                    # Directory might already exist
+                    pass
+                    
+                # Recursively copy directory contents
+                for item in source_path.iterdir():
+                    if item.is_dir():
+                        # Recursively call this method for subdirectories
+                        self._copy_to_computer(item, destination_path / item.name)
+                    else:
+                        # Copy file
+                        sftp.put(str(item), str(destination_path / item.name))
+            else:
+                # Copy a single file
+                sftp.put(str(source_path), str(destination_path))
+                
+            sftp.close()
+            ssh.close()
+            
+        except paramiko.AuthenticationException as e:
+            self.logger.error(f"SSH authentication failed: {e}")
+            raise ValueError(f"SSH authentication failed: {e}. Check your ssh_username, ssh_password, or ssh_key_path.")
+        except paramiko.SSHException as e:
+            self.logger.error(f"SSH connection error: {e}")
+            raise ConnectionError(f"SSH connection error: {e}. Check your ssh_host and ssh_port.")
+        except Exception as e:
+            self.logger.error(f"Error during SFTP transfer: {e}")
+            raise
+
+    def _copy_from_computer(self, source_path: Path, destination_path: Path) -> None:
+        """Implementation of copy_from_computer functionality for VNCComputer.
+        
+        For VNC computers, we attempt to use SFTP if available, since VNC itself
+        doesn't support file transfer. This requires paramiko to be installed and
+        SSH/SFTP to be available on the remote system.
+        
+        Args:
+            source_path: Path to the source file or directory on the computer
+            destination_path: Path where the file or directory should be copied on the local machine
+            
+        Raises:
+            NotImplementedError: If SFTP is not available (paramiko not installed)
+            FileNotFoundError: If the source path does not exist on the remote computer
+            ValueError: If SSH credentials are not properly configured
+            PermissionError: If there are permission issues with SSH/SFTP
+            OSError: For other file operation errors
+        """
+        if not SFTP_AVAILABLE:
+            self.logger.warning("SFTP not available. Install paramiko to enable file transfer.")
+            raise NotImplementedError("File transfer not supported without paramiko installed. Run: pip install paramiko")
+            
+        # Verify SSH credentials are configured
+        if not self.ssh_username:
+            raise ValueError("SSH username not provided. Set ssh_username when initializing VNCComputer.")
+            
+        if not self.ssh_password and not self.ssh_key_path:
+            raise ValueError("Either ssh_password or ssh_key_path must be provided for SFTP file transfer.")
+            
+        # Create SSH client
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            # Connect to SSH server
+            self.logger.debug(f"Connecting to SSH server {self.ssh_host}:{self.ssh_port} as {self.ssh_username}")
+            if self.ssh_key_path:
+                ssh.connect(
+                    self.ssh_host, 
+                    port=self.ssh_port, 
+                    username=self.ssh_username, 
+                    key_filename=self.ssh_key_path
+                )
+            else:
+                ssh.connect(
+                    self.ssh_host, 
+                    port=self.ssh_port, 
+                    username=self.ssh_username, 
+                    password=self.ssh_password
+                )
+                
+            # Create SFTP client
+            sftp = ssh.open_sftp()
+            
+            # Create parent directories if they don't exist
+            destination_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Check if source exists
+            try:
+                sftp.stat(str(source_path))
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Source path does not exist on remote computer: {source_path}")
+                
+            # Copy file or directory
+            try:
+                # Check if source is a directory by trying to list its contents
+                sftp.listdir(str(source_path))
+                is_dir = True
+            except IOError:
+                is_dir = False
+                
+            if is_dir:
+                # Create destination directory if it doesn't exist
+                destination_path.mkdir(exist_ok=True)
+                
+                # Recursively copy directory contents
+                for item in sftp.listdir(str(source_path)):
+                    remote_item_path = source_path / item
+                    local_item_path = destination_path / item
+                    
+                    try:
+                        # Check if item is a directory
+                        sftp.listdir(str(remote_item_path))
+                        # Recursively call this method for subdirectories
+                        self._copy_from_computer(remote_item_path, local_item_path)
+                    except IOError:
+                        # Item is a file
+                        sftp.get(str(remote_item_path), str(local_item_path))
+            else:
+                # Copy a single file
+                sftp.get(str(source_path), str(destination_path))
+                
+            sftp.close()
+            ssh.close()
+            
+        except paramiko.AuthenticationException as e:
+            self.logger.error(f"SSH authentication failed: {e}")
+            raise ValueError(f"SSH authentication failed: {e}. Check your ssh_username, ssh_password, or ssh_key_path.")
+        except paramiko.SSHException as e:
+            self.logger.error(f"SSH connection error: {e}")
+            raise ConnectionError(f"SSH connection error: {e}. Check your ssh_host and ssh_port.")
+        except Exception as e:
+            self.logger.error(f"Error during SFTP transfer: {e}")
+            raise

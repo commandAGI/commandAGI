@@ -11,6 +11,7 @@ import socket
 import platform
 import sys
 import psutil
+import shutil
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from typing import Union, Optional, Literal, List, Dict, Any
 import logging
@@ -1317,6 +1318,78 @@ class LocalComputer(BaseComputer):
             return False
 
         return False
+
+    def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
+        """Implementation of copy_to_computer functionality for LocalComputer.
+        
+        For a local computer, this simply copies files from one location to another
+        on the same machine using shutil.
+        
+        Args:
+            source_path: Path to the source file or directory on the local machine
+            destination_path: Path where the file or directory should be copied on the computer
+            
+        Raises:
+            FileNotFoundError: If the source path does not exist
+            PermissionError: If there are permission issues
+            OSError: For other file operation errors
+        """
+        self.logger.debug(f"Copying {source_path} to {destination_path} using shutil")
+        self._copy_local(source_path, destination_path)
+
+    def _copy_from_computer(self, source_path: Path, destination_path: Path) -> None:
+        """Implementation of copy_from_computer functionality for LocalComputer.
+        
+        For a local computer, this simply copies files from one location to another
+        on the same machine using shutil.
+        
+        Args:
+            source_path: Path to the source file or directory on the computer
+            destination_path: Path where the file or directory should be copied on the local machine
+            
+        Raises:
+            FileNotFoundError: If the source path does not exist
+            PermissionError: If there are permission issues
+            OSError: For other file operation errors
+        """
+        # For LocalComputer, copy_from_computer is identical to copy_to_computer
+        # since both source and destination are on the same machine
+        self._copy_local(source_path, destination_path)
+
+    def _copy_local(self, source_path: Path, destination_path: Path) -> None:
+        """Helper method to copy files or directories locally.
+        
+        Args:
+            source_path: Path to the source file or directory
+            destination_path: Path where the file or directory should be copied
+            
+        Raises:
+            FileNotFoundError: If the source path does not exist
+            PermissionError: If there are permission issues
+            OSError: For other file operation errors
+        """
+        # Ensure source exists
+        if not source_path.exists():
+            raise FileNotFoundError(f"Source path does not exist: {source_path}")
+            
+        # Create parent directories if they don't exist
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+            
+        # Copy file or directory
+        if source_path.is_dir():
+            if destination_path.exists() and destination_path.is_dir():
+                # If destination exists and is a directory, copy contents into it
+                for item in source_path.iterdir():
+                    if item.is_dir():
+                        shutil.copytree(item, destination_path / item.name, dirs_exist_ok=True)
+                    else:
+                        shutil.copy2(item, destination_path / item.name)
+            else:
+                # Copy the entire directory
+                shutil.copytree(source_path, destination_path, dirs_exist_ok=True)
+        else:
+            # Copy a single file
+            shutil.copy2(source_path, destination_path)
 
     def _get_processes(self) -> ProcessesObservation:
         """Return a ProcessesObservation containing information about running processes."""

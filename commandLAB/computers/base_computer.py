@@ -1293,3 +1293,102 @@ class BaseComputer(BaseModel):
         """
         self.logger.debug("Video streaming not implemented for this computer type")
         return False
+
+    def copy_to_computer(self, source_path: Union[str, Path], destination_path: Union[str, Path]) -> bool:
+        """Copy a file or directory to the computer.
+
+        Args:
+            source_path: The path to the source file or directory.
+            destination_path: The path to the destination file or directory on the computer.
+
+        Returns:
+            bool: True if the copy operation was successful, False otherwise.
+        """
+        if self._state == "stopped":
+            self._start()
+        elif self._state == "paused":
+            self.resume()
+
+        source_path = Path(source_path) if isinstance(source_path, str) else source_path
+        destination_path = Path(destination_path) if isinstance(destination_path, str) else destination_path
+
+        self.logger.info(f"Copying {source_path} to {destination_path} on the computer")
+        
+        for attempt in range(self.num_retries):
+            try:
+                self._copy_to_computer(source_path, destination_path)
+                self.logger.info(f"Successfully copied {source_path} to {destination_path}")
+                return True
+            except Exception as e:
+                self.logger.error(
+                    f"Error copying to computer (attempt {attempt+1}/{self.num_retries}): {e}"
+                )
+                if attempt == self.num_retries - 1:
+                    return False
+
+        return False
+
+    def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
+        """Implementation of copy_to_computer functionality.
+        
+        This method should be overridden by subclasses to implement computer-specific file transfer.
+        
+        Args:
+            source_path: Path to the source file or directory on the local machine
+            destination_path: Path where the file or directory should be copied on the computer
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._copy_to_computer")
+
+    def copy_from_computer(self, source_path: Union[str, Path], destination_path: Union[str, Path]) -> bool:
+        """Copy a file or directory from the computer to the local machine.
+        
+        This method copies a file or directory from the computer instance to the local machine.
+        It handles retries and ensures the computer is started if needed.
+        
+        Args:
+            source_path: Path to the source file or directory on the computer
+            destination_path: Path where the file or directory should be copied on the local machine
+            
+        Returns:
+            bool: True if the copy operation was successful, False otherwise
+        """
+        if self._state == "stopped":
+            self._start()
+        elif self._state == "paused":
+            self.resume()
+
+        source_path = Path(source_path) if isinstance(source_path, str) else source_path
+        destination_path = Path(destination_path) if isinstance(destination_path, str) else destination_path
+
+        self.logger.info(f"Copying {source_path} from the computer to {destination_path}")
+        
+        for attempt in range(self.num_retries):
+            try:
+                self._copy_from_computer(source_path, destination_path)
+                self.logger.info(f"Successfully copied {source_path} from the computer to {destination_path}")
+                return True
+            except Exception as e:
+                self.logger.error(
+                    f"Error copying from computer (attempt {attempt+1}/{self.num_retries}): {e}"
+                )
+                if attempt == self.num_retries - 1:
+                    return False
+
+        return False
+
+    def _copy_from_computer(self, source_path: Path, destination_path: Path) -> None:
+        """Implementation of copy_from_computer functionality.
+        
+        This method should be overridden by subclasses to implement computer-specific file transfer.
+        
+        Args:
+            source_path: Path to the source file or directory on the computer
+            destination_path: Path where the file or directory should be copied on the local machine
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._copy_from_computer")
