@@ -111,13 +111,16 @@ class BaseComputer(BaseModel):
         self.stop()
         self.start()
 
-
     _checked_and_created_artifact_dir = False
+
     @property
     def artifact_dir(self) -> Path:
         artifact_dir_path = APPDIR / self.name
-        
-        if not self._checked_and_created_artifact_dir and not artifact_dir_path.exists():
+
+        if (
+            not self._checked_and_created_artifact_dir
+            and not artifact_dir_path.exists()
+        ):
             artifact_dir_path.mkdir(parents=True, exist_ok=True)
             self._checked_and_created_artifact_dir = True
         return artifact_dir_path
@@ -189,11 +192,11 @@ class BaseComputer(BaseModel):
     def keyboard_key_states(self) -> dict[KeyboardKey, bool]:
         """Get the current state of all keyboard keys."""
         return self.get_keyboard_state().keys
-        
+
     @keyboard_key_states.setter
     def keyboard_key_states(self, value: dict[str, bool | None]):
         """Set the state of keyboard keys.
-        
+
         Args:
             value: Dictionary mapping key names to their states (True for pressed, False for released)
         """
@@ -202,27 +205,87 @@ class BaseComputer(BaseModel):
                 self.execute_keyboard_key_down(key=KeyboardKey[key_name.upper()])
             elif key_state is False:
                 self.execute_keyboard_key_release(key=KeyboardKey[key_name.upper()])
-                
+
+    @property
+    def keys_down(self) -> list[KeyboardKey]:
+        """Get a list of currently pressed keyboard keys."""
+        return [
+            key for key, is_pressed in self.keyboard_key_states.items() if is_pressed
+        ]
+
+    @keys_down.setter
+    def keys_down(self, value: list[KeyboardKey]):
+        """Set which keyboard keys are pressed.
+
+        This will release any currently pressed keys not in the new list,
+        and press any new keys in the list that weren't already pressed.
+
+        Args:
+            value: List of KeyboardKey values that should be pressed
+        """
+        # Get current pressed keys
+        current = set(self.keys_down)
+        target = set(value)
+
+        # Release keys that should no longer be pressed
+        for key in current - target:
+            self.execute_keyboard_key_release(key=key)
+
+        # Press new keys that should be pressed
+        for key in target - current:
+            self.execute_keyboard_key_down(key=key)
+
+    @property
+    def keys_up(self) -> list[KeyboardKey]:
+        """Get a list of currently released keyboard keys."""
+        return [
+            key
+            for key, is_pressed in self.keyboard_key_states.items()
+            if not is_pressed
+        ]
+
+    @keys_up.setter
+    def keys_up(self, value: list[KeyboardKey]):
+        """Set which keyboard keys are released.
+
+        This will press any currently released keys not in the new list,
+        and release any keys in the list that weren't already released.
+
+        Args:
+            value: List of KeyboardKey values that should be released
+        """
+        # Get current released keys
+        current = set(self.keys_up)
+        target = set(value)
+
+        # Press keys that should no longer be released
+        for key in current - target:
+            self.execute_keyboard_key_down(key=key)
+
+        # Release new keys that should be released
+        for key in target - current:
+            self.execute_keyboard_key_release(key=key)
+
     @property
     def screenshot(self) -> ScreenshotObservation:
         """Get a screenshot of the current display."""
         return self.get_screenshot()
-        
+
     @property
     def layout_tree(self) -> LayoutTreeObservation:
         """Get the current UI layout tree."""
         return self.get_layout_tree()
-        
+
     @property
     def processes(self) -> ProcessesObservation:
         """Get information about running processes."""
         return self.get_processes()
-        
+
     @property
     def windows(self) -> WindowsObservation:
         """Get information about open windows."""
         return self.get_windows()
-        
+
     @property
     def displays(self) -> DisplaysObservation:
         """Get information about connected displays."""

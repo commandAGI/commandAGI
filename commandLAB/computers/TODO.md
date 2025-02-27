@@ -1,6 +1,6 @@
 # TODO
 
-[ ] public observation methods should return real information, not a pydantic struct.
+[-] public observation methods should return real information, not a pydantic struct.
 [x] public observation methods hsould also have property accessors
 [x] screenshot should accept a format: Literal['base64', 'PIL', 'path']='PIL'
 [x] add stubs: `pause`, `resume`, `start_stream`, `stop_stream`, `get_stream_url` stubs to the base computer
