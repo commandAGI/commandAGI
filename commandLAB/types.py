@@ -1,5 +1,6 @@
+from __future__ import annotations
 from enum import Enum
-from typing import Annotated, List, Literal, Optional, TypedDict, Union
+from typing import Annotated, Dict, List, Literal, Optional, TypedDict, Union, Any
 
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 
@@ -107,6 +108,15 @@ class KeyboardKey(str, Enum):
         return key in [k.value for k in cls]
 
 
+# Platform enumeration
+class Platform(str, Enum):
+    """Operating system platform."""
+    WINDOWS = "windows"
+    MACOS = "macos"
+    LINUX = "linux"
+    UNKNOWN = "unknown"
+
+
 class ComputerObservationType(str, Enum):
     SCREENSHOT = "screenshot"
     MOUSE_STATE = "mouse_state"
@@ -168,24 +178,104 @@ class KeyboardStateObservation(BaseComputerObservation):
         return v
 
 
+# Define component tree types
+class UIElementCommonProperties(TypedDict, total=False):
+    """Common properties of a UI element across all platforms."""
+    name: Optional[str]  # Name/label of the element
+    role: Optional[str]  # Role/type of the element (normalized across platforms)
+    value: Optional[Any]  # Current value of the element
+    description: Optional[str]  # Description of the element
+    
+    # State properties
+    enabled: Optional[bool]  # Whether the element is enabled
+    focused: Optional[bool]  # Whether the element has keyboard focus
+    visible: Optional[bool]  # Whether the element is visible
+    offscreen: Optional[bool]  # Whether the element is off-screen
+    
+    # Position and size
+    bounds: Optional[Dict[str, int]]  # {left, top, width, height}
+    
+    # Control-specific properties
+    selected: Optional[bool]  # Whether the element is selected
+    checked: Optional[bool]  # Whether the element is checked
+    expanded: Optional[bool]  # Whether the element is expanded
+    
+    # For elements with range values (sliders, progress bars)
+    current_value: Optional[float]  # Current value
+    min_value: Optional[float]  # Minimum value
+    max_value: Optional[float]  # Maximum value
+    percentage: Optional[float]  # Value as percentage
+
+
+class UIElement(TypedDict):
+    """A UI element in the accessibility tree."""
+    # Common properties normalized across platforms
+    properties: UIElementCommonProperties
+    # Platform-specific properties
+    platform: Platform  # The platform this element was retrieved from
+    platform_properties: Dict[str, Any]  # Raw platform-specific properties
+    # Child elements
+    children: List['UIElement']
+
+
+# Define process information type
+class ProcessInfo(TypedDict):
+    """Information about a running process."""
+    # Common properties across platforms
+    pid: int  # Process ID
+    name: str  # Process name
+    cpu_percent: float  # CPU usage percentage
+    memory_mb: float  # Memory usage in MB
+    status: str  # Process status (running, sleeping, etc.)
+    # Platform-specific properties
+    platform: Platform  # The platform this process was retrieved from
+    platform_properties: Dict[str, Any]  # Raw platform-specific properties
+
+
+# Define window information type
+class WindowInfo(TypedDict):
+    """Information about a window."""
+    # Common properties across platforms
+    title: str  # Window title
+    bounds: Dict[str, int]  # {left, top, width, height}
+    minimized: bool  # Whether the window is minimized
+    maximized: bool  # Whether the window is maximized
+    focused: bool  # Whether the window has focus
+    # Platform-specific properties
+    platform: Platform  # The platform this window was retrieved from
+    platform_properties: Dict[str, Any]  # Raw platform-specific properties
+
+
+# Define display information type
+class DisplayInfo(TypedDict):
+    """Information about a display."""
+    # Common properties across platforms
+    id: int  # Display ID
+    bounds: Dict[str, int]  # {left, top, width, height}
+    is_primary: bool  # Whether this is the primary display
+    # Platform-specific properties
+    platform: Platform  # The platform this display was retrieved from
+    platform_properties: Dict[str, Any]  # Raw platform-specific properties
+
+
 class LayoutTreeObservation(BaseComputerObservation):
     observation_type: Literal["layout_tree"] = ComputerObservationType.LAYOUT_TREE.value
-    tree: dict  # Structure containing the accessibility tree
+    tree: UIElement  # Structure containing the accessibility tree
 
 
 class ProcessesObservation(BaseComputerObservation):
     observation_type: Literal["processes"] = ComputerObservationType.PROCESSES.value
-    processes: List[dict]  # List of process information dictionaries
+    processes: List[ProcessInfo]  # List of process information dictionaries
 
 
 class WindowsObservation(BaseComputerObservation):
     observation_type: Literal["windows"] = ComputerObservationType.WINDOWS.value
-    windows: List[dict]  # List of window information dictionaries
+    windows: List[WindowInfo]  # List of window information dictionaries
 
 
 class DisplaysObservation(BaseComputerObservation):
     observation_type: Literal["displays"] = ComputerObservationType.DISPLAYS.value
-    displays: List[dict]  # List of display information dictionaries
+    displays: List[DisplayInfo]  # List of display information dictionaries
 
 
 # Define a Union type for computer observations

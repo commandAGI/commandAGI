@@ -6,12 +6,16 @@ This package contains various computer implementations that can be used with com
 
 import logging
 
-from commandLAB.computers.base_computer import BaseComputer
-
 # Setup logging
 logger = logging.getLogger(__name__)
 
-# Import all computer implementations
+from commandLAB.computers.base_computer import BaseComputer
+
+try:
+    from commandLAB.computers.local_computer import LocalComputer
+except ImportError:
+    logger.info("LocalComputer not available. Install with: pip install commandLAB[local]")
+
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
 except ImportError:
@@ -54,6 +58,7 @@ except ImportError:
 
 __all__ = [
     "BaseComputer",
+    "LocalComputer",
     "LocalPynputComputer",
     "LocalPyAutoGUIComputer",
     "E2BDesktopComputer",

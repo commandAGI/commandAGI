@@ -16,7 +16,7 @@ except ImportError:
         "The local dependencies are not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
     )
 
-from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.local_computer import LocalComputer
 from commandLAB.types import (
     CommandAction,
     KeyboardKey,
@@ -118,34 +118,9 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
     return pyautogui_key_mapping.get(key, key.value)
 
 
-class LocalPyAutoGUIComputer(BaseComputer):
+class LocalPyAutoGUIComputer(LocalComputer):
     def __init__(self):
         super().__init__()
-        self._sct = None
-        self._temp_dir = None
-
-    def _start(self):
-        """Start the local computer environment."""
-        if not self._sct:
-            self.logger.info("Initializing MSS screen capture")
-            self._sct = mss.mss()
-        if not self._temp_dir:
-            self.logger.info("Creating temporary directory")
-            self._temp_dir = tempfile.mkdtemp()
-        self.logger.info("Local PyAutoGUI computer started")
-        return True
-
-    def _stop(self):
-        """Stop the local computer environment."""
-        if self._sct:
-            self.logger.info("Closing MSS screen capture")
-            self._sct.close()
-            self._sct = None
-        if self._temp_dir:
-            self.logger.info("Cleaning up temporary directory")
-            self._temp_dir = None
-        self.logger.info("Local PyAutoGUI computer stopped")
-        return True
 
     def reset_state(self):
         """Reset environment and return initial observation"""
@@ -153,29 +128,6 @@ class LocalPyAutoGUIComputer(BaseComputer):
         # Show desktop to reset the environment state
         pyautogui.hotkey("win", "d")
         time.sleep(1)  # Give windows time to minimize
-
-    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
-        """Return a screenshot of the current state in the specified format.
-        
-        Args:
-            display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
-            format: Format to return the screenshot in. Options are:
-                - 'base64': Return the screenshot as a base64 encoded string
-                - 'PIL': Return the screenshot as a PIL Image object
-                - 'path': Save the screenshot to a file and return the path
-        """
-        # Capture screenshot using mss
-        self.logger.debug(f"Capturing screenshot of display {display_id}")
-        monitor = self._sct.monitors[display_id + 1]  # mss uses 1-based indexing
-        screenshot = self._sct.grab(monitor)
-        
-        # Use the utility function to process the screenshot
-        return process_screenshot(
-            screenshot_data=screenshot,
-            output_format=format,
-            input_format='PIL',
-            computer_name="pyautogui"
-        )
 
     def _get_mouse_state(self) -> MouseStateObservation:
         """Return dummy mouse state using pyautogui (pyautogui doesn't provide state, so we return a default value)."""
@@ -190,22 +142,6 @@ class LocalPyAutoGUIComputer(BaseComputer):
         raise NotImplementedError(
             "LocalComputeEnv does not support keyboard state observation"
         )
-
-    def _execute_command(self, action: CommandAction):
-        """Execute a system command using subprocess."""
-        self.logger.info(f"Executing command: {action.command}")
-        result = subprocess.run(
-            action.command,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=action.timeout if action.timeout is not None else 10,
-        )
-        if result.returncode == 0:
-            self.logger.info("Command executed successfully")
-        else:
-            self.logger.warning(f"Command returned non-zero exit code: {result.returncode}")
-            raise RuntimeError(f"Command returned non-zero exit code: {result.returncode}")
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
@@ -245,58 +181,3 @@ class LocalPyAutoGUIComputer(BaseComputer):
         pyautogui_button = mouse_button_to_pyautogui(action.button)
         self.logger.debug(f"Releasing mouse button: {action.button} (PyAutoGUI button: {pyautogui_button})")
         pyautogui.mouseUp(button=pyautogui_button)
-
-    def _pause(self):
-        """Pause the PyAutoGUI computer.
-        
-        For local PyAutoGUI, pausing doesn't have a specific implementation
-        as it's running on the local machine.
-        """
-        self.logger.info("Pausing local PyAutoGUI computer (no-op)")
-        # No specific pause implementation for local PyAutoGUI
-
-    def _resume(self, timeout_hours: Optional[float] = None):
-        """Resume the PyAutoGUI computer.
-        
-        For local PyAutoGUI, resuming doesn't have a specific implementation
-        as it's running on the local machine.
-        
-        Args:
-            timeout_hours: Not used for local PyAutoGUI implementation.
-        """
-        self.logger.info("Resuming local PyAutoGUI computer (no-op)")
-        # No specific resume implementation for local PyAutoGUI
-
-    @property
-    def video_stream_url(self) -> str:
-        """Get the URL for the video stream of the local PyAutoGUI instance.
-        
-        Local PyAutoGUI doesn't support video streaming.
-        
-        Returns:
-            str: Empty string as local PyAutoGUI doesn't support video streaming.
-        """
-        self.logger.debug("Video streaming not supported for local PyAutoGUI computer")
-        return ""
-
-    def start_video_stream(self) -> bool:
-        """Start the video stream for the local PyAutoGUI instance.
-        
-        Local PyAutoGUI doesn't support video streaming.
-        
-        Returns:
-            bool: False as local PyAutoGUI doesn't support video streaming.
-        """
-        self.logger.debug("Video streaming not supported for local PyAutoGUI computer")
-        return False
-
-    def stop_video_stream(self) -> bool:
-        """Stop the video stream for the local PyAutoGUI instance.
-        
-        Local PyAutoGUI doesn't support video streaming.
-        
-        Returns:
-            bool: False as local PyAutoGUI doesn't support video streaming.
-        """
-        self.logger.debug("Video streaming not supported for local PyAutoGUI computer")
-        return False

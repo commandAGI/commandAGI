@@ -8,6 +8,7 @@ and static type checking.
 
 import logging
 from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.local_computer import LocalComputer
 from commandLAB.computers.computers import (
     LocalPynputComputer,
     LocalPyAutoGUIComputer,
@@ -23,6 +24,7 @@ from commandLAB.computers.computers import (
 
 __all__ = [
     "BaseComputer",
+    "LocalComputer",
     "LocalPynputComputer",
     "LocalPyAutoGUIComputer",
     "E2BDesktopComputer",

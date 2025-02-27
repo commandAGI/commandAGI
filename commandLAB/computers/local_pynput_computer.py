@@ -19,7 +19,7 @@ except ImportError:
         "The local dependencies are not installed. Please install commandLAB with the local extra:\n\npip install commandLAB[local]"
     )
 
-from commandLAB.computers.base_computer import BaseComputer
+from commandLAB.computers.local_computer import LocalComputer
 from commandLAB.types import (
     CommandAction,
     KeyboardHotkeyAction,
@@ -198,12 +198,9 @@ def keyboard_key_from_pynput(key) -> Optional[KeyboardKey]:
     return pynput_to_keyboard_key.get(key)  # Returns None if not found
 
 
-class LocalPynputComputer(BaseComputer):
+class LocalPynputComputer(LocalComputer):
     def __init__(self):
         super().__init__()
-        self._sct = None
-        self._temp_dir = None
-
         # These will hold the listener objects and controllers
         self._keyboard_listener = None
         self._mouse_listener = None
@@ -221,12 +218,8 @@ class LocalPynputComputer(BaseComputer):
 
     def _start(self):
         """Start the local computer environment with pynput listeners."""
-        if not self._sct:
-            self.logger.info("Initializing MSS screen capture")
-            self._sct = mss.mss()
-        if not self._temp_dir:
-            self.logger.info("Creating temporary directory")
-            self._temp_dir = tempfile.mkdtemp()
+        # Call parent _start method to initialize screen capture and temp directory
+        super()._start()
             
         # Start the keyboard listener if not already running
         if self._keyboard_listener is None or not self._keyboard_listener.running:
@@ -252,14 +245,6 @@ class LocalPynputComputer(BaseComputer):
 
     def _stop(self):
         """Stop the local computer environment and pynput listeners."""
-        if self._sct:
-            self.logger.info("Closing MSS screen capture")
-            self._sct.close()
-            self._sct = None
-        if self._temp_dir:
-            self.logger.info("Cleaning up temporary directory")
-            self._temp_dir = None
-            
         # Stop the keyboard listener if running
         if self._keyboard_listener and self._keyboard_listener.running:
             self.logger.info("Stopping keyboard listener")
@@ -271,8 +256,9 @@ class LocalPynputComputer(BaseComputer):
             self.logger.info("Stopping mouse listener")
             self._mouse_listener.stop()
             self._mouse_listener = None
-            
-        self.logger.info("Local Pynput computer stopped successfully")
+        
+        # Call parent _stop method to clean up screen capture and temp directory
+        super()._stop()
         return True
 
     def reset_state(self):
@@ -314,29 +300,6 @@ class LocalPynputComputer(BaseComputer):
         self.logger.debug(f"Mouse scroll detected: ({x}, {y}), dx={dx}, dy={dy}")
         # We don't track scroll state, just position
 
-    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
-        """Return a screenshot of the current state in the specified format.
-        
-        Args:
-            display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
-            format: Format to return the screenshot in. Options are:
-                - 'base64': Return the screenshot as a base64 encoded string
-                - 'PIL': Return the screenshot as a PIL Image object
-                - 'path': Save the screenshot to a file and return the path
-        """
-        # Capture screenshot using mss
-        self.logger.debug(f"Capturing screenshot of display {display_id}")
-        monitor = self._sct.monitors[display_id + 1]  # mss uses 1-based indexing
-        screenshot = self._sct.grab(monitor)
-        
-        # Use the utility function to process the screenshot
-        return process_screenshot(
-            screenshot_data=screenshot,
-            output_format=format,
-            input_format='PIL',
-            computer_name="pynput"
-        )
-
     def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from pynput listener."""
         self.logger.debug(f"Getting mouse state: position={self._mouse_pos}, buttons={self._mouse_buttons}")
@@ -368,22 +331,6 @@ class LocalPynputComputer(BaseComputer):
             mouse_state=mouse_state,
             keyboard_state=keyboard_state
         )
-
-    def _execute_command(self, action: CommandAction):
-        """Execute a system command using subprocess."""
-        self.logger.info(f"Executing command: {action.command}")
-        result = subprocess.run(
-            action.command,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=action.timeout if action.timeout is not None else 10,
-        )
-        if result.returncode == 0:
-            self.logger.info("Command executed successfully")
-        else:
-            self.logger.warning(f"Command returned non-zero exit code: {result.returncode}")
-            raise RuntimeError(f"Command returned non-zero exit code: {result.returncode}")
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
@@ -467,58 +414,3 @@ class LocalPynputComputer(BaseComputer):
         self._keyboard_controller.press(final_key)
         time.sleep(0.1)
         self._keyboard_controller.release(final_key)
-
-    def _pause(self):
-        """Pause the Pynput computer.
-        
-        For local Pynput, pausing doesn't have a specific implementation
-        as it's running on the local machine.
-        """
-        self.logger.info("Pausing local Pynput computer (no-op)")
-        # No specific pause implementation for local Pynput
-
-    def _resume(self, timeout_hours: Optional[float] = None):
-        """Resume the Pynput computer.
-        
-        For local Pynput, resuming doesn't have a specific implementation
-        as it's running on the local machine.
-        
-        Args:
-            timeout_hours: Not used for local Pynput implementation.
-        """
-        self.logger.info("Resuming local Pynput computer (no-op)")
-        # No specific resume implementation for local Pynput
-
-    @property
-    def video_stream_url(self) -> str:
-        """Get the URL for the video stream of the local Pynput instance.
-        
-        Local Pynput doesn't support video streaming.
-        
-        Returns:
-            str: Empty string as local Pynput doesn't support video streaming.
-        """
-        self.logger.debug("Video streaming not supported for local Pynput computer")
-        return ""
-
-    def start_video_stream(self) -> bool:
-        """Start the video stream for the local Pynput instance.
-        
-        Local Pynput doesn't support video streaming.
-        
-        Returns:
-            bool: False as local Pynput doesn't support video streaming.
-        """
-        self.logger.debug("Video streaming not supported for local Pynput computer")
-        return False
-
-    def stop_video_stream(self) -> bool:
-        """Stop the video stream for the local Pynput instance.
-        
-        Local Pynput doesn't support video streaming.
-        
-        Returns:
-            bool: False as local Pynput doesn't support video streaming.
-        """
-        self.logger.debug("Video streaming not supported for local Pynput computer")
-        return False
