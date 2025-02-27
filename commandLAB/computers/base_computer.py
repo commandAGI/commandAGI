@@ -6,7 +6,7 @@ import logging
 import os
 from abc import abstractmethod, ABC
 from typing import ClassVar, Literal, List, Optional, Dict, Any, Union, IO, AnyStr
-from commandLAB._utils.config import APPDIR, SCREENSHOTS_DIR
+from commandLAB._utils.config import APPDIR
 from commandLAB._utils.counter import next_for_cls
 
 from commandLAB._utils.platform import DEFAULT_SHELL_EXECUTIBLE
@@ -47,6 +47,8 @@ class BaseJupyterNotebook(BaseModel):
     This class defines the interface for working with Jupyter notebooks programmatically.
     Implementations should provide methods to create, read, modify, and execute notebooks.
     """
+    
+    model_config = {"arbitrary_types_allowed": True}
     
     notebook_path: Optional[Path] = None
     
@@ -110,11 +112,13 @@ class BaseShell(BaseModel):
     Implementations should provide methods to execute commands and manage the shell environment.
     """
     
+    model_config = {"arbitrary_types_allowed": True}
+
     executable: str = DEFAULT_SHELL_EXECUTIBLE
     cwd: Optional[Path] = None
     env: Dict[str, str] = Field(default_factory=dict)
     pid: Optional[int] = None
-    logger: Optional[logging.Logger] = None
+    _logger: Optional[logging.Logger] = None
     
     def start(self) -> bool:
         """Start the shell process.
@@ -352,6 +356,8 @@ class BaseComputerFile(FileIO, ABC):
 
 class BaseComputer(BaseModel):
 
+    model_config = {"arbitrary_types_allowed": True}
+    
     name: str
     _state: Literal["stopped", "started", "paused"] = "stopped"  # Updated to include paused state
     logger: Optional[logging.Logger] = None

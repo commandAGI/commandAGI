@@ -279,11 +279,11 @@ class LocalShell(BaseShell):
             bool: True if the shell was started successfully, False otherwise.
         """
         if self.is_running():
-            self.logger.info("Shell is already running")
+            self._logger.info("Shell is already running")
             return True
 
         try:
-            self.logger.info(f"Starting shell with executable: {self.executable}")
+            self._logger.info(f"Starting shell with executable: {self.executable}")
 
             # Set up environment
             env = os.environ.copy()
@@ -324,7 +324,7 @@ class LocalShell(BaseShell):
                 )
                 self.pid = self._process.pid
 
-            self.logger.info(f"Shell started with PID: {self.pid}")
+            self._logger.info(f"Shell started with PID: {self.pid}")
 
             # Change to the initial working directory if specified
             if self.cwd:
@@ -332,7 +332,7 @@ class LocalShell(BaseShell):
 
             return True
         except Exception as e:
-            self.logger.error(f"Error starting shell: {e}")
+            self._logger.error(f"Error starting shell: {e}")
             self._cleanup()
             return False
 
@@ -343,11 +343,11 @@ class LocalShell(BaseShell):
             bool: True if the shell was stopped successfully, False otherwise.
         """
         if not self.is_running():
-            self.logger.info("Shell is not running")
+            self._logger.info("Shell is not running")
             return True
 
         try:
-            self.logger.info(f"Stopping shell with PID: {self.pid}")
+            self._logger.info(f"Stopping shell with PID: {self.pid}")
 
             if platform.system() == "Windows":
                 # Send exit command to gracefully exit
@@ -369,10 +369,10 @@ class LocalShell(BaseShell):
                     os.killpg(os.getpgid(self.pid), signal.SIGKILL)
 
             self._cleanup()
-            self.logger.info("Shell stopped")
+            self._logger.info("Shell stopped")
             return True
         except Exception as e:
-            self.logger.error(f"Error stopping shell: {e}")
+            self._logger.error(f"Error stopping shell: {e}")
             self._cleanup()
             return False
 
@@ -409,7 +409,7 @@ class LocalShell(BaseShell):
             self.start()
 
         try:
-            self.logger.debug(f"Executing command: {command}")
+            self._logger.debug(f"Executing command: {command}")
 
             # Clear the output buffer before sending the command
             with self._lock:
@@ -445,7 +445,7 @@ class LocalShell(BaseShell):
                 "returncode": 0,  # We can't easily get the return code
             }
         except Exception as e:
-            self.logger.error(f"Error executing command: {e}")
+            self._logger.error(f"Error executing command: {e}")
             return {"stdout": "", "stderr": str(e), "returncode": 1}
 
     def read_output(self, timeout: Optional[float] = None) -> str:
@@ -543,7 +543,7 @@ class LocalShell(BaseShell):
 
             return True
         except Exception as e:
-            self.logger.error(f"Error sending input: {e}")
+            self._logger.error(f"Error sending input: {e}")
             return False
 
     def change_directory(self, path: Union[str, Path]) -> bool:
