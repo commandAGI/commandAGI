@@ -25,25 +25,24 @@ RUN apt-get update && apt-get install -y \
 
 # Test Python version and fail if not 3.12
 RUN python3 -c 'import sys; assert sys.version_info >= (3,12), "Python 3.12+ required"'
-#test if distutils is installed
-#RUN apt-get install python3.12-distutils
-#RUN python3 -c 'import distutils'
-# Copy the local codebase, update pip, install poetry, configure it to not use virtualenvs, and install dependencies
+
+# Update pip and install required packages
 RUN python3 -m ensurepip --upgrade 
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --upgrade setuptools
 RUN python3 -m pip install --upgrade six
-RUN python3 -m pip install poetry
 RUN python3 -m pip install --upgrade urllib3
-# RUN poetry config virtualenvs.create false
 
+# Copy the local codebase
 COPY . /commandlab
 WORKDIR /commandlab
-RUN poetry --version
+
+# Install dependencies using pip
 RUN apt-get update
 RUN apt-get install -y libssl-dev openssl
-#RUN poetry install
-RUN poetry install --extras "local daemon-host"
+
+# Install the package and its dependencies
+RUN python3 -m pip install -e ".[local,daemon-host]"
 
 WORKDIR /
 
