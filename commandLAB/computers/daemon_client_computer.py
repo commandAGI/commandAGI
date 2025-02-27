@@ -52,7 +52,7 @@ try:
     from commandLAB.daemon.client.api.default.get_keyboard_state_observation_keyboard_state_get import sync as get_keyboard_state_sync
     from commandLAB.daemon.client.api.default.reset_reset_post import sync as reset_sync
     from commandLAB.daemon.client.models import (
-        CommandAction as ClientCommandAction,
+        ShellCommandAction as ClientShellCommandAction,
         KeyboardKeyDownAction as ClientKeyboardKeyDownAction,
         KeyboardKeyReleaseAction as ClientKeyboardKeyReleaseAction,
         KeyboardKeyPressAction as ClientKeyboardKeyPressAction,
@@ -241,7 +241,7 @@ class DaemonClientComputer(BaseComputer):
             raise RuntimeError("Client not initialized")
         
         # Convert the BaseComputer CommandAction to the client's CommandAction
-        client_action = ClientCommandAction(
+        client_action = ClientShellCommandAction(
             command=action.command,
             timeout=action.timeout
         )

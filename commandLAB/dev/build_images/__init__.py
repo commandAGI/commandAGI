@@ -11,12 +11,13 @@ from .utils import (
     ensure_packer_template
 )
 
+from .cli import cli
 from .docker import build_docker_image
 from .kubernetes import build_kubernetes_image
 from .aws import build_aws_ami
 from .azure import build_azure_vm
 from .gcp import build_gcp_vm
-from .cli import build_all_images, cli
+from .all import build_all_images
 
 __all__ = [
     "get_base_paths",
