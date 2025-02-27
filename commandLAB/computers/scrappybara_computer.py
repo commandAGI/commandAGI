@@ -137,14 +137,12 @@ class ScrapybaraComputer(BaseComputer):
             
             # Start a default Ubuntu instance
             self.client = self.client.start_ubuntu()
-        return True
 
     def _stop(self):
         """Stop the Scrapybara environment."""
         if self.client:
             self.client.stop()
             self.client = None
-        return True
 
     def reset_state(self):
         """Reset the Scrapybara environment"""
@@ -189,65 +187,40 @@ class ScrapybaraComputer(BaseComputer):
         self.logger.debug("Scrapybara does not support getting keyboard state")
         raise NotImplementedError("Scrapybara does not support getting keyboard state")
 
-    def _execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction):
         """Execute a system command in the Scrapybara VM."""
-        try:
-            # Use bash command for Ubuntu instances
-            response = self.client.bash(command=action.command)
-            return True
-        except Exception as e:
-            print(f"Error executing command via Scrapybara: {e}")
-            return False
+        # Use bash command for Ubuntu instances
+        response = self.client.bash(command=action.command)
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key using Scrapybara."""
         # Scrapybara doesn't have separate key down/up methods
         # We'll use the key method with a press and hold approach
-        try:
-            key = keyboard_key_to_scrapybara(action.key)
-            # Note: This is a limitation as Scrapybara doesn't support key down without release
-            self.client.computer(action="key", text=key)
-            return True
-        except Exception as e:
-            print(f"Error executing key down via Scrapybara: {e}")
-            return False
+        key = keyboard_key_to_scrapybara(action.key)
+        # Note: This is a limitation as Scrapybara doesn't support key down without release
+        self.client.computer(action="key", text=key)
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key using Scrapybara."""
         # Scrapybara doesn't have separate key down/up methods
         raise NotImplementedError("Scrapybara does not support key release actions")
 
-    def _execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction):
         """Type text using Scrapybara."""
-        try:
-            self.client.computer(action="type", text=action.text)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error typing text via Scrapybara: {e}")
-            return False
+        self.client.computer(action="type", text=action.text)
 
-    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction):
         """Move mouse to specified coordinates using Scrapybara."""
-        try:
-            self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
-            return True
-        except Exception as e:
-            self.logger.error(f"Error moving mouse via Scrapybara: {e}")
-            return False
+        self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction):
         """Scroll mouse using Scrapybara."""
-        try:
-            # Scrapybara scroll takes [x, y] coordinates for horizontal and vertical scrolling
-            # Convert our amount to a vertical scroll (positive = down, negative = up)
-            x_scroll = 0
-            y_scroll = int(action.amount)
-            
-            self.client.computer(action="scroll", coordinate=[x_scroll, y_scroll])
-            return True
-        except Exception as e:
-            print(f"Error scrolling mouse via Scrapybara: {e}")
-            return False
+        # Scrapybara scroll takes [x, y] coordinates for horizontal and vertical scrolling
+        # Convert our amount to a vertical scroll (positive = down, negative = up)
+        x_scroll = 0
+        y_scroll = int(action.amount)
+        
+        self.client.computer(action="scroll", coordinate=[x_scroll, y_scroll])
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press mouse button down using Scrapybara."""
@@ -259,75 +232,46 @@ class ScrapybaraComputer(BaseComputer):
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError("Scrapybara does not support mouse button up actions")
 
-    def _execute_click(self, action: ClickAction) -> bool:
+    def _execute_click(self, action: ClickAction):
         """Execute a click action at the given coordinates using Scrapybara's click action."""
-        try:
-            # Scrapybara has a direct click action
-            # First move to the position
-            self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
-            
-            # Then perform the appropriate click based on the button
-            click_action = mouse_button_to_scrapybara(action.button)
-            self.client.computer(action=click_action)
-            return True
-        except Exception as e:
-            print(f"Error executing click via Scrapybara: {e}")
-            return False
+        # Scrapybara has a direct click action
+        # First move to the position
+        self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
+        
+        # Then perform the appropriate click based on the button
+        click_action = mouse_button_to_scrapybara(action.button)
+        self.client.computer(action=click_action)
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
+    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
         """Execute pressing a keyboard key using Scrapybara's key action."""
-        try:
-            # Scrapybara uses the computer action with key
-            scrapybara_key = keyboard_key_to_scrapybara(action.key)
-            self.client.computer(action="key", text=scrapybara_key)
-            return True
-        except Exception as e:
-            print(f"Error executing key press via Scrapybara: {e}")
-            return False
+        # Scrapybara uses the computer action with key
+        scrapybara_key = keyboard_key_to_scrapybara(action.key)
+        self.client.computer(action="key", text=scrapybara_key)
             
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
+    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
         """Execute a keyboard hotkey using Scrapybara's key action with combined keys."""
-        try:
-            # Combine keys with + for Scrapybara hotkey format
-            hotkey = "+".join([keyboard_key_to_scrapybara(key) for key in action.keys])
-            self.client.computer(action="key", text=hotkey)
-            return True
-        except Exception as e:
-            print(f"Error executing hotkey via Scrapybara: {e}")
-            return False
+        # Combine keys with + for Scrapybara hotkey format
+        hotkey = "+".join([keyboard_key_to_scrapybara(key) for key in action.keys])
+        self.client.computer(action="key", text=hotkey)
 
-    def _execute_double_click(self, action: DoubleClickAction) -> bool:
+    def _execute_double_click(self, action: DoubleClickAction):
         """Execute a double click action at the given coordinates using Scrapybara's double click action."""
-        try:
-            # Move to position first
-            self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
-            # Then double click
-            self.client.computer(action="double_click")
-            return True
-        except Exception as e:
-            print(f"Error executing double click via Scrapybara: {e}")
-            return False
+        # Move to position first
+        self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
+        # Then double click
+        self.client.computer(action="double_click")
 
-    def _execute_drag(self, action: DragAction) -> bool:
+    def _execute_drag(self, action: DragAction):
         """Execute a drag action using Scrapybara's left_click_drag method."""
-        try:
-            # Move to the start position first
-            self.client.computer(action="mouse_move", coordinate=[action.start_x, action.start_y])
-            # Then perform the drag to the end position
-            self.client.computer(action="left_click_drag", coordinate=[action.end_x, action.end_y])
-            return True
-        except Exception as e:
-            print(f"Error executing drag via Scrapybara: {e}")
-            return False
+        # Move to the start position first
+        self.client.computer(action="mouse_move", coordinate=[action.start_x, action.start_y])
+        # Then perform the drag to the end position
+        self.client.computer(action="left_click_drag", coordinate=[action.end_x, action.end_y])
 
     def pause(self) -> bool:
         """Pause the Scrapybara instance."""
-        try:
-            self.client.pause()
-            return True
-        except Exception as e:
-            print(f"Error pausing Scrapybara instance: {e}")
-            return False
+        self.client.pause()
+        return True
 
     def resume(self, timeout_hours: float = None) -> bool:
         """Resume the Scrapybara instance.
@@ -335,24 +279,16 @@ class ScrapybaraComputer(BaseComputer):
         Args:
             timeout_hours: Optional timeout in hours before the instance is automatically paused.
         """
-        try:
-            if timeout_hours:
-                self.client.resume(timeout_hours=timeout_hours)
-            else:
-                self.client.resume()
-            return True
-        except Exception as e:
-            print(f"Error resuming Scrapybara instance: {e}")
-            return False
+        if timeout_hours:
+            self.client.resume(timeout_hours=timeout_hours)
+        else:
+            self.client.resume()
+        return True
 
     def get_stream_url(self) -> str:
         """Get the URL for the interactive stream of the Scrapybara instance."""
-        try:
-            response = self.client.get_stream_url()
-            return response.stream_url
-        except Exception as e:
-            print(f"Error getting stream URL: {e}")
-            return ""
+        response = self.client.get_stream_url()
+        return response.stream_url
 
 
 class UbuntuScrapybaraComputer(ScrapybaraComputer):
@@ -372,16 +308,10 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
             
             # Start an Ubuntu instance
             self.client = client.start_ubuntu()
-        return True
 
-    def _execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction):
         """Execute a bash command in the Ubuntu instance."""
-        try:
-            response = self.client.bash(command=action.command)
-            return True
-        except Exception as e:
-            print(f"Error executing bash command via Scrapybara: {e}")
-            return False
+        response = self.client.bash(command=action.command)
 
     def edit_file(self, path: str, command: str, **kwargs) -> bool:
         """Edit a file in the Ubuntu instance.
@@ -395,7 +325,7 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
             self.client.edit(command=command, path=path, **kwargs)
             return True
         except Exception as e:
-            print(f"Error editing file via Scrapybara: {e}")
+            self.logger.error(f"Error editing file via Scrapybara: {e}")
             return False
 
 
@@ -418,16 +348,11 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
             
             # Start a Browser instance
             self.client = self.client.start_browser()
-        return True
 
     def get_cdp_url(self) -> str:
         """Get the Playwright CDP URL for the browser instance."""
-        try:
-            response = self.client.get_cdp_url()
-            return response.cdp_url
-        except Exception as e:
-            print(f"Error getting CDP URL: {e}")
-            return ""
+        response = self.client.get_cdp_url()
+        return response.cdp_url
 
     def save_auth(self, name: str = "default") -> str:
         """Save the current browser authentication state.
@@ -438,34 +363,25 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
         Returns:
             The auth state ID that can be used to restore this state
         """
-        try:
-            response = self.client.save_auth(name=name)
-            return response.auth_state_id
-        except Exception as e:
-            print(f"Error saving auth state: {e}")
-            return ""
+        response = self.client.save_auth(name=name)
+        return response.auth_state_id
 
-    def authenticate(self, auth_state_id: str) -> bool:
+    def authenticate(self, auth_state_id: str):
         """Authenticate the browser using a saved auth state.
         
         Args:
             auth_state_id: The ID of the saved auth state to restore
         """
-        try:
-            self.client.authenticate(auth_state_id=auth_state_id)
-            return True
-        except Exception as e:
-            print(f"Error authenticating with saved state: {e}")
-            return False
-
-    def _execute_command(self, action: CommandAction) -> bool:
+        self.client.authenticate(auth_state_id=auth_state_id)
+    
+    def _execute_command(self, action: CommandAction):
         """Execute a command in the browser instance.
         
         Note: Browser instances don't support bash commands directly.
         This is a limitation of the browser-only environment.
         """
-        print("Warning: Browser instances don't support direct command execution")
-        return False
+        self.logger.warning("Browser instances don't support direct command execution")
+        raise NotImplementedError("Browser instances don't support direct command execution")
 
 
 class WindowsScrapybaraComputer(ScrapybaraComputer):
@@ -485,33 +401,26 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
             
             # Start a Windows instance
             self.client = client.start_windows()
-        return True
 
-    def _execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction):
         """Execute a command in the Windows instance.
         
         Note: Windows instances don't support bash commands directly.
         This implementation uses computer actions to open cmd and type commands.
         """
-        try:
-            # Open Windows Run dialog
-            self.client.computer(action="key", text="meta+r")
-            self.client.computer(action="wait")  # Wait for Run dialog to open
-            
-            # Type cmd and press Enter
-            self.client.computer(action="type", text="cmd")
-            self.client.computer(action="key", text="enter")
-            self.client.computer(action="wait")  # Wait for cmd to open
-            
-            # Type the command and press Enter
-            self.client.computer(action="type", text=action.command)
-            self.client.computer(action="key", text="enter")
-            
-            # Wait for command to complete if timeout is specified
-            if action.timeout:
-                self.client.computer(action="wait")
-                
-            return True
-        except Exception as e:
-            print(f"Error executing command via Scrapybara Windows: {e}")
-            return False
+        # Open Windows Run dialog
+        self.client.computer(action="key", text="meta+r")
+        self.client.computer(action="wait")  # Wait for Run dialog to open
+        
+        # Type cmd and press Enter
+        self.client.computer(action="type", text="cmd")
+        self.client.computer(action="key", text="enter")
+        self.client.computer(action="wait")  # Wait for cmd to open
+        
+        # Type the command and press Enter
+        self.client.computer(action="type", text=action.command)
+        self.client.computer(action="key", text="enter")
+        
+        # Wait for command to complete if timeout is specified
+        if action.timeout:
+            self.client.computer(action="wait")

@@ -187,165 +187,97 @@ class E2BDesktopComputer(BaseComputer):
         self.logger.debug("E2B Desktop does not support getting keyboard state")
         raise NotImplementedError("E2B Desktop does not support getting keyboard state")
 
-    def _execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction):
         """Execute a system command in the E2B Desktop VM."""
-        try:
-            self.desktop.commands.run(action.command)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error executing command via E2B Desktop: {e}")
-            return False
+        self.desktop.commands.run(action.command)
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key using action signature."""
         # E2B Desktop doesn't have direct key_down method, use PyAutoGUI
         e2b_key = keyboard_key_to_e2b(action.key)
-        try:
-            self.desktop.pyautogui(f"pyautogui.keyDown('{e2b_key}')")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error executing key down via E2B Desktop: {e}")
-            return False
+        self.desktop.pyautogui(f"pyautogui.keyDown('{e2b_key}')")
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key using action signature."""
         # E2B Desktop doesn't have direct key_up method, use PyAutoGUI
         e2b_key = keyboard_key_to_e2b(action.key)
-        try:
-            self.desktop.pyautogui(f"pyautogui.keyUp('{e2b_key}')")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error executing key release via E2B Desktop: {e}")
-            return False
+        self.desktop.pyautogui(f"pyautogui.keyUp('{e2b_key}')")
 
-    def _execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction):
         """Type text using E2B Desktop."""
-        try:
-            self.desktop.write(action.text)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error typing text via E2B Desktop: {e}")
-            return False
+        self.desktop.write(action.text)
 
-    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction):
         """Move mouse to specified coordinates using E2B Desktop."""
-        try:
-            self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
-            # E2B Desktop doesn't have a direct move duration parameter
-            self.desktop.mouse_move(action.x, action.y)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error moving mouse via E2B Desktop: {e}")
-            return False
+        self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
+        # E2B Desktop doesn't have a direct move duration parameter
+        self.desktop.mouse_move(action.x, action.y)
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction):
         """Scroll mouse using E2B Desktop."""
-        try:
-            # E2B Desktop scroll takes an integer amount
-            self.desktop.scroll(int(action.amount))
-            return True
-        except Exception as e:
-            self.logger.error(f"Error scrolling mouse via E2B Desktop: {e}")
-            return False
+        # E2B Desktop scroll takes an integer amount
+        self.desktop.scroll(int(action.amount))
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Press mouse button down using PyAutoGUI through E2B Desktop."""
         e2b_button = mouse_button_to_e2b(action.button)
-        try:
-            self.desktop.pyautogui(f"pyautogui.mouseDown(button='{e2b_button}')")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error pressing mouse button via E2B Desktop: {e}")
-            return False
+        self.desktop.pyautogui(f"pyautogui.mouseDown(button='{e2b_button}')")
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Release mouse button using PyAutoGUI through E2B Desktop."""
         e2b_button = mouse_button_to_e2b(action.button)
-        try:
-            self.desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error releasing mouse button via E2B Desktop: {e}")
-            return False
+        self.desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")
 
-    def _execute_click(self, action: ClickAction) -> bool:
+    def _execute_click(self, action: ClickAction):
         """Execute a click action using E2B Desktop's click methods."""
-        try:
-            # Move to position first
-            self.desktop.mouse_move(action.x, action.y)
+        # Move to position first
+        self.desktop.mouse_move(action.x, action.y)
 
-            # Then click using the appropriate method
-            e2b_button = mouse_button_to_e2b(action.button)
-            if e2b_button == "left":
-                self.desktop.left_click()
-            elif e2b_button == "right":
-                self.desktop.right_click()
-            elif e2b_button == "middle":
-                self.desktop.middle_click()
-            return True
-        except Exception as e:
-            self.logger.error(f"Error clicking: {e}")
-            return False
+        # Then click using the appropriate method
+        e2b_button = mouse_button_to_e2b(action.button)
+        if e2b_button == "left":
+            self.desktop.left_click()
+        elif e2b_button == "right":
+            self.desktop.right_click()
+        elif e2b_button == "middle":
+            self.desktop.middle_click()
 
-    def _execute_double_click(self, action: DoubleClickAction) -> bool:
+    def _execute_double_click(self, action: DoubleClickAction):
         """Execute a double click action using E2B Desktop's double_click method."""
-        try:
-            # Move to position first
-            self.desktop.mouse_move(action.x, action.y)
+        # Move to position first
+        self.desktop.mouse_move(action.x, action.y)
 
-            # Then double click (E2B only supports left double click)
-            self.desktop.double_click()
-            return True
-        except Exception as e:
-            self.logger.error(f"Error double clicking: {e}")
-            return False
+        # Then double click (E2B only supports left double click)
+        self.desktop.double_click()
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
+    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
         """Execute pressing a keyboard key."""
         e2b_key = keyboard_key_to_e2b(action.key)
-        try:
-            # E2B doesn't have a direct press method, use PyAutoGUI
-            self.desktop.pyautogui(f"pyautogui.press('{e2b_key}')")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error pressing key: {e}")
-            return False
+        # E2B doesn't have a direct press method, use PyAutoGUI
+        self.desktop.pyautogui(f"pyautogui.press('{e2b_key}')")
 
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
+    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
         """Execute a keyboard hotkey using E2B Desktop's hotkey method."""
         # Convert keys to E2B format
         e2b_keys = [keyboard_key_to_e2b(key) for key in action.keys]
 
-        try:
-            # E2B Desktop's hotkey method takes individual arguments, not a list
-            self.desktop.hotkey(*e2b_keys)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error executing hotkey: {e}")
-            return False
+        # E2B Desktop's hotkey method takes individual arguments, not a list
+        self.desktop.hotkey(*e2b_keys)
 
     def locate_on_screen(self, text):
         """Find text on screen and return coordinates.
 
         This is a direct wrapper for E2B Desktop's locate_on_screen method.
         """
-        try:
-            return self.desktop.locate_on_screen(text)
-        except Exception as e:
-            self.logger.error(f"Error locating text on screen: {e}")
-            return None
+        return self.desktop.locate_on_screen(text)
 
     def open_file(self, file_path):
         """Open a file with the default application.
 
         This is a direct wrapper for E2B Desktop's open method.
         """
-        try:
-            self.desktop.open(file_path)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error opening file: {e}")
-            return False
+        self.desktop.open(file_path)
+        return True
 
     def get_video_stream_url(self) -> str:
         """Get the URL for the video stream of the E2B Desktop instance."""
@@ -355,16 +287,12 @@ class E2BDesktopComputer(BaseComputer):
             )
             return ""
 
-        try:
-            # The method name might be different based on the API
-            # Check if the method exists
-            if hasattr(self.desktop, "get_video_stream_url"):
-                return self.desktop.get_video_stream_url()
-            else:
-                self.logger.warning(
-                    "Warning: get_video_stream_url method not found in E2B Desktop API"
-                )
-                return ""
-        except Exception as e:
-            self.logger.error(f"Error getting video stream URL: {e}")
+        # The method name might be different based on the API
+        # Check if the method exists
+        if hasattr(self.desktop, "get_video_stream_url"):
+            return self.desktop.get_video_stream_url()
+        else:
+            self.logger.warning(
+                "Warning: get_video_stream_url method not found in E2B Desktop API"
+            )
             return ""

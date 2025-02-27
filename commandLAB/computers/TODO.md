@@ -10,3 +10,6 @@
 [ ] rename daemoncomputer to computer
 [ ] rename the repo to `command_computer`
 [ ] move the python into a `packages/python` dir. make a typescript with coming soon
+
+[ ] playright webbrowser, pupyteer webbrowser
+[ ] terminal

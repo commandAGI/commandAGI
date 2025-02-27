@@ -191,99 +191,57 @@ class LocalPyAutoGUIComputer(BaseComputer):
             "LocalComputeEnv does not support keyboard state observation"
         )
 
-    def _execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction):
         """Execute a system command using subprocess."""
-        try:
-            self.logger.info(f"Executing command: {action.command}")
-            result = subprocess.run(
-                action.command,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                timeout=action.timeout if action.timeout is not None else 10,
-            )
-            if result.returncode == 0:
-                self.logger.info("Command executed successfully")
-            else:
-                self.logger.warning(f"Command returned non-zero exit code: {result.returncode}")
-            return result.returncode == 0
-        except subprocess.TimeoutExpired:
-            self.logger.error(f"Command timed out after {action.timeout} seconds")
-            return False
-        except Exception as e:
-            self.logger.error(f"Error executing command: {e}")
-            return False
+        self.logger.info(f"Executing command: {action.command}")
+        result = subprocess.run(
+            action.command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=action.timeout if action.timeout is not None else 10,
+        )
+        if result.returncode == 0:
+            self.logger.info("Command executed successfully")
+        else:
+            self.logger.warning(f"Command returned non-zero exit code: {result.returncode}")
+            raise RuntimeError(f"Command returned non-zero exit code: {result.returncode}")
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
-        try:
-            pyautogui_key = keyboard_key_to_pyautogui(action.key)
-            self.logger.debug(f"Pressing key down: {action.key} (PyAutoGUI key: {pyautogui_key})")
-            pyautogui.keyDown(pyautogui_key)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error executing key down: {e}")
-            return False
+        pyautogui_key = keyboard_key_to_pyautogui(action.key)
+        self.logger.debug(f"Pressing key down: {action.key} (PyAutoGUI key: {pyautogui_key})")
+        pyautogui.keyDown(pyautogui_key)
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key."""
-        try:
-            pyautogui_key = keyboard_key_to_pyautogui(action.key)
-            self.logger.debug(f"Releasing key: {action.key} (PyAutoGUI key: {pyautogui_key})")
-            pyautogui.keyUp(pyautogui_key)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error executing key release: {e}")
-            return False
+        pyautogui_key = keyboard_key_to_pyautogui(action.key)
+        self.logger.debug(f"Releasing key: {action.key} (PyAutoGUI key: {pyautogui_key})")
+        pyautogui.keyUp(pyautogui_key)
 
-    def _execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction):
         """Type text using PyAutoGUI."""
-        try:
-            self.logger.debug(f"Typing text: {action.text}")
-            pyautogui.write(action.text)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error typing text: {e}")
-            return False
+        self.logger.debug(f"Typing text: {action.text}")
+        pyautogui.write(action.text)
 
-    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction):
         """Move mouse to specified coordinates using PyAutoGUI."""
-        try:
-            self.logger.debug(f"Moving mouse to: ({action.x}, {action.y}) with duration {action.move_duration}")
-            pyautogui.moveTo(action.x, action.y, duration=action.move_duration)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error moving mouse: {e}")
-            return False
+        self.logger.debug(f"Moving mouse to: ({action.x}, {action.y}) with duration {action.move_duration}")
+        pyautogui.moveTo(action.x, action.y, duration=action.move_duration)
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction):
         """Scroll mouse using PyAutoGUI."""
-        try:
-            self.logger.debug(f"Scrolling mouse by: {action.amount}")
-            pyautogui.scroll(action.amount)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error scrolling mouse: {e}")
-            return False
+        self.logger.debug(f"Scrolling mouse by: {action.amount}")
+        pyautogui.scroll(action.amount)
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Press mouse button down using PyAutoGUI."""
-        try:
-            pyautogui_button = mouse_button_to_pyautogui(action.button)
-            self.logger.debug(f"Pressing mouse button down: {action.button} (PyAutoGUI button: {pyautogui_button})")
-            pyautogui.mouseDown(button=pyautogui_button)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error pressing mouse button: {e}")
-            return False
+        pyautogui_button = mouse_button_to_pyautogui(action.button)
+        self.logger.debug(f"Pressing mouse button down: {action.button} (PyAutoGUI button: {pyautogui_button})")
+        pyautogui.mouseDown(button=pyautogui_button)
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Release mouse button using PyAutoGUI."""
-        try:
-            pyautogui_button = mouse_button_to_pyautogui(action.button)
-            self.logger.debug(f"Releasing mouse button: {action.button} (PyAutoGUI button: {pyautogui_button})")
-            pyautogui.mouseUp(button=pyautogui_button)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error releasing mouse button: {e}")
-            return False
+        pyautogui_button = mouse_button_to_pyautogui(action.button)
+        self.logger.debug(f"Releasing mouse button: {action.button} (PyAutoGUI button: {pyautogui_button})")
+        pyautogui.mouseUp(button=pyautogui_button)

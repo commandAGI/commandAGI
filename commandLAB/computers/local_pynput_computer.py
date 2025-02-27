@@ -369,135 +369,91 @@ class LocalPynputComputer(BaseComputer):
             keyboard_state=keyboard_state
         )
 
-    def _execute_command(self, action: CommandAction) -> bool:
+    def _execute_command(self, action: CommandAction):
         """Execute a system command using subprocess."""
-        try:
-            self.logger.info(f"Executing command: {action.command}")
-            result = subprocess.run(
-                action.command,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                timeout=action.timeout if action.timeout is not None else 10,
-            )
-            if result.returncode == 0:
-                self.logger.info("Command executed successfully")
-            else:
-                self.logger.warning(f"Command returned non-zero exit code: {result.returncode}")
-            return result.returncode == 0
-        except subprocess.TimeoutExpired:
-            self.logger.error(f"Command timed out after {action.timeout} seconds")
-            return False
-        except Exception as e:
-            self.logger.error(f"Error executing command: {e}")
-            return False
+        self.logger.info(f"Executing command: {action.command}")
+        result = subprocess.run(
+            action.command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=action.timeout if action.timeout is not None else 10,
+        )
+        if result.returncode == 0:
+            self.logger.info("Command executed successfully")
+        else:
+            self.logger.warning(f"Command returned non-zero exit code: {result.returncode}")
+            raise RuntimeError(f"Command returned non-zero exit code: {result.returncode}")
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
-        try:
-            pynput_key = keyboard_key_to_pynput(action.key)
-            self.logger.debug(f"Pressing key down: {action.key} (Pynput key: {pynput_key})")
-            self._keyboard_controller.press(pynput_key)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error executing key down: {e}")
-            return False
+        pynput_key = keyboard_key_to_pynput(action.key)
+        self.logger.debug(f"Pressing key down: {action.key} (Pynput key: {pynput_key})")
+        self._keyboard_controller.press(pynput_key)
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key."""
-        try:
-            pynput_key = keyboard_key_to_pynput(action.key)
-            self.logger.debug(f"Releasing key: {action.key} (Pynput key: {pynput_key})")
-            self._keyboard_controller.release(pynput_key)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error executing key release: {e}")
-            return False
+        pynput_key = keyboard_key_to_pynput(action.key)
+        self.logger.debug(f"Releasing key: {action.key} (Pynput key: {pynput_key})")
+        self._keyboard_controller.release(pynput_key)
 
-    def _execute_type(self, action: TypeAction) -> bool:
+    def _execute_type(self, action: TypeAction):
         """Type text using pynput."""
-        try:
-            self.logger.debug(f"Typing text: {action.text}")
-            self._keyboard_controller.type(action.text)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error typing text: {e}")
-            return False
+        self.logger.debug(f"Typing text: {action.text}")
+        self._keyboard_controller.type(action.text)
 
-    def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def _execute_mouse_move(self, action: MouseMoveAction):
         """Move mouse to specified coordinates using pynput."""
-        try:
-            self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
-            # pynput doesn't have a direct move duration parameter, so we simulate it
-            if action.move_duration > 0:
-                # Get current position
-                current_x, current_y = self._mouse_controller.position
-                
-                # Calculate number of steps based on duration
-                steps = max(int(action.move_duration * 60), 1)  # 60 steps per second
-                
-                # Calculate step size
-                step_x = (action.x - current_x) / steps
-                step_y = (action.y - current_y) / steps
-                
-                # Move in steps
-                for i in range(steps):
-                    next_x = current_x + step_x * (i + 1)
-                    next_y = current_y + step_y * (i + 1)
-                    self._mouse_controller.position = (next_x, next_y)
-                    time.sleep(action.move_duration / steps)
-            else:
-                # Instant move
-                self._mouse_controller.position = (action.x, action.y)
-                
-            return True
-        except Exception as e:
-            self.logger.error(f"Error moving mouse: {e}")
-            return False
+        self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
+        # pynput doesn't have a direct move duration parameter, so we simulate it
+        if action.move_duration > 0:
+            # Get current position
+            current_x, current_y = self._mouse_controller.position
+            
+            # Calculate number of steps based on duration
+            steps = max(int(action.move_duration * 60), 1)  # 60 steps per second
+            
+            # Calculate step size
+            step_x = (action.x - current_x) / steps
+            step_y = (action.y - current_y) / steps
+            
+            # Move in steps
+            for i in range(steps):
+                next_x = current_x + step_x * (i + 1)
+                next_y = current_y + step_y * (i + 1)
+                self._mouse_controller.position = (next_x, next_y)
+                time.sleep(action.move_duration / steps)
+        else:
+            # Instant move
+            self._mouse_controller.position = (action.x, action.y)
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def _execute_mouse_scroll(self, action: MouseScrollAction):
         """Scroll mouse using pynput."""
-        try:
-            self.logger.debug(f"Scrolling mouse by: {action.amount}")
-            # pynput scroll is done with dx, dy values
-            # Positive values scroll up, negative values scroll down
-            self._mouse_controller.scroll(0, action.amount / 100)  # Scale to reasonable values
-            return True
-        except Exception as e:
-            self.logger.error(f"Error scrolling mouse: {e}")
-            return False
+        self.logger.debug(f"Scrolling mouse by: {action.amount}")
+        # pynput scroll is done with dx, dy values
+        # Positive values scroll up, negative values scroll down
+        self._mouse_controller.scroll(0, action.amount / 100)  # Scale to reasonable values
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Press mouse button down using pynput."""
-        try:
-            pynput_button = mouse_button_to_pynput(action.button)
-            self.logger.debug(f"Pressing mouse button down: {action.button} (Pynput button: {pynput_button})")
-            self._mouse_controller.press(pynput_button)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error pressing mouse button: {e}")
-            return False
+        pynput_button = mouse_button_to_pynput(action.button)
+        self.logger.debug(f"Pressing mouse button down: {action.button} (Pynput button: {pynput_button})")
+        self._mouse_controller.press(pynput_button)
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Release mouse button using pynput."""
-        try:
-            pynput_button = mouse_button_to_pynput(action.button)
-            self.logger.debug(f"Releasing mouse button: {action.button} (Pynput button: {pynput_button})")
-            self._mouse_controller.release(pynput_button)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error releasing mouse button: {e}")
-            return False
+        pynput_button = mouse_button_to_pynput(action.button)
+        self.logger.debug(f"Releasing mouse button: {action.button} (Pynput button: {pynput_button})")
+        self._mouse_controller.release(pynput_button)
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
+    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
         """Press and release a keyboard key."""
         pynput_key = keyboard_key_to_pynput(action.key)
         self._keyboard_controller.press(pynput_key)
         time.sleep(action.duration)
         self._keyboard_controller.release(pynput_key)
-        return True
 
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
+    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
         """Execute a keyboard hotkey using pynput's context manager."""
         # Convert all modifier keys except the last key
         modifier_keys = [keyboard_key_to_pynput(key) for key in action.keys[:-1]]
@@ -511,5 +467,3 @@ class LocalPynputComputer(BaseComputer):
         self._keyboard_controller.press(final_key)
         time.sleep(0.1)
         self._keyboard_controller.release(final_key)
-
-        return True
