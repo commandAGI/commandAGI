@@ -41,9 +41,6 @@ local = [
     "uiautomation>=2.0.20,<3.0.0; platform_system == 'Windows'",
     "pyax; platform_system == 'Darwin'",
     "pyatspi; platform_system == 'Linux'",
-    "pty; platform_system != 'Windows'",
-    "termios; platform_system != 'Windows'",
-    "tty; platform_system != 'Windows'",
 ]
 
 vnc = ["vncdotool~=1.2"]

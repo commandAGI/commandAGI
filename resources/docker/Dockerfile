@@ -41,8 +41,16 @@ WORKDIR /commandlab
 RUN apt-get update
 RUN apt-get install -y libssl-dev openssl
 
+RUN python3 -c "import platform; print('Python Platform:', platform.platform())"
+
 # Install the package and its dependencies
-RUN python3 -m pip install -e ".[local,daemon-host]"
+RUN echo "Starting base package installation..." && \
+    python3 -m pip install -e . && \
+    echo "Successfully installed base package"
+
+RUN echo "Starting optional dependencies installation..." && \
+    python3 -m pip install -e ".[local,daemon-host]" && \
+    echo "Successfully installed optional dependencies"
 
 WORKDIR /
 
