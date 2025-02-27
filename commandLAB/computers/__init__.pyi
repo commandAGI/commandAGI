@@ -6,6 +6,7 @@ the actual dependencies to be installed, which is helpful for development enviro
 and static type checking.
 """
 
+import logging
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.computers.computers import (
     LocalPynputComputer,

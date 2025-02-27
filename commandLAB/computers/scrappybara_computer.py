@@ -1,6 +1,8 @@
 import base64
 import io
-from typing import Optional, Union, List
+import os
+import datetime
+from typing import Dict, Any, Optional, Union, Literal
 
 try:
     import scrapybara
@@ -31,6 +33,8 @@ from commandLAB.types import (
     KeyboardKeyPressAction,
     KeyboardHotkeyAction,
 )
+from commandLAB._utils.config import APPDIR
+from commandLAB._utils.screenshot import process_screenshot
 
 
 # Scrapybara-specific mappings
@@ -148,12 +152,15 @@ class ScrapybaraComputer(BaseComputer):
         self._stop()
         self._start()
 
-    def _get_screenshot(self) -> ScreenshotObservation:
-        """Return a screenshot of the current state as base64 encoded string."""
-        # Capture the screenshot using Scrapybara
-        response = self.client.screenshot()
-        b64_screenshot = response.base_64_image
-        return ScreenshotObservation(screenshot=b64_screenshot)
+    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
+        """Return a screenshot of the current state in the specified format."""
+        response  = self.client.screenshot()
+        return process_screenshot(
+            screenshot_data=response.base_64_image,
+            output_format=format,
+            input_format='base64',
+            computer_name="scrapybara"
+        )
 
     def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from Scrapybara."""
@@ -167,7 +174,7 @@ class ScrapybaraComputer(BaseComputer):
         y_str = position.split("y:")[1].strip()
         x, y = int(x_str), int(y_str)
             
-        # Scrapybara doesn't provide button state, so we return a default state
+        # Scrapybara doesn't provide button state
         return MouseStateObservation(
             buttons={
                 MouseButton.LEFT: None,
@@ -179,7 +186,7 @@ class ScrapybaraComputer(BaseComputer):
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Return keyboard state from Scrapybara."""
-        # Scrapybara doesn't provide keyboard state
+        self.logger.debug("Scrapybara does not support getting keyboard state")
         raise NotImplementedError("Scrapybara does not support getting keyboard state")
 
     def _execute_command(self, action: CommandAction) -> bool:
@@ -216,7 +223,7 @@ class ScrapybaraComputer(BaseComputer):
             self.client.computer(action="type", text=action.text)
             return True
         except Exception as e:
-            print(f"Error typing text via Scrapybara: {e}")
+            self.logger.error(f"Error typing text via Scrapybara: {e}")
             return False
 
     def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
@@ -225,7 +232,7 @@ class ScrapybaraComputer(BaseComputer):
             self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
             return True
         except Exception as e:
-            print(f"Error moving mouse via Scrapybara: {e}")
+            self.logger.error(f"Error moving mouse via Scrapybara: {e}")
             return False
 
     def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
@@ -396,19 +403,21 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
     """Scrapybara computer specifically for Browser instances"""
 
     def __init__(self, api_key: Optional[str] = None):
-        super().__init__(api_key=api_key)
+        super().__init__()
+        self.api_key = api_key
+        self.client = None
 
     def _start(self):
         """Start a Browser Scrapybara instance."""
         if not self.client:
             # Initialize the Scrapybara client
             if self.api_key:
-                client = scrapybara.Client(api_key=self.api_key)
+                self.client = scrapybara.Client(api_key=self.api_key)
             else:
-                client = scrapybara.Client()
+                self.client = scrapybara.Client()
             
             # Start a Browser instance
-            self.client = client.start_browser()
+            self.client = self.client.start_browser()
         return True
 
     def get_cdp_url(self) -> str:

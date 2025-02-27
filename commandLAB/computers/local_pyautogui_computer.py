@@ -1,9 +1,11 @@
 import base64
 import io
+import os
+import datetime
 import subprocess
 import tempfile
 import time
-from typing import Union, Optional
+from typing import Union, Optional, Literal
 
 try:
     import mss
@@ -30,6 +32,8 @@ from commandLAB.types import (
     ScreenshotObservation,
     TypeAction,
 )
+from commandLAB._utils.config import APPDIR
+from commandLAB._utils.screenshot import process_screenshot
 
 
 # PyAutoGUI-specific mappings
@@ -123,43 +127,66 @@ class LocalPyAutoGUIComputer(BaseComputer):
     def _start(self):
         """Start the local computer environment."""
         if not self._sct:
+            self.logger.info("Initializing MSS screen capture")
             self._sct = mss.mss()
         if not self._temp_dir:
+            self.logger.info("Creating temporary directory")
             self._temp_dir = tempfile.mkdtemp()
+        self.logger.info("Local PyAutoGUI computer started")
         return True
 
     def _stop(self):
         """Stop the local computer environment."""
         if self._sct:
+            self.logger.info("Closing MSS screen capture")
             self._sct.close()
             self._sct = None
         if self._temp_dir:
+            self.logger.info("Cleaning up temporary directory")
             self._temp_dir = None
+        self.logger.info("Local PyAutoGUI computer stopped")
         return True
 
     def reset_state(self):
         """Reset environment and return initial observation"""
+        self.logger.info("Resetting environment state (showing desktop)")
         # Show desktop to reset the environment state
         pyautogui.hotkey("win", "d")
         time.sleep(1)  # Give windows time to minimize
 
-    def _get_screenshot(self) -> ScreenshotObservation:
-        """Return a screenshot of the current state as base64 encoded string."""
-        screenshot = self._sct.grab(self._sct.monitors[1])  # Primary monitor
-        img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
-        buffer = io.BytesIO()
-        img.save(buffer, format="PNG")
-        b64_screenshot = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        return ScreenshotObservation(screenshot=b64_screenshot)
+    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
+        """Return a screenshot of the current state in the specified format.
+        
+        Args:
+            display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
+            format: Format to return the screenshot in. Options are:
+                - 'base64': Return the screenshot as a base64 encoded string
+                - 'PIL': Return the screenshot as a PIL Image object
+                - 'path': Save the screenshot to a file and return the path
+        """
+        # Capture screenshot using mss
+        self.logger.debug(f"Capturing screenshot of display {display_id}")
+        monitor = self._sct.monitors[display_id + 1]  # mss uses 1-based indexing
+        screenshot = self._sct.grab(monitor)
+        
+        # Use the utility function to process the screenshot
+        return process_screenshot(
+            screenshot_data=screenshot,
+            output_format=format,
+            input_format='PIL',
+            computer_name="pyautogui"
+        )
 
     def _get_mouse_state(self) -> MouseStateObservation:
         """Return dummy mouse state using pyautogui (pyautogui doesn't provide state, so we return a default value)."""
+        self.logger.debug("PyAutoGUI does not support getting mouse state")
         raise NotImplementedError(
             "LocalComputeEnv does not support mouse state observation"
         )
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Return dummy keyboard state as pyautogui doesn't track key states."""
+        self.logger.debug("PyAutoGUI does not support getting keyboard state")
         raise NotImplementedError(
             "LocalComputeEnv does not support keyboard state observation"
         )
@@ -167,6 +194,7 @@ class LocalPyAutoGUIComputer(BaseComputer):
     def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command using subprocess."""
         try:
+            self.logger.info(f"Executing command: {action.command}")
             result = subprocess.run(
                 action.command,
                 shell=True,
@@ -174,41 +202,88 @@ class LocalPyAutoGUIComputer(BaseComputer):
                 stderr=subprocess.PIPE,
                 timeout=action.timeout if action.timeout is not None else 10,
             )
+            if result.returncode == 0:
+                self.logger.info("Command executed successfully")
+            else:
+                self.logger.warning(f"Command returned non-zero exit code: {result.returncode}")
             return result.returncode == 0
+        except subprocess.TimeoutExpired:
+            self.logger.error(f"Command timed out after {action.timeout} seconds")
+            return False
         except Exception as e:
-            print(f"Error executing command: {e}")
+            self.logger.error(f"Error executing command: {e}")
             return False
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key."""
-        pyautogui_key = keyboard_key_to_pyautogui(action.key)
-        pyautogui.keyDown(pyautogui_key)
-        return True
+        try:
+            pyautogui_key = keyboard_key_to_pyautogui(action.key)
+            self.logger.debug(f"Pressing key down: {action.key} (PyAutoGUI key: {pyautogui_key})")
+            pyautogui.keyDown(pyautogui_key)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error executing key down: {e}")
+            return False
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key."""
-        pyautogui_key = keyboard_key_to_pyautogui(action.key)
-        pyautogui.keyUp(pyautogui_key)
-        return True
+        try:
+            pyautogui_key = keyboard_key_to_pyautogui(action.key)
+            self.logger.debug(f"Releasing key: {action.key} (PyAutoGUI key: {pyautogui_key})")
+            pyautogui.keyUp(pyautogui_key)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error executing key release: {e}")
+            return False
 
     def _execute_type(self, action: TypeAction) -> bool:
-        pyautogui.write(action.text)
-        return True
+        """Type text using PyAutoGUI."""
+        try:
+            self.logger.debug(f"Typing text: {action.text}")
+            pyautogui.write(action.text)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error typing text: {e}")
+            return False
 
     def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
-        pyautogui.moveTo(action.x, action.y, duration=action.move_duration)
-        return True
+        """Move mouse to specified coordinates using PyAutoGUI."""
+        try:
+            self.logger.debug(f"Moving mouse to: ({action.x}, {action.y}) with duration {action.move_duration}")
+            pyautogui.moveTo(action.x, action.y, duration=action.move_duration)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error moving mouse: {e}")
+            return False
 
     def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
-        pyautogui.scroll(action.amount)
-        return True
+        """Scroll mouse using PyAutoGUI."""
+        try:
+            self.logger.debug(f"Scrolling mouse by: {action.amount}")
+            pyautogui.scroll(action.amount)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error scrolling mouse: {e}")
+            return False
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        pyautogui_button = mouse_button_to_pyautogui(action.button)
-        pyautogui.mouseDown(button=pyautogui_button)
-        return True
+        """Press mouse button down using PyAutoGUI."""
+        try:
+            pyautogui_button = mouse_button_to_pyautogui(action.button)
+            self.logger.debug(f"Pressing mouse button down: {action.button} (PyAutoGUI button: {pyautogui_button})")
+            pyautogui.mouseDown(button=pyautogui_button)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error pressing mouse button: {e}")
+            return False
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        pyautogui_button = mouse_button_to_pyautogui(action.button)
-        pyautogui.mouseUp(button=pyautogui_button)
-        return True
+        """Release mouse button using PyAutoGUI."""
+        try:
+            pyautogui_button = mouse_button_to_pyautogui(action.button)
+            self.logger.debug(f"Releasing mouse button: {action.button} (PyAutoGUI button: {pyautogui_button})")
+            pyautogui.mouseUp(button=pyautogui_button)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error releasing mouse button: {e}")
+            return False

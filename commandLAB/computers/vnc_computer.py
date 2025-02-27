@@ -1,6 +1,8 @@
 import base64
 import io
-from typing import Optional, Union
+import os
+import datetime
+from typing import Optional, Union, Literal
 
 try:
     import vncdotool.api as vnc
@@ -26,6 +28,8 @@ from commandLAB.types import (
     ScreenshotObservation,
     TypeAction,
 )
+from commandLAB._utils.config import APPDIR
+from commandLAB._utils.screenshot import process_screenshot
 
 
 # VNC-specific mappings
@@ -119,45 +123,62 @@ class VNCComputer(BaseComputer):
         self.port = port
         self.password = password
         self.client = None
-        self._start()
 
     def _start(self):
         """Start the VNC connection."""
         if not self.client:
             connection_string = f"{self.host}::{self.port}"
+            self.logger.info(f"Connecting to VNC server at {connection_string}")
             self.client = vnc.connect(connection_string, password=self.password)
+            self.logger.info(f"Successfully connected to VNC server")
         return True
 
     def _stop(self):
         """Stop the VNC connection."""
         if self.client:
+            self.logger.info(f"Disconnecting from VNC server")
             self.client.disconnect()
             self.client = None
+            self.logger.info(f"Successfully disconnected from VNC server")
         return True
 
     def reset_state(self):
         """Reset the VNC connection"""
+        self.logger.info(f"Resetting VNC connection")
         self._stop()
         self._start()
 
-    def _get_screenshot(self) -> ScreenshotObservation:
-        """Return a screenshot of the current state as base64 encoded string."""
-        if not self.client:
-            self._start()
+    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
+        """Return a screenshot of the current state in the specified format.
+        
+        Args:
+            display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
+            format: Format to return the screenshot in. Options are:
+                - 'base64': Return the screenshot as a base64 encoded string
+                - 'PIL': Return the screenshot as a PIL Image object
+                - 'path': Save the screenshot to a file and return the path
+        """
             
         # Capture the screenshot using vncdotool
+        self.logger.debug(f"Capturing VNC screenshot")
         png_data = self.client.capture()
         
-        # Convert the PNG data to a base64 string
-        b64_screenshot = base64.b64encode(png_data).decode("utf-8")
-        return ScreenshotObservation(screenshot=b64_screenshot)
+        # Use the utility function to process the screenshot
+        return process_screenshot(
+            screenshot_data=png_data,
+            output_format=format,
+            input_format='bytes',
+            computer_name="vnc"
+        )
 
     def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from VNC."""
+        self.logger.debug("VNC does not support getting mouse state")
         raise NotImplementedError("VNC does not support getting mouse state")
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
         """Return keyboard state from VNC."""
+        self.logger.debug("VNC does not support getting keyboard state")
         raise NotImplementedError("VNC does not support getting keyboard state")
 
     def _execute_command(self, action: CommandAction) -> bool:
@@ -166,6 +187,7 @@ class VNCComputer(BaseComputer):
         Note: This is limited by VNC capabilities and may not work for all commands.
         """
         try:
+            self.logger.info(f"Executing command via VNC: {action.command}")
             # For VNC, we can try to execute commands by opening a terminal and typing
             # This is a simplified approach and may not work in all environments
             self.client.keyPress('windown')  # Open start menu or equivalent
@@ -181,53 +203,59 @@ class VNCComputer(BaseComputer):
             if action.timeout is not None:
                 self.client.pause(action.timeout)
                 
+            self.logger.info(f"Command executed successfully")
             return True
         except Exception as e:
-            print(f"Error executing command via VNC: {e}")
+            self.logger.error(f"Error executing command via VNC: {e}")
             return False
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key using VNC."""
         try:
             vnc_key = keyboard_key_to_vnc(action.key)
+            self.logger.debug(f"Pressing key down: {action.key} (VNC key: {vnc_key})")
             self.client.keyDown(vnc_key)
             return True
         except Exception as e:
-            print(f"Error executing key down via VNC: {e}")
+            self.logger.error(f"Error executing key down via VNC: {e}")
             return False
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key using VNC."""
         try:
             vnc_key = keyboard_key_to_vnc(action.key)
+            self.logger.debug(f"Releasing key: {action.key} (VNC key: {vnc_key})")
             self.client.keyUp(vnc_key)
             return True
         except Exception as e:
-            print(f"Error executing key release via VNC: {e}")
+            self.logger.error(f"Error executing key release via VNC: {e}")
             return False
 
     def _execute_type(self, action: TypeAction) -> bool:
         """Type text using VNC."""
         try:
+            self.logger.debug(f"Typing text: {action.text}")
             self.client.type(action.text)
             return True
         except Exception as e:
-            print(f"Error typing text via VNC: {e}")
+            self.logger.error(f"Error typing text via VNC: {e}")
             return False
 
     def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
         """Move mouse to specified coordinates using VNC."""
         try:
+            self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
             # VNC doesn't have a direct move duration parameter, so we just move
             self.client.mouseMove(action.x, action.y)
             return True
         except Exception as e:
-            print(f"Error moving mouse via VNC: {e}")
+            self.logger.error(f"Error moving mouse via VNC: {e}")
             return False
 
     def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
         """Scroll mouse using VNC."""
         try:
+            self.logger.debug(f"Scrolling mouse by: {action.amount}")
             # VNC scroll is typically done by wheel events
             # Positive values scroll up, negative values scroll down
             if action.amount > 0:
@@ -238,25 +266,27 @@ class VNCComputer(BaseComputer):
                     self.client.mouseWheel(-1)  # Scroll down
             return True
         except Exception as e:
-            print(f"Error scrolling mouse via VNC: {e}")
+            self.logger.error(f"Error scrolling mouse via VNC: {e}")
             return False
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
         """Press mouse button down using VNC."""
         try:
             vnc_button = mouse_button_to_vnc(action.button)
+            self.logger.debug(f"Pressing mouse button down: {action.button} (VNC button: {vnc_button})")
             self.client.mouseDown(vnc_button)
             return True
         except Exception as e:
-            print(f"Error pressing mouse button via VNC: {e}")
+            self.logger.error(f"Error pressing mouse button via VNC: {e}")
             return False
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
         """Release mouse button using VNC."""
         try:
             vnc_button = mouse_button_to_vnc(action.button)
+            self.logger.debug(f"Releasing mouse button: {action.button} (VNC button: {vnc_button})")
             self.client.mouseUp(vnc_button)
             return True
         except Exception as e:
-            print(f"Error releasing mouse button via VNC: {e}")
+            self.logger.error(f"Error releasing mouse button via VNC: {e}")
             return False

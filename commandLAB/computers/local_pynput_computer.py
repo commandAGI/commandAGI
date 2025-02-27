@@ -3,7 +3,9 @@ import io
 import subprocess
 import tempfile
 import time
-from typing import Union, Optional
+import os
+import datetime
+from typing import Union, Optional, Literal
 
 try:
     import mss
@@ -36,6 +38,8 @@ from commandLAB.types import (
     TypeAction,
     ComputerObservation,
 )
+from commandLAB._utils.config import APPDIR
+from commandLAB._utils.screenshot import process_screenshot
 
 
 # Pynput-specific mappings
@@ -218,12 +222,15 @@ class LocalPynputComputer(BaseComputer):
     def _start(self):
         """Start the local computer environment with pynput listeners."""
         if not self._sct:
+            self.logger.info("Initializing MSS screen capture")
             self._sct = mss.mss()
         if not self._temp_dir:
+            self.logger.info("Creating temporary directory")
             self._temp_dir = tempfile.mkdtemp()
             
         # Start the keyboard listener if not already running
         if self._keyboard_listener is None or not self._keyboard_listener.running:
+            self.logger.info("Starting keyboard listener")
             self._keyboard_listener = keyboard.Listener(
                 on_press=self._on_keyboard_press,
                 on_release=self._on_keyboard_release,
@@ -232,92 +239,123 @@ class LocalPynputComputer(BaseComputer):
 
         # Start the mouse listener if not already running
         if self._mouse_listener is None or not self._mouse_listener.running:
+            self.logger.info("Starting mouse listener")
             self._mouse_listener = mouse.Listener(
                 on_move=self._on_mouse_move,
                 on_click=self._on_mouse_click,
                 on_scroll=self._on_mouse_scroll,
             )
             self._mouse_listener.start()
-            
+        
+        self.logger.info("Local Pynput computer started successfully")    
         return True
 
     def _stop(self):
         """Stop the local computer environment and pynput listeners."""
         if self._sct:
+            self.logger.info("Closing MSS screen capture")
             self._sct.close()
             self._sct = None
         if self._temp_dir:
+            self.logger.info("Cleaning up temporary directory")
             self._temp_dir = None
             
-        if self._keyboard_listener:
+        # Stop the keyboard listener if running
+        if self._keyboard_listener and self._keyboard_listener.running:
+            self.logger.info("Stopping keyboard listener")
             self._keyboard_listener.stop()
             self._keyboard_listener = None
             
-        if self._mouse_listener:
+        # Stop the mouse listener if running
+        if self._mouse_listener and self._mouse_listener.running:
+            self.logger.info("Stopping mouse listener")
             self._mouse_listener.stop()
             self._mouse_listener = None
             
+        self.logger.info("Local Pynput computer stopped successfully")
         return True
 
     def reset_state(self):
-        """Reset environment, initialize pynput listener threads, and return the initial observation."""
-        # Use keyboard hotkey to simulate Win+D
-        self.execute_keyboard_hotkey(
-            KeyboardHotkeyAction(keys=[KeyboardKey.META, KeyboardKey.D])
-        )
-        time.sleep(1)  # Give Windows time to minimize
-
-        # Make sure listeners are running
-        self._start()
+        """Reset environment and return initial observation"""
+        self.logger.info("Resetting environment state (showing desktop)")
+        # Show desktop to reset the environment state
+        self.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.META, KeyboardKey.D]))
+        time.sleep(1)  # Give windows time to minimize
 
     def _on_keyboard_press(self, key):
-        """Callback for when a key is pressed."""
+        """Callback for keyboard press events."""
+        self.logger.debug(f"Keyboard press detected: {key}")
         self._pressed_keys.add(key)
 
     def _on_keyboard_release(self, key):
-        """Callback for when a key is released."""
+        """Callback for keyboard release events."""
+        self.logger.debug(f"Keyboard release detected: {key}")
         if key in self._pressed_keys:
             self._pressed_keys.remove(key)
 
     def _on_mouse_move(self, x, y):
-        """Callback for mouse movement events."""
+        """Callback for mouse move events."""
+        self.logger.debug(f"Mouse move detected: ({x}, {y})")
         self._mouse_pos = (x, y)
 
     def _on_mouse_click(self, x, y, button, pressed):
         """Callback for mouse click events."""
-        converted = mouse_button_from_pynput(button)
-        if converted is not None:
-            self._mouse_buttons[converted] = pressed
-        self._mouse_pos = (x, y)
+        self.logger.debug(f"Mouse click detected: ({x}, {y}), button={button}, pressed={pressed}")
+        # Map pynput button to our MouseButton enum
+        if button == PynputButton.left:
+            self._mouse_buttons[MouseButton.LEFT] = pressed
+        elif button == PynputButton.middle:
+            self._mouse_buttons[MouseButton.MIDDLE] = pressed
+        elif button == PynputButton.right:
+            self._mouse_buttons[MouseButton.RIGHT] = pressed
 
     def _on_mouse_scroll(self, x, y, dx, dy):
-        """Callback for mouse scroll events. (Currently updates mouse position.)"""
-        self._mouse_pos = (x, y)
+        """Callback for mouse scroll events."""
+        self.logger.debug(f"Mouse scroll detected: ({x}, {y}), dx={dx}, dy={dy}")
+        # We don't track scroll state, just position
 
-    def _get_screenshot(self) -> ScreenshotObservation:
-        """Return a screenshot of the current state as base64 encoded string."""
-        screenshot = self._sct.grab(self._sct.monitors[1])  # Primary monitor
-        img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
-        buffer = io.BytesIO()
-        img.save(buffer, format="PNG")
-        b64_screenshot = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        return ScreenshotObservation(screenshot=b64_screenshot)
+    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
+        """Return a screenshot of the current state in the specified format.
+        
+        Args:
+            display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
+            format: Format to return the screenshot in. Options are:
+                - 'base64': Return the screenshot as a base64 encoded string
+                - 'PIL': Return the screenshot as a PIL Image object
+                - 'path': Save the screenshot to a file and return the path
+        """
+        # Capture screenshot using mss
+        self.logger.debug(f"Capturing screenshot of display {display_id}")
+        monitor = self._sct.monitors[display_id + 1]  # mss uses 1-based indexing
+        screenshot = self._sct.grab(monitor)
+        
+        # Use the utility function to process the screenshot
+        return process_screenshot(
+            screenshot_data=screenshot,
+            output_format=format,
+            input_format='PIL',
+            computer_name="pynput"
+        )
 
     def _get_mouse_state(self) -> MouseStateObservation:
-        """Return the mouse state collected via pynput listeners."""
+        """Return mouse state from pynput listener."""
+        self.logger.debug(f"Getting mouse state: position={self._mouse_pos}, buttons={self._mouse_buttons}")
         return MouseStateObservation(
-            buttons=self._mouse_buttons,
-            position=self._mouse_pos,
+            buttons=self._mouse_buttons.copy(),
+            position=self._mouse_pos
         )
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Return the keyboard state collected via pynput listeners."""
-        keys_state = {key: False for key in KeyboardKey}
-        for pressed in self._pressed_keys:
-            conv_key = keyboard_key_from_pynput(pressed)
-            if conv_key is not None and conv_key in keys_state:
-                keys_state[conv_key] = True
-        return KeyboardStateObservation(keys=keys_state)
+        """Return keyboard state from pynput listener."""
+        # Convert pynput keys to our KeyboardKey enum
+        pressed_keys = {}
+        for key in self._pressed_keys:
+            kb_key = keyboard_key_from_pynput(key)
+            if kb_key:
+                pressed_keys[kb_key] = True
+                
+        self.logger.debug(f"Getting keyboard state: {pressed_keys}")
+        return KeyboardStateObservation(keys=pressed_keys)
 
     def get_observation(self):
         """Get the current observation of the computer state."""
@@ -334,6 +372,7 @@ class LocalPynputComputer(BaseComputer):
     def _execute_command(self, action: CommandAction) -> bool:
         """Execute a system command using subprocess."""
         try:
+            self.logger.info(f"Executing command: {action.command}")
             result = subprocess.run(
                 action.command,
                 shell=True,
@@ -341,60 +380,114 @@ class LocalPynputComputer(BaseComputer):
                 stderr=subprocess.PIPE,
                 timeout=action.timeout if action.timeout is not None else 10,
             )
+            if result.returncode == 0:
+                self.logger.info("Command executed successfully")
+            else:
+                self.logger.warning(f"Command returned non-zero exit code: {result.returncode}")
             return result.returncode == 0
+        except subprocess.TimeoutExpired:
+            self.logger.error(f"Command timed out after {action.timeout} seconds")
+            return False
         except Exception as e:
-            print(f"Error executing command: {e}")
+            self.logger.error(f"Error executing command: {e}")
             return False
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key."""
-        pynput_key = keyboard_key_to_pynput(action.key)
-        self._keyboard_controller.press(pynput_key)
-        return True
+        try:
+            pynput_key = keyboard_key_to_pynput(action.key)
+            self.logger.debug(f"Pressing key down: {action.key} (Pynput key: {pynput_key})")
+            self._keyboard_controller.press(pynput_key)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error executing key down: {e}")
+            return False
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key."""
-        pynput_key = keyboard_key_to_pynput(action.key)
-        self._keyboard_controller.release(pynput_key)
-        return True
+        try:
+            pynput_key = keyboard_key_to_pynput(action.key)
+            self.logger.debug(f"Releasing key: {action.key} (Pynput key: {pynput_key})")
+            self._keyboard_controller.release(pynput_key)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error executing key release: {e}")
+            return False
 
     def _execute_type(self, action: TypeAction) -> bool:
-        """Type text using pynput keyboard controller."""
-        self._keyboard_controller.type(action.text)
-        return True
+        """Type text using pynput."""
+        try:
+            self.logger.debug(f"Typing text: {action.text}")
+            self._keyboard_controller.type(action.text)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error typing text: {e}")
+            return False
 
     def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
-        """Move mouse using pynput mouse controller."""
-        # Smooth movement implementation
-        start_x, start_y = self._mouse_pos
-        steps = max(int(action.move_duration * 60), 1)  # 60 steps per second
-
-        for step in range(1, steps + 1):
-            t = step / steps
-            current_x = int(start_x + (action.x - start_x) * t)
-            current_y = int(start_y + (action.y - start_y) * t)
-            self._mouse_controller.position = (current_x, current_y)
+        """Move mouse to specified coordinates using pynput."""
+        try:
+            self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
+            # pynput doesn't have a direct move duration parameter, so we simulate it
             if action.move_duration > 0:
-                time.sleep(action.move_duration / steps)
-
-        return True
+                # Get current position
+                current_x, current_y = self._mouse_controller.position
+                
+                # Calculate number of steps based on duration
+                steps = max(int(action.move_duration * 60), 1)  # 60 steps per second
+                
+                # Calculate step size
+                step_x = (action.x - current_x) / steps
+                step_y = (action.y - current_y) / steps
+                
+                # Move in steps
+                for i in range(steps):
+                    next_x = current_x + step_x * (i + 1)
+                    next_y = current_y + step_y * (i + 1)
+                    self._mouse_controller.position = (next_x, next_y)
+                    time.sleep(action.move_duration / steps)
+            else:
+                # Instant move
+                self._mouse_controller.position = (action.x, action.y)
+                
+            return True
+        except Exception as e:
+            self.logger.error(f"Error moving mouse: {e}")
+            return False
 
     def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
-        """Scroll using pynput mouse controller."""
-        self._mouse_controller.scroll(0, int(action.amount))
-        return True
+        """Scroll mouse using pynput."""
+        try:
+            self.logger.debug(f"Scrolling mouse by: {action.amount}")
+            # pynput scroll is done with dx, dy values
+            # Positive values scroll up, negative values scroll down
+            self._mouse_controller.scroll(0, action.amount / 100)  # Scale to reasonable values
+            return True
+        except Exception as e:
+            self.logger.error(f"Error scrolling mouse: {e}")
+            return False
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        """Press mouse button using pynput mouse controller."""
-        pynput_button = mouse_button_to_pynput(action.button)
-        self._mouse_controller.press(pynput_button)
-        return True
+        """Press mouse button down using pynput."""
+        try:
+            pynput_button = mouse_button_to_pynput(action.button)
+            self.logger.debug(f"Pressing mouse button down: {action.button} (Pynput button: {pynput_button})")
+            self._mouse_controller.press(pynput_button)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error pressing mouse button: {e}")
+            return False
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        """Release mouse button using pynput mouse controller."""
-        pynput_button = mouse_button_to_pynput(action.button)
-        self._mouse_controller.release(pynput_button)
-        return True
+        """Release mouse button using pynput."""
+        try:
+            pynput_button = mouse_button_to_pynput(action.button)
+            self.logger.debug(f"Releasing mouse button: {action.button} (Pynput button: {pynput_button})")
+            self._mouse_controller.release(pynput_button)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error releasing mouse button: {e}")
+            return False
 
     def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
         """Press and release a keyboard key."""

@@ -2,8 +2,11 @@ import os
 import platform
 import subprocess
 import logging
+import base64
+import io
+import datetime
 from enum import Enum
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Union, Literal
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
@@ -24,6 +27,8 @@ from commandLAB.types import (
     MouseButton,
 )
 from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
+from commandLAB._utils.config import APPDIR
+from commandLAB._utils.screenshot import process_screenshot, base64_to_image
 
 # Import the proper client classes
 try:
@@ -61,6 +66,11 @@ except ImportError:
     raise ImportError(
         "commandLAB daemon client is not installed. Please install commandLAB with the daemon extra:\n\npip install commandLAB[daemon-client-all] (or one of the other `daemon-client-*` extras)"
     )
+
+try:
+    from PIL import Image
+except ImportError:
+    pass  # PIL is optional for DaemonClientComputer
 
 # Daemon client-specific mappings
 def keyboard_key_to_daemon(key: Union[KeyboardKey, str]) -> ClientKeyboardKey:
@@ -170,15 +180,28 @@ class DaemonClientComputer(BaseComputer):
         response = get_observation_sync(client=self.client)
         return response if response else {}
 
-    def _get_screenshot(self) -> ScreenshotObservation:
-        """Get a screenshot of the computer"""
-        if not self.client:
-            raise RuntimeError("Client not initialized")
+    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
+        """Get a screenshot of the computer in the specified format.
         
+        Args:
+            display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
+            format: Format to return the screenshot in. Options are:
+                - 'base64': Return the screenshot as a base64 encoded string
+                - 'PIL': Return the screenshot as a PIL Image object
+                - 'path': Save the screenshot to a file and return the path
+        """
+        # Get the screenshot from the daemon (usually returns base64)
         response = get_screenshot_sync(client=self.client)
-        if response:
-            return ScreenshotObservation(**response)
-        return ScreenshotObservation()
+        if not response or 'screenshot' not in response:
+            return ScreenshotObservation()
+        
+        # Use the utility function to process the screenshot
+        return process_screenshot(
+            screenshot_data=response['screenshot'],
+            output_format=format,
+            input_format='base64',
+            computer_name="daemon"
+        )
 
     def _get_mouse_state(self) -> MouseStateObservation:
         """Get the current mouse state"""

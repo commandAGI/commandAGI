@@ -1,6 +1,9 @@
 import base64
 import io
-from typing import Union, Optional
+import os
+import datetime
+from typing import Union, Optional, Literal
+
 
 try:
     from e2b_desktop import Sandbox
@@ -12,8 +15,11 @@ except ImportError:
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
+    ClickAction,
     CommandAction,
+    DoubleClickAction,
     KeyboardKey,
+    KeyboardKeyPressAction,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
     KeyboardStateObservation,
@@ -26,12 +32,14 @@ from commandLAB.types import (
     ScreenshotObservation,
     TypeAction,
 )
+from commandLAB._utils.config import APPDIR
+from commandLAB._utils.screenshot import process_screenshot
 
 
 # E2B Desktop-specific mappings
 def mouse_button_to_e2b(button: Union[MouseButton, str]) -> str:
     """Convert MouseButton to E2B Desktop button name.
-    
+
     E2B Desktop uses the following button names:
     'left' = left button
     'middle' = middle button
@@ -39,24 +47,25 @@ def mouse_button_to_e2b(button: Union[MouseButton, str]) -> str:
     """
     if isinstance(button, str):
         button = MouseButton(button)
-    
+
     # E2B Desktop mouse button mapping
     e2b_button_mapping = {
         MouseButton.LEFT: "left",
         MouseButton.MIDDLE: "middle",
-        MouseButton.RIGHT: "right"
+        MouseButton.RIGHT: "right",
     }
-    
+
     return e2b_button_mapping.get(button, "left")  # Default to left button if not found
+
 
 def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to E2B Desktop key name.
-    
+
     E2B Desktop uses specific key names that may differ from our standard KeyboardKey values.
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
-    
+
     # E2B Desktop key mappings
     e2b_key_mapping = {
         # Special keys
@@ -70,13 +79,11 @@ def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.END: "end",
         KeyboardKey.PAGE_UP: "pageup",
         KeyboardKey.PAGE_DOWN: "pagedown",
-        
         # Arrow keys
         KeyboardKey.UP: "up",
         KeyboardKey.DOWN: "down",
         KeyboardKey.LEFT: "left",
         KeyboardKey.RIGHT: "right",
-        
         # Modifier keys
         KeyboardKey.SHIFT: "shift",
         KeyboardKey.CTRL: "ctrl",
@@ -88,7 +95,6 @@ def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.META: "win",  # Windows key
         KeyboardKey.LMETA: "win",  # E2B may not distinguish left/right
         KeyboardKey.RMETA: "win",  # E2B may not distinguish left/right
-        
         # Function keys
         KeyboardKey.F1: "f1",
         KeyboardKey.F2: "f2",
@@ -103,7 +109,7 @@ def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.F11: "f11",
         KeyboardKey.F12: "f12",
     }
-    
+
     # For letter keys and number keys, use the value directly
     return e2b_key_mapping.get(key, key.value)
 
@@ -119,56 +125,75 @@ class E2BDesktopComputer(BaseComputer):
     def _start(self):
         """Start the E2B desktop environment."""
         if not self.desktop:
+            self.logger.info("Initializing E2B Desktop Sandbox")
             self.desktop = Sandbox(video_stream=self.video_stream)
+            self.logger.info("E2B Desktop Sandbox initialized successfully")
         return True
 
     def _stop(self):
         """Stop the E2B desktop environment."""
         if self.desktop:
+            self.logger.info("Closing E2B Desktop Sandbox")
             # E2B sandbox automatically closes when object is destroyed
             self.desktop = None
+            self.logger.info("E2B Desktop Sandbox closed successfully")
         return True
 
     def reset_state(self):
         """Reset the desktop environment and return initial observation"""
+        self.logger.info("Resetting E2B Desktop environment state")
         # Show desktop to reset the environment state
         if self.desktop:
+            self.logger.debug("Showing desktop with Win+D hotkey")
             self.desktop.hotkey("win", "d")
         else:
+            self.logger.debug("Desktop not initialized, starting it")
             self._start()
 
-    def _get_screenshot(self, display_id: int = 0) -> ScreenshotObservation:
-        """Return a screenshot of the current state as base64 encoded string."""
-        # E2B Desktop uses screenshot() method, not take_screenshot()
-        screenshot_path = "screenshot.png"
-        self.desktop.screenshot(screenshot_path)
-        
-        # Read the file and convert to base64
-        with open(screenshot_path, "rb") as f:
-            screenshot_data = f.read()
-            
-        b64_screenshot = base64.b64encode(screenshot_data).decode("utf-8")
-        return ScreenshotObservation(screenshot=b64_screenshot)
+    def _get_screenshot(
+        self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
+    ) -> ScreenshotObservation:
+        """Return a screenshot of the current state in the specified format.
+
+        Args:
+            display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
+            format: Format to return the screenshot in. Options are:
+                - 'base64': Return the screenshot as a base64 encoded string
+                - 'PIL': Return the screenshot as a PIL Image object
+                - 'path': Save the screenshot to a file and return the path
+        """
+        # Create a temporary file to store the screenshot
+        temp_screenshot_path = self._new_screenshot_name
+
+        # Take the screenshot using E2B Desktop
+        self.desktop.screenshot(temp_screenshot_path)
+
+        # Use the utility function to process the screenshot
+        return process_screenshot(
+            screenshot_data=temp_screenshot_path,
+            output_format=format,
+            input_format="path",
+            computer_name="e2b",
+            cleanup_temp_file=True,
+        )
 
     def _get_mouse_state(self) -> MouseStateObservation:
-        """Return dummy mouse state as Sandbox does not provide real-time states."""
-        raise NotImplementedError(
-            "E2BDesktopEnv does not support mouse state observation"
-        )
+        """Return mouse state from E2B Desktop."""
+        self.logger.debug("E2B Desktop does not support getting mouse state")
+        raise NotImplementedError("E2B Desktop does not support getting mouse state")
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Return dummy keyboard state as Sandbox does not track key states."""
-        raise NotImplementedError(
-            "E2BDesktopEnv does not support keyboard state observation"
-        )
+        """Return keyboard state from E2B Desktop."""
+        self.logger.debug("E2B Desktop does not support getting keyboard state")
+        raise NotImplementedError("E2B Desktop does not support getting keyboard state")
 
     def _execute_command(self, action: CommandAction) -> bool:
-        """Execute a system command in the host environment using E2B's commands.run."""
+        """Execute a system command in the E2B Desktop VM."""
         try:
             self.desktop.commands.run(action.command)
             return True
         except Exception as e:
-            print(f"Error executing command: {e}")
+            self.logger.error(f"Error executing command via E2B Desktop: {e}")
             return False
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
@@ -179,7 +204,7 @@ class E2BDesktopComputer(BaseComputer):
             self.desktop.pyautogui(f"pyautogui.keyDown('{e2b_key}')")
             return True
         except Exception as e:
-            print(f"Error executing key down: {e}")
+            self.logger.error(f"Error executing key down via E2B Desktop: {e}")
             return False
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
@@ -190,35 +215,37 @@ class E2BDesktopComputer(BaseComputer):
             self.desktop.pyautogui(f"pyautogui.keyUp('{e2b_key}')")
             return True
         except Exception as e:
-            print(f"Error executing key release: {e}")
+            self.logger.error(f"Error executing key release via E2B Desktop: {e}")
             return False
 
     def _execute_type(self, action: TypeAction) -> bool:
-        """Type text using E2B Desktop's write method."""
+        """Type text using E2B Desktop."""
         try:
             self.desktop.write(action.text)
             return True
         except Exception as e:
-            print(f"Error typing text: {e}")
+            self.logger.error(f"Error typing text via E2B Desktop: {e}")
             return False
 
     def _execute_mouse_move(self, action: MouseMoveAction) -> bool:
-        """Move mouse to specified coordinates using E2B Desktop's mouse_move method."""
+        """Move mouse to specified coordinates using E2B Desktop."""
         try:
+            self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
+            # E2B Desktop doesn't have a direct move duration parameter
             self.desktop.mouse_move(action.x, action.y)
             return True
         except Exception as e:
-            print(f"Error moving mouse: {e}")
+            self.logger.error(f"Error moving mouse via E2B Desktop: {e}")
             return False
 
     def _execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
-        """Scroll mouse using E2B Desktop's scroll method."""
+        """Scroll mouse using E2B Desktop."""
         try:
             # E2B Desktop scroll takes an integer amount
             self.desktop.scroll(int(action.amount))
             return True
         except Exception as e:
-            print(f"Error scrolling: {e}")
+            self.logger.error(f"Error scrolling mouse via E2B Desktop: {e}")
             return False
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
@@ -228,7 +255,7 @@ class E2BDesktopComputer(BaseComputer):
             self.desktop.pyautogui(f"pyautogui.mouseDown(button='{e2b_button}')")
             return True
         except Exception as e:
-            print(f"Error pressing mouse button: {e}")
+            self.logger.error(f"Error pressing mouse button via E2B Desktop: {e}")
             return False
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
@@ -238,7 +265,7 @@ class E2BDesktopComputer(BaseComputer):
             self.desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")
             return True
         except Exception as e:
-            print(f"Error releasing mouse button: {e}")
+            self.logger.error(f"Error releasing mouse button via E2B Desktop: {e}")
             return False
 
     def _execute_click(self, action: ClickAction) -> bool:
@@ -246,7 +273,7 @@ class E2BDesktopComputer(BaseComputer):
         try:
             # Move to position first
             self.desktop.mouse_move(action.x, action.y)
-            
+
             # Then click using the appropriate method
             e2b_button = mouse_button_to_e2b(action.button)
             if e2b_button == "left":
@@ -257,7 +284,7 @@ class E2BDesktopComputer(BaseComputer):
                 self.desktop.middle_click()
             return True
         except Exception as e:
-            print(f"Error clicking: {e}")
+            self.logger.error(f"Error clicking: {e}")
             return False
 
     def _execute_double_click(self, action: DoubleClickAction) -> bool:
@@ -265,12 +292,12 @@ class E2BDesktopComputer(BaseComputer):
         try:
             # Move to position first
             self.desktop.mouse_move(action.x, action.y)
-            
+
             # Then double click (E2B only supports left double click)
             self.desktop.double_click()
             return True
         except Exception as e:
-            print(f"Error double clicking: {e}")
+            self.logger.error(f"Error double clicking: {e}")
             return False
 
     def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction) -> bool:
@@ -281,59 +308,63 @@ class E2BDesktopComputer(BaseComputer):
             self.desktop.pyautogui(f"pyautogui.press('{e2b_key}')")
             return True
         except Exception as e:
-            print(f"Error pressing key: {e}")
+            self.logger.error(f"Error pressing key: {e}")
             return False
 
     def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction) -> bool:
         """Execute a keyboard hotkey using E2B Desktop's hotkey method."""
         # Convert keys to E2B format
         e2b_keys = [keyboard_key_to_e2b(key) for key in action.keys]
-        
+
         try:
             # E2B Desktop's hotkey method takes individual arguments, not a list
             self.desktop.hotkey(*e2b_keys)
             return True
         except Exception as e:
-            print(f"Error executing hotkey: {e}")
+            self.logger.error(f"Error executing hotkey: {e}")
             return False
 
     def locate_on_screen(self, text):
         """Find text on screen and return coordinates.
-        
+
         This is a direct wrapper for E2B Desktop's locate_on_screen method.
         """
         try:
             return self.desktop.locate_on_screen(text)
         except Exception as e:
-            print(f"Error locating text on screen: {e}")
+            self.logger.error(f"Error locating text on screen: {e}")
             return None
 
     def open_file(self, file_path):
         """Open a file with the default application.
-        
+
         This is a direct wrapper for E2B Desktop's open method.
         """
         try:
             self.desktop.open(file_path)
             return True
         except Exception as e:
-            print(f"Error opening file: {e}")
+            self.logger.error(f"Error opening file: {e}")
             return False
 
     def get_video_stream_url(self) -> str:
         """Get the URL for the video stream of the E2B Desktop instance."""
         if not self.video_stream:
-            print("Warning: Video stream was not enabled during initialization")
+            self.logger.warning(
+                "Warning: Video stream was not enabled during initialization"
+            )
             return ""
-            
+
         try:
             # The method name might be different based on the API
             # Check if the method exists
             if hasattr(self.desktop, "get_video_stream_url"):
                 return self.desktop.get_video_stream_url()
             else:
-                print("Warning: get_video_stream_url method not found in E2B Desktop API")
+                self.logger.warning(
+                    "Warning: get_video_stream_url method not found in E2B Desktop API"
+                )
                 return ""
         except Exception as e:
-            print(f"Error getting video stream URL: {e}")
+            self.logger.error(f"Error getting video stream URL: {e}")
             return ""

@@ -1,9 +1,12 @@
 # TODO
 
-[ ] public observation methods should return real information, not a pydantic struct
-[ ] screenshot should accept a 
-[ ] add stubs: `pause`, `resume`, `install_daemon` (not needed on the `Computer` class) stubs to the base computer
-[ ] add stubs: `upload_files`, `download_files`, `get_sysinfo`, `launch` coming soon stubs to the base computer (think of others)
+[ ] public observation methods should return real information, not a pydantic struct.
+[ ] public observation methods hsould also have property accessors
+[ ] screenshot should accept a format: Literal['base64', 'PIL', 'path']='PIL'
+[ ] add stubs: `pause`, `resume`, `start_stream`, `stop_stream`, `get_stream_url` stubs to the base computer
+[ ] add stubs: `upload` (client -> server), `download` (server -> client), `@property sysinfo`, `launch(<appname>)`, `edit(filepath, contents, mode='create_or_replace', encoding)` coming soon stubs to the base computer (think of others)
+[ ] rename most of the action methods to somehting more user friendly. execute_click -> click, execute command to shell
+[ ] make the computer.drag start coordinates optional
 [ ] rename daemoncomputer to computer
 [ ] rename the repo to `command_computer`
 [ ] move the python into a `packages/python` dir. make a typescript with coming soon
