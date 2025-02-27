@@ -54,7 +54,7 @@ except ImportError:
 
 # Import types
 from commandLAB.types import (
-    CommandAction,
+    ShellCommandAction,
     TypeAction,
     KeyboardHotkeyAction,
     KeyboardKey,

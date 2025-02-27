@@ -5,7 +5,7 @@ import secrets
 from fastapi.testclient import TestClient
 from commandLAB.daemon.server import ComputerDaemon
 from commandLAB.types import (
-    CommandAction,
+    ShellCommandAction,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
     KeyboardKeyPressAction,
@@ -77,7 +77,7 @@ class TestComputerDaemon(unittest.TestCase):
 
     def test_execute_command_endpoint(self):
         # Test the execute_command endpoint
-        command = CommandAction(command="ls -la")
+        command = ShellCommandAction(command="ls -la")
         response = self.client.post(
             "/execute/command",
             json=command.model_dump(),

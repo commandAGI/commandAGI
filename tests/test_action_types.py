@@ -2,7 +2,7 @@ import unittest
 
 from commandLAB.types import (
     ClickAction,
-    CommandAction,
+    ShellCommandAction,
     DoubleClickAction,
     DragAction,
     KeyboardHotkeyAction,
@@ -26,21 +26,21 @@ from commandLAB.types import (
 class TestCommandAction(unittest.TestCase):
     def test_command_action_creation(self):
         # Test creating a CommandAction
-        action = CommandAction(command="ls -la")
+        action = ShellCommandAction(command="ls -la")
 
         # Check attributes
         self.assertEqual(action.command, "ls -la")
         self.assertIsNone(action.timeout)
 
         # Test with timeout
-        action_with_timeout = CommandAction(command="sleep 5", timeout=10.0)
+        action_with_timeout = ShellCommandAction(command="sleep 5", timeout=10.0)
         self.assertEqual(action_with_timeout.command, "sleep 5")
         self.assertEqual(action_with_timeout.timeout, 10.0)
 
     def test_command_action_validation(self):
         # Test validation of command
         with self.assertRaises(ValueError):
-            CommandAction(command="")  # Empty command should fail
+            ShellCommandAction(command="")  # Empty command should fail
 
 
 class TestKeyboardActions(unittest.TestCase):
@@ -244,7 +244,7 @@ class TestMouseActions(unittest.TestCase):
 class TestComputerAction(unittest.TestCase):
     def test_computer_action_with_command(self):
         # Test creating a ComputerAction with a CommandAction
-        command = CommandAction(command="ls -la")
+        command = ShellCommandAction(command="ls -la")
         action = ComputerAction(command=command)
 
         # Check that only the command field is set

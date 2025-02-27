@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any, Union, Literal
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
-    CommandAction,
+    ShellCommandAction,
     KeyboardHotkeyAction,
     KeyboardKeyDownAction,
     KeyboardKeyPressAction,
@@ -25,6 +25,7 @@ from commandLAB.types import (
     ScreenshotObservation,
     KeyboardKey,
     MouseButton,
+    RunProcessAction,
 )
 from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
 from commandLAB._utils.config import APPDIR
@@ -223,7 +224,7 @@ class DaemonClientComputer(BaseComputer):
             return KeyboardStateObservation(**response)
         raise RuntimeError("Failed to get keyboard state from daemon")
 
-    def _execute_command(self, action: CommandAction):
+    def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a shell command on the computer"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -408,3 +409,20 @@ class DaemonClientComputer(BaseComputer):
             bool: True if the video stream was successfully stopped, False otherwise.
         """
         # TODO: implement specifically for the system in mind
+
+    def _run_process(self, action: RunProcessAction) -> bool:
+        """Run a process with the specified parameters.
+        
+        This method uses the daemon client API to execute a process on the remote system.
+        
+        Args:
+            action: RunProcessAction containing the process parameters
+            
+        Returns:
+            bool: True if the process was executed successfully
+        """
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+        
+        self.logger.info(f"Running process via daemon: {action.command} with args: {action.args}")
+        # TODO: call the sync method

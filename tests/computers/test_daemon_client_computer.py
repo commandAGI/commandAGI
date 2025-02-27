@@ -7,7 +7,7 @@ from commandLAB.computers.daemon_client_computer import (
 )
 from commandLAB.types import (
     ClickAction,
-    CommandAction,
+    ShellCommandAction,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
     MouseMoveAction,
@@ -132,10 +132,10 @@ class TestDaemonClientComputer(unittest.TestCase):
 
     def test_execute_command(self):
         # Create a command action
-        command = CommandAction(command="ls -la", timeout=5)
+        command = ShellCommandAction(command="ls -la", timeout=5)
 
         # Call execute_command
-        result = self.computer.execute_command(command)
+        result = self.computer.shell(command)
 
         # Check that requests.post was called with the correct URL and data
         self.mock_requests.post.assert_called_with(
@@ -147,7 +147,7 @@ class TestDaemonClientComputer(unittest.TestCase):
 
         # Test with a failed response
         self.mock_response.status_code = 500
-        result = self.computer.execute_command(command)
+        result = self.computer.shell(command)
         self.assertFalse(result)
 
     def test_execute_keyboard_key_down(self):

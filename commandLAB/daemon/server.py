@@ -16,7 +16,7 @@ from commandLAB.computers.local_pynput_computer import LocalPynputComputer
 from commandLAB.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandLAB.types import (
     ClickAction,
-    CommandAction,
+    ShellCommandAction,
     DoubleClickAction,
     DragAction,
     KeyboardHotkeyAction,
@@ -105,9 +105,9 @@ class ComputerDaemon:
 
         @app.post("/execute/command")
         async def execute_command(
-            action: CommandAction, token: str = Depends(verify_token)
+            action: ShellCommandAction, token: str = Depends(verify_token)
         ):
-            return {"success": self._computer.execute_command(action)}
+            return {"success": self._computer.shell(action)}
 
         @app.post("/execute/keyboard/key_down")
         async def execute_keyboard_key_down(
@@ -301,8 +301,8 @@ class ComputerDaemon:
                 command_template = self._vnc_start_commands.get(exe_name, "\"{path}\"")
                 command = command_template.format(path=vnc_path)
                 
-                result = self._computer.execute_command(
-                    CommandAction(command=command, timeout=10)
+                result = self._computer.shell(
+                    ShellCommandAction(command=command, timeout=10)
                 )
                 
                 if result:
@@ -331,8 +331,8 @@ class ComputerDaemon:
                 command_template = self._vnc_start_commands.get(exe_name, "{path}")
                 command = command_template.format(path=vnc_path)
                 
-                result = self._computer.execute_command(
-                    CommandAction(command=command, timeout=10)
+                result = self._computer.shell(
+                    ShellCommandAction(command=command, timeout=10)
                 )
                 
                 if result:
@@ -383,8 +383,8 @@ class ComputerDaemon:
                 else:
                     command = command_template
                 
-                result = self._computer.execute_command(
-                    CommandAction(command=command, timeout=10)
+                result = self._computer.shell(
+                    ShellCommandAction(command=command, timeout=10)
                 )
                 
                 if result:
@@ -398,8 +398,8 @@ class ComputerDaemon:
                         # Get the command template
                         command = self._vnc_stop_commands.get(exe)
                         if command:
-                            result = self._computer.execute_command(
-                                CommandAction(command=command, timeout=10)
+                            result = self._computer.shell(
+                                ShellCommandAction(command=command, timeout=10)
                             )
                             if result:
                                 return True, f"VNC server ({exe}) stopped successfully"
@@ -421,29 +421,29 @@ class ComputerDaemon:
             if system == "windows" and self._rdp_use_system_commands:
                 # Windows has built-in RDP (Remote Desktop Services)
                 # Check if the service exists
-                service_check = self._computer.execute_command(
-                    CommandAction(command="sc query TermService", timeout=5)
+                service_check = self._computer.shell(
+                    ShellCommandAction(command="sc query TermService", timeout=5)
                 )
                 
                 if not service_check:
                     return False, "Remote Desktop Services not found on this Windows system"
                 
                 # Start Remote Desktop Services
-                result = self._computer.execute_command(
-                    CommandAction(command="net start TermService", timeout=10)
+                result = self._computer.shell(
+                    ShellCommandAction(command="net start TermService", timeout=10)
                 )
                 
                 if result:
                     # Also enable Remote Desktop through registry
-                    reg_result = self._computer.execute_command(
-                        CommandAction(
+                    reg_result = self._computer.shell(
+                        ShellCommandAction(
                             command="reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 0 /f", 
                             timeout=10
                         )
                     )
                     
-                    firewall_result = self._computer.execute_command(
-                        CommandAction(
+                    firewall_result = self._computer.shell(
+                        ShellCommandAction(
                             command="netsh advfirewall firewall set rule group=\"remote desktop\" new enable=Yes",
                             timeout=10
                         )
@@ -474,8 +474,8 @@ class ComputerDaemon:
                 # Try systemctl first (most modern distros)
                 systemctl_path = shutil.which("systemctl")
                 if systemctl_path:
-                    result = self._computer.execute_command(
-                        CommandAction(command="sudo systemctl start xrdp", timeout=10)
+                    result = self._computer.shell(
+                        ShellCommandAction(command="sudo systemctl start xrdp", timeout=10)
                     )
                     if result:
                         return True, "RDP server (xrdp) started successfully with systemctl"
@@ -483,8 +483,8 @@ class ComputerDaemon:
                 # Fallback to service command
                 service_path = shutil.which("service")
                 if service_path:
-                    result = self._computer.execute_command(
-                        CommandAction(command="sudo service xrdp start", timeout=10)
+                    result = self._computer.shell(
+                        ShellCommandAction(command="sudo service xrdp start", timeout=10)
                     )
                     if result:
                         return True, "RDP server (xrdp) started successfully with service command"
@@ -505,16 +505,16 @@ class ComputerDaemon:
             
             if system == "windows" and self._rdp_use_system_commands:
                 # Disable Remote Desktop through registry first
-                reg_result = self._computer.execute_command(
-                    CommandAction(
+                reg_result = self._computer.shell(
+                    ShellCommandAction(
                         command="reg add \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 1 /f", 
                         timeout=10
                     )
                 )
                 
                 # Stop Windows Remote Desktop Services
-                result = self._computer.execute_command(
-                    CommandAction(command="net stop TermService", timeout=10)
+                result = self._computer.shell(
+                    ShellCommandAction(command="net stop TermService", timeout=10)
                 )
                 
                 if result:
@@ -531,8 +531,8 @@ class ComputerDaemon:
                 # Try systemctl first (most modern distros)
                 systemctl_path = shutil.which("systemctl")
                 if systemctl_path:
-                    result = self._computer.execute_command(
-                        CommandAction(command="sudo systemctl stop xrdp", timeout=10)
+                    result = self._computer.shell(
+                        ShellCommandAction(command="sudo systemctl stop xrdp", timeout=10)
                     )
                     if result:
                         return True, "RDP server (xrdp) stopped successfully with systemctl"
@@ -540,8 +540,8 @@ class ComputerDaemon:
                 # Fallback to service command
                 service_path = shutil.which("service")
                 if service_path:
-                    result = self._computer.execute_command(
-                        CommandAction(command="sudo service xrdp stop", timeout=10)
+                    result = self._computer.shell(
+                        ShellCommandAction(command="sudo service xrdp stop", timeout=10)
                     )
                     if result:
                         return True, "RDP server (xrdp) stopped successfully with service command"
@@ -616,7 +616,7 @@ class ComputerDaemon:
         @mcp.tool()
         def execute_command(command: str, timeout: int = 30) -> dict:
             """Execute a system command"""
-            return {"success": self._computer.execute_command(CommandAction(command=command, timeout=timeout))}
+            return {"success": self._computer.shell(ShellCommandAction(command=command, timeout=timeout))}
         
         @mcp.tool()
         def type_text(text: str) -> dict:

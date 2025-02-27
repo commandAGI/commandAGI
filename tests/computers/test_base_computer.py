@@ -5,7 +5,7 @@ import time
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
     ClickAction,
-    CommandAction,
+    ShellCommandAction,
     DoubleClickAction,
     DragAction,
     KeyboardHotkeyAction,
@@ -45,7 +45,7 @@ class MockComputer(BaseComputer):
     execute_mouse_button_up_called: bool = Field(default=False)
 
     # Store the last action parameters
-    last_command: CommandAction = Field(default=None)
+    last_command: ShellCommandAction = Field(default=None)
     last_key_down: KeyboardKeyDownAction = Field(default=None)
     last_key_release: KeyboardKeyReleaseAction = Field(default=None)
     last_mouse_move: MouseMoveAction = Field(default=None)
@@ -80,7 +80,7 @@ class MockComputer(BaseComputer):
             }
         )
 
-    def execute_command(self, action: CommandAction) -> bool:
+    def shell(self, action: ShellCommandAction) -> bool:
         self.execute_command_called = True
         self.last_command = action
         return True
@@ -143,8 +143,8 @@ class TestBaseComputer(unittest.TestCase):
 
     def test_execute_command(self):
         # Test that execute_command calls the implementation
-        command = CommandAction(command="ls -la")
-        result = self.computer.execute_command(command)
+        command = ShellCommandAction(command="ls -la")
+        result = self.computer.shell(command)
         self.assertTrue(self.computer.execute_command_called)
         self.assertEqual(self.computer.last_command, command)
         self.assertTrue(result)

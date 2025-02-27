@@ -25,7 +25,7 @@ try:
     from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
-        CommandAction,
+        ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
         KeyboardKey,

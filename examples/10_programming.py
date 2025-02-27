@@ -17,7 +17,7 @@ import os
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.types import (
-        CommandAction,
+        ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
         KeyboardKeyPressAction,
@@ -73,8 +73,8 @@ if __name__ == "__main__":
         else:  # Linux
             editor_cmd = "gedit"
 
-        result = computer.execute_command(
-            CommandAction(command=f"{editor_cmd} {script_path}", timeout=10)
+        result = computer.shell(
+            ShellCommandAction(command=f"{editor_cmd} {script_path}", timeout=10)
         )
 
         print(f"Editor launch {'succeeded' if result else 'failed'}")
@@ -177,8 +177,8 @@ def calculate_sum(a, b):
 
         # Run the script
         print("Running the Python script...")
-        result = computer.execute_command(
-            CommandAction(command=f"python {script_path}", timeout=10)
+        result = computer.shell(
+            ShellCommandAction(command=f"python {script_path}", timeout=10)
         )
 
         print(f"Script execution {'succeeded' if result else 'failed'}")

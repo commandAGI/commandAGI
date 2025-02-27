@@ -21,7 +21,7 @@ try:
     from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
-        CommandAction,
+        ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
         KeyboardKey,
@@ -149,11 +149,11 @@ def main():
         # Open a text editor before starting the episode
         print("Opening a text editor...")
         if os.name == "nt":  # Windows
-            env._computer.execute_command(CommandAction(command="notepad", timeout=5))
+            env._computer.shell(ShellCommandAction(command="notepad", timeout=5))
         elif os.uname().sysname == "Darwin":  # macOS
-            env._computer.execute_command(CommandAction(command="open -a TextEdit", timeout=5))
+            env._computer.shell(ShellCommandAction(command="open -a TextEdit", timeout=5))
         else:  # Linux
-            env._computer.execute_command(CommandAction(command="gedit", timeout=5))
+            env._computer.shell(ShellCommandAction(command="gedit", timeout=5))
         
         time.sleep(2)  # Wait for the editor to open
 

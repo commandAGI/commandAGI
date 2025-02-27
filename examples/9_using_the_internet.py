@@ -16,7 +16,7 @@ import os
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.types import (
-        CommandAction,
+        ShellCommandAction,
         ClickAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -47,8 +47,8 @@ def main():
         else:  # Linux
             browser_cmd = "google-chrome"
 
-        result = computer.execute_command(
-            CommandAction(command=browser_cmd, timeout=10)
+        result = computer.shell(
+            ShellCommandAction(command=browser_cmd, timeout=10)
         )
 
         print(f"Browser launch {'succeeded' if result else 'failed'}")

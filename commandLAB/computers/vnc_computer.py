@@ -14,7 +14,7 @@ except ImportError:
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
-    CommandAction,
+    ShellCommandAction,
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -27,6 +27,7 @@ from commandLAB.types import (
     MouseStateObservation,
     ScreenshotObservation,
     TypeAction,
+    RunProcessAction,
 )
 from commandLAB._utils.config import APPDIR
 from commandLAB._utils.screenshot import process_screenshot
@@ -179,7 +180,7 @@ class VNCComputer(BaseComputer):
         self.logger.debug("VNC does not support getting keyboard state")
         raise NotImplementedError("VNC does not support getting keyboard state")
 
-    def _execute_command(self, action: CommandAction):
+    def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a system command on the remote system.
         
         Note: This is limited by VNC capabilities and may not work for all commands.
@@ -306,3 +307,18 @@ class VNCComputer(BaseComputer):
         """
         self.logger.debug("Video streaming not implemented for VNC")
         return False
+
+    def _run_process(self, action: RunProcessAction) -> bool:
+        """Run a process with the specified parameters.
+        
+        For VNC, we'll use the default implementation that relies on shell commands
+        since VNC doesn't have direct process execution capabilities.
+        
+        Args:
+            action: RunProcessAction containing the process parameters
+            
+        Returns:
+            bool: True if the process was executed successfully
+        """
+        self.logger.info(f"Running process via VNC shell: {action.command} with args: {action.args}")
+        return self._default_run_process(action=action)

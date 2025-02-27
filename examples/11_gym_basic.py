@@ -25,7 +25,7 @@ try:
     from commandLAB.gym.agents.base_agent import BaseAgent
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
-        CommandAction,
+        ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
         KeyboardKey,

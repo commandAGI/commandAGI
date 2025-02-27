@@ -13,7 +13,7 @@ from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.computers.local_pynput_computer import LocalPynputComputer
 from commandLAB.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandLAB.types import (
-    CommandAction,
+    ShellCommandAction,
     KeyboardHotkeyAction,
     KeyboardKeyDownAction,
     KeyboardKeyPressAction,

@@ -8,7 +8,7 @@ from commandLAB.types import (
     TypeAction,
     MouseMoveAction,
     KeyboardHotkeyAction,
-    CommandAction,
+    ShellCommandAction,
     MouseButtonDownAction,
     MouseButtonUpAction,
     MouseScrollAction,
@@ -64,8 +64,8 @@ def main():
         
         # Example 4: Execute a command
         print("\nExample 4: Executing command...")
-        command_action = CommandAction(command="echo 'Hello from CommandLAB'")
-        success = computer.execute_command(command_action)
+        command_action = ShellCommandAction(command="echo 'Hello from CommandLAB'")
+        success = computer.shell(command_action)
         print(f"Command execution success: {success}")
         
         # Example 5: Mouse click (down and up)

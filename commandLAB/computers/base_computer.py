@@ -4,13 +4,14 @@ import time
 import logging
 import os
 from abc import abstractmethod
-from typing import ClassVar, Literal, List, Optional
+from typing import ClassVar, Literal, List, Optional, Dict, Any, Union
 from commandLAB._utils.config import APPDIR, SCREENSHOTS_DIR
 from commandLAB._utils.counter import next_for_cls
 
+from commandLAB._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandLAB.types import (
     ClickAction,
-    CommandAction,
+    ShellCommandAction,
     DoubleClickAction,
     DragAction,
     KeyboardHotkeyAction,
@@ -39,10 +40,187 @@ from commandLAB.types import (
 from pydantic import BaseModel, Field
 
 
+class BaseJupyterNotebook(BaseModel):
+    """Base class for Jupyter notebook operations.
+    
+    This class defines the interface for working with Jupyter notebooks programmatically.
+    Implementations should provide methods to create, read, modify, and execute notebooks.
+    """
+    
+    notebook_path: Optional[Path] = None
+    
+    def create_notebook(self) -> Dict[str, Any]:
+        """Create a new empty notebook and return the notebook object."""
+        raise NotImplementedError("Subclasses must implement create_notebook")
+    
+    def read_notebook(self, path: Union[str, Path]) -> Dict[str, Any]:
+        """Read a notebook from a file and return the notebook object."""
+        raise NotImplementedError("Subclasses must implement read_notebook")
+    
+    def save_notebook(self, notebook: Dict[str, Any], path: Optional[Union[str, Path]] = None) -> Path:
+        """Save the notebook to a file and return the path."""
+        raise NotImplementedError("Subclasses must implement save_notebook")
+    
+    def add_markdown_cell(self, notebook: Dict[str, Any], source: str, position: Optional[int] = None) -> Dict[str, Any]:
+        """Add a markdown cell to the notebook and return the updated notebook."""
+        raise NotImplementedError("Subclasses must implement add_markdown_cell")
+    
+    def add_code_cell(self, notebook: Dict[str, Any], source: str, position: Optional[int] = None) -> Dict[str, Any]:
+        """Add a code cell to the notebook and return the updated notebook."""
+        raise NotImplementedError("Subclasses must implement add_code_cell")
+    
+    def update_cell(self, notebook: Dict[str, Any], index: int, source: str) -> Dict[str, Any]:
+        """Update the source of a cell at the given index and return the updated notebook."""
+        raise NotImplementedError("Subclasses must implement update_cell")
+    
+    def remove_cell(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
+        """Remove a cell at the given index and return the updated notebook."""
+        raise NotImplementedError("Subclasses must implement remove_cell")
+    
+    def list_cells(self, notebook: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Return a list of cells in the notebook."""
+        raise NotImplementedError("Subclasses must implement list_cells")
+    
+    def execute_notebook(self, notebook: Dict[str, Any], timeout: int = 600) -> Dict[str, Any]:
+        """Execute all cells in the notebook and return the executed notebook."""
+        raise NotImplementedError("Subclasses must implement execute_notebook")
+    
+    def execute_cell(self, notebook: Dict[str, Any], index: int, timeout: int = 60) -> Dict[str, Any]:
+        """Execute a specific cell in the notebook and return the executed notebook."""
+        raise NotImplementedError("Subclasses must implement execute_cell")
+    
+    def get_cell_output(self, notebook: Dict[str, Any], index: int) -> List[Dict[str, Any]]:
+        """Return the output of a cell at the given index."""
+        raise NotImplementedError("Subclasses must implement get_cell_output")
+    
+    def clear_cell_output(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
+        """Clear the output of a cell at the given index and return the updated notebook."""
+        raise NotImplementedError("Subclasses must implement clear_cell_output")
+    
+    def clear_all_outputs(self, notebook: Dict[str, Any]) -> Dict[str, Any]:
+        """Clear the outputs of all cells in the notebook and return the updated notebook."""
+        raise NotImplementedError("Subclasses must implement clear_all_outputs")
+
+
+class BaseShell(BaseModel):
+    """Base class for shell operations.
+    
+    This class defines the interface for working with a persistent shell/terminal session.
+    Implementations should provide methods to execute commands and manage the shell environment.
+    """
+    
+    executable: str = DEFAULT_SHELL_EXECUTIBLE
+    cwd: Optional[Path] = None
+    env: Dict[str, str] = Field(default_factory=dict)
+    pid: Optional[int] = None
+    logger: Optional[logging.Logger] = None
+    
+    def start(self) -> bool:
+        """Start the shell process.
+        
+        Returns:
+            bool: True if the shell was started successfully, False otherwise.
+        """
+        raise NotImplementedError("Subclasses must implement start")
+    
+    def stop(self) -> bool:
+        """Stop the shell process.
+        
+        Returns:
+            bool: True if the shell was stopped successfully, False otherwise.
+        """
+        raise NotImplementedError("Subclasses must implement stop")
+    
+    def execute(self, command: str, timeout: Optional[float] = None) -> Dict[str, Any]:
+        """Execute a command in the shell and return the result.
+        
+        Args:
+            command: The command to execute
+            timeout: Optional timeout in seconds
+            
+        Returns:
+            Dict containing stdout, stderr, and return code
+        """
+        raise NotImplementedError("Subclasses must implement execute")
+    
+    def read_output(self, timeout: Optional[float] = None) -> str:
+        """Read any available output from the shell.
+        
+        Args:
+            timeout: Optional timeout in seconds
+            
+        Returns:
+            str: The output from the shell
+        """
+        raise NotImplementedError("Subclasses must implement read_output")
+    
+    def send_input(self, text: str) -> bool:
+        """Send input to the shell.
+        
+        Args:
+            text: The text to send to the shell
+            
+        Returns:
+            bool: True if the input was sent successfully, False otherwise
+        """
+        raise NotImplementedError("Subclasses must implement send_input")
+    
+    def change_directory(self, path: Union[str, Path]) -> bool:
+        """Change the current working directory of the shell.
+        
+        Args:
+            path: The path to change to
+            
+        Returns:
+            bool: True if the directory was changed successfully, False otherwise
+        """
+        raise NotImplementedError("Subclasses must implement change_directory")
+    
+    def set_environment_variable(self, name: str, value: str) -> bool:
+        """Set an environment variable in the shell.
+        
+        Args:
+            name: The name of the environment variable
+            value: The value to set
+            
+        Returns:
+            bool: True if the variable was set successfully, False otherwise
+        """
+        raise NotImplementedError("Subclasses must implement set_environment_variable")
+    
+    def get_environment_variable(self, name: str) -> Optional[str]:
+        """Get the value of an environment variable from the shell.
+        
+        Args:
+            name: The name of the environment variable
+            
+        Returns:
+            Optional[str]: The value of the environment variable, or None if it doesn't exist
+        """
+        raise NotImplementedError("Subclasses must implement get_environment_variable")
+    
+    def is_running(self) -> bool:
+        """Check if the shell process is running.
+        
+        Returns:
+            bool: True if the shell is running, False otherwise
+        """
+        raise NotImplementedError("Subclasses must implement is_running")
+    
+    @property
+    def current_directory(self) -> Path:
+        """Get the current working directory of the shell.
+        
+        Returns:
+            Path: The current working directory
+        """
+        raise NotImplementedError("Subclasses must implement current_directory")
+
+
 class BaseComputer(BaseModel):
 
     name: str
-    _state: Literal["stopped", "started"] = "stopped"
+    _state: Literal["stopped", "started", "paused"] = "stopped"  # Updated to include paused state
     logger: Optional[logging.Logger] = None
     _file_handler: Optional[logging.FileHandler] = None
     num_retries: int = 3
@@ -60,8 +238,13 @@ class BaseComputer(BaseModel):
 
     def start(self):
         """Start the computer."""
-        if self._state != "stopped":
-            raise ValueError("Computer is already started")
+        if self._state == "started":
+            self.logger.warning("Computer is already started")
+            return
+        elif self._state == "paused":
+            self.logger.info("Resuming paused computer")
+            self.resume()
+            return
 
         # Ensure artifact directory exists
         os.makedirs(self.artifact_dir, exist_ok=True)
@@ -87,8 +270,12 @@ class BaseComputer(BaseModel):
 
     def stop(self):
         """Stop the computer."""
-        if self._state != "started":
-            raise ValueError("Computer is already stopped")
+        if self._state == "stopped":
+            self.logger.warning("Computer is already stopped")
+            return
+        
+        if self._state == "paused":
+            self.logger.info("Computer is paused, stopping anyway")
 
         self.logger.info(f"Stopping {self.__class__.__name__} computer")
         self._stop()
@@ -105,8 +292,87 @@ class BaseComputer(BaseModel):
         """Stop the computer."""
         raise NotImplementedError(f"{self.__class__.__name__}.stop")
 
+
+    def pause(self) -> bool:
+        """Pause the computer.
+        
+        This method pauses the computer, which means it's still running but in a suspended state.
+        
+        Returns:
+            bool: True if the computer was successfully paused, False otherwise.
+        """
+        if self._state != "started":
+            self.logger.warning(f"Cannot pause computer in {self._state} state")
+            return False
+
+        self.logger.info(f"Attempting to pause {self.__class__.__name__} computer")
+        for attempt in range(self.num_retries):
+            try:
+                self._pause()
+                self._state = "paused"
+                self.logger.info(f"{self.__class__.__name__} computer paused successfully")
+                return True
+            except Exception as e:
+                self.logger.error(
+                    f"Error pausing computer (attempt {attempt+1}/{self.num_retries}): {e}"
+                )
+                if attempt == self.num_retries - 1:
+                    return False
+
+        return False
+
+    def _pause(self):
+        """Implementation of pause functionality.
+
+        This method should be overridden by subclasses to implement computer-specific pause functionality.
+        The default implementation does nothing.
+        """
+        self.logger.debug("Pause not implemented for this computer type")
+        pass
+
+    def resume(self, timeout_hours: Optional[float] = None) -> bool:
+        """Resume a paused computer.
+        
+        Args:
+            timeout_hours: Optional timeout in hours after which the computer will be paused again.
+            
+        Returns:
+            bool: True if the computer was successfully resumed, False otherwise.
+        """
+        if self._state != "paused":
+            self.logger.warning(f"Cannot resume computer in {self._state} state")
+            return False
+
+        self.logger.info(f"Attempting to resume {self.__class__.__name__} computer" + (f" with {timeout_hours} hour timeout" if timeout_hours else ""))
+        for attempt in range(self.num_retries):
+            try:
+                self._resume(timeout_hours)
+                self._state = "started"
+                self.logger.info(f"{self.__class__.__name__} computer resumed successfully")
+                return True
+            except Exception as e:
+                self.logger.error(
+                    f"Error resuming computer (attempt {attempt+1}/{self.num_retries}): {e}"
+                )
+                if attempt == self.num_retries - 1:
+                    return False
+
+        return False
+
+    def _resume(self, timeout_hours: Optional[float] = None):
+        """Implementation of resume functionality.
+
+        Args:
+            timeout_hours: Optional timeout in hours after which the computer will automatically pause again.
+
+        This method should be overridden by subclasses to implement computer-specific resume functionality.
+        The default implementation does nothing.
+        """
+        self.logger.debug("Resume not implemented for this computer type")
+        pass
+
     def reset_state(self):
-        """Reset the computer state."""
+        """Reset the computer state. If you just need ot reset the computer state without a full off-on, use this method. NOTE: in most cases, we just do a full off-on"""
         self.logger.info(f"Resetting {self.__class__.__name__} computer state")
         self.stop()
         self.start()
@@ -145,8 +411,10 @@ class BaseComputer(BaseModel):
                 - 'PIL': Return the screenshot as a PIL Image object
                 - 'path': Save the screenshot to a file and return the path
         """
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
         try:
             return self._get_screenshot(display_id=display_id, format=format)
         except Exception as e:
@@ -293,8 +561,10 @@ class BaseComputer(BaseModel):
 
     def get_mouse_state(self) -> MouseStateObservation:
         """Return a MouseStateObservation containing the current mouse button states and position."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
         try:
             return self._get_mouse_state()
         except Exception as e:
@@ -306,8 +576,10 @@ class BaseComputer(BaseModel):
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
         """Return a KeyboardStateObservation with the current keyboard keys mapped to their states."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
         try:
             return self._get_keyboard_state()
         except Exception as e:
@@ -319,8 +591,10 @@ class BaseComputer(BaseModel):
 
     def get_layout_tree(self) -> LayoutTreeObservation:
         """Return a LayoutTreeObservation containing the accessibility tree of the current UI."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
         try:
             return self._get_layout_tree()
         except Exception as e:
@@ -332,8 +606,10 @@ class BaseComputer(BaseModel):
 
     def get_processes(self) -> ProcessesObservation:
         """Return a ProcessesObservation containing information about running processes."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
         try:
             return self._get_processes()
         except Exception as e:
@@ -345,8 +621,10 @@ class BaseComputer(BaseModel):
 
     def get_windows(self) -> WindowsObservation:
         """Return a WindowsObservation containing information about open windows."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
         try:
             return self._get_windows()
         except Exception as e:
@@ -358,8 +636,10 @@ class BaseComputer(BaseModel):
 
     def get_displays(self) -> DisplaysObservation:
         """Return a DisplaysObservation containing information about connected displays."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
         try:
             return self._get_displays()
         except Exception as e:
@@ -368,6 +648,31 @@ class BaseComputer(BaseModel):
 
     def _get_displays(self) -> DisplaysObservation:
         raise NotImplementedError(f"{self.__class__.__name__}.get_displays")
+
+    _jupyter_server_pid: int|None = None
+    def start_jupyter_server(self, port: int = 8888, notebook_dir: Optional[str] = None):
+        """Start a Jupyter notebook server.
+        
+        Args:
+            port: Port number to run the server on
+            notebook_dir: Directory to serve notebooks from. If None, uses current directory.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}.start_jupyter_server")
+
+    def stop_jupyter_server(self):
+        """Stop the running Jupyter notebook server if one exists."""
+        raise NotImplementedError(f"{self.__class__.__name__}.stop_jupyter_server")
+
+    def create_jupyter_notebook(self) -> BaseJupyterNotebook:
+        """Create and return a new BaseJupyterNotebook instance.
+        
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseJupyterNotebook for the specific computer type.
+        
+        Returns:
+            BaseJupyterNotebook: A notebook client instance for creating and manipulating notebooks.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}.create_jupyter_notebook")
 
     def run_process(
         self,
@@ -378,8 +683,10 @@ class BaseComputer(BaseModel):
         timeout: Optional[float] = None,
     ) -> bool:
         """Run a process with the specified parameters and return True if successful."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = RunProcessAction(
             command=command, args=args, cwd=cwd, env=env, timeout=timeout
@@ -399,22 +706,75 @@ class BaseComputer(BaseModel):
         return False
 
     def _run_process(self, action: RunProcessAction) -> bool:
-        raise NotImplementedError(f"{self.__class__.__name__}.run_process")
+        raise NotImplementedError(f"{self.__class__.__name__}._run_process")
 
-    def execute_command(self, command: str, timeout: Optional[float] = None) -> bool:
-        """Execute a system command in the environment and return True if successful.
+    def _default_run_process(self, action: RunProcessAction) -> bool:
+        """Default implementation of run_process using shell commands.
+        
+        This method is deliberately not wired up to the base _run_process to make
+        subclasses think about what they really want. It defaults to using shell
+        commands to execute the process.
+        
+        Args:
+            action: RunProcessAction containing the process parameters
+            
+        Returns:
+            bool: True if the process was executed successfully
+        """
+        self.logger.info(f"Running process via shell: {action.command} with args: {action.args}")
+        
+        # Change to the specified directory if provided
+        if action.cwd:
+            self.shell(f'cd {action.cwd}')
+        
+        # Build the command string
+        cmd_parts = [action.command] + action.args
+        cmd_shell_format = ' '.join(cmd_parts)
+        
+        # Add environment variables if specified
+        if action.env:
+            # For Unix-like shells
+            env_vars = ' '.join([f'{k}={v}' for k, v in action.env.items()])
+            cmd_shell_format = f'{env_vars} {cmd_shell_format}'
+        
+        # Execute the command with timeout if specified
+        return self.shell(cmd_shell_format, timeout=action.timeout)
+
+    def create_shell(self, executable: str = None, cwd: Optional[Union[str, Path]] = None, env: Optional[Dict[str, str]] = None) -> BaseShell:
+        """Create and return a new shell instance.
+        
+        This method creates a persistent shell that can be used to execute commands
+        and interact with the system shell environment.
+        
+        Args:
+            executable: Path to the shell executable to use
+            cwd: Initial working directory for the shell
+            env: Environment variables to set in the shell
+            
+        Returns:
+            BaseShell: A shell instance for executing commands and interacting with the shell
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}.create_shell")
+
+    def shell(self, command: str, timeout: Optional[float] = None, executible: Optional[str] = None) -> bool:
+        """Execute a system command in the global shell environment and return True if successful.
+
+        NOTE: its generally a better idea to use `create_shell` so you can run your shell in a separate processon the host machine
+        (but also not that some computer shell implementations actually shove it all back into the system_shell and only pretend to be multiprocessed lol)
 
         The timeout parameter indicates how long (in seconds) to wait before giving up,
         with None meaning no timeout.
         """
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
-        action = CommandAction(command=command, timeout=timeout)
+        action = ShellCommandAction(command=command, timeout=timeout,executible=executible)
 
         for attempt in range(self.num_retries):
             try:
-                self._execute_command(action)
+                self._execute_shell_command(action)
                 return True
             except Exception as e:
                 self.logger.error(
@@ -425,15 +785,17 @@ class BaseComputer(BaseModel):
 
         return False
 
-    def _execute_command(self, action: CommandAction):
+    def _execute_shell_command(self, action: ShellCommandAction):
         raise NotImplementedError(f"{self.__class__.__name__}.execute_command")
 
     def execute_keyboard_keys_press(
         self, keys: List[KeyboardKey], duration: float = 0.1
     ) -> bool:
         """Execute pressing keyboard keys."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = KeyboardKeysPressAction(keys=keys, duration=duration)
 
@@ -456,8 +818,10 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_keys_down(self, keys: List[KeyboardKey]) -> bool:
         """Execute key down for each keyboard key."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = KeyboardKeysDownAction(keys=keys)
 
@@ -480,8 +844,10 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_keys_release(self, keys: List[KeyboardKey]) -> bool:
         """Execute key release for each keyboard key."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = KeyboardKeysReleaseAction(keys=keys)
 
@@ -506,8 +872,10 @@ class BaseComputer(BaseModel):
         self, key: KeyboardKey, duration: float = 0.1
     ) -> bool:
         """Execute pressing a keyboard key with a specified duration."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = KeyboardKeyPressAction(key=key, duration=duration)
 
@@ -531,8 +899,10 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_key_down(self, key: KeyboardKey) -> bool:
         """Execute key down for a keyboard key."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = KeyboardKeyDownAction(key=key)
 
@@ -556,8 +926,10 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_key_release(self, key: KeyboardKey) -> bool:
         """Execute key release for a keyboard key."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = KeyboardKeyReleaseAction(key=key)
 
@@ -581,8 +953,10 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_hotkey(self, keys: List[KeyboardKey]) -> bool:
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = KeyboardHotkeyAction(keys=keys)
 
@@ -607,8 +981,10 @@ class BaseComputer(BaseModel):
 
     def execute_type(self, text: str) -> bool:
         """Execute typing the given text."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = TypeAction(text=text)
 
@@ -631,8 +1007,10 @@ class BaseComputer(BaseModel):
 
     def execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5) -> bool:
         """Execute moving the mouse to (x, y) over the move duration."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = MouseMoveAction(x=x, y=y, move_duration=move_duration)
 
@@ -654,8 +1032,10 @@ class BaseComputer(BaseModel):
 
     def execute_mouse_scroll(self, amount: float) -> bool:
         """Execute mouse scroll by a given amount."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = MouseScrollAction(amount=amount)
 
@@ -677,8 +1057,10 @@ class BaseComputer(BaseModel):
 
     def execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT) -> bool:
         """Execute mouse button down action."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = MouseButtonDownAction(button=button)
 
@@ -702,8 +1084,10 @@ class BaseComputer(BaseModel):
 
     def execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT) -> bool:
         """Execute mouse button up action."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = MouseButtonUpAction(button=button)
 
@@ -734,8 +1118,10 @@ class BaseComputer(BaseModel):
         """Execute a click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = ClickAction(
             x=x,
@@ -781,8 +1167,10 @@ class BaseComputer(BaseModel):
         """Execute a double click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = DoubleClickAction(
             x=x,
@@ -837,8 +1225,10 @@ class BaseComputer(BaseModel):
         button: MouseButton = MouseButton.LEFT,
     ) -> bool:
         """Execute a drag action using the primitive mouse operations."""
-        if self._state != "started":
+        if self._state == "stopped":
             self._start()
+        elif self._state == "paused":
+            self.resume()
 
         action = DragAction(
             start_x=start_x,
@@ -875,80 +1265,6 @@ class BaseComputer(BaseModel):
         )
         # Release the mouse button
         self.execute_mouse_button_up(button=action.button)
-
-    def pause(self) -> bool:
-        """Pause the computer instance.
-
-        This method pauses the computer instance, which can be useful for conserving resources
-        when the computer is not actively being used.
-
-        Returns:
-            bool: True if the pause was successful, False otherwise.
-        """
-        if self._state != "started":
-            self.logger.warning("Cannot pause computer that is not started")
-            return False
-
-        for attempt in range(self.num_retries):
-            try:
-                self._pause()
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error pausing computer (attempt {attempt+1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
-
-    def _pause(self):
-        """Implementation of pause functionality.
-
-        This method should be overridden by subclasses to implement computer-specific pause functionality.
-        The default implementation does nothing.
-        """
-        self.logger.debug("Pause not implemented for this computer type")
-        pass
-
-    def resume(self, timeout_hours: Optional[float] = None) -> bool:
-        """Resume a paused computer instance.
-
-        Args:
-            timeout_hours: Optional timeout in hours after which the computer will automatically pause again.
-                           If None, the computer will remain active until explicitly paused.
-
-        Returns:
-            bool: True if the resume was successful, False otherwise.
-        """
-        if self._state != "started":
-            self.logger.warning("Cannot resume computer that is not started")
-            return False
-
-        for attempt in range(self.num_retries):
-            try:
-                self._resume(timeout_hours)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error resuming computer (attempt {attempt+1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
-
-    def _resume(self, timeout_hours: Optional[float] = None):
-        """Implementation of resume functionality.
-
-        Args:
-            timeout_hours: Optional timeout in hours after which the computer will automatically pause again.
-
-        This method should be overridden by subclasses to implement computer-specific resume functionality.
-        The default implementation does nothing.
-        """
-        self.logger.debug("Resume not implemented for this computer type")
-        pass
 
     @property
     def video_stream_url(self) -> str:

@@ -14,7 +14,7 @@ except ImportError:
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
-    CommandAction,
+    ShellCommandAction,
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -32,6 +32,7 @@ from commandLAB.types import (
     DragAction,
     KeyboardKeyPressAction,
     KeyboardHotkeyAction,
+    RunProcessAction,
 )
 from commandLAB._utils.config import APPDIR
 from commandLAB._utils.screenshot import process_screenshot
@@ -187,7 +188,7 @@ class ScrapybaraComputer(BaseComputer):
         self.logger.debug("Scrapybara does not support getting keyboard state")
         raise NotImplementedError("Scrapybara does not support getting keyboard state")
 
-    def _execute_command(self, action: CommandAction):
+    def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a system command in the Scrapybara VM."""
         # Use bash command for Ubuntu instances
         response = self.client.bash(command=action.command)
@@ -345,6 +346,19 @@ class ScrapybaraComputer(BaseComputer):
             self.logger.error(f"Error stopping Scrapybara video stream: {e}")
             return False
 
+    def _run_process(self, action: RunProcessAction) -> bool:
+        """Run a process with the specified parameters.
+        
+        This method uses the Scrapybara API to run a process in the VM.
+        
+        Args:
+            action: RunProcessAction containing the process parameters
+            
+        Returns:
+            bool: True if the process was executed successfully
+        """
+        self.logger.info(f"Running process via Scrapybara: {action.command} with args: {action.args}")
+        return self._default_run_process(action=action)
 
 class UbuntuScrapybaraComputer(ScrapybaraComputer):
     """Scrapybara computer specifically for Ubuntu instances"""
@@ -364,7 +378,7 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
             # Start an Ubuntu instance
             self.client = client.start_ubuntu()
 
-    def _execute_command(self, action: CommandAction):
+    def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a bash command in the Ubuntu instance."""
         response = self.client.bash(command=action.command)
 
@@ -429,7 +443,7 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
         """
         self.client.authenticate(auth_state_id=auth_state_id)
     
-    def _execute_command(self, action: CommandAction):
+    def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a command in the browser instance.
         
         Note: Browser instances don't support bash commands directly.
@@ -457,7 +471,7 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
             # Start a Windows instance
             self.client = client.start_windows()
 
-    def _execute_command(self, action: CommandAction):
+    def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a command in the Windows instance.
         
         Note: Windows instances don't support bash commands directly.

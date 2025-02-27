@@ -13,7 +13,7 @@ from commandLAB.types import (
     MouseButton,
     KeyboardKey,
     ComputerActionType,
-    CommandAction,
+    ShellCommandAction,
     KeyboardKeyPressAction,
     KeyboardKeysPressAction,
     KeyboardKeyDownAction,
@@ -156,7 +156,7 @@ class OpenRLComputerEnv(gym.Env):
         computer_action = ComputerAction()
 
         if action_type == ComputerActionType.COMMAND:
-            computer_action["command"] = CommandAction(
+            computer_action["command"] = ShellCommandAction(
                 command=params["command"], timeout=params["timeout"]
             )
 

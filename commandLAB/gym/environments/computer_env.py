@@ -6,7 +6,7 @@ from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.computers.local_pynput_computer import LocalPynputComputer
 from commandLAB.gym.environments.base_env import BaseEnv
 from commandLAB.gym.environments.multimodal_env import MultiModalEnv
-from commandLAB.types import CommandAction, ComputerAction, ComputerObservation
+from commandLAB.types import ShellCommandAction, ComputerAction, ComputerObservation
 from rich.console import Console
 
 
@@ -63,7 +63,7 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
         }
 
         action_fns = {
-            "command": lambda x: self._computer.execute_command(x),
+            "command": lambda x: self._computer.shell(x),
             "keyboard_keys_press": lambda x: self._computer.execute_keyboard_keys_press(x),
             "keyboard_keys_down": lambda x: self._computer.execute_keyboard_keys_down(x),
             "keyboard_keys_release": lambda x: self._computer.execute_keyboard_keys_release(x),
@@ -85,8 +85,8 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
         )
 
         if self.config.on_start_python:
-            self._computer.execute_command(
-                CommandAction(
+            self._computer.shell(
+                ShellCommandAction(
                     command=self.config.on_start_python,
                     timeout=self.config.on_start_timeout,
                 )
@@ -94,8 +94,8 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
 
     def reset(self) -> ComputerObservation:
         if self.config.on_reset_python:
-            self._computer.execute_command(
-                CommandAction(
+            self._computer.shell(
+                ShellCommandAction(
                     command=self.config.on_reset_python,
                     timeout=self.config.on_reset_timeout,
                 )
@@ -104,8 +104,8 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
 
     def close(self):
         if self.config.on_stop_python:
-            self._computer.execute_command(
-                CommandAction(
+            self._computer.shell(
+                ShellCommandAction(
                     command=self.config.on_stop_python,
                     timeout=self.config.on_stop_timeout,
                 )

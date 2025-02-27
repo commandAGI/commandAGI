@@ -21,7 +21,7 @@ except ImportError:
 
 from commandLAB.computers.local_computer import LocalComputer
 from commandLAB.types import (
-    CommandAction,
+    ShellCommandAction,
     KeyboardHotkeyAction,
     KeyboardKey,
     KeyboardKeyDownAction,

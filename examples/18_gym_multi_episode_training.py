@@ -30,7 +30,7 @@ try:
     from commandLAB.gym.trainer import OnlineTrainer
     from commandLAB.gym.schema import Episode, Step
     from commandLAB.types import (
-        CommandAction,
+        ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
         KeyboardKey,

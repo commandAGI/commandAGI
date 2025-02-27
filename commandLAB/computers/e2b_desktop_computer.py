@@ -16,7 +16,7 @@ except ImportError:
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
     ClickAction,
-    CommandAction,
+    ShellCommandAction,
     DoubleClickAction,
     KeyboardKey,
     KeyboardKeyPressAction,
@@ -31,6 +31,7 @@ from commandLAB.types import (
     MouseStateObservation,
     ScreenshotObservation,
     TypeAction,
+    RunProcessAction,
 )
 from commandLAB._utils.config import APPDIR
 from commandLAB._utils.screenshot import process_screenshot
@@ -187,7 +188,7 @@ class E2BDesktopComputer(BaseComputer):
         self.logger.debug("E2B Desktop does not support getting keyboard state")
         raise NotImplementedError("E2B Desktop does not support getting keyboard state")
 
-    def _execute_command(self, action: CommandAction):
+    def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a system command in the E2B Desktop VM."""
         self.desktop.commands.run(action.command)
 
@@ -343,4 +344,18 @@ class E2BDesktopComputer(BaseComputer):
             str: The URL for the video stream, or an empty string if video streaming is not available.
         """
         return self.get_video_stream_url()
+
+    def _run_process(self, action: RunProcessAction) -> bool:
+        """Run a process with the specified parameters.
+        
+        This method uses the E2B Desktop API to run a process in the sandbox.
+        
+        Args:
+            action: RunProcessAction containing the process parameters
+            
+        Returns:
+            bool: True if the process was executed successfully
+        """
+        self.logger.info(f"Running process in E2B Desktop: {action.command} with args: {action.args}")
+        return self._default_run_process(action=action)
 

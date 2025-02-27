@@ -322,12 +322,13 @@ class BaseComputerAction(BaseModel):
     action_type: str
 
 
-class CommandAction(BaseComputerAction):
+class ShellCommandAction(BaseComputerAction):
     action_type: Literal["command"] = ComputerActionType.COMMAND.value
     command: Annotated[str, StringConstraints(min_length=1)]
     timeout: float | None = (
         None  # important: None means the command will run indefinitely until it finishes
     )
+    executible: Optional[str] = None
 
 
 class KeyboardKeysPressAction(BaseComputerAction):
@@ -448,7 +449,7 @@ class RunProcessAction(BaseComputerAction):
 
 # Define a Union type for computer actions
 ComputerActionUnion = Union[
-    CommandAction,
+    ShellCommandAction,
     KeyboardKeysPressAction,
     KeyboardKeysDownAction,
     KeyboardKeysReleaseAction,
@@ -469,7 +470,7 @@ ComputerActionUnion = Union[
 
 
 class ComputerAction(TypedDict):
-    command: Optional[CommandAction] = None
+    command: Optional[ShellCommandAction] = None
     keyboard_keys_press: Optional[KeyboardKeysPressAction] = None
     keyboard_keys_down: Optional[KeyboardKeysDownAction] = None
     keyboard_keys_release: Optional[KeyboardKeysReleaseAction] = None

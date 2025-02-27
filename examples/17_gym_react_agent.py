@@ -19,7 +19,7 @@ try:
     from commandLAB.gym.agents.react_vision_language_computer_agent import ReactComputerAgent
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
-        CommandAction,
+        ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
         KeyboardKey,

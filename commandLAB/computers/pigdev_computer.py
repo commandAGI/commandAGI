@@ -14,7 +14,7 @@ except ImportError:
 
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.types import (
-    CommandAction,
+    ShellCommandAction,
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -32,6 +32,7 @@ from commandLAB.types import (
     DragAction,
     KeyboardKeyPressAction,
     KeyboardHotkeyAction,
+    RunProcessAction,
 )
 from commandLAB._utils.config import APPDIR
 from commandLAB._utils.screenshot import process_screenshot
@@ -214,7 +215,7 @@ class PigDevComputer(BaseComputer):
         # PigDev doesn't provide keyboard state
         raise NotImplementedError("PigDev does not support getting keyboard state")
 
-    def _execute_command(self, action: CommandAction) -> bool:
+    def _execute_shell_command(self, action: ShellCommandAction) -> bool:
         """Execute a system command in the PigDev VM."""
         self.logger.debug("PigDev does not support direct command execution")
         # PigDev doesn't have a direct command execution method
@@ -396,3 +397,19 @@ class PigDevComputer(BaseComputer):
         except Exception as e:
             self.logger.error(f"Error getting PigDev video stream URL: {e}")
             return ""
+
+    def _run_process(self, action: RunProcessAction) -> bool:
+        """Run a process with the specified parameters.
+        
+        This method attempts to use the PigDev API to run a process, but falls back
+        to the default implementation using shell commands if direct process execution
+        is not supported.
+        
+        Args:
+            action: RunProcessAction containing the process parameters
+            
+        Returns:
+            bool: True if the process was executed successfully
+        """
+        self.logger.info(f"Running process via PigDev: {action.command} with args: {action.args}")
+        return self._default_run_process(action=action)

@@ -10,7 +10,7 @@ from commandLAB.gym.agents.base_agent import BaseAgent
 from commandLAB.gym.schema import Episode
 from commandLAB.types import (
     ClickAction,
-    CommandAction,
+    ShellCommandAction,
     ComputerAction,
     ComputerObservation,
     DoubleClickAction,
@@ -57,7 +57,7 @@ class NaiveComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
 
         def command(command: str, timeout: float | None = None):
             return ComputerAction(
-                command=CommandAction(command=command, timeout=timeout)
+                command=ShellCommandAction(command=command, timeout=timeout)
             )
 
         def keyboard_keys_press(keys: List[KeyboardKey], duration: float = 0.1):

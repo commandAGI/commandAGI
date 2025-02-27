@@ -24,7 +24,7 @@ try:
     from commandLAB.gym.tasks.computer_task import ComputerTaskMixin
     from commandLAB.gym.schema import Episode
     from commandLAB.types import (
-        CommandAction,
+        ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
         KeyboardKey,
