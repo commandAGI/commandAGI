@@ -340,3 +340,59 @@ class PigDevComputer(BaseComputer):
         # Use the existing connection
         # PigDev supports hotkeys as a single string with '+' separator
         self.connection.key(hotkey_str)
+
+    def _pause(self):
+        """Pause the PigDev connection.
+        
+        For PigDev, pausing means putting the machine into a paused state.
+        """
+        if self.connection:
+            self.logger.info("Pausing PigDev machine")
+            try:
+                self.connection.pause()
+                self.logger.info("PigDev machine paused successfully")
+            except Exception as e:
+                self.logger.error(f"Error pausing PigDev machine: {e}")
+                raise
+
+    def _resume(self, timeout_hours: Optional[float] = None):
+        """Resume the PigDev connection.
+        
+        For PigDev, resuming means taking the machine out of a paused state.
+        
+        Args:
+            timeout_hours: Optional timeout in hours after which the machine will automatically pause again.
+        """
+        if self.connection:
+            self.logger.info("Resuming PigDev machine")
+            try:
+                # Convert hours to seconds if provided
+                timeout_seconds = None
+                if timeout_hours is not None:
+                    timeout_seconds = timeout_hours * 3600
+                
+                self.connection.resume(timeout_seconds=timeout_seconds)
+                self.logger.info("PigDev machine resumed successfully")
+            except Exception as e:
+                self.logger.error(f"Error resuming PigDev machine: {e}")
+                raise
+
+    @property
+    def video_stream_url(self) -> str:
+        """Get the URL for the video stream of the PigDev instance.
+        
+        Returns:
+            str: The URL for the video stream, or an empty string if video streaming is not available.
+        """
+        if not self.connection:
+            self.logger.warning("Cannot get video stream URL: PigDev connection not established")
+            return ""
+        
+        try:
+            stream_info = self.connection.get_stream_info()
+            if stream_info and "url" in stream_info:
+                return stream_info["url"]
+            return ""
+        except Exception as e:
+            self.logger.error(f"Error getting PigDev video stream URL: {e}")
+            return ""

@@ -248,3 +248,61 @@ class VNCComputer(BaseComputer):
         vnc_button = mouse_button_to_vnc(action.button)
         self.logger.debug(f"Releasing mouse button: {action.button} (VNC button: {vnc_button})")
         self.client.mouseUp(vnc_button)
+
+    def _pause(self):
+        """Pause the VNC connection.
+        
+        For VNC, pausing means disconnecting but keeping the client object.
+        """
+        if self.client:
+            self.logger.info("Pausing VNC connection")
+            self.client.disconnect()
+            self.logger.info("VNC connection paused")
+
+    def _resume(self, timeout_hours: Optional[float] = None):
+        """Resume the VNC connection.
+        
+        For VNC, resuming means reconnecting if the client was disconnected.
+        
+        Args:
+            timeout_hours: Not used for VNC implementation.
+        """
+        if self.client:
+            self.logger.info("Resuming VNC connection")
+            connection_string = f"{self.host}::{self.port}"
+            self.client = vnc.connect(connection_string, password=self.password)
+            self.logger.info("VNC connection resumed")
+
+    @property
+    def video_stream_url(self) -> str:
+        """Get the URL for the video stream of the VNC instance.
+        
+        VNC does not provide a direct video stream URL in this implementation.
+        
+        Returns:
+            str: Empty string as VNC streaming is not implemented in this way.
+        """
+        self.logger.debug("Video streaming URL not available for VNC")
+        return ""
+
+    def start_video_stream(self) -> bool:
+        """Start the video stream for the VNC instance.
+        
+        VNC does not support direct video streaming in this implementation.
+        
+        Returns:
+            bool: False as VNC streaming is not implemented.
+        """
+        self.logger.debug("Video streaming not implemented for VNC")
+        return False
+
+    def stop_video_stream(self) -> bool:
+        """Stop the video stream for the VNC instance.
+        
+        VNC does not support direct video streaming in this implementation.
+        
+        Returns:
+            bool: False as VNC streaming is not implemented.
+        """
+        self.logger.debug("Video streaming not implemented for VNC")
+        return False

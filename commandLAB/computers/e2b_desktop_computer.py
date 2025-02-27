@@ -296,3 +296,51 @@ class E2BDesktopComputer(BaseComputer):
                 "Warning: get_video_stream_url method not found in E2B Desktop API"
             )
             return ""
+
+    def _pause(self):
+        """Pause the E2B Desktop instance.
+        
+        For E2B Desktop, pausing means putting the sandbox into a paused state.
+        """
+        if self.desktop:
+            self.logger.info("Pausing E2B Desktop sandbox")
+            try:
+                if hasattr(self.desktop, "pause"):
+                    self.desktop.pause()
+                    self.logger.info("E2B Desktop sandbox paused successfully")
+                else:
+                    self.logger.warning("Pause method not found in E2B Desktop API")
+            except Exception as e:
+                self.logger.error(f"Error pausing E2B Desktop sandbox: {e}")
+                raise
+
+    def _resume(self, timeout_hours: Optional[float] = None):
+        """Resume the E2B Desktop instance.
+        
+        For E2B Desktop, resuming means taking the sandbox out of a paused state.
+        
+        Args:
+            timeout_hours: Optional timeout in hours after which the sandbox will automatically pause again.
+                          Not used in the current E2B Desktop implementation.
+        """
+        if self.desktop:
+            self.logger.info("Resuming E2B Desktop sandbox")
+            try:
+                if hasattr(self.desktop, "resume"):
+                    self.desktop.resume()
+                    self.logger.info("E2B Desktop sandbox resumed successfully")
+                else:
+                    self.logger.warning("Resume method not found in E2B Desktop API")
+            except Exception as e:
+                self.logger.error(f"Error resuming E2B Desktop sandbox: {e}")
+                raise
+
+    @property
+    def video_stream_url(self) -> str:
+        """Get the URL for the video stream of the E2B Desktop instance.
+        
+        Returns:
+            str: The URL for the video stream, or an empty string if video streaming is not available.
+        """
+        return self.get_video_stream_url()
+

@@ -467,3 +467,58 @@ class LocalPynputComputer(BaseComputer):
         self._keyboard_controller.press(final_key)
         time.sleep(0.1)
         self._keyboard_controller.release(final_key)
+
+    def _pause(self):
+        """Pause the Pynput computer.
+        
+        For local Pynput, pausing doesn't have a specific implementation
+        as it's running on the local machine.
+        """
+        self.logger.info("Pausing local Pynput computer (no-op)")
+        # No specific pause implementation for local Pynput
+
+    def _resume(self, timeout_hours: Optional[float] = None):
+        """Resume the Pynput computer.
+        
+        For local Pynput, resuming doesn't have a specific implementation
+        as it's running on the local machine.
+        
+        Args:
+            timeout_hours: Not used for local Pynput implementation.
+        """
+        self.logger.info("Resuming local Pynput computer (no-op)")
+        # No specific resume implementation for local Pynput
+
+    @property
+    def video_stream_url(self) -> str:
+        """Get the URL for the video stream of the local Pynput instance.
+        
+        Local Pynput doesn't support video streaming.
+        
+        Returns:
+            str: Empty string as local Pynput doesn't support video streaming.
+        """
+        self.logger.debug("Video streaming not supported for local Pynput computer")
+        return ""
+
+    def start_video_stream(self) -> bool:
+        """Start the video stream for the local Pynput instance.
+        
+        Local Pynput doesn't support video streaming.
+        
+        Returns:
+            bool: False as local Pynput doesn't support video streaming.
+        """
+        self.logger.debug("Video streaming not supported for local Pynput computer")
+        return False
+
+    def stop_video_stream(self) -> bool:
+        """Stop the video stream for the local Pynput instance.
+        
+        Local Pynput doesn't support video streaming.
+        
+        Returns:
+            bool: False as local Pynput doesn't support video streaming.
+        """
+        self.logger.debug("Video streaming not supported for local Pynput computer")
+        return False

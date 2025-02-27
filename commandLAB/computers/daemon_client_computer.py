@@ -366,3 +366,45 @@ class DaemonClientComputer(BaseComputer):
         response = execute_mouse_button_up_sync(client=self.client, body=client_action)
         if not response or not response.get("success", False):
             raise RuntimeError(f"Failed to execute mouse button up: {action.button}")
+
+    def _pause(self):
+        """Pause the daemon client computer.
+        
+        For daemon client, pausing means sending a pause command to the daemon.
+        """
+        # TODO: implement specifically for the system in mind
+
+    def _resume(self, timeout_hours: Optional[float] = None):
+        """Resume the daemon client computer.
+        
+        For daemon client, resuming means sending a resume command to the daemon.
+        
+        Args:
+            timeout_hours: Optional timeout in hours after which the computer will automatically pause again.
+        """
+        # TODO: implement specifically for the system in mind
+
+    @property
+    def video_stream_url(self) -> str:
+        """Get the URL for the video stream of the daemon client instance.
+        
+        Returns:
+            str: The URL for the video stream, or an empty string if video streaming is not available.
+        """
+        # TODO: implement specifically for the system in mind
+
+    def start_video_stream(self) -> bool:
+        """Start the video stream for the daemon client instance.
+        
+        Returns:
+            bool: True if the video stream was successfully started, False otherwise.
+        """
+        # TODO: implement specifically for the system in mind
+
+    def stop_video_stream(self) -> bool:
+        """Stop the video stream for the daemon client instance.
+        
+        Returns:
+            bool: True if the video stream was successfully stopped, False otherwise.
+        """
+        # TODO: implement specifically for the system in mind

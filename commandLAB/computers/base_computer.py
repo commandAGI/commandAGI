@@ -706,3 +706,101 @@ class BaseComputer(BaseModel):
         )
         # Release the mouse button
         self.execute_mouse_button_up(button=action.button)
+
+    def pause(self) -> bool:
+        """Pause the computer instance.
+        
+        This method pauses the computer instance, which can be useful for conserving resources
+        when the computer is not actively being used.
+        
+        Returns:
+            bool: True if the pause was successful, False otherwise.
+        """
+        if self._state != "started":
+            self.logger.warning("Cannot pause computer that is not started")
+            return False
+        
+        for attempt in range(self.num_retries):
+            try:
+                self._pause()
+                return True
+            except Exception as e:
+                self.logger.error(f"Error pausing computer (attempt {attempt+1}/{self.num_retries}): {e}")
+                if attempt == self.num_retries - 1:
+                    return False
+        
+        return False
+
+    def _pause(self):
+        """Implementation of pause functionality.
+        
+        This method should be overridden by subclasses to implement computer-specific pause functionality.
+        The default implementation does nothing.
+        """
+        self.logger.debug("Pause not implemented for this computer type")
+        pass
+
+    def resume(self, timeout_hours: Optional[float] = None) -> bool:
+        """Resume a paused computer instance.
+        
+        Args:
+            timeout_hours: Optional timeout in hours after which the computer will automatically pause again.
+                           If None, the computer will remain active until explicitly paused.
+        
+        Returns:
+            bool: True if the resume was successful, False otherwise.
+        """
+        if self._state != "started":
+            self.logger.warning("Cannot resume computer that is not started")
+            return False
+        
+        for attempt in range(self.num_retries):
+            try:
+                self._resume(timeout_hours)
+                return True
+            except Exception as e:
+                self.logger.error(f"Error resuming computer (attempt {attempt+1}/{self.num_retries}): {e}")
+                if attempt == self.num_retries - 1:
+                    return False
+        
+        return False
+
+    def _resume(self, timeout_hours: Optional[float] = None):
+        """Implementation of resume functionality.
+        
+        Args:
+            timeout_hours: Optional timeout in hours after which the computer will automatically pause again.
+        
+        This method should be overridden by subclasses to implement computer-specific resume functionality.
+        The default implementation does nothing.
+        """
+        self.logger.debug("Resume not implemented for this computer type")
+        pass
+
+    @property
+    def video_stream_url(self) -> str:
+        """Get the URL for the video stream of the computer instance.
+        
+        Returns:
+            str: The URL for the video stream, or an empty string if video streaming is not supported.
+        """
+        self.logger.debug("Video streaming not implemented for this computer type")
+        return ""
+
+    def start_video_stream(self) -> bool:
+        """Start the video stream for the computer instance.
+        
+        Returns:
+            bool: True if the video stream was successfully started, False otherwise.
+        """
+        self.logger.debug("Video streaming not implemented for this computer type")
+        return False
+
+    def stop_video_stream(self) -> bool:
+        """Stop the video stream for the computer instance.
+        
+        Returns:
+            bool: True if the video stream was successfully stopped, False otherwise.
+        """
+        self.logger.debug("Video streaming not implemented for this computer type")
+        return False

@@ -268,27 +268,82 @@ class ScrapybaraComputer(BaseComputer):
         # Then perform the drag to the end position
         self.client.computer(action="left_click_drag", coordinate=[action.end_x, action.end_y])
 
-    def pause(self) -> bool:
-        """Pause the Scrapybara instance."""
-        self.client.pause()
-        return True
 
-    def resume(self, timeout_hours: float = None) -> bool:
-        """Resume the Scrapybara instance.
+    def _pause(self):
+        """Implementation of pause functionality for Scrapybara."""
+        if self.client:
+            self.logger.info("Pausing Scrapybara instance")
+            self.client.pause()
+            self.logger.info("Scrapybara instance paused successfully")
+
+    def _resume(self, timeout_hours: Optional[float] = None):
+        """Implementation of resume functionality for Scrapybara.
         
         Args:
-            timeout_hours: Optional timeout in hours before the instance is automatically paused.
+            timeout_hours: Optional timeout in hours after which the instance will automatically pause again.
         """
-        if timeout_hours:
-            self.client.resume(timeout_hours=timeout_hours)
-        else:
-            self.client.resume()
-        return True
+        if self.client:
+            self.logger.info("Resuming Scrapybara instance")
+            if timeout_hours:
+                self.client.resume(timeout_hours=timeout_hours)
+            else:
+                self.client.resume()
+            self.logger.info("Scrapybara instance resumed successfully")
 
-    def get_stream_url(self) -> str:
-        """Get the URL for the interactive stream of the Scrapybara instance."""
-        response = self.client.get_stream_url()
-        return response.stream_url
+    @property
+    def video_stream_url(self) -> str:
+        """Get the URL for the video stream of the Scrapybara instance.
+        
+        Returns:
+            str: The URL for the video stream, or an empty string if video streaming is not available.
+        """
+        return  self.client.get_stream_url()
+
+    def start_video_stream(self) -> bool:
+        """Start the video stream for the Scrapybara instance.
+        
+        Returns:
+            bool: True if the video stream was successfully started, False otherwise.
+        """
+        if not self.client:
+            self.logger.warning("Cannot start video stream: Scrapybara client not initialized")
+            return False
+        
+        try:
+            self.logger.info("Starting Scrapybara video stream")
+            if hasattr(self.client, "start_stream"):
+                self.client.start_stream()
+                self.logger.info("Scrapybara video stream started successfully")
+                return True
+            else:
+                self.logger.warning("start_stream method not found in Scrapybara API")
+                return False
+        except Exception as e:
+            self.logger.error(f"Error starting Scrapybara video stream: {e}")
+            return False
+
+    def stop_video_stream(self) -> bool:
+        """Stop the video stream for the Scrapybara instance.
+        
+        Returns:
+            bool: True if the video stream was successfully stopped, False otherwise.
+        """
+        if not self.client:
+            self.logger.warning("Cannot stop video stream: Scrapybara client not initialized")
+            return False
+        
+        try:
+            self.logger.info("Stopping Scrapybara video stream")
+            if hasattr(self.client, "stop_stream"):
+                self.client.stop_stream()
+                self.logger.info("Scrapybara video stream stopped successfully")
+                return True
+            else:
+                self.logger.warning("stop_stream method not found in Scrapybara API")
+                return False
+        except Exception as e:
+            self.logger.error(f"Error stopping Scrapybara video stream: {e}")
+            return False
 
 
 class UbuntuScrapybaraComputer(ScrapybaraComputer):
