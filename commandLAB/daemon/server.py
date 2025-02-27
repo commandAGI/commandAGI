@@ -8,7 +8,7 @@ import subprocess
 import os
 import sys
 import tempfile
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, Dict, Any, List, Tuple, Literal
 from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from commandLAB.computers.base_computer import BaseComputer
@@ -30,6 +30,32 @@ from commandLAB.types import (
     MouseScrollAction,
     MouseButtonDownAction,
     MouseButtonUpAction,
+    KeyboardKeysDownAction,
+    KeyboardKeysReleaseAction,
+    FileCopyToComputerAction,
+    FileCopyFromComputerAction,
+    JupyterStartServerAction,
+    JupyterStopServerAction,
+    VideoStartStreamAction,
+    VideoStopStreamAction,
+    ComputerStartAction,
+    ComputerStopAction,
+    ComputerPauseAction,
+    ComputerResumeAction,
+    VncStartServerAction,
+    VncStopServerAction,
+    RdpStartServerAction,
+    RdpStopServerAction,
+    McpStartServerAction,
+    McpStopServerAction,
+    # Observation types for return type annotations
+    ScreenshotObservation,
+    MouseStateObservation,
+    KeyboardStateObservation,
+    LayoutTreeObservation,
+    ProcessesObservation,
+    WindowsObservation,
+    DisplaysObservation,
 )
 
 
@@ -57,6 +83,7 @@ class ComputerDaemon:
     }
 
     _mcp_server_name: str = "CommandLAB MCP Server"
+    _mcp_server_thread: threading.Thread | None = None
     
     def __init__(
         self,
@@ -100,121 +127,269 @@ class ComputerDaemon:
             return credentials.credentials
 
         @app.post("/reset")
-        async def reset(token: str = Depends(verify_token)):
+        async def reset(token: str = Depends(verify_token)) -> Dict[str, Any]:
             return self._computer.reset_state()
 
         @app.post("/execute/command")
         async def execute_command(
             action: ShellCommandAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.shell(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.shell(action.command, action.timeout, action.executible)}
+
+        @app.post("/execute/run_process")
+        async def execute_run_process(
+            action: RunProcessAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.run_process(
+                action.command, action.args, action.cwd, action.env, action.timeout
+            )}
 
         @app.post("/execute/keyboard/key_down")
         async def execute_keyboard_key_down(
             action: KeyboardKeyDownAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.execute_keyboard_key_down(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_keyboard_key_down(action.key)}
 
         @app.post("/execute/keyboard/key_release")
         async def execute_keyboard_key_release(
             action: KeyboardKeyReleaseAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.execute_keyboard_key_release(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_keyboard_key_release(action.key)}
 
         @app.post("/execute/keyboard/key_press")
         async def execute_keyboard_key_press(
             action: KeyboardKeyPressAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.execute_keyboard_key_press(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_keyboard_key_press(action.key, action.duration)}
+
+        @app.post("/execute/keyboard/keys_press")
+        async def execute_keyboard_keys_press(
+            action: KeyboardKeysPressAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_keyboard_keys_press(action.keys, action.duration)}
+
+        @app.post("/execute/keyboard/keys_down")
+        async def execute_keyboard_keys_down(
+            action: KeyboardKeysDownAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_keyboard_keys_down(action.keys)}
+
+        @app.post("/execute/keyboard/keys_release")
+        async def execute_keyboard_keys_release(
+            action: KeyboardKeysReleaseAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_keyboard_keys_release(action.keys)}
 
         @app.post("/execute/keyboard/hotkey")
         async def execute_keyboard_hotkey(
             action: KeyboardHotkeyAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.execute_keyboard_hotkey(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_keyboard_hotkey(action.keys)}
 
         @app.post("/execute/type")
-        async def execute_type(action: TypeAction, token: str = Depends(verify_token)):
-            return {"success": self._computer.execute_type(action)}
+        async def execute_type(action: TypeAction, token: str = Depends(verify_token)) -> Dict[str, bool]:
+            return {"success": self._computer.execute_type(action.text)}
 
         @app.post("/execute/mouse/move")
         async def execute_mouse_move(
             action: MouseMoveAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.execute_mouse_move(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_mouse_move(action.x, action.y, action.move_duration)}
 
         @app.post("/execute/mouse/scroll")
         async def execute_mouse_scroll(
             action: MouseScrollAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.execute_mouse_scroll(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_mouse_scroll(action.amount)}
 
         @app.post("/execute/mouse/button_down")
         async def execute_mouse_button_down(
             action: MouseButtonDownAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.execute_mouse_button_down(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_mouse_button_down(action.button)}
 
         @app.post("/execute/mouse/button_up")
         async def execute_mouse_button_up(
             action: MouseButtonUpAction, token: str = Depends(verify_token)
-        ):
-            return {"success": self._computer.execute_mouse_button_up(action)}
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_mouse_button_up(action.button)}
+
+        @app.post("/execute/click")
+        async def execute_click(
+            action: ClickAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_click(
+                action.x, action.y, action.move_duration, action.press_duration, action.button
+            )}
+
+        @app.post("/execute/double_click")
+        async def execute_double_click(
+            action: DoubleClickAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_double_click(
+                action.x, action.y, action.move_duration, action.press_duration, 
+                action.button, action.double_click_interval_seconds
+            )}
+
+        @app.post("/execute/drag")
+        async def execute_drag(
+            action: DragAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.execute_drag(
+                action.start_x, action.start_y, action.end_x, action.end_y, 
+                action.move_duration, action.button
+            )}
 
         @app.get("/observation")
-        async def get_observation(token: str = Depends(verify_token)):
+        async def get_observation(token: str = Depends(verify_token)) -> Dict[str, Any]:
             return self._computer.get_observation()
 
         @app.get("/observation/screenshot")
-        async def get_screenshot(token: str = Depends(verify_token)):
-            return self._computer.get_screenshot()
+        async def get_screenshot(
+            display_id: int = 0, 
+            format: Literal["base64", "PIL", "path"] = "PIL",
+            token: str = Depends(verify_token)
+        ) -> ScreenshotObservation:
+            return self._computer.get_screenshot(display_id, format)
 
         @app.get("/observation/mouse_state")
-        async def get_mouse_state(token: str = Depends(verify_token)):
+        async def get_mouse_state(token: str = Depends(verify_token)) -> MouseStateObservation:
             return self._computer.get_mouse_state()
 
         @app.get("/observation/keyboard_state")
-        async def get_keyboard_state(token: str = Depends(verify_token)):
+        async def get_keyboard_state(token: str = Depends(verify_token)) -> KeyboardStateObservation:
             return self._computer.get_keyboard_state()
 
+        @app.get("/observation/layout_tree")
+        async def get_layout_tree(token: str = Depends(verify_token)) -> LayoutTreeObservation:
+            return self._computer.get_layout_tree()
+
+        @app.get("/observation/processes")
+        async def get_processes(token: str = Depends(verify_token)) -> ProcessesObservation:
+            return self._computer.get_processes()
+
+        @app.get("/observation/windows")
+        async def get_windows(token: str = Depends(verify_token)) -> WindowsObservation:
+            return self._computer.get_windows()
+
+        @app.get("/observation/displays")
+        async def get_displays(token: str = Depends(verify_token)) -> DisplaysObservation:
+            return self._computer.get_displays()
+
+        @app.post("/file/copy_to_computer")
+        async def copy_to_computer(
+            action: FileCopyToComputerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.copy_to_computer(action.source_path, action.destination_path)}
+
+        @app.post("/file/copy_from_computer")
+        async def copy_from_computer(
+            action: FileCopyFromComputerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.copy_from_computer(action.source_path, action.destination_path)}
+
+        @app.post("/jupyter/start_server")
+        async def start_jupyter_server(
+            action: JupyterStartServerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.start_jupyter_server(action.port, action.notebook_dir)}
+
+        @app.post("/jupyter/stop_server")
+        async def stop_jupyter_server(
+            action: JupyterStopServerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.stop_jupyter_server()}
+
+        @app.post("/video/start_stream")
+        async def start_video_stream(
+            action: VideoStartStreamAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.start_video_stream()}
+
+        @app.post("/video/stop_stream")
+        async def stop_video_stream(
+            action: VideoStopStreamAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.stop_video_stream()}
+
+        @app.get("/video/stream_url")
+        async def get_video_stream_url(token: str = Depends(verify_token)) -> Dict[str, str]:
+            return {"url": self._computer.video_stream_url}
+
+        @app.post("/computer/start")
+        async def start_computer(
+            action: ComputerStartAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.start()}
+
+        @app.post("/computer/stop")
+        async def stop_computer(
+            action: ComputerStopAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.stop()}
+
+        @app.post("/computer/pause")
+        async def pause_computer(
+            action: ComputerPauseAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.pause()}
+
+        @app.post("/computer/resume")
+        async def resume_computer(
+            action: ComputerResumeAction, token: str = Depends(verify_token)
+        ) -> Dict[str, bool]:
+            return {"success": self._computer.resume(action.timeout_hours)}
+
         @app.post("/vnc/start")
-        async def start_vnc_server(token: str = Depends(verify_token)):
+        async def start_vnc_server(
+            action: VncStartServerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, Any]:
             success, message = self.start_vnc_server()
             return {"success": success, "message": message}
 
         @app.post("/vnc/stop")
-        async def stop_vnc_server(token: str = Depends(verify_token)):
+        async def stop_vnc_server(
+            action: VncStopServerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, Any]:
             success, message = self.stop_vnc_server()
             return {"success": success, "message": message}
 
         @app.post("/rdp/start")
-        async def start_rdp_server(token: str = Depends(verify_token)):
+        async def start_rdp_server(
+            action: RdpStartServerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, Any]:
             success, message = self.start_rdp_server()
             return {"success": success, "message": message}
 
         @app.post("/rdp/stop")
-        async def stop_rdp_server(token: str = Depends(verify_token)):
+        async def stop_rdp_server(
+            action: RdpStopServerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, Any]:
             success, message = self.stop_rdp_server()
             return {"success": success, "message": message}
             
         @app.post("/mcp/start")
-        async def start_mcp_server_endpoint(token: str = Depends(verify_token)):
+        async def start_mcp_server_endpoint(
+            action: McpStartServerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, Any]:
             success, message = self.start_mcp_server()
             return {"success": success, "message": message}
             
         @app.post("/mcp/stop")
-        async def stop_mcp_server_endpoint(token: str = Depends(verify_token)):
+        async def stop_mcp_server_endpoint(
+            action: McpStopServerAction, token: str = Depends(verify_token)
+        ) -> Dict[str, Any]:
             success, message = self.stop_mcp_server()
             return {"success": success, "message": message}
             
         @app.get("/mcp/status")
-        async def get_mcp_server_status(token: str = Depends(verify_token)):
-            is_running = self.mcp_server_process is not None and self.mcp_server_process.poll() is None
+        async def get_mcp_server_status(token: str = Depends(verify_token)) -> Dict[str, Any]:
+            is_running = self._mcp_server_thread is not None and self._mcp_server_thread.is_alive()
             return {
                 "running": is_running,
                 "server_name": self._mcp_server_name,
-                "port": self.mcp_server_port,
-                "script_path": self.mcp_server_file
+                "port": getattr(self._mcp_server, "port", None),
+                "server_info": str(self._mcp_server)
             }
         
         return app
@@ -589,6 +764,30 @@ class ComputerDaemon:
             keyboard_state = self._computer.get_keyboard_state()
             return str(keyboard_state)
         
+        @mcp.resource("layout://tree")
+        def get_layout_tree_resource() -> str:
+            """Get the layout tree as a resource"""
+            layout_tree = self._computer.get_layout_tree()
+            return str(layout_tree)
+            
+        @mcp.resource("processes://list")
+        def get_processes_resource() -> str:
+            """Get the list of processes as a resource"""
+            processes = self._computer.get_processes()
+            return str(processes)
+            
+        @mcp.resource("windows://list")
+        def get_windows_resource() -> str:
+            """Get the list of windows as a resource"""
+            windows = self._computer.get_windows()
+            return str(windows)
+            
+        @mcp.resource("displays://list")
+        def get_displays_resource() -> str:
+            """Get the list of displays as a resource"""
+            displays = self._computer.get_displays()
+            return str(displays)
+        
         # === OBSERVATION TOOLS ===
         
         @mcp.tool()
@@ -597,9 +796,9 @@ class ComputerDaemon:
             return self._computer.get_observation()
         
         @mcp.tool()
-        def get_screenshot() -> dict:
+        def get_screenshot(display_id: int = 0, format: str = "PIL") -> dict:
             """Get a screenshot of the computer"""
-            return self._computer.get_screenshot()
+            return self._computer.get_screenshot(display_id, format)
         
         @mcp.tool()
         def get_mouse_state() -> dict:
@@ -610,84 +809,241 @@ class ComputerDaemon:
         def get_keyboard_state() -> dict:
             """Get the current keyboard state"""
             return self._computer.get_keyboard_state()
+            
+        @mcp.tool()
+        def get_layout_tree() -> dict:
+            """Get the layout tree"""
+            return self._computer.get_layout_tree()
+            
+        @mcp.tool()
+        def get_processes() -> dict:
+            """Get the list of processes"""
+            return self._computer.get_processes()
+            
+        @mcp.tool()
+        def get_windows() -> dict:
+            """Get the list of windows"""
+            return self._computer.get_windows()
+            
+        @mcp.tool()
+        def get_displays() -> dict:
+            """Get the list of displays"""
+            return self._computer.get_displays()
         
         # === ACTION TOOLS ===
         
         @mcp.tool()
-        def execute_command(command: str, timeout: int = 30) -> dict:
+        def execute_command(command: str, timeout: int = 30, executible: str = None) -> dict:
             """Execute a system command"""
-            return {"success": self._computer.shell(ShellCommandAction(command=command, timeout=timeout))}
+            action = ShellCommandAction(command=command, timeout=timeout, executible=executible)
+            return {"success": self._computer.shell(action.command, action.timeout, action.executible)}
         
         @mcp.tool()
         def type_text(text: str) -> dict:
             """Type text on the computer"""
-            return {"success": self._computer.execute_type(TypeAction(text=text))}
+            action = TypeAction(text=text)
+            return {"success": self._computer.execute_type(action.text)}
         
         @mcp.tool()
-        def press_key(key: str) -> dict:
+        def press_key(key: str, duration: float = None) -> dict:
             """Press a keyboard key"""
-            return {"success": self._computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=key))}
+            action = KeyboardKeyPressAction(key=key, duration=duration)
+            return {"success": self._computer.execute_keyboard_key_press(action.key, action.duration)}
         
         @mcp.tool()
-        def press_keys(keys: list) -> dict:
+        def press_keys(keys: list, duration: float = None) -> dict:
             """Press multiple keyboard keys simultaneously"""
-            return {"success": self._computer.execute_keyboard_keys_press(KeyboardKeysPressAction(keys=keys))}
+            action = KeyboardKeysPressAction(keys=keys, duration=duration)
+            return {"success": self._computer.execute_keyboard_keys_press(action.keys, action.duration)}
         
         @mcp.tool()
         def press_hotkey(keys: list) -> dict:
             """Press a keyboard hotkey combination"""
-            return {"success": self._computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=keys))}
+            action = KeyboardHotkeyAction(keys=keys)
+            return {"success": self._computer.execute_keyboard_hotkey(action.keys)}
         
         @mcp.tool()
-        def move_mouse(x: int, y: int) -> dict:
+        def move_mouse(x: int, y: int, move_duration: float = None) -> dict:
             """Move the mouse to specific coordinates"""
-            return {"success": self._computer.execute_mouse_move(MouseMoveAction(x=x, y=y))}
+            action = MouseMoveAction(x=x, y=y, move_duration=move_duration)
+            return {"success": self._computer.execute_mouse_move(action.x, action.y, action.move_duration)}
         
         @mcp.tool()
         def scroll_mouse(amount: float) -> dict:
             """Scroll the mouse"""
-            return {"success": self._computer.execute_mouse_scroll(MouseScrollAction(amount=amount))}
+            action = MouseScrollAction(amount=amount)
+            return {"success": self._computer.execute_mouse_scroll(action.amount)}
         
         @mcp.tool()
-        def click(x: int, y: int, button: str = "left") -> dict:
+        def click(x: int, y: int, move_duration: float = None, press_duration: float = None, button: str = "left") -> dict:
             """Click at specific coordinates"""
-            return {"success": self._computer.execute_click(ClickAction(x=x, y=y, button=button))}
+            action = ClickAction(x=x, y=y, move_duration=move_duration, press_duration=press_duration, button=button)
+            return {"success": self._computer.execute_click(
+                action.x, action.y, action.move_duration, action.press_duration, action.button
+            )}
         
         @mcp.tool()
-        def double_click(x: int, y: int, button: str = "left") -> dict:
+        def double_click(x: int, y: int, move_duration: float = None, press_duration: float = None, 
+                         button: str = "left", double_click_interval_seconds: float = None) -> dict:
             """Double click at specific coordinates"""
-            return {"success": self._computer.execute_double_click(DoubleClickAction(x=x, y=y, button=button))}
+            action = DoubleClickAction(
+                x=x, y=y, move_duration=move_duration, press_duration=press_duration, 
+                button=button, double_click_interval_seconds=double_click_interval_seconds
+            )
+            return {"success": self._computer.execute_double_click(
+                action.x, action.y, action.move_duration, action.press_duration, 
+                action.button, action.double_click_interval_seconds
+            )}
         
         @mcp.tool()
-        def drag(start_x: int, start_y: int, end_x: int, end_y: int, button: str = "left") -> dict:
+        def drag(start_x: int, start_y: int, end_x: int, end_y: int, move_duration: float = None, button: str = "left") -> dict:
             """Drag from start coordinates to end coordinates"""
-            return {"success": self._computer.execute_drag(DragAction(
-                start_x=start_x, 
-                start_y=start_y,
-                end_x=end_x,
-                end_y=end_y,
-                button=button
-            ))}
+            action = DragAction(
+                start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, 
+                move_duration=move_duration, button=button
+            )
+            return {"success": self._computer.execute_drag(
+                action.start_x, action.start_y, action.end_x, action.end_y, 
+                action.move_duration, action.button
+            )}
         
         @mcp.tool()
         def run_process(command: str, args: list = [], cwd: str = None, env: dict = None, timeout: float = None) -> dict:
             """Run a process with the given command and arguments"""
-            return {"success": self._computer.execute_run_process(RunProcessAction(
-                command=command,
-                args=args,
-                cwd=cwd,
-                env=env,
-                timeout=timeout
-            ))}
+            action = RunProcessAction(
+                command=command, args=args, cwd=cwd, env=env, timeout=timeout
+            )
+            return {"success": self._computer.run_process(
+                action.command, action.args, action.cwd, action.env, action.timeout
+            )}
         
         @mcp.tool()
         def reset_computer() -> dict:
             """Reset the computer state"""
             return self._computer.reset_state()
+            
+        # === FILE OPERATION TOOLS ===
+        
+        @mcp.tool()
+        def copy_to_computer(source_path: str, destination_path: str) -> dict:
+            """Copy a file to the computer"""
+            action = FileCopyToComputerAction(source_path=source_path, destination_path=destination_path)
+            return {"success": self._computer.copy_to_computer(action.source_path, action.destination_path)}
+            
+        @mcp.tool()
+        def copy_from_computer(source_path: str, destination_path: str) -> dict:
+            """Copy a file from the computer"""
+            action = FileCopyFromComputerAction(source_path=source_path, destination_path=destination_path)
+            return {"success": self._computer.copy_from_computer(action.source_path, action.destination_path)}
+            
+        # === JUPYTER SERVER TOOLS ===
+        
+        @mcp.tool()
+        def start_jupyter_server(port: int = 8888, notebook_dir: str = None) -> dict:
+            """Start a Jupyter notebook server"""
+            action = JupyterStartServerAction(port=port, notebook_dir=notebook_dir)
+            return {"success": self._computer.start_jupyter_server(action.port, action.notebook_dir)}
+            
+        @mcp.tool()
+        def stop_jupyter_server() -> dict:
+            """Stop the Jupyter notebook server"""
+            action = JupyterStopServerAction()
+            return {"success": self._computer.stop_jupyter_server()}
+            
+        # === VIDEO STREAM TOOLS ===
+        
+        @mcp.tool()
+        def start_video_stream() -> dict:
+            """Start the video stream"""
+            action = VideoStartStreamAction()
+            return {"success": self._computer.start_video_stream()}
+            
+        @mcp.tool()
+        def stop_video_stream() -> dict:
+            """Stop the video stream"""
+            action = VideoStopStreamAction()
+            return {"success": self._computer.stop_video_stream()}
+            
+        @mcp.tool()
+        def get_video_stream_url() -> dict:
+            """Get the URL of the video stream"""
+            return {"url": self._computer.video_stream_url}
+            
+        # === COMPUTER CONTROL TOOLS ===
+        
+        @mcp.tool()
+        def start_computer() -> dict:
+            """Start the computer"""
+            action = ComputerStartAction()
+            return {"success": self._computer.start()}
+            
+        @mcp.tool()
+        def stop_computer() -> dict:
+            """Stop the computer"""
+            action = ComputerStopAction()
+            return {"success": self._computer.stop()}
+            
+        @mcp.tool()
+        def pause_computer() -> dict:
+            """Pause the computer"""
+            action = ComputerPauseAction()
+            return {"success": self._computer.pause()}
+            
+        @mcp.tool()
+        def resume_computer(timeout_hours: float = None) -> dict:
+            """Resume the computer"""
+            action = ComputerResumeAction(timeout_hours=timeout_hours)
+            return {"success": self._computer.resume(action.timeout_hours)}
+            
+        # === VNC SERVER TOOLS ===
+        
+        @mcp.tool()
+        def start_vnc_server() -> dict:
+            """Start the VNC server"""
+            action = VncStartServerAction()
+            success, message = self.start_vnc_server()
+            return {"success": success, "message": message}
+            
+        @mcp.tool()
+        def stop_vnc_server() -> dict:
+            """Stop the VNC server"""
+            action = VncStopServerAction()
+            success, message = self.stop_vnc_server()
+            return {"success": success, "message": message}
+            
+        # === RDP SERVER TOOLS ===
+        
+        @mcp.tool()
+        def start_rdp_server() -> dict:
+            """Start the RDP server"""
+            action = RdpStartServerAction()
+            success, message = self.start_rdp_server()
+            return {"success": success, "message": message}
+            
+        @mcp.tool()
+        def stop_rdp_server() -> dict:
+            """Stop the RDP server"""
+            action = RdpStopServerAction()
+            success, message = self.stop_rdp_server()
+            return {"success": success, "message": message}
+        
+        # === MCP SERVER TOOLS ===
+        
+        @mcp.tool()
+        def start_mcp_server() -> dict:
+            """Start the MCP server"""
+            action = McpStartServerAction()
+            success, message = self.start_mcp_server()
+            return {"success": success, "message": message}
+            
+        @mcp.tool()
+        def stop_mcp_server() -> dict:
+            """Stop the MCP server"""
+            action = McpStopServerAction()
+            success, message = self.stop_mcp_server()
+            return {"success": success, "message": message}
         
         return mcp
-
-    _mcp_server_thread: threading.Thread | None = None
 
     def start_mcp_server(self) -> Tuple[bool, str]:
         """Start an MCP server that interfaces with the FastAPI endpoints

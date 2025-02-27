@@ -316,6 +316,22 @@ class ComputerActionType(str, Enum):
     DOUBLE_CLICK = "double_click"
     DRAG = "drag"
     RUN_PROCESS = "run_process"
+    FILE_COPY_TO_COMPUTER = "file_copy_to_computer"
+    FILE_COPY_FROM_COMPUTER = "file_copy_from_computer"
+    JUPYTER_START_SERVER = "jupyter_start_server"
+    JUPYTER_STOP_SERVER = "jupyter_stop_server"
+    VIDEO_START_STREAM = "video_start_stream"
+    VIDEO_STOP_STREAM = "video_stop_stream"
+    COMPUTER_START = "computer_start"
+    COMPUTER_STOP = "computer_stop"
+    COMPUTER_PAUSE = "computer_pause"
+    COMPUTER_RESUME = "computer_resume"
+    VNC_START_SERVER = "vnc_start_server"
+    VNC_STOP_SERVER = "vnc_stop_server"
+    RDP_START_SERVER = "rdp_start_server"
+    RDP_STOP_SERVER = "rdp_stop_server"
+    MCP_START_SERVER = "mcp_start_server"
+    MCP_STOP_SERVER = "mcp_stop_server"
 
 
 class BaseComputerAction(BaseModel):
@@ -447,6 +463,77 @@ class RunProcessAction(BaseComputerAction):
     timeout: Optional[float] = None
 
 
+class FileCopyToComputerAction(BaseComputerAction):
+    action_type: Literal["file_copy_to_computer"] = ComputerActionType.FILE_COPY_TO_COMPUTER.value
+    source_path: str
+    destination_path: str
+
+
+class FileCopyFromComputerAction(BaseComputerAction):
+    action_type: Literal["file_copy_from_computer"] = ComputerActionType.FILE_COPY_FROM_COMPUTER.value
+    source_path: str
+    destination_path: str
+
+
+class JupyterStartServerAction(BaseComputerAction):
+    action_type: Literal["jupyter_start_server"] = ComputerActionType.JUPYTER_START_SERVER.value
+    port: int = 8888
+    notebook_dir: Optional[str] = None
+
+
+class JupyterStopServerAction(BaseComputerAction):
+    action_type: Literal["jupyter_stop_server"] = ComputerActionType.JUPYTER_STOP_SERVER.value
+
+
+class VideoStartStreamAction(BaseComputerAction):
+    action_type: Literal["video_start_stream"] = ComputerActionType.VIDEO_START_STREAM.value
+
+
+class VideoStopStreamAction(BaseComputerAction):
+    action_type: Literal["video_stop_stream"] = ComputerActionType.VIDEO_STOP_STREAM.value
+
+
+class ComputerStartAction(BaseComputerAction):
+    action_type: Literal["computer_start"] = ComputerActionType.COMPUTER_START.value
+
+
+class ComputerStopAction(BaseComputerAction):
+    action_type: Literal["computer_stop"] = ComputerActionType.COMPUTER_STOP.value
+
+
+class ComputerPauseAction(BaseComputerAction):
+    action_type: Literal["computer_pause"] = ComputerActionType.COMPUTER_PAUSE.value
+
+
+class ComputerResumeAction(BaseComputerAction):
+    action_type: Literal["computer_resume"] = ComputerActionType.COMPUTER_RESUME.value
+    timeout_hours: Optional[float] = None
+
+
+class VncStartServerAction(BaseComputerAction):
+    action_type: Literal["vnc_start_server"] = ComputerActionType.VNC_START_SERVER.value
+
+
+class VncStopServerAction(BaseComputerAction):
+    action_type: Literal["vnc_stop_server"] = ComputerActionType.VNC_STOP_SERVER.value
+
+
+class RdpStartServerAction(BaseComputerAction):
+    action_type: Literal["rdp_start_server"] = ComputerActionType.RDP_START_SERVER.value
+
+
+class RdpStopServerAction(BaseComputerAction):
+    action_type: Literal["rdp_stop_server"] = ComputerActionType.RDP_STOP_SERVER.value
+
+
+class McpStartServerAction(BaseComputerAction):
+    action_type: Literal["mcp_start_server"] = ComputerActionType.MCP_START_SERVER.value
+
+
+class McpStopServerAction(BaseComputerAction):
+    action_type: Literal["mcp_stop_server"] = ComputerActionType.MCP_STOP_SERVER.value
+
+
 # Define a Union type for computer actions
 ComputerActionUnion = Union[
     ShellCommandAction,
@@ -466,6 +553,16 @@ ComputerActionUnion = Union[
     DoubleClickAction,
     DragAction,
     RunProcessAction,
+    ComputerStartAction,
+    ComputerStopAction,
+    ComputerPauseAction,
+    ComputerResumeAction,
+    VncStartServerAction,
+    VncStopServerAction,
+    RdpStartServerAction,
+    RdpStopServerAction,
+    McpStartServerAction,
+    McpStopServerAction,
 ]
 
 
