@@ -2,16 +2,16 @@
 
 echo "Starting commandlab daemon..."
 
+# Start display services in background
+Xvfb :0 -screen 0 1024x768x24 &
+sleep 5  # Increased sleep time to ensure display is ready
+
 # Create .Xauthority file if it doesn't exist
 touch ~/.Xauthority
 
 # Set up X authentication properly
 xauth generate :0 . trusted
 xauth add $HOST:0 . $(mcookie)
-
-# Start display services in background
-Xvfb :0 -screen 0 1024x768x24 &
-sleep 5  # Increased sleep time to ensure display is ready
 
 # Set display environment variable
 export DISPLAY=:0
