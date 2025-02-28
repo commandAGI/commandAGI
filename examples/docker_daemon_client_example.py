@@ -41,11 +41,6 @@ from commandLAB.types import (
     KeyboardKeyPressAction,
 )
 
-try:
-    from commandLAB.daemon.client import AuthenticatedClient
-except ImportError:
-    pass  # We'll handle this error later
-
 
 def main():
     # Setup logging to file
