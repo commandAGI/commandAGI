@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     xauth \
     && add-apt-repository ppa:deadsnakes/ppa -y && \
     apt-get update && \
-    apt-get install -y python3.12 python3.12-venv python3.12-dev python3-distutils python3-tk python3-dev && \
+    apt-get install -y python3.12 python3.12-venv python3.12-dev python3-distutils python3.12-tk python3.12-dev && \
     ln -sf /usr/bin/python3.12 /usr/bin/python3 \
     && rm -rf /var/lib/apt/lists/* \
     && echo "Installed dependencies for screen reader and tkinter"
