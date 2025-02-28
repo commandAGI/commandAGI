@@ -6,7 +6,6 @@ for the CommandLAB daemon.
 """
 
 from .utils import (
-    get_base_paths,
     run_command,
     ensure_packer_template
 )
@@ -20,7 +19,6 @@ from .gcp import build_gcp_vm
 from .all import build_all_images
 
 __all__ = [
-    "get_base_paths",
     "run_command",
     "ensure_packer_template",
     "build_docker_image",

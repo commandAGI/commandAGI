@@ -8,6 +8,8 @@ from typing import List, Dict, Any
 from rich.console import Console
 from rich.status import Status
 
+from commandLAB._utils.config import APPDIR, PROJ_DIR
+
 # Configure rich logging
 logging.basicConfig(
     level=logging.INFO,
@@ -16,26 +18,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger("build_images")
 console = Console()
-
-
-def get_base_paths():
-    """Get base directory paths for resources"""
-    with Status("[bold blue]Checking resource paths...", console=console):
-        # First check if resources are in the dev directory
-        base_dir = Path(__file__).parent.parent.parent.parent
-        dev_resources_path = base_dir / "resources"
-
-        # If not found, check if resources are at project root
-        if not dev_resources_path.exists():
-            base_dir = Path(__file__).parent.parent.parent
-
-        dockerfile_path = base_dir / "resources" / "docker"
-        packer_path = base_dir / "resources" / "packer"
-
-        # Create packer directory if it doesn't exist
-        packer_path.mkdir(parents=True, exist_ok=True)
-
-    return base_dir, dockerfile_path, packer_path
 
 
 def run_command(cmd: List[str], description: str) -> bool:

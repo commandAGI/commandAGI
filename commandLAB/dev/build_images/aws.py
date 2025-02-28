@@ -5,7 +5,8 @@ import logging
 from typing import Optional, Dict, Any
 import typer
 from commandLAB.version import get_container_version
-from commandLAB.dev.build_images.utils import run_command, get_base_paths, ensure_packer_template
+from commandLAB.dev.build_images.utils import run_command, ensure_packer_template
+from commandLAB._utils.config import PROJ_DIR
 from commandLAB.dev.build_images.cli import cli
 
 logger = logging.getLogger("build_images")
@@ -19,7 +20,9 @@ def build_aws_ami(
     )
 ) -> None:
     """Build AWS AMI using Packer"""
-    base_dir, _, packer_path = get_base_paths()
+    packer_path = PROJ_DIR / "resources" / "packer"
+    # Create packer directory if it doesn't exist
+    packer_path.mkdir(parents=True, exist_ok=True)
 
     # Define AWS packer template
     aws_template = {

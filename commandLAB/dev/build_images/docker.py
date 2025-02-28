@@ -5,7 +5,8 @@ import logging
 from typing import Optional
 import typer
 from commandLAB.version import get_container_version, get_package_version
-from .utils import run_command, get_base_paths
+from commandLAB.dev.build_images.utils import run_command
+from commandLAB._utils.config import PROJ_DIR
 from commandLAB.dev.build_images.cli import cli
 logger = logging.getLogger("build_images")
 
@@ -18,7 +19,7 @@ def build_docker_image(
     )
 ) -> None:
     """Build the Docker image for the daemon"""
-    _, dockerfile_path, _ = get_base_paths()
+    dockerfile_path = PROJ_DIR / "resources" / "docker"
 
     if not os.path.exists(os.path.join(dockerfile_path, "Dockerfile")):
         logger.error(f"Dockerfile not found at {dockerfile_path}")

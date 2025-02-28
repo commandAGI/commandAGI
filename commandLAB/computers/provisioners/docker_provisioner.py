@@ -136,9 +136,11 @@ class DockerProvisioner(BaseComputerProvisioner):
         if self.dockerfile_path:
             dockerfile = self.dockerfile_path
             dockerfile_dir = str(Path(dockerfile).parent)
-            dockerfile_name = Path(dockerfile).name
+            # Get the project root directory (where pyproject.toml is located)
+            project_root = str(Path(__file__).parent.parent.parent.parent)
             
             print(f"Building Docker image from Dockerfile: {dockerfile}")
+            print(f"Using project root as build context: {project_root}")
             
             try:
                 # Build the image using Docker CLI with real-time output streaming
@@ -149,7 +151,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                     f"commandlab-daemon:{self.version}",
                     "-f", 
                     str(dockerfile),
-                    dockerfile_dir
+                    project_root  # Use project root as build context instead of dockerfile_dir
                 ]
                 
                 print(f"Running command: {' '.join(build_cmd)}")
