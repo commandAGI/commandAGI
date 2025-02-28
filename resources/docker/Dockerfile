@@ -50,7 +50,7 @@ RUN python3 -c "import platform; print('Python Platform:', platform.platform())"
 
 # Install the package and its dependencies
 RUN echo "Starting base package installation..." && \
-    python3 -m pip install -e . && \
+    python3 -m pip install -e "." && \
     echo "Successfully installed base package"
 
 RUN echo "Starting optional dependencies installation..." && \
