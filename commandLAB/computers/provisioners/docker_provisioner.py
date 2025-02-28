@@ -9,6 +9,7 @@ from azure.identity import DefaultAzureCredential
 from google.cloud import container_v1
 from google.cloud import run_v2
 
+from commandLAB._utils.command import run_command
 from commandLAB._utils.config import PROJ_DIR
 from .base_provisioner import BaseComputerProvisioner
 from commandLAB.version import get_container_version, get_package_version
@@ -135,56 +136,56 @@ class DockerProvisioner(BaseComputerProvisioner):
         print(f"Starting local Docker container {self.container_name}")
 
         # Build the Docker image if a Dockerfile path is provided
-        if self.dockerfile_path:
-            print(f"Building Docker image from Dockerfile: {self.dockerfile_path}")
-            try:
-                # Build the image using Docker CLI with real-time output streaming
-                build_cmd = [
-                    "docker", 
-                    "build", 
-                    "-t", 
-                    f"commandlab-daemon:{self.version}",
-                    "--build-arg",
-                    f"VERSION={get_package_version()}",
-                    "-f", 
-                    str(self.dockerfile_path),
-                    str(PROJ_DIR)
-                ]
+        # if self.dockerfile_path:
+        #     print(f"Building Docker image from Dockerfile: {self.dockerfile_path}")
+        #     try:
+        #         # Build the image using Docker CLI with real-time output streaming
+        #         build_cmd = [
+        #             "docker", 
+        #             "build", 
+        #             "-t", 
+        #             f"commandlab-daemon:{self.version}",
+        #             "--build-arg",
+        #             f"VERSION={get_package_version()}",
+        #             "-f", 
+        #             str(self.dockerfile_path),
+        #             str(PROJ_DIR)
+        #         ]
                 
-                print(f"Running command: {' '.join(build_cmd)}")
+        #         print(f"Running command: {' '.join(build_cmd)}")
                 
-                # Use Popen to stream output in real-time
-                process = subprocess.Popen(
-                    build_cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    encoding='utf-8',
-                    errors='replace',
-                    bufsize=1,
-                    universal_newlines=True
-                )
+        #         # Use Popen to stream output in real-time
+        #         process = subprocess.Popen(
+        #             build_cmd,
+        #             stdout=subprocess.PIPE,
+        #             stderr=subprocess.STDOUT,
+        #             text=True,
+        #             encoding='utf-8',
+        #             errors='replace',
+        #             bufsize=1,
+        #             universal_newlines=True
+        #         )
                 
-                # Stream the output
-                for line in iter(process.stdout.readline, ''):
-                    line = line.strip()
-                    if line:
-                        print(f"Docker build: {line}")
+        #         # Stream the output
+        #         for line in iter(process.stdout.readline, ''):
+        #             line = line.strip()
+        #             if line:
+        #                 print(f"Docker build: {line}")
                 
-                # Wait for process to complete and check return code
-                return_code = process.wait()
-                if return_code != 0:
-                    raise subprocess.CalledProcessError(return_code, build_cmd)
+        #         # Wait for process to complete and check return code
+        #         return_code = process.wait()
+        #         if return_code != 0:
+        #             raise subprocess.CalledProcessError(return_code, build_cmd)
                 
-                print(f"Docker image built successfully: commandlab-daemon:{self.version}")
-            except subprocess.CalledProcessError as e:
-                import traceback
-                traceback.print_exc()
-                print(f"Docker build failed: {str(e)}")
-                raise RuntimeError(f"Docker build failed: {str(e)}")
+        #         print(f"Docker image built successfully: commandlab-daemon:{self.version}")
+        #     except subprocess.CalledProcessError as e:
+        #         import traceback
+        #         traceback.print_exc()
+        #         print(f"Docker build failed: {str(e)}")
+        #         raise RuntimeError(f"Docker build failed: {str(e)}")
 
-        # Run the container using Docker CLI
-        run_cmd = [
+        # Run the container using Docker CLI        
+        run_command([
             "docker", 
             "run",
             "--name", 
@@ -192,33 +193,8 @@ class DockerProvisioner(BaseComputerProvisioner):
             "-d",  # detached mode
             "-p", 
             f"{self.port}:{self.port}",
-            f"commandlab-daemon:{self.version}",
-            "python3", 
-            "-m", 
-            "commandLAB.daemon", 
-            "start", 
-            "--port", 
-            str(self.port), 
-            "--backend", 
-            "pynput"
-        ]
-        
-        print(f"Running command: {' '.join(run_cmd)}")
-        try:
-            process = subprocess.run(
-                run_cmd,
-                check=True,
-                capture_output=True,
-                text=True,
-                encoding='utf-8',
-                errors='replace'
-            )
-            self.container_id = process.stdout.strip()
-            print(f"Started Docker container with ID: {self.container_id}")
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to start Docker container: {str(e)}")
-            print(f"Error output: {e.stderr}")
-            raise RuntimeError(f"Failed to start Docker container: {str(e)}")
+            f"commandlab-daemon:{self.version}"
+        ], "Starting local Docker container")
 
     def _setup_aws_ecs(self):
         """Setup AWS ECS container"""

@@ -46,17 +46,6 @@ WORKDIR /commandlab
 RUN apt-get update
 RUN apt-get install -y libssl-dev openssl
 
-# Install the package and its dependencies
-RUN pip install uv
-
-RUN uv venv --python 3.12
-
-RUN echo "Starting optional dependencies installation..." && \
-    source .venv/bin/activate && \
-    uv pip install -e ".[all]" && \
-    # uv pip install -e ".[local,daemon-host]" && \
-    echo "Successfully installed optional dependencies"
-
 # Execute setup script (using the already copied script)
 RUN chmod +x /commandlab/resources/docker/setup.sh
 RUN /commandlab/resources/docker/setup.sh
@@ -68,4 +57,6 @@ RUN chmod +x /commandlab/resources/docker/start.sh
 EXPOSE 5900 8000
 
 # Start services
+# leading /commandlab is fine bec this is an abs path
+# but we are already in the commandlab directory so just ./resources/docker/start.sh would be fine also
 CMD ["/commandlab/resources/docker/start.sh"]
