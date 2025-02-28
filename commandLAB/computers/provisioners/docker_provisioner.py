@@ -160,6 +160,8 @@ class DockerProvisioner(BaseComputerProvisioner):
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     text=True,
+                    encoding='utf-8',
+                    errors='replace',
                     bufsize=1,
                     universal_newlines=True
                 )
@@ -206,7 +208,9 @@ class DockerProvisioner(BaseComputerProvisioner):
                 run_cmd,
                 check=True,
                 capture_output=True,
-                text=True
+                text=True,
+                encoding='utf-8',
+                errors='replace'
             )
             self.container_id = process.stdout.strip()
             print(f"Started Docker container with ID: {self.container_id}")

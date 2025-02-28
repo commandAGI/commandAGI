@@ -49,8 +49,8 @@ def run_command(cmd: List[str], description: str) -> bool:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
-                # encoding='utf-8',
-                # errors='replace'
+                encoding='utf-8',
+                errors='replace'
             )
             # Stream the output line by line
             while True:
