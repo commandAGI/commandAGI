@@ -19,9 +19,9 @@ def build_docker_image(
     )
 ) -> None:
     """Build the Docker image for the daemon"""
-    dockerfile_path = PROJ_DIR / "resources" / "docker"
+    dockerfile_path = PROJ_DIR / "resources" / "docker" / "Dockerfile"
 
-    if not os.path.exists(os.path.join(dockerfile_path, "Dockerfile")):
+    if not os.path.exists(dockerfile_path):
         logger.error(f"Dockerfile not found at {dockerfile_path}")
         return
 
@@ -33,7 +33,7 @@ def build_docker_image(
         "--build-arg",
         f"VERSION={get_package_version()}",
         "-f",
-        os.path.join(dockerfile_path, "Dockerfile"),
-        ".",
+        str(dockerfile_path),
+        str(PROJ_DIR),
     ]
     run_command(cmd, "Docker image build") 

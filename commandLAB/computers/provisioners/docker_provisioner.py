@@ -8,8 +8,10 @@ from azure.mgmt.containerinstance import ContainerInstanceManagementClient
 from azure.identity import DefaultAzureCredential
 from google.cloud import container_v1
 from google.cloud import run_v2
+
+from commandLAB._utils.config import PROJ_DIR
 from .base_provisioner import BaseComputerProvisioner
-from commandLAB.version import get_container_version
+from commandLAB.version import get_container_version, get_package_version
 
 
 class DockerPlatform(str, Enum):
@@ -134,14 +136,7 @@ class DockerProvisioner(BaseComputerProvisioner):
 
         # Build the Docker image if a Dockerfile path is provided
         if self.dockerfile_path:
-            dockerfile = self.dockerfile_path
-            dockerfile_dir = str(Path(dockerfile).parent)
-            # Get the project root directory (where pyproject.toml is located)
-            project_root = str(Path(__file__).parent.parent.parent.parent)
-            
-            print(f"Building Docker image from Dockerfile: {dockerfile}")
-            print(f"Using project root as build context: {project_root}")
-            
+            print(f"Building Docker image from Dockerfile: {self.dockerfile_path}")
             try:
                 # Build the image using Docker CLI with real-time output streaming
                 build_cmd = [
@@ -149,9 +144,11 @@ class DockerProvisioner(BaseComputerProvisioner):
                     "build", 
                     "-t", 
                     f"commandlab-daemon:{self.version}",
+                    "--build-arg",
+                    f"VERSION={get_package_version()}",
                     "-f", 
-                    str(dockerfile),
-                    project_root  # Use project root as build context instead of dockerfile_dir
+                    str(self.dockerfile_path),
+                    str(PROJ_DIR)
                 ]
                 
                 print(f"Running command: {' '.join(build_cmd)}")
@@ -181,6 +178,8 @@ class DockerProvisioner(BaseComputerProvisioner):
                 
                 print(f"Docker image built successfully: commandlab-daemon:{self.version}")
             except subprocess.CalledProcessError as e:
+                import traceback
+                traceback.print_exc()
                 print(f"Docker build failed: {str(e)}")
                 raise RuntimeError(f"Docker build failed: {str(e)}")
 
@@ -194,8 +193,8 @@ class DockerProvisioner(BaseComputerProvisioner):
             "-p", 
             f"{self.port}:{self.port}",
             f"commandlab-daemon:{self.version}",
-            "poetry", 
-            "run", 
+            "python3", 
+            "-m", 
             "commandLAB.daemon", 
             "start", 
             "--port", 

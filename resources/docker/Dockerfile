@@ -46,35 +46,26 @@ WORKDIR /commandlab
 RUN apt-get update
 RUN apt-get install -y libssl-dev openssl
 
-RUN python3 -c "import platform; print('Python Platform:', platform.platform())"
-
 # Install the package and its dependencies
-RUN echo "Starting base package installation..." && \
-    python3 -m pip install -e "." && \
-    echo "Successfully installed base package"
+RUN pip install uv
+
+RUN uv venv --python 3.12
 
 RUN echo "Starting optional dependencies installation..." && \
-    python3 -m pip install -e ".[local,daemon-host]" && \
+    source .venv/bin/activate && \
+    uv pip install -e ".[all]" && \
+    # uv pip install -e ".[local,daemon-host]" && \
     echo "Successfully installed optional dependencies"
 
-WORKDIR /
+# Execute setup script (using the already copied script)
+RUN chmod +x /commandlab/resources/docker/setup.sh
+RUN /commandlab/resources/docker/setup.sh
 
-# Configure VNC by setting a password (using 'secret' as default)
-RUN mkdir -p /root/.vnc && \
-    x11vnc -storepasswd secret /root/.vnc/passwd
-
-# Create startup script that launches both VNC and the daemon
-RUN echo '#!/bin/bash\n\
-Xvfb :0 -screen 0 1024x768x24 &\n\
-sleep 2\n\
-export DISPLAY=:0\n\
-lxsession &\n\
-x11vnc -forever -display :0 -passwd secret &\n\
-python3 -m commandlab.daemon.daemon --port 8000 --backend pynput' > /start.sh && \
-    chmod +x /start.sh
+# Make startup script executable (using the already copied script)
+RUN chmod +x /commandlab/resources/docker/start.sh
 
 # Expose both VNC and daemon ports
 EXPOSE 5900 8000
 
 # Start services
-CMD ["/start.sh"] 
+CMD ["/commandlab/resources/docker/start.sh"]

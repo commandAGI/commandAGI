@@ -26,6 +26,7 @@ dependencies = [
     "pyautogui~=0.9",
     "mss~=10.0",
     "pillow~=11.1",
+    "platformdirs~=4.3",
     "pytesseract~=0.3",
     "fastapi~=0.115",
     "uvicorn~=0.34",
