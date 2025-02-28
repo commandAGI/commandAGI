@@ -132,49 +132,88 @@ class DockerProvisioner(BaseComputerProvisioner):
         """Setup local Docker container"""
         print(f"Starting local Docker container {self.container_name}")
 
-        import docker
-
-        # Use Docker client
-        docker_client = docker.from_env()
-
+        # Build the Docker image if a Dockerfile path is provided
         if self.dockerfile_path:
-            dockerfile = self.dockerfile_path if self.dockerfile_path else "Dockerfile"
+            dockerfile = self.dockerfile_path
             dockerfile_dir = str(Path(dockerfile).parent)
             dockerfile_name = Path(dockerfile).name
             
             print(f"Building Docker image from Dockerfile: {dockerfile}")
             
             try:
-                # Build the image using docker-py
-                image, build_logs = docker_client.images.build(
-                    path=dockerfile_dir,
-                    dockerfile=dockerfile_name,
-                    tag=f"commandlab-daemon:{self.version}",
-                    rm=True,  # Remove intermediate containers
+                # Build the image using Docker CLI with real-time output streaming
+                build_cmd = [
+                    "docker", 
+                    "build", 
+                    "-t", 
+                    f"commandlab-daemon:{self.version}",
+                    "-f", 
+                    str(dockerfile),
+                    dockerfile_dir
+                ]
+                
+                print(f"Running command: {' '.join(build_cmd)}")
+                
+                # Use Popen to stream output in real-time
+                process = subprocess.Popen(
+                    build_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1,
+                    universal_newlines=True
                 )
                 
-                # Print build logs
-                for log in build_logs:
-                    if 'stream' in log:
-                        log_line = log['stream'].strip()
-                        if log_line:
-                            print(f"Docker build: {log_line}")
+                # Stream the output
+                for line in iter(process.stdout.readline, ''):
+                    line = line.strip()
+                    if line:
+                        print(f"Docker build: {line}")
                 
-                print(f"Docker image built successfully: {image.tags[0]}")
-            except docker.errors.BuildError as e:
+                # Wait for process to complete and check return code
+                return_code = process.wait()
+                if return_code != 0:
+                    raise subprocess.CalledProcessError(return_code, build_cmd)
+                
+                print(f"Docker image built successfully: commandlab-daemon:{self.version}")
+            except subprocess.CalledProcessError as e:
                 print(f"Docker build failed: {str(e)}")
                 raise RuntimeError(f"Docker build failed: {str(e)}")
 
-        container = docker_client.containers.run(
+        # Run the container using Docker CLI
+        run_cmd = [
+            "docker", 
+            "run",
+            "--name", 
+            self.container_name,
+            "-d",  # detached mode
+            "-p", 
+            f"{self.port}:{self.port}",
             f"commandlab-daemon:{self.version}",
-            name=self.container_name,
-            detach=True,
-            ports={f"{self.port}/tcp": self.port},
-            command=["poetry", "run", "commandLAB.daemon", "start", "--port", str(self.port), "--backend", "pynput"],
-        )
-
-        self.container_id = container.id
-        print(f"Started Docker container with ID: {self.container_id}")
+            "poetry", 
+            "run", 
+            "commandLAB.daemon", 
+            "start", 
+            "--port", 
+            str(self.port), 
+            "--backend", 
+            "pynput"
+        ]
+        
+        print(f"Running command: {' '.join(run_cmd)}")
+        try:
+            process = subprocess.run(
+                run_cmd,
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            self.container_id = process.stdout.strip()
+            print(f"Started Docker container with ID: {self.container_id}")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to start Docker container: {str(e)}")
+            print(f"Error output: {e.stderr}")
+            raise RuntimeError(f"Failed to start Docker container: {str(e)}")
 
     def _setup_aws_ecs(self):
         """Setup AWS ECS container"""
@@ -300,48 +339,24 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def _teardown_local(self):
         """Teardown local Docker container"""
+        print(f"Stopping Docker container {self.container_name}")
+        
         try:
-            import docker
-
-            # Use Docker client
-            docker_client = docker.from_env()
-
-            try:
-                container = docker_client.containers.get(self.container_name)
-                print(f"Stopping Docker container {self.container_name}")
-                container.stop()
-                print(f"Removing Docker container {self.container_name}")
-                container.remove()
-            except docker.errors.NotFound:
-                print(f"Docker container {self.container_name} not found")
-        except ImportError:
-            # Fall back to subprocess if docker-py is not available
-            print(
-                "Docker Python client not available, falling back to subprocess"
-            )
-            if not self.container_id and self.container_name:
-                # Try to get container ID from name
-                try:
-                    result = subprocess.run(
-                        ["docker", "ps", "-aqf", f"name={self.container_name}"],
-                        check=True,
-                        capture_output=True,
-                        text=True,
-                    )
-                    self.container_id = result.stdout.strip()
-                except Exception as e:
-                    print(
-                        f"Could not get container ID for {self.container_name}: {e}"
-                    )
-
-            if self.container_id or self.container_name:
-                print(f"Stopping Docker container {self.container_name}")
-                try:
-                    subprocess.run(["docker", "stop", self.container_name], check=True)
-                    print(f"Removing Docker container {self.container_name}")
-                    subprocess.run(["docker", "rm", self.container_name], check=True)
-                except Exception as e:
-                    print(f"Error stopping/removing Docker container: {e}")
+            # Stop the container
+            stop_cmd = ["docker", "stop", self.container_name]
+            print(f"Running command: {' '.join(stop_cmd)}")
+            subprocess.run(stop_cmd, check=True, capture_output=True, text=True)
+            
+            # Remove the container
+            rm_cmd = ["docker", "rm", self.container_name]
+            print(f"Running command: {' '.join(rm_cmd)}")
+            subprocess.run(rm_cmd, check=True, capture_output=True, text=True)
+            
+            print(f"Docker container {self.container_name} stopped and removed successfully")
+        except subprocess.CalledProcessError as e:
+            print(f"Error stopping/removing Docker container: {e}")
+            print(f"Error output: {e.stderr}")
+            # Don't raise here to allow cleanup to continue even if there are errors
 
     def _teardown_aws_ecs(self):
         """Teardown AWS ECS task"""
@@ -436,47 +451,31 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _is_local_running(self) -> bool:
         """Check if local Docker container is running"""
         try:
-            import docker
-
-            # Use Docker client
-            docker_client = docker.from_env()
-
-            try:
-                container = docker_client.containers.get(self.container_name)
-                is_running = container.status == "running"
-                print(
-                    f"Docker container {self.container_name} running status: {is_running}"
-                )
-                return is_running
-            except docker.errors.NotFound:
-                print(f"Docker container {self.container_name} not found")
-                return False
-        except ImportError:
-            # Fall back to subprocess if docker-py is not available
-            print(
-                "Docker Python client not available, falling back to subprocess"
+            # Use Docker CLI to check container status
+            inspect_cmd = [
+                "docker",
+                "inspect",
+                "-f",
+                "{{.State.Running}}",
+                self.container_name
+            ]
+            
+            result = subprocess.run(
+                inspect_cmd,
+                capture_output=True,
+                text=True,
+                check=True
             )
-            try:
-                result = subprocess.run(
-                    [
-                        "docker",
-                        "inspect",
-                        "-f",
-                        "{{.State.Running}}",
-                        self.container_name,
-                    ],
-                    capture_output=True,
-                    text=True,
-                    check=True,
-                )
-                is_running = result.stdout.strip() == "true"
-                print(
-                    f"Docker container {self.container_name} running status: {is_running}"
-                )
-                return is_running
-            except Exception as e:
-                print(f"Error checking Docker container status: {e}")
-                return False
+            
+            is_running = result.stdout.strip() == "true"
+            print(f"Docker container {self.container_name} running status: {is_running}")
+            return is_running
+        except subprocess.CalledProcessError as e:
+            # This likely means the container doesn't exist
+            print(f"Error checking Docker container status: {e}")
+            if "No such object" in e.stderr:
+                print(f"Docker container {self.container_name} not found")
+            return False
 
     def _is_aws_ecs_running(self) -> bool:
         """Check if AWS ECS task is running"""
