@@ -17,16 +17,15 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     software-properties-common \
+    python3-tk \
+    x11-xserver-utils \
+    xauth \
     && add-apt-repository ppa:deadsnakes/ppa -y && \
     apt-get update && \
-    apt-get install -y python3.12 python3.12-venv python3.12-dev python3-distutils && \
+    apt-get install -y python3.12 python3.12-venv python3.12-dev python3-distutils python3-tk python3-dev && \
     ln -sf /usr/bin/python3.12 /usr/bin/python3 \
-    && rm -rf /var/lib/apt/lists/*
-
-# needd for screen reader
-# RUN apt-get update && apt-get install -y \
-#     python3-pyatspi2 \
-#     && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "Installed dependencies for screen reader and tkinter"
     
 # Test Python version and fail if not 3.12
 RUN python3 -c 'import sys; assert sys.version_info >= (3,12), "Python 3.12+ required"'
