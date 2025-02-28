@@ -33,7 +33,7 @@ from commandLAB.types import (
     TypeAction,
 )
 from commandLAB._utils.config import APPDIR
-from commandLAB._utils.screenshot import process_screenshot
+from commandLAB._utils.image import process_screenshot
 
 
 # PyAutoGUI-specific mappings

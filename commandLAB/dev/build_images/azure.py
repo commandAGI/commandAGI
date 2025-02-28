@@ -5,7 +5,8 @@ import logging
 from typing import Optional
 import typer
 from commandLAB.version import get_container_version
-from commandLAB.dev.build_images.utils import run_command, ensure_packer_template
+from commandLAB._utils.command import run_command
+from commandLAB.dev.build_images.utils import ensure_packer_template
 from commandLAB._utils.config import PROJ_DIR
 from commandLAB.dev.build_images.cli import cli
 

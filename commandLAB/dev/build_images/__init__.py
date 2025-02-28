@@ -5,10 +5,8 @@ This module provides functions to build Docker, Kubernetes, AWS, Azure, and GCP 
 for the CommandLAB daemon.
 """
 
-from .utils import (
-    run_command,
-    ensure_packer_template
-)
+from commandLAB._utils.command import run_command
+from .utils import ensure_packer_template
 
 from .cli import cli
 from .docker import build_docker_image

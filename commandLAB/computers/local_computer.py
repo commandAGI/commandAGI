@@ -105,7 +105,7 @@ from commandLAB.types import (
     Platform,
 )
 from commandLAB._utils.config import APPDIR
-from commandLAB._utils.screenshot import process_screenshot
+from commandLAB._utils.image import process_screenshot
 from commandLAB._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 
 

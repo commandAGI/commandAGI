@@ -5,7 +5,7 @@ import logging
 from typing import Optional
 import typer
 from commandLAB.version import get_container_version, get_package_version
-from commandLAB.dev.build_images.utils import run_command
+from commandLAB._utils.command import run_command
 from commandLAB._utils.config import PROJ_DIR
 from commandLAB.dev.build_images.cli import cli
 logger = logging.getLogger("build_images")

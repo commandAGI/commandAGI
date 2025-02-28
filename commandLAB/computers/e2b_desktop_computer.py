@@ -37,7 +37,7 @@ from commandLAB.types import (
     RunProcessAction,
 )
 from commandLAB._utils.config import APPDIR
-from commandLAB._utils.screenshot import process_screenshot
+from commandLAB._utils.image import process_screenshot
 
 
 # E2B Desktop-specific mappings

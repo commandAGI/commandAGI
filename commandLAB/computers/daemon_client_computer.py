@@ -31,7 +31,7 @@ from commandLAB.types import (
 )
 from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
 from commandLAB._utils.config import APPDIR
-from commandLAB._utils.screenshot import process_screenshot, base64_to_image
+from commandLAB._utils.image import process_screenshot, base64_to_image
 
 # Import the proper client classes
 try:
