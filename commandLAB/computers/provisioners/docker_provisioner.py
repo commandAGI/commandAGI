@@ -70,23 +70,26 @@ class DockerProvisioner(BaseComputerProvisioner):
         self.dockerfile_path = dockerfile_path
 
         # Initialize cloud clients if needed
-        if platform == DockerPlatform.AWS_ECS:
-            if not self.region:
-                raise ValueError("Region must be specified for AWS ECS")
-            self.ecs_client = boto3.client("ecs", region_name=region)
-        elif platform == DockerPlatform.AZURE_CONTAINER_INSTANCES:
-            if not self.subscription_id:
-                raise ValueError(
-                    "Subscription ID must be specified for Azure Container Instances"
+        match platform:
+            case DockerPlatform.AWS_ECS:
+                if not self.region:
+                    raise ValueError("Region must be specified for AWS ECS")
+                self.ecs_client = boto3.client("ecs", region_name=region)
+            case DockerPlatform.AZURE_CONTAINER_INSTANCES:
+                if not self.subscription_id:
+                    raise ValueError(
+                        "Subscription ID must be specified for Azure Container Instances"
+                    )
+                self.aci_client = ContainerInstanceManagementClient(
+                    credential=DefaultAzureCredential(),
+                    subscription_id=self.subscription_id,
                 )
-            self.aci_client = ContainerInstanceManagementClient(
-                credential=DefaultAzureCredential(),
-                subscription_id=self.subscription_id,
-            )
-        elif platform == DockerPlatform.GCP_CLOUD_RUN:
-            if not self.project_id:
-                raise ValueError("Project ID must be specified for GCP Cloud Run")
-            self.cloud_run_client = run_v2.ServicesClient()
+            case DockerPlatform.GCP_CLOUD_RUN:
+                if not self.project_id:
+                    raise ValueError("Project ID must be specified for GCP Cloud Run")
+                self.cloud_run_client = run_v2.ServicesClient()
+            case _:
+                pass
 
     def setup(self) -> None:
         print(f"Setting up container with platform {self.platform}")
@@ -102,18 +105,21 @@ class DockerProvisioner(BaseComputerProvisioner):
         while retry_count < self.max_retries:
             print(f"Attempt {retry_count + 1}/{self.max_retries} to setup container")
             try:
-                if self.platform == DockerPlatform.LOCAL:
-                    print("Using LOCAL platform setup")
-                    self._setup_local()
-                elif self.platform == DockerPlatform.AWS_ECS:
-                    print("Using AWS ECS platform setup") 
-                    self._setup_aws_ecs()
-                elif self.platform == DockerPlatform.AZURE_CONTAINER_INSTANCES:
-                    print("Using Azure Container Instances platform setup")
-                    self._setup_azure_container_instances()
-                elif self.platform == DockerPlatform.GCP_CLOUD_RUN:
-                    print("Using GCP Cloud Run platform setup")
-                    self._setup_gcp_cloud_run()
+                match self.platform:
+                    case DockerPlatform.LOCAL:
+                        print("Using LOCAL platform setup")
+                        self._setup_local()
+                    case DockerPlatform.AWS_ECS:
+                        print("Using AWS ECS platform setup")
+                        self._setup_aws_ecs()
+                    case DockerPlatform.AZURE_CONTAINER_INSTANCES:
+                        print("Using Azure Container Instances platform setup")
+                        self._setup_azure_container_instances()
+                    case DockerPlatform.GCP_CLOUD_RUN:
+                        print("Using GCP Cloud Run platform setup")
+                        self._setup_gcp_cloud_run()
+                    case _:
+                        raise ValueError(f"Unsupported platform: {self.platform}")
 
                 # Wait for the container to be running
                 print(f"Waiting for container to be running (timeout: {self.timeout}s)")
@@ -314,14 +320,17 @@ class DockerProvisioner(BaseComputerProvisioner):
         self._status = "stopping"
 
         try:
-            if self.platform == DockerPlatform.LOCAL:
-                self._teardown_local()
-            elif self.platform == DockerPlatform.AWS_ECS:
-                self._teardown_aws_ecs()
-            elif self.platform == DockerPlatform.AZURE_CONTAINER_INSTANCES:
-                self._teardown_azure_container_instances()
-            elif self.platform == DockerPlatform.GCP_CLOUD_RUN:
-                self._teardown_gcp_cloud_run()
+            match self.platform:
+                case DockerPlatform.LOCAL:
+                    self._teardown_local()
+                case DockerPlatform.AWS_ECS:
+                    self._teardown_aws_ecs()
+                case DockerPlatform.AZURE_CONTAINER_INSTANCES:
+                    self._teardown_azure_container_instances()
+                case DockerPlatform.GCP_CLOUD_RUN:
+                    self._teardown_gcp_cloud_run()
+                case _:
+                    raise ValueError(f"Unsupported platform: {self.platform}")
 
             self._status = "stopped"
         except Exception as e:
@@ -426,15 +435,17 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def is_running(self) -> bool:
         try:
-            if self.platform == DockerPlatform.LOCAL:
-                return self._is_local_running()
-            elif self.platform == DockerPlatform.AWS_ECS:
-                return self._is_aws_ecs_running()
-            elif self.platform == DockerPlatform.AZURE_CONTAINER_INSTANCES:
-                return self._is_azure_container_instances_running()
-            elif self.platform == DockerPlatform.GCP_CLOUD_RUN:
-                return self._is_gcp_cloud_run_running()
-            return False
+            match self.platform:
+                case DockerPlatform.LOCAL:
+                    return self._is_local_running()
+                case DockerPlatform.AWS_ECS:
+                    return self._is_aws_ecs_running()
+                case DockerPlatform.AZURE_CONTAINER_INSTANCES:
+                    return self._is_azure_container_instances_running()
+                case DockerPlatform.GCP_CLOUD_RUN:
+                    return self._is_gcp_cloud_run_running()
+                case _:
+                    return False
         except Exception as e:
             print(f"Error checking if container is running: {e}")
             return False
