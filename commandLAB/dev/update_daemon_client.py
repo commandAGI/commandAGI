@@ -20,7 +20,7 @@ def generate_openapi_client():
             "commandLAB.daemon.cli",
             "--port",
             "8000",
-            "--api-token",
+            "--token",
             api_token,
             "--backend",
             "pynput",
