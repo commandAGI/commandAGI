@@ -6,6 +6,7 @@ import secrets
 import signal
 import sys
 import time
+import os
 from typing import Literal, Optional, Type, Dict, Any
 from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -36,10 +37,10 @@ COMPUTER_CLS_OPTIONS = {
 
 @cli.command()
 def start(
-    host: Optional[str] = typer.Option(default="0.0.0.0", help="The host to bind the daemon to"),
-    port: Optional[int] = typer.Option(default=8000, help="The port to bind the daemon to"),
-    api_token: Optional[str] = typer.Option(default=None, help="The API token to use for the daemon"),
-    backend: Optional[str] = typer.Option(default="pynput", help="The backend to use for the computer. Options: pynput, pyautogui"),
+    host: Optional[str] = typer.Option(default="0.0.0.0", envvar="DAEMON_HOST", help="The host to bind the daemon to"),
+    port: Optional[int] = typer.Option(default=8000, envvar="DAEMON_PORT", help="The port to bind the daemon to"),
+    token: Optional[str] = typer.Option(None, envvar="DAEMON_TOKEN", help="API token for authentication. If not provided, a random token will be generated."),
+    backend: Optional[str] = typer.Option(default="pynput", envvar="DAEMON_BACKEND", help="The backend to use for the computer. Options: pynput, pyautogui"),
     additional_computer_cls_kwargs_str: Optional[str] = typer.Option(default='{}', help="Additional keyword arguments to pass to the computer class"),
     vnc_windows_executables_str: Optional[str] = typer.Option(default=None, help="Comma-separated list of VNC executables to search for on Windows"),
     vnc_unix_executables_str: Optional[str] = typer.Option(default=None, help="Comma-separated list of VNC executables to search for on Unix-like systems"),
@@ -80,7 +81,7 @@ def start(
     # Pass the computer instance and configuration to the daemon
     daemon = ComputerDaemon(
         computer=computer, 
-        api_token=api_token,
+        api_token=token,
         vnc_windows_executables=vnc_windows_executables,
         vnc_unix_executables=vnc_unix_executables,
         vnc_start_commands=vnc_start_commands,

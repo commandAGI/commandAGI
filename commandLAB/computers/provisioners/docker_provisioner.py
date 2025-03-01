@@ -2,16 +2,18 @@ from enum import Enum
 from pathlib import Path
 import subprocess
 import time
-from typing import Optional, List
+from typing import Optional, List, Tuple
 import boto3
 from azure.mgmt.containerinstance import ContainerInstanceManagementClient
 from azure.identity import DefaultAzureCredential
 from google.cloud import container_v1
 from google.cloud import run_v2
 import threading
+import logging
 
 from commandLAB._utils.command import run_command
 from commandLAB._utils.config import PROJ_DIR
+from commandLAB._utils.network import find_free_port
 from .base_provisioner import BaseComputerProvisioner
 from commandLAB.version import get_container_version, get_package_version
 
@@ -26,7 +28,9 @@ class DockerPlatform(str, Enum):
 class DockerProvisioner(BaseComputerProvisioner):
     def __init__(
         self,
-        port: int = 8000,
+        daemon_base_url: str = "http://localhost",
+        daemon_port: Optional[int] = 8000,
+        port_range: Optional[Tuple[int, int]] = None,
         container_name: str = "commandlab-daemon",
         platform: DockerPlatform = DockerPlatform.LOCAL,
         version: Optional[str] = None,
@@ -42,7 +46,13 @@ class DockerProvisioner(BaseComputerProvisioner):
         timeout: int = 900,  # 15 minutes
         dockerfile_path: Optional[str] = Path(__file__).parent.parent.parent.parent / "resources" / "docker" / "Dockerfile",
     ):
-        super().__init__(port)
+        # Initialize the base class with daemon URL and port
+        super().__init__(
+            daemon_base_url=daemon_base_url,
+            daemon_port=daemon_port,
+            port_range=port_range
+        )
+            
         self.container_name = container_name
         self.platform = platform
         self.version = version or get_container_version()
@@ -77,17 +87,21 @@ class DockerProvisioner(BaseComputerProvisioner):
             if not self.project_id:
                 raise ValueError("Project ID must be specified for GCP Cloud Run")
             self.cloud_run_client = run_v2.ServicesClient()
+
     def setup(self) -> None:
         print(f"Setting up container with platform {self.platform}")
         self._status = "starting"
         print(f"Status set to: {self._status}")
         retry_count = 0
+        
+        # Find an available port if needed
+        if self.daemon_port is None or not find_free_port(preferred_port=self.daemon_port):
+            self.daemon_port = find_free_port(port_range=self.port_range)
+            print(f"Using port {self.daemon_port} for daemon service")
 
         while retry_count < self.max_retries:
             print(f"Attempt {retry_count + 1}/{self.max_retries} to setup container")
             try:
-                print(f"Attempt {retry_count + 1}/{self.max_retries} to setup container")
-                print(f"Attempt {retry_count + 1}/{self.max_retries} to setup container")
                 if self.platform == DockerPlatform.LOCAL:
                     print("Using LOCAL platform setup")
                     self._setup_local()
@@ -142,10 +156,18 @@ class DockerProvisioner(BaseComputerProvisioner):
             "run", 
             "-it",
             "-d",  # detached mode
+            "--name", self.container_name,  # Add container name
             "-p",
-            f"{self.port}:{self.port}",
-            f"commandlab-daemon:{self.version}"
+            f"{self.daemon_port}:{self.daemon_port}",
+            "-e", f"DAEMON_PORT={self.daemon_port}",
         ]
+        
+        # Add token if it exists
+        if hasattr(self, 'daemon_token') and self.daemon_token:
+            run_cmd.extend(["-e", f"DAEMON_TOKEN={self.daemon_token}"])
+            
+        # Add the image name
+        run_cmd.append(f"commandlab-daemon:{self.version}")
 
         print(f"Running command: {' '.join(run_cmd)}")
 
@@ -223,14 +245,14 @@ class DockerProvisioner(BaseComputerProvisioner):
                 {
                     "name": self.container_name,
                     "image": f"commandlab-daemon:{self.version}",
-                    "ports": [{"port": self.port}],
+                    "ports": [{"port": self.daemon_port}],
                     "resources": {"requests": {"memoryInGB": 1.5, "cpu": 1.0}},
                 }
             ],
             "osType": "Linux",
             "ipAddress": {
                 "type": "Public",
-                "ports": [{"protocol": "TCP", "port": self.port}],
+                "ports": [{"protocol": "TCP", "port": self.daemon_port}],
             },
         }
 
@@ -265,7 +287,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                         "containers": [
                             {
                                 "image": f"commandlab-daemon:{self.version}",
-                                "ports": [{"containerPort": self.port}],
+                                "ports": [{"containerPort": self.daemon_port}],
                             }
                         ]
                     }

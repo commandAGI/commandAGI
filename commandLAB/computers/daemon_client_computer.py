@@ -175,18 +175,14 @@ class DaemonClientComputer(BaseComputer):
     provisioner: Optional[BaseComputerProvisioner] = None
     client: Optional[AuthenticatedClient] = None
     logger: Optional[logging.Logger] = None
-    daemon_base_url: str = ""
-    daemon_port: int = 0
     daemon_token: str = ""
 
     model_config = {"arbitrary_types_allowed": True}
 
     def __init__(
         self,
-        daemon_base_url: str,
-        daemon_port: int,
-        daemon_token: str,
         provisioner: BaseComputerProvisioner,
+        daemon_token: Optional[str] = None,
     ):
         # First call super().__init__() to initialize the Pydantic model
         super().__init__()
@@ -196,46 +192,44 @@ class DaemonClientComputer(BaseComputer):
 
         # Store the provisioner
         self.provisioner = provisioner
-        self.daemon_base_url = daemon_base_url
-        self.daemon_port = daemon_port
-        self.daemon_token = daemon_token
+        
+        # Use the provided token or get it from the provisioner
+        self.daemon_token = daemon_token or self.provisioner.daemon_token
 
         # Setup the provisioner
         self.logger.info(
-            f"Starting MCP and FastAPI daemon services at {daemon_base_url}:{daemon_port}"
+            f"Starting daemon services at {self.provisioner.daemon_url}"
         )
         self.provisioner.setup()
 
         # Create the authenticated client
         self.client = AuthenticatedClient(
-            base_url=f"{self.daemon_base_url}:{self.daemon_port}",
+            base_url=self.provisioner.daemon_url,
             token=self.daemon_token,
         )
-        self.logger.info(f"Successfully connected to daemon services")
+        self.logger.info(f"Successfully connected to daemon services at {self.provisioner.daemon_url}")
 
     def _start(self):
         """Start the daemon services"""
         if not self.client:
-            self.logger.info(
-                f"Starting daemon at {self.daemon_base_url}:{self.daemon_port}"
-            )
+            self.logger.info(f"Starting daemon at {self.provisioner.daemon_url}")
             self.provisioner.setup()
 
             # Create the authenticated client
             self.client = AuthenticatedClient(
-                base_url=f"{self.daemon_base_url}:{self.daemon_port}",
+                base_url=self.provisioner.daemon_url,
                 token=self.daemon_token,
             )
-            self.logger.info(f"Successfully connected to daemon services")
+            self.logger.info(f"Successfully connected to daemon services at {self.provisioner.daemon_url}")
         return True
 
     def _stop(self):
         """Stop the daemon services"""
         if self.client:
-            self.logger.info("Shutting down MCP and FastAPI daemon services")
+            self.logger.info("Shutting down daemon services")
             self.provisioner.teardown()
             self.client = None
-            self.logger.info("MCP and FastAPI daemon services successfully stopped")
+            self.logger.info("Daemon services successfully stopped")
         return True
 
     def reset_state(self) -> bool:

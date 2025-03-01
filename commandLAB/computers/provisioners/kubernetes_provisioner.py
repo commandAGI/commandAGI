@@ -1,10 +1,11 @@
 from enum import Enum
 from kubernetes import client, config
-from typing import Optional
+from typing import Optional, Tuple
 import time
 import logging
 from .base_provisioner import BaseComputerProvisioner
 from commandLAB.version import get_container_version
+from commandLAB._utils.network import find_free_port
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,9 @@ class KubernetesPlatform(str, Enum):
 class KubernetesProvisioner(BaseComputerProvisioner):
     def __init__(
         self,
-        port: int = 8000,
+        daemon_base_url: str = "http://localhost",
+        daemon_port: Optional[int] = 8000,
+        port_range: Optional[Tuple[int, int]] = None,
         platform: KubernetesPlatform = KubernetesPlatform.LOCAL,
         namespace: str = "default",
         # Cloud-specific parameters
@@ -31,7 +34,13 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         max_retries: int = 3,
         timeout: int = 300,  # 5 minutes
     ):
-        super().__init__(port)
+        # Initialize the base class with daemon URL and port
+        super().__init__(
+            daemon_base_url=daemon_base_url,
+            daemon_port=daemon_port,
+            port_range=port_range
+        )
+            
         self.platform = platform
         self.namespace = namespace
         self.deployment_name = "commandlab-daemon"
@@ -81,6 +90,11 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         self._status = "starting"
         self.resources_created = False
         retry_count = 0
+        
+        # Find an available port if needed
+        if self.daemon_port is None or not find_free_port(preferred_port=self.daemon_port):
+            self.daemon_port = find_free_port(port_range=self.port_range)
+            logger.info(f"Using port {self.daemon_port} for daemon service")
 
         while retry_count < self.max_retries:
             try:
@@ -107,12 +121,23 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                                         image=f"commandlab-daemon:{self.version}",
                                         ports=[
                                             client.V1ContainerPort(
-                                                container_port=self.port
+                                                container_port=self.daemon_port
                                             )
+                                        ],
+                                        env=[
+                                            client.V1EnvVar(
+                                                name="DAEMON_PORT",
+                                                value=str(self.daemon_port)
+                                            ),
+                                            # Add token if it exists
+                                            client.V1EnvVar(
+                                                name="DAEMON_TOKEN",
+                                                value=getattr(self, 'daemon_token', "")
+                                            ) if hasattr(self, 'daemon_token') and self.daemon_token else None,
                                         ],
                                         args=[
                                             "--port",
-                                            str(self.port),
+                                            str(self.daemon_port),
                                             "--backend",
                                             "pynput",
                                         ],
@@ -123,12 +148,18 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                     ),
                 )
 
+                # Filter out None values from env list
+                if deployment.spec.template.spec.containers[0].env:
+                    deployment.spec.template.spec.containers[0].env = [
+                        env for env in deployment.spec.template.spec.containers[0].env if env is not None
+                    ]
+
                 # Create service
                 service = client.V1Service(
                     metadata=client.V1ObjectMeta(name=self.service_name),
                     spec=client.V1ServiceSpec(
                         selector={"app": "commandlab-daemon"},
-                        ports=[client.V1ServicePort(port=self.port)],
+                        ports=[client.V1ServicePort(port=self.daemon_port)],
                         type="LoadBalancer",  # Use LoadBalancer for cloud platforms
                     ),
                 )

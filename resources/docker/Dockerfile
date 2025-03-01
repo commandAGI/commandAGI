@@ -4,6 +4,8 @@ ARG VERSION=latest
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DISPLAY=:0
 ENV COMMANDLAB_VERSION=$VERSION
+ENV DAEMON_PORT=8000
+ENV DAEMON_TOKEN=""
 
 # Install LXDE, VNC server, xdotool, Python, and other required packages
 RUN apt-get update && apt-get install -y \

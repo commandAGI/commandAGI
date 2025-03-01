@@ -108,7 +108,9 @@ class ComputerDaemon:
         mcp_server_name: str = "CommandLAB MCP Server",
     ):
         self._computer = computer
+        # Use the provided token or generate a new one
         self._api_token = api_token or secrets.token_urlsafe(32)
+        print(f"Using API token: {self._api_token}")
         
         # VNC configuration
         self._vnc_windows_executables = vnc_windows_executables or self.DEFAULT_VNC_WINDOWS_EXECUTABLES.copy()
