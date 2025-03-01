@@ -6,10 +6,8 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
+from ...models.message_response import MessageResponse
 from ...models.rdp_start_server_action import RdpStartServerAction
-from ...models.start_rdp_server_rdp_start_post_response_start_rdp_server_rdp_start_post import (
-    StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost,
-)
 from ...types import Response
 
 
@@ -35,18 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, MessageResponse]]:
     if response.status_code == 200:
-        response_200 = (
-            StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost.from_dict(
-                response.json()
-            )
-        )
+        response_200 = MessageResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -61,12 +50,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, MessageResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -79,12 +63,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: RdpStartServerAction,
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, MessageResponse]]:
     """Start Rdp Server
 
     Args:
@@ -95,7 +74,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost]]
+        Response[Union[HTTPValidationError, MessageResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -113,12 +92,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: RdpStartServerAction,
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, MessageResponse]]:
     """Start Rdp Server
 
     Args:
@@ -129,7 +103,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost]
+        Union[HTTPValidationError, MessageResponse]
     """
 
     return sync_detailed(
@@ -142,12 +116,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: RdpStartServerAction,
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, MessageResponse]]:
     """Start Rdp Server
 
     Args:
@@ -158,7 +127,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost]]
+        Response[Union[HTTPValidationError, MessageResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -174,12 +143,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: RdpStartServerAction,
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, MessageResponse]]:
     """Start Rdp Server
 
     Args:
@@ -190,7 +154,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StartRdpServerRdpStartPostResponseStartRdpServerRdpStartPost]
+        Union[HTTPValidationError, MessageResponse]
     """
 
     return (

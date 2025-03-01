@@ -5,9 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.reset_reset_post_response_reset_reset_post import (
-    ResetResetPostResponseResetResetPost,
-)
+from ...models.success_response import SuccessResponse
 from ...types import Response
 
 
@@ -22,9 +20,9 @@ def _get_kwargs() -> dict[str, Any]:
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[ResetResetPostResponseResetResetPost]:
+) -> Optional[SuccessResponse]:
     if response.status_code == 200:
-        response_200 = ResetResetPostResponseResetResetPost.from_dict(response.json())
+        response_200 = SuccessResponse.from_dict(response.json())
 
         return response_200
     if client.raise_on_unexpected_status:
@@ -35,7 +33,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[ResetResetPostResponseResetResetPost]:
+) -> Response[SuccessResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -47,7 +45,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-) -> Response[ResetResetPostResponseResetResetPost]:
+) -> Response[SuccessResponse]:
     """Reset
 
     Raises:
@@ -55,7 +53,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ResetResetPostResponseResetResetPost]
+        Response[SuccessResponse]
     """
 
     kwargs = _get_kwargs()
@@ -70,7 +68,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-) -> Optional[ResetResetPostResponseResetResetPost]:
+) -> Optional[SuccessResponse]:
     """Reset
 
     Raises:
@@ -78,7 +76,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ResetResetPostResponseResetResetPost
+        SuccessResponse
     """
 
     return sync_detailed(
@@ -89,7 +87,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-) -> Response[ResetResetPostResponseResetResetPost]:
+) -> Response[SuccessResponse]:
     """Reset
 
     Raises:
@@ -97,7 +95,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ResetResetPostResponseResetResetPost]
+        Response[SuccessResponse]
     """
 
     kwargs = _get_kwargs()
@@ -110,7 +108,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-) -> Optional[ResetResetPostResponseResetResetPost]:
+) -> Optional[SuccessResponse]:
     """Reset
 
     Raises:
@@ -118,7 +116,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ResetResetPostResponseResetResetPost
+        SuccessResponse
     """
 
     return (

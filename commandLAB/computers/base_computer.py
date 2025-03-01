@@ -6,7 +6,7 @@ import logging
 import os
 from abc import abstractmethod, ABC
 from typing import ClassVar, Literal, List, Optional, Dict, Any, Union, IO, AnyStr
-from commandLAB._utils.config import APPDIR
+from commandLAB._utils.config import APPDIR, DEV_MODE
 from commandLAB._utils.counter import next_for_cls
 
 from commandLAB._utils.platform import DEFAULT_SHELL_EXECUTIBLE
@@ -934,6 +934,8 @@ class BaseComputer(BaseModel):
                 self._execute_shell_command(action)
                 return True
             except Exception as e:
+                if DEV_MODE:
+                    raise e
                 self.logger.error(
                     f"Error executing command (attempt {attempt+1}/{self.num_retries}): {e}"
                 )

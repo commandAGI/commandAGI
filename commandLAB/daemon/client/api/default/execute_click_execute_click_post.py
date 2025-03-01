@@ -6,10 +6,8 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.click_action import ClickAction
-from ...models.execute_click_execute_click_post_response_execute_click_execute_click_post import (
-    ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost,
-)
 from ...models.http_validation_error import HTTPValidationError
+from ...models.success_response import SuccessResponse
 from ...types import Response
 
 
@@ -35,18 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[
-    Union[
-        ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost,
-        HTTPValidationError,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     if response.status_code == 200:
-        response_200 = (
-            ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost.from_dict(
-                response.json()
-            )
-        )
+        response_200 = SuccessResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -61,12 +50,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[
-    Union[
-        ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost,
-        HTTPValidationError,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -79,12 +63,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: ClickAction,
-) -> Response[
-    Union[
-        ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost,
-        HTTPValidationError,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     """Execute Click
 
     Args:
@@ -95,7 +74,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost, HTTPValidationError]]
+        Response[Union[HTTPValidationError, SuccessResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -113,12 +92,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: ClickAction,
-) -> Optional[
-    Union[
-        ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost,
-        HTTPValidationError,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     """Execute Click
 
     Args:
@@ -129,7 +103,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost, HTTPValidationError]
+        Union[HTTPValidationError, SuccessResponse]
     """
 
     return sync_detailed(
@@ -142,12 +116,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: ClickAction,
-) -> Response[
-    Union[
-        ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost,
-        HTTPValidationError,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     """Execute Click
 
     Args:
@@ -158,7 +127,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost, HTTPValidationError]]
+        Response[Union[HTTPValidationError, SuccessResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -174,12 +143,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: ClickAction,
-) -> Optional[
-    Union[
-        ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost,
-        HTTPValidationError,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     """Execute Click
 
     Args:
@@ -190,7 +154,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ExecuteClickExecuteClickPostResponseExecuteClickExecuteClickPost, HTTPValidationError]
+        Union[HTTPValidationError, SuccessResponse]
     """
 
     return (

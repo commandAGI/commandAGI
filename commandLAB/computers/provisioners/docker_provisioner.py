@@ -8,6 +8,7 @@ from azure.mgmt.containerinstance import ContainerInstanceManagementClient
 from azure.identity import DefaultAzureCredential
 from google.cloud import container_v1
 from google.cloud import run_v2
+import threading
 
 from commandLAB._utils.command import run_command
 from commandLAB._utils.config import PROJ_DIR
@@ -135,66 +136,53 @@ class DockerProvisioner(BaseComputerProvisioner):
         """Setup local Docker container"""
         print(f"Starting local Docker container {self.container_name}")
 
-        # Build the Docker image if a Dockerfile path is provided
-        # if self.dockerfile_path:
-        #     print(f"Building Docker image from Dockerfile: {self.dockerfile_path}")
-        #     try:
-        #         # Build the image using Docker CLI with real-time output streaming
-        #         build_cmd = [
-        #             "docker", 
-        #             "build", 
-        #             "-t", 
-        #             f"commandlab-daemon:{self.version}",
-        #             "--build-arg",
-        #             f"VERSION={get_package_version()}",
-        #             "-f", 
-        #             str(self.dockerfile_path),
-        #             str(PROJ_DIR)
-        #         ]
-                
-        #         print(f"Running command: {' '.join(build_cmd)}")
-                
-        #         # Use Popen to stream output in real-time
-        #         process = subprocess.Popen(
-        #             build_cmd,
-        #             stdout=subprocess.PIPE,
-        #             stderr=subprocess.STDOUT,
-        #             text=True,
-        #             encoding='utf-8',
-        #             errors='replace',
-        #             bufsize=1,
-        #             universal_newlines=True
-        #         )
-                
-        #         # Stream the output
-        #         for line in iter(process.stdout.readline, ''):
-        #             line = line.strip()
-        #             if line:
-        #                 print(f"Docker build: {line}")
-                
-        #         # Wait for process to complete and check return code
-        #         return_code = process.wait()
-        #         if return_code != 0:
-        #             raise subprocess.CalledProcessError(return_code, build_cmd)
-                
-        #         print(f"Docker image built successfully: commandlab-daemon:{self.version}")
-        #     except subprocess.CalledProcessError as e:
-        #         import traceback
-        #         traceback.print_exc()
-        #         print(f"Docker build failed: {str(e)}")
-        #         raise RuntimeError(f"Docker build failed: {str(e)}")
-
-        # Run the container using Docker CLI        
-        run_command([
-            "docker", 
-            "run",
-            "--name", 
-            self.container_name,
+        # Run the container using Docker CLI with output streaming in a separate thread
+        run_cmd = [
+            "docker",
+            "run", 
+            "-it",
             "-d",  # detached mode
-            "-p", 
+            "-p",
             f"{self.port}:{self.port}",
             f"commandlab-daemon:{self.version}"
-        ], "Starting local Docker container")
+        ]
+
+        print(f"Running command: {' '.join(run_cmd)}")
+
+        # Create a function to run in a separate thread
+        def run_docker_container():
+            process = subprocess.Popen(
+                run_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding='utf-8',
+                errors='replace',
+                bufsize=1,
+                universal_newlines=True
+            )
+
+            # Store the process so it can be accessed during teardown
+            self._docker_process = process
+
+            # Stream the output
+            for line in iter(process.stdout.readline, ''):
+                line = line.strip()
+                if line:
+                    print(f"Docker run: {line}")
+
+            # Wait for process to complete and check return code
+            return_code = process.wait()
+            if return_code != 0:
+                print(f"Docker process exited with code {return_code}")
+
+        # Start the docker container in a separate thread
+        self._docker_thread = threading.Thread(target=run_docker_container, daemon=True)
+        self._docker_thread.start()
+
+        print("Docker container started in background")
+
+        time.sleep(10)
 
     def _setup_aws_ecs(self):
         """Setup AWS ECS container"""

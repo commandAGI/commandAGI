@@ -7,9 +7,7 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.computer_start_action import ComputerStartAction
 from ...models.http_validation_error import HTTPValidationError
-from ...models.start_computer_computer_start_post_response_start_computer_computer_start_post import (
-    StartComputerComputerStartPostResponseStartComputerComputerStartPost,
-)
+from ...models.success_response import SuccessResponse
 from ...types import Response
 
 
@@ -35,16 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StartComputerComputerStartPostResponseStartComputerComputerStartPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     if response.status_code == 200:
-        response_200 = StartComputerComputerStartPostResponseStartComputerComputerStartPost.from_dict(
-            response.json()
-        )
+        response_200 = SuccessResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -59,12 +50,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StartComputerComputerStartPostResponseStartComputerComputerStartPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,12 +63,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: ComputerStartAction,
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StartComputerComputerStartPostResponseStartComputerComputerStartPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     """Start Computer
 
     Args:
@@ -93,7 +74,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StartComputerComputerStartPostResponseStartComputerComputerStartPost]]
+        Response[Union[HTTPValidationError, SuccessResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -111,12 +92,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: ComputerStartAction,
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StartComputerComputerStartPostResponseStartComputerComputerStartPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     """Start Computer
 
     Args:
@@ -127,7 +103,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StartComputerComputerStartPostResponseStartComputerComputerStartPost]
+        Union[HTTPValidationError, SuccessResponse]
     """
 
     return sync_detailed(
@@ -140,12 +116,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: ComputerStartAction,
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StartComputerComputerStartPostResponseStartComputerComputerStartPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     """Start Computer
 
     Args:
@@ -156,7 +127,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StartComputerComputerStartPostResponseStartComputerComputerStartPost]]
+        Response[Union[HTTPValidationError, SuccessResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -172,12 +143,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: ComputerStartAction,
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StartComputerComputerStartPostResponseStartComputerComputerStartPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     """Start Computer
 
     Args:
@@ -188,7 +154,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StartComputerComputerStartPostResponseStartComputerComputerStartPost]
+        Union[HTTPValidationError, SuccessResponse]
     """
 
     return (

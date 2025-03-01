@@ -11,6 +11,7 @@ import tempfile
 from typing import Optional, Dict, Any, List, Tuple, Literal
 from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
 from commandLAB.computers.base_computer import BaseComputer
 from commandLAB.computers.local_pynput_computer import LocalPynputComputer
 from commandLAB.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
@@ -58,6 +59,16 @@ from commandLAB.types import (
     DisplaysObservation,
 )
 
+# Define response models for consistent API responses
+class SuccessResponse(BaseModel):
+    success: bool
+
+class MessageResponse(BaseModel):
+    success: bool
+    message: str
+
+class VideoStreamUrlResponse(BaseModel):
+    url: str
 
 class ComputerDaemon:
     # Default VNC executables
@@ -126,17 +137,17 @@ class ComputerDaemon:
                 raise HTTPException(status_code=401, detail="Invalid token")
             return credentials.credentials
 
-        @app.post("/reset")
+        @app.post("/reset", response_model=SuccessResponse)
         async def reset(token: str = Depends(verify_token)) -> Dict[str, Any]:
-            return self._computer.reset_state()
+            return {"success": self._computer.reset_state()}
 
-        @app.post("/execute/command")
+        @app.post("/execute/command", response_model=SuccessResponse)
         async def execute_command(
             action: ShellCommandAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.shell(action.command, action.timeout, action.executible)}
 
-        @app.post("/execute/run_process")
+        @app.post("/execute/run_process", response_model=SuccessResponse)
         async def execute_run_process(
             action: RunProcessAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
@@ -144,77 +155,77 @@ class ComputerDaemon:
                 action.command, action.args, action.cwd, action.env, action.timeout
             )}
 
-        @app.post("/execute/keyboard/key_down")
+        @app.post("/execute/keyboard/key_down", response_model=SuccessResponse)
         async def execute_keyboard_key_down(
             action: KeyboardKeyDownAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_keyboard_key_down(action.key)}
 
-        @app.post("/execute/keyboard/key_release")
+        @app.post("/execute/keyboard/key_release", response_model=SuccessResponse)
         async def execute_keyboard_key_release(
             action: KeyboardKeyReleaseAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_keyboard_key_release(action.key)}
 
-        @app.post("/execute/keyboard/key_press")
+        @app.post("/execute/keyboard/key_press", response_model=SuccessResponse)
         async def execute_keyboard_key_press(
             action: KeyboardKeyPressAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_keyboard_key_press(action.key, action.duration)}
 
-        @app.post("/execute/keyboard/keys_press")
+        @app.post("/execute/keyboard/keys_press", response_model=SuccessResponse)
         async def execute_keyboard_keys_press(
             action: KeyboardKeysPressAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_keyboard_keys_press(action.keys, action.duration)}
 
-        @app.post("/execute/keyboard/keys_down")
+        @app.post("/execute/keyboard/keys_down", response_model=SuccessResponse)
         async def execute_keyboard_keys_down(
             action: KeyboardKeysDownAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_keyboard_keys_down(action.keys)}
 
-        @app.post("/execute/keyboard/keys_release")
+        @app.post("/execute/keyboard/keys_release", response_model=SuccessResponse)
         async def execute_keyboard_keys_release(
             action: KeyboardKeysReleaseAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_keyboard_keys_release(action.keys)}
 
-        @app.post("/execute/keyboard/hotkey")
+        @app.post("/execute/keyboard/hotkey", response_model=SuccessResponse)
         async def execute_keyboard_hotkey(
             action: KeyboardHotkeyAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_keyboard_hotkey(action.keys)}
 
-        @app.post("/execute/type")
+        @app.post("/execute/type", response_model=SuccessResponse)
         async def execute_type(action: TypeAction, token: str = Depends(verify_token)) -> Dict[str, bool]:
             return {"success": self._computer.execute_type(action.text)}
 
-        @app.post("/execute/mouse/move")
+        @app.post("/execute/mouse/move", response_model=SuccessResponse)
         async def execute_mouse_move(
             action: MouseMoveAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_mouse_move(action.x, action.y, action.move_duration)}
 
-        @app.post("/execute/mouse/scroll")
+        @app.post("/execute/mouse/scroll", response_model=SuccessResponse)
         async def execute_mouse_scroll(
             action: MouseScrollAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_mouse_scroll(action.amount)}
 
-        @app.post("/execute/mouse/button_down")
+        @app.post("/execute/mouse/button_down", response_model=SuccessResponse)
         async def execute_mouse_button_down(
             action: MouseButtonDownAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_mouse_button_down(action.button)}
 
-        @app.post("/execute/mouse/button_up")
+        @app.post("/execute/mouse/button_up", response_model=SuccessResponse)
         async def execute_mouse_button_up(
             action: MouseButtonUpAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.execute_mouse_button_up(action.button)}
 
-        @app.post("/execute/click")
+        @app.post("/execute/click", response_model=SuccessResponse)
         async def execute_click(
             action: ClickAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
@@ -222,7 +233,7 @@ class ComputerDaemon:
                 action.x, action.y, action.move_duration, action.press_duration, action.button
             )}
 
-        @app.post("/execute/double_click")
+        @app.post("/execute/double_click", response_model=SuccessResponse)
         async def execute_double_click(
             action: DoubleClickAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
@@ -231,7 +242,7 @@ class ComputerDaemon:
                 action.button, action.double_click_interval_seconds
             )}
 
-        @app.post("/execute/drag")
+        @app.post("/execute/drag", response_model=SuccessResponse)
         async def execute_drag(
             action: DragAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
@@ -276,106 +287,106 @@ class ComputerDaemon:
         async def get_displays(token: str = Depends(verify_token)) -> DisplaysObservation:
             return self._computer.get_displays()
 
-        @app.post("/file/copy_to_computer")
+        @app.post("/file/copy_to_computer", response_model=SuccessResponse)
         async def copy_to_computer(
             action: FileCopyToComputerAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.copy_to_computer(action.source_path, action.destination_path)}
 
-        @app.post("/file/copy_from_computer")
+        @app.post("/file/copy_from_computer", response_model=SuccessResponse)
         async def copy_from_computer(
             action: FileCopyFromComputerAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.copy_from_computer(action.source_path, action.destination_path)}
 
-        @app.post("/jupyter/start_server")
+        @app.post("/jupyter/start_server", response_model=SuccessResponse)
         async def start_jupyter_server(
             action: JupyterStartServerAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.start_jupyter_server(action.port, action.notebook_dir)}
 
-        @app.post("/jupyter/stop_server")
+        @app.post("/jupyter/stop_server", response_model=SuccessResponse)
         async def stop_jupyter_server(
             action: JupyterStopServerAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.stop_jupyter_server()}
 
-        @app.post("/video/start_stream")
+        @app.post("/video/start_stream", response_model=SuccessResponse)
         async def start_video_stream(
             action: VideoStartStreamAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.start_video_stream()}
 
-        @app.post("/video/stop_stream")
+        @app.post("/video/stop_stream", response_model=SuccessResponse)
         async def stop_video_stream(
             action: VideoStopStreamAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.stop_video_stream()}
 
-        @app.get("/video/stream_url")
+        @app.get("/video/stream_url", response_model=VideoStreamUrlResponse)
         async def get_video_stream_url(token: str = Depends(verify_token)) -> Dict[str, str]:
             return {"url": self._computer.video_stream_url}
 
-        @app.post("/computer/start")
+        @app.post("/computer/start", response_model=SuccessResponse)
         async def start_computer(
             action: ComputerStartAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.start()}
 
-        @app.post("/computer/stop")
+        @app.post("/computer/stop", response_model=SuccessResponse)
         async def stop_computer(
             action: ComputerStopAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.stop()}
 
-        @app.post("/computer/pause")
+        @app.post("/computer/pause", response_model=SuccessResponse)
         async def pause_computer(
             action: ComputerPauseAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.pause()}
 
-        @app.post("/computer/resume")
+        @app.post("/computer/resume", response_model=SuccessResponse)
         async def resume_computer(
             action: ComputerResumeAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {"success": self._computer.resume(action.timeout_hours)}
 
-        @app.post("/vnc/start")
+        @app.post("/vnc/start", response_model=MessageResponse)
         async def start_vnc_server(
             action: VncStartServerAction, token: str = Depends(verify_token)
         ) -> Dict[str, Any]:
             success, message = self.start_vnc_server()
             return {"success": success, "message": message}
 
-        @app.post("/vnc/stop")
+        @app.post("/vnc/stop", response_model=MessageResponse)
         async def stop_vnc_server(
             action: VncStopServerAction, token: str = Depends(verify_token)
         ) -> Dict[str, Any]:
             success, message = self.stop_vnc_server()
             return {"success": success, "message": message}
 
-        @app.post("/rdp/start")
+        @app.post("/rdp/start", response_model=MessageResponse)
         async def start_rdp_server(
             action: RdpStartServerAction, token: str = Depends(verify_token)
         ) -> Dict[str, Any]:
             success, message = self.start_rdp_server()
             return {"success": success, "message": message}
 
-        @app.post("/rdp/stop")
+        @app.post("/rdp/stop", response_model=MessageResponse)
         async def stop_rdp_server(
             action: RdpStopServerAction, token: str = Depends(verify_token)
         ) -> Dict[str, Any]:
             success, message = self.stop_rdp_server()
             return {"success": success, "message": message}
             
-        @app.post("/mcp/start")
+        @app.post("/mcp/start", response_model=MessageResponse)
         async def start_mcp_server_endpoint(
             action: McpStartServerAction, token: str = Depends(verify_token)
         ) -> Dict[str, Any]:
             success, message = self.start_mcp_server()
             return {"success": success, "message": message}
             
-        @app.post("/mcp/stop")
+        @app.post("/mcp/stop", response_model=MessageResponse)
         async def stop_mcp_server_endpoint(
             action: McpStopServerAction, token: str = Depends(verify_token)
         ) -> Dict[str, Any]:

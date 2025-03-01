@@ -7,9 +7,7 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.jupyter_stop_server_action import JupyterStopServerAction
-from ...models.stop_jupyter_server_jupyter_stop_server_post_response_stop_jupyter_server_jupyter_stop_server_post import (
-    StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost,
-)
+from ...models.success_response import SuccessResponse
 from ...types import Response
 
 
@@ -35,16 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     if response.status_code == 200:
-        response_200 = StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost.from_dict(
-            response.json()
-        )
+        response_200 = SuccessResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -59,12 +50,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,12 +63,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: JupyterStopServerAction,
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     """Stop Jupyter Server
 
     Args:
@@ -93,7 +74,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost]]
+        Response[Union[HTTPValidationError, SuccessResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -111,12 +92,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: JupyterStopServerAction,
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     """Stop Jupyter Server
 
     Args:
@@ -127,7 +103,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost]
+        Union[HTTPValidationError, SuccessResponse]
     """
 
     return sync_detailed(
@@ -140,12 +116,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: JupyterStopServerAction,
-) -> Response[
-    Union[
-        HTTPValidationError,
-        StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost,
-    ]
-]:
+) -> Response[Union[HTTPValidationError, SuccessResponse]]:
     """Stop Jupyter Server
 
     Args:
@@ -156,7 +127,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost]]
+        Response[Union[HTTPValidationError, SuccessResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -172,12 +143,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: JupyterStopServerAction,
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost,
-    ]
-]:
+) -> Optional[Union[HTTPValidationError, SuccessResponse]]:
     """Stop Jupyter Server
 
     Args:
@@ -188,7 +154,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StopJupyterServerJupyterStopServerPostResponseStopJupyterServerJupyterStopServerPost]
+        Union[HTTPValidationError, SuccessResponse]
     """
 
     return (
