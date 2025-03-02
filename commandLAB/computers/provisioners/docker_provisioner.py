@@ -59,7 +59,7 @@ class DockerProvisioner(BaseComputerProvisioner):
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
-        daemon_port: Optional[int] = 8000,
+        daemon_port: Optional[int] = None,
         port_range: Optional[Tuple[int, int]] = None,
         daemon_token: Optional[str] = None,
         container_name: Optional[str] = None,
@@ -277,9 +277,33 @@ class DockerProvisioner(BaseComputerProvisioner):
         retry_count = 0
         
         # Find an available port if needed
-        if self.daemon_port is None or not find_free_port(preferred_port=self.daemon_port):
-            self.daemon_port = find_free_port(port_range=self.port_range)
-            print(f"Using port {self.daemon_port} for daemon service")
+        if self.daemon_port is None:
+            # No port specified, find one in the given range or any available port
+            original_port_range = self.port_range
+            try:
+                self.daemon_port = find_free_port(port_range=self.port_range)
+                print(f"Selected port {self.daemon_port} for daemon service" + 
+                      (f" from range {original_port_range}" if original_port_range else ""))
+            except RuntimeError as e:
+                # Handle the case where no ports are available in the specified range
+                print(f"Warning: {str(e)}. Trying to find any available port.")
+                self.daemon_port = find_free_port()
+                print(f"Selected port {self.daemon_port} outside of requested range")
+        elif not find_free_port(preferred_port=self.daemon_port):
+            # Specified port is not available, find an alternative
+            print(f"Requested port {self.daemon_port} is not available")
+            original_port = self.daemon_port
+            try:
+                self.daemon_port = find_free_port(port_range=self.port_range)
+                print(f"Using alternative port {self.daemon_port} instead of {original_port}")
+            except RuntimeError as e:
+                # Handle the case where no ports are available in the specified range
+                print(f"Warning: {str(e)}. Trying to find any available port.")
+                self.daemon_port = find_free_port()
+                print(f"Selected port {self.daemon_port} outside of requested range")
+        else:
+            # Specified port is available, use it
+            print(f"Using requested port {self.daemon_port} for daemon service")
             
         # If container_name is not provided, find the next available name
         if self.container_name is None:

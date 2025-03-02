@@ -5,6 +5,7 @@ from commandLAB.computers.provisioners.docker_provisioner import DockerProvision
 # Create first provisioner with default port (8000)
 provisioner1 = DockerProvisioner(
     container_name="commandlab-daemon-1",
+    daemon_port=8000,  # Explicitly request port 8000
     daemon_token="token-for-container-1"
 )
 
@@ -18,6 +19,7 @@ provisioner2 = DockerProvisioner(
 # Create third provisioner with port range
 provisioner3 = DockerProvisioner(
     container_name="commandlab-daemon-3",
+    daemon_port=None,  # Explicitly set to None to use port_range
     port_range=(8100, 8200),  # Use a port in this range
     daemon_token="token-for-container-3"
 )
