@@ -521,7 +521,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                 "docker",
                 "inspect",
                 "-f",
-                "{{.State.Running}}",
+                "\"{{.State.Running}}\"",
                 self.container_name
             ]
             
@@ -531,8 +531,8 @@ class DockerProvisioner(BaseComputerProvisioner):
                 text=True,
                 check=True
             )
-            
-            is_running = result.stdout.strip() == "true"
+                
+            is_running = result.stdout.strip().strip("\"\'") == "true"
             print(f"Docker container {self.container_name} running status: {is_running}")
             return is_running
         except subprocess.CalledProcessError as e:
