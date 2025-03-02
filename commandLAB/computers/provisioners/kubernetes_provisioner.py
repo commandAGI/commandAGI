@@ -1,12 +1,11 @@
 from enum import Enum
 from kubernetes import client, config
-from typing import Optional, Tuple
+from typing import Optional
 import time
 import logging
 import re
 from .base_provisioner import BaseComputerProvisioner
 from commandLAB.version import get_container_version
-from commandLAB._utils.network import find_free_port
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,6 @@ class KubernetesProvisioner(BaseComputerProvisioner):
     Args:
         daemon_base_url: Base URL for the daemon service
         daemon_port: Port for the daemon service
-        port_range: Optional range of ports to try if daemon_port is not available
         platform: Kubernetes platform to use (LOCAL, AWS_EKS, AZURE_AKS, GCP_GKE)
         namespace: Kubernetes namespace to use
         deployment_name: Optional name for the deployment. If not provided, a name will be generated
@@ -48,8 +46,7 @@ class KubernetesProvisioner(BaseComputerProvisioner):
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
-        daemon_port: Optional[int] = 8000,
-        port_range: Optional[Tuple[int, int]] = None,
+        daemon_port: Optional[int] = None,
         platform: KubernetesPlatform = KubernetesPlatform.LOCAL,
         namespace: str = "default",
         deployment_name: Optional[str] = None,
@@ -69,7 +66,6 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         super().__init__(
             daemon_base_url=daemon_base_url,
             daemon_port=daemon_port,
-            port_range=port_range,
         )
 
         self.platform = platform
@@ -192,12 +188,12 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         self.resources_created = False
         retry_count = 0
 
-        # Find an available port if needed
-        if self.daemon_port is None or not find_free_port(
-            preferred_port=self.daemon_port
-        ):
-            self.daemon_port = find_free_port(port_range=self.port_range)
-            logger.info(f"Using port {self.daemon_port} for daemon service")
+        # Use default port 8000 if not specified
+        if self.daemon_port is None:
+            self.daemon_port = 8000
+            logger.info(f"Using default port {self.daemon_port} for daemon service")
+        else:
+            logger.info(f"Using specified port {self.daemon_port} for daemon service")
 
         # If deployment_name is not provided, find the next available name
         if self.deployment_name is None:

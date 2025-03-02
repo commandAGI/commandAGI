@@ -34,7 +34,13 @@ class DockerProvisioner(BaseComputerProvisioner):
     Args:
         daemon_base_url: Base URL for the daemon service
         daemon_port: Port for the daemon service
-        port_range: Optional range of ports to try if daemon_port is not available
+        port_range: Optional range of ports to try if daemon_port is not available.
+                   NOTE: This parameter is only used for LOCAL Docker containers.
+                   When running locally, port collisions can occur with existing containers
+                   or other processes. The port_range allows the provisioner to find the
+                   next available port within the specified range if the requested port
+                   is unavailable. This is not needed for cloud provisioners where exact
+                   ports can be specified during VM/container creation.
         daemon_token: Optional authentication token for the daemon
         container_name: Optional name for the container. If not provided, a name will be generated
                        based on name_prefix
@@ -58,7 +64,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         self,
         daemon_base_url: str = "http://localhost",
         daemon_port: Optional[int] = None,
-        port_range: Optional[Tuple[int, int]] = None,
+        port_range: Optional[Tuple[int, int]] = None,  # Only used for LOCAL platform to handle port collisions
         daemon_token: Optional[str] = None,
         container_name: Optional[str] = None,
         name_prefix: str = "commandlab-daemon",
@@ -85,7 +91,6 @@ class DockerProvisioner(BaseComputerProvisioner):
         super().__init__(
             daemon_base_url=daemon_base_url,
             daemon_port=daemon_port,
-            port_range=port_range,
             daemon_token=daemon_token,
             max_provisioning_retries=max_retries,
             timeout=timeout,
@@ -93,6 +98,7 @@ class DockerProvisioner(BaseComputerProvisioner):
             health_check_timeout=health_check_timeout,
         )
 
+        self.port_range = port_range
         self.name_prefix = name_prefix
         self.container_name = container_name
         self.platform = platform
@@ -235,6 +241,13 @@ class DockerProvisioner(BaseComputerProvisioner):
         print(f"Starting local Docker container")
 
         # Find an available port if needed for local setup
+        # NOTE: This port handling logic is specific to LOCAL Docker containers.
+        # When running locally, we need to handle port collisions that can occur with:
+        # 1. Other running Docker containers
+        # 2. System processes using the same ports
+        # 3. Other commandLAB daemon instances
+        # This is why we implement port scanning and fallback logic for local containers.
+        # Cloud provisioners don't need this as they can specify exact ports during VM/container creation.
         if self.daemon_port is None:
             # No port specified, find one in the given range or any available port
             original_port_range = self.port_range
@@ -255,6 +268,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                 print(f"Selected port {self.daemon_port} outside of requested range")
         elif not find_free_port(preferred_port=self.daemon_port):
             # Specified port is not available, find an alternative
+            # This is important for local development where ports might be used by other processes
             print(f"Requested port {self.daemon_port} is not available")
             original_port = self.daemon_port
             try:

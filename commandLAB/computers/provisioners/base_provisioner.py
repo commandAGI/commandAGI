@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional
 import secrets
 import time
 import requests
@@ -25,8 +25,7 @@ class BaseComputerProvisioner(ABC):
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
-        daemon_port: Optional[int] = 8000,
-        port_range: Optional[Tuple[int, int]] = None,
+        daemon_port: Optional[int] = None,
         daemon_token: Optional[str] = None,
         max_provisioning_retries: int = 3,
         timeout: int = 900,  # 15 minutes
@@ -37,8 +36,7 @@ class BaseComputerProvisioner(ABC):
 
         Args:
             daemon_base_url: Base URL for the daemon service
-            daemon_port: Preferred port for the daemon service
-            port_range: Optional range of ports to try if preferred port is unavailable
+            daemon_port: Port for the daemon service (default: 8000 if None)
             daemon_token: Authentication token for the daemon service. If None, a random token will be generated.
             max_provisioning_retries: Maximum number of retries for setup operations
             timeout: Timeout in seconds for operations
@@ -46,8 +44,7 @@ class BaseComputerProvisioner(ABC):
             health_check_timeout: Timeout in seconds for the daemon responsiveness check
         """
         self.daemon_base_url = daemon_base_url
-        self.daemon_port = daemon_port
-        self.port_range = port_range
+        self.daemon_port = daemon_port if daemon_port is not None else 8000
         self.daemon_token = daemon_token or secrets.token_urlsafe(32)
         self.max_provisioning_retries = max_provisioning_retries
         self.timeout = timeout
