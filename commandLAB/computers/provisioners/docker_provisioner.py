@@ -222,10 +222,6 @@ class DockerProvisioner(BaseComputerProvisioner):
         Returns:
             str: The next available container name
         """
-        if self.platform != DockerPlatform.LOCAL:
-            # For non-local platforms, just use the prefix as the name
-            return self.name_prefix
-
         try:
             # List all containers (including stopped ones)
             list_cmd = ["docker", "ps", "-a", "--format", "{{.Names}}"]
@@ -283,48 +279,6 @@ class DockerProvisioner(BaseComputerProvisioner):
         self._status = "starting"
         print(f"Status set to: {self._status}")
         retry_count = 0
-
-        # Find an available port if needed
-        if self.daemon_port is None:
-            # No port specified, find one in the given range or any available port
-            original_port_range = self.port_range
-            try:
-                self.daemon_port = find_free_port(port_range=self.port_range)
-                print(
-                    f"Selected port {self.daemon_port} for daemon service"
-                    + (
-                        f" from range {original_port_range}"
-                        if original_port_range
-                        else ""
-                    )
-                )
-            except RuntimeError as e:
-                # Handle the case where no ports are available in the specified range
-                print(f"Warning: {str(e)}. Trying to find any available port.")
-                self.daemon_port = find_free_port()
-                print(f"Selected port {self.daemon_port} outside of requested range")
-        elif not find_free_port(preferred_port=self.daemon_port):
-            # Specified port is not available, find an alternative
-            print(f"Requested port {self.daemon_port} is not available")
-            original_port = self.daemon_port
-            try:
-                self.daemon_port = find_free_port(port_range=self.port_range)
-                print(
-                    f"Using alternative port {self.daemon_port} instead of {original_port}"
-                )
-            except RuntimeError as e:
-                # Handle the case where no ports are available in the specified range
-                print(f"Warning: {str(e)}. Trying to find any available port.")
-                self.daemon_port = find_free_port()
-                print(f"Selected port {self.daemon_port} outside of requested range")
-        else:
-            # Specified port is available, use it
-            print(f"Using requested port {self.daemon_port} for daemon service")
-
-        # If container_name is not provided, find the next available name
-        if self.container_name is None:
-            self.container_name = self._find_next_available_container_name()
-            print(f"Using container name: {self.container_name}")
 
         while retry_count < self.max_retries:
             print(f"Attempt {retry_count + 1}/{self.max_retries} to setup container")
@@ -389,7 +343,49 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def _setup_local(self):
         """Setup local Docker container"""
-        print(f"Starting local Docker container {self.container_name}")
+        print(f"Starting local Docker container")
+        
+        # Find an available port if needed for local setup
+        if self.daemon_port is None:
+            # No port specified, find one in the given range or any available port
+            original_port_range = self.port_range
+            try:
+                self.daemon_port = find_free_port(port_range=self.port_range)
+                print(
+                    f"Selected port {self.daemon_port} for daemon service"
+                    + (
+                        f" from range {original_port_range}"
+                        if original_port_range
+                        else ""
+                    )
+                )
+            except RuntimeError as e:
+                # Handle the case where no ports are available in the specified range
+                print(f"Warning: {str(e)}. Trying to find any available port.")
+                self.daemon_port = find_free_port()
+                print(f"Selected port {self.daemon_port} outside of requested range")
+        elif not find_free_port(preferred_port=self.daemon_port):
+            # Specified port is not available, find an alternative
+            print(f"Requested port {self.daemon_port} is not available")
+            original_port = self.daemon_port
+            try:
+                self.daemon_port = find_free_port(port_range=self.port_range)
+                print(
+                    f"Using alternative port {self.daemon_port} instead of {original_port}"
+                )
+            except RuntimeError as e:
+                # Handle the case where no ports are available in the specified range
+                print(f"Warning: {str(e)}. Trying to find any available port.")
+                self.daemon_port = find_free_port()
+                print(f"Selected port {self.daemon_port} outside of requested range")
+        else:
+            # Specified port is available, use it
+            print(f"Using requested port {self.daemon_port} for daemon service")
+            
+        # If container_name is not provided, find the next available name for local setup
+        if self.container_name is None:
+            self.container_name = self._find_next_available_container_name()
+            print(f"Using container name: {self.container_name}")
 
         # Run the container using Docker CLI with output streaming in a separate thread
         run_cmd = [
@@ -452,6 +448,16 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _setup_aws_ecs(self):
         """Setup AWS ECS container"""
         print(f"Starting AWS ECS task in region {self.region}")
+        
+        # For cloud platforms, use fixed port 8000 if not specified
+        if self.daemon_port is None:
+            self.daemon_port = 8000
+            print(f"Using default port {self.daemon_port} for AWS ECS")
+            
+        # Use simple naming for cloud platforms
+        if self.container_name is None:
+            self.container_name = f"{self.name_prefix}-ecs"
+            print(f"Using container name: {self.container_name}")
 
         response = self.ecs_client.run_task(
             cluster="commandlab-cluster",
@@ -478,9 +484,17 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def _setup_azure_container_instances(self):
         """Setup Azure Container Instances"""
-        print(
-            f"Starting Azure Container Instance {self.container_name} in resource group {self.resource_group}"
-        )
+        print(f"Starting Azure Container Instance in resource group {self.resource_group}")
+        
+        # For cloud platforms, use fixed port 8000 if not specified
+        if self.daemon_port is None:
+            self.daemon_port = 8000
+            print(f"Using default port {self.daemon_port} for Azure Container Instances")
+            
+        # Use simple naming for cloud platforms
+        if self.container_name is None:
+            self.container_name = f"{self.name_prefix}-aci"
+            print(f"Using container name: {self.container_name}")
 
         container_group = {
             "location": self.region,
@@ -516,9 +530,17 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def _setup_gcp_cloud_run(self):
         """Setup GCP Cloud Run container"""
-        print(
-            f"Starting GCP Cloud Run service {self.container_name} in project {self.project_id}"
-        )
+        print(f"Starting GCP Cloud Run service in project {self.project_id}")
+        
+        # For cloud platforms, use fixed port 8000 if not specified
+        if self.daemon_port is None:
+            self.daemon_port = 8000
+            print(f"Using default port {self.daemon_port} for GCP Cloud Run")
+            
+        # Use simple naming for cloud platforms
+        if self.container_name is None:
+            self.container_name = f"{self.name_prefix}-gcr"
+            print(f"Using container name: {self.container_name}")
 
         service = {
             "apiVersion": "serving.knative.dev/v1",
