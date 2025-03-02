@@ -53,6 +53,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         max_retries: Maximum number of retries for setup operations
         timeout: Timeout in seconds for operations
         max_health_retries: Maximum number of retries for health checks
+        health_check_timeout: Timeout in seconds for the daemon responsiveness check
         dockerfile_path: Path to the Dockerfile
     """
     def __init__(
@@ -76,6 +77,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         max_retries: int = 3,
         timeout: int = 900,  # 15 minutes
         max_health_retries: int = 3,
+        health_check_timeout: int = 60,  # 1 minute
         dockerfile_path: Optional[str] = Path(__file__).parent.parent.parent.parent / "resources" / "docker" / "Dockerfile",
     ):
         # Initialize the base class with daemon URL and port
@@ -103,6 +105,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         self._task_arn = None
         self.dockerfile_path = dockerfile_path
         self.max_health_retries = max_health_retries
+        self.health_check_timeout = health_check_timeout
 
         # Initialize cloud clients if needed
         match platform:
@@ -227,14 +230,15 @@ class DockerProvisioner(BaseComputerProvisioner):
                         raise ValueError(f"Unsupported platform: {self.platform}")
 
                 # Wait for the container to be running and the daemon to be responsive
-                print(f"Waiting for container and daemon to be running (timeout: {self.timeout}s)")
+                print(f"Waiting for container and daemon to be running (container timeout: {self.timeout}s, daemon timeout: {self.health_check_timeout}s)")
                 start_time = time.time()
                 while time.time() - start_time < self.timeout:
-                    if self.is_running():
+                    # Use the combined check which has its own internal timeouts
+                    if self.is_running_and_responsive():
                         self._status = "running"
                         print(f"Container and daemon are now running after {int(time.time() - start_time)}s")
                         return
-                    print("Container or daemon not yet running, checking again in 5s")
+                    print("Waiting for container to be running and daemon to be responsive, checking again in 5s")
                     time.sleep(5)
 
                 # If we get here, the container didn't start in time or the daemon isn't responsive
@@ -540,36 +544,58 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def is_running(self) -> bool:
         """
-        Check if the container is running by first checking the platform-specific status
-        and then performing a health check to the daemon API.
+        Check if the container is running at the platform level.
+        
+        This method only checks if the container/service is running on the selected platform
+        (Docker, AWS ECS, Azure Container Instances, or GCP Cloud Run) without checking
+        if the daemon inside the container is responsive.
+        
+        Returns:
+            bool: True if the container is running, False otherwise
         """
         try:
-            # First check if the container/service is running at the platform level
-            platform_running = False
+            # Check if the container/service is running at the platform level
             match self.platform:
                 case DockerPlatform.LOCAL:
-                    platform_running = self._is_local_running()
+                    return self._is_local_running()
                 case DockerPlatform.AWS_ECS:
-                    platform_running = self._is_aws_ecs_running()
+                    return self._is_aws_ecs_running()
                 case DockerPlatform.AZURE_CONTAINER_INSTANCES:
-                    platform_running = self._is_azure_container_instances_running()
+                    return self._is_azure_container_instances_running()
                 case DockerPlatform.GCP_CLOUD_RUN:
-                    platform_running = self._is_gcp_cloud_run_running()
+                    return self._is_gcp_cloud_run_running()
                 case _:
                     return False
+                
+        except Exception as e:
+            print(f"Error checking if container is running: {e}")
+            return False
             
-            # If the container is not running at the platform level, no need to check the daemon
-            if not platform_running:
-                return False
-            
-            # Now check if the daemon is responsive by making a health check request
+    def is_daemon_responsive(self) -> bool:
+        """
+        Check if the daemon API inside the container is responsive.
+        
+        This method performs a health check to the daemon API to verify that
+        the service inside the container is up and running.
+        
+        Returns:
+            bool: True if the daemon is responsive, False otherwise
+        """
+        try:
+            # Make a health check request to the daemon API
             health_url = f"{self.daemon_base_url}:{self.daemon_port}/health"
             print(f"Performing health check to {health_url}")
             
             # Add retry logic for health check to handle temporary failures
             health_retry_delay = 2  # seconds
+            start_time = time.time()
             
             for retry in range(self.max_health_retries):
+                # Check if we've exceeded the health check timeout
+                if time.time() - start_time > self.health_check_timeout:
+                    print(f"Health check timed out after {int(time.time() - start_time)}s")
+                    return False
+                    
                 try:
                     response = requests.get(health_url, timeout=5)
                     if response.status_code == 200 and response.json().get("healthy", False):
@@ -605,12 +631,44 @@ class DockerProvisioner(BaseComputerProvisioner):
                         health_retry_delay *= 2
             
             # If we get here, all retries failed
-            print(f"All health check attempts failed. Container may be running but daemon is not responsive.")
+            print(f"All health check attempts failed. Daemon is not responsive.")
             return False
                 
         except Exception as e:
-            print(f"Error checking if container is running: {e}")
+            print(f"Error checking if daemon is responsive: {e}")
             return False
+            
+    def is_running_and_responsive(self) -> bool:
+        """
+        Check if the container is running and the daemon is responsive.
+        
+        This method combines the checks from is_running() and is_daemon_responsive()
+        to verify that both the container is running at the platform level and
+        the daemon inside the container is responsive.
+        
+        The two checks are independent and have their own timeout and retry mechanisms:
+        - Container running check: Uses the main timeout and max_retries parameters
+        - Daemon responsiveness check: Uses health_check_timeout and max_health_retries parameters
+        
+        Returns:
+            bool: True if the container is running and the daemon is responsive, False otherwise
+        """
+        # First check if the container is running at the platform level
+        print("Checking if container is running at the platform level...")
+        container_running = self.is_running()
+        if not container_running:
+            print("Container is not running at the platform level")
+            return False
+            
+        # Then check if the daemon is responsive
+        print("Container is running. Now checking if daemon is responsive...")
+        daemon_responsive = self.is_daemon_responsive()
+        if not daemon_responsive:
+            print("Container is running but daemon is not responsive")
+            return False
+            
+        print("Container is running and daemon is responsive")
+        return True
 
     def _is_local_running(self) -> bool:
         """Check if local Docker container is running"""
