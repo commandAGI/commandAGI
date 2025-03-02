@@ -13,6 +13,15 @@ def find_free_port(preferred_port: Optional[int] = None, port_range: Optional[Tu
         
     Raises:
         RuntimeError: If no free ports are available in the specified range
+        
+    Examples:
+        >>> # Basic functionality test - just verify return type
+        >>> port = find_free_port()
+        >>> isinstance(port, int) and port > 0
+        True
+        
+        >>> # We can't easily test the other scenarios in doctests
+        >>> # See tests/test_network.py for more comprehensive tests
     """
     # First try the preferred port if specified
     if preferred_port is not None:
@@ -45,6 +54,15 @@ def _is_port_available(port: int) -> bool:
         
     Returns:
         True if the port is available, False otherwise
+        
+    Examples:
+        >>> # Basic functionality test
+        >>> # This will find a port that should be available
+        >>> with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        ...     s.bind(("", 0))
+        ...     free_port = s.getsockname()[1]
+        >>> _is_port_available(free_port)  # Should be available
+        True
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         try:

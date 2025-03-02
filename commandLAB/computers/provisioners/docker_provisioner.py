@@ -141,6 +141,80 @@ class DockerProvisioner(BaseComputerProvisioner):
         In case of errors when listing containers, it generates a name with a timestamp
         to avoid conflicts.
         
+        Examples:
+            >>> # Mock a provisioner with LOCAL platform
+            >>> provisioner = DockerProvisioner(platform=DockerPlatform.LOCAL)
+            >>> provisioner.name_prefix = "test-daemon"
+            >>> 
+            >>> # Case 1: No containers exist with the prefix
+            >>> # Mock the subprocess.run to return empty list
+            >>> def mock_run_empty(*args, **kwargs):
+            ...     class Result:
+            ...         stdout = ""
+            ...         stderr = ""
+            ...     return Result()
+            >>> 
+            >>> # Patch subprocess.run temporarily
+            >>> import subprocess
+            >>> original_run = subprocess.run
+            >>> subprocess.run = mock_run_empty
+            >>> 
+            >>> # Should return the base name
+            >>> provisioner._find_next_available_container_name()
+            'test-daemon'
+            >>> 
+            >>> # Case 2: Base name is taken, but no numbered suffixes
+            >>> def mock_run_base_taken(*args, **kwargs):
+            ...     class Result:
+            ...         stdout = "test-daemon\\n"
+            ...         stderr = ""
+            ...     return Result()
+            >>> 
+            >>> subprocess.run = mock_run_base_taken
+            >>> provisioner._find_next_available_container_name()
+            'test-daemon-1'
+            >>> 
+            >>> # Case 3: Base name and -1 are taken
+            >>> def mock_run_1_taken(*args, **kwargs):
+            ...     class Result:
+            ...         stdout = "test-daemon\\ntest-daemon-1\\n"
+            ...         stderr = ""
+            ...     return Result()
+            >>> 
+            >>> subprocess.run = mock_run_1_taken
+            >>> provisioner._find_next_available_container_name()
+            'test-daemon-2'
+            >>> 
+            >>> # Case 4: Base name, -1, and -3 are taken (should return -2)
+            >>> def mock_run_gap(*args, **kwargs):
+            ...     class Result:
+            ...         stdout = "test-daemon\\ntest-daemon-1\\ntest-daemon-3\\n"
+            ...         stderr = ""
+            ...     return Result()
+            >>> 
+            >>> subprocess.run = mock_run_gap
+            >>> provisioner._find_next_available_container_name()
+            'test-daemon-2'
+            >>> 
+            >>> # Case 5: Base name, -1, -2, -3 are taken
+            >>> def mock_run_sequential(*args, **kwargs):
+            ...     class Result:
+            ...         stdout = "test-daemon\\ntest-daemon-1\\ntest-daemon-2\\ntest-daemon-3\\n"
+            ...         stderr = ""
+            ...     return Result()
+            >>> 
+            >>> subprocess.run = mock_run_sequential
+            >>> provisioner._find_next_available_container_name()
+            'test-daemon-4'
+            >>> 
+            >>> # Case 6: Non-local platform
+            >>> provisioner.platform = DockerPlatform.AWS_ECS
+            >>> provisioner._find_next_available_container_name()
+            'test-daemon'
+            >>> 
+            >>> # Restore original subprocess.run
+            >>> subprocess.run = original_run
+        
         Returns:
             str: The next available container name
         """
@@ -169,23 +243,25 @@ class DockerProvisioner(BaseComputerProvisioner):
                 # No matching containers found, use the prefix as is
                 return self.name_prefix
                 
-            # Find the highest suffix number
-            highest_suffix = 0
+            # Check if the base name is available
+            if self.name_prefix not in matching_names:
+                return self.name_prefix
+                
+            # Find all used suffix numbers
+            used_suffixes = set()
             for name in matching_names:
                 # Extract the suffix number if it exists
                 suffix_match = re.search(f"^{re.escape(self.name_prefix)}-(\\d+)$", name)
                 if suffix_match:
                     suffix_num = int(suffix_match.group(1))
-                    highest_suffix = max(highest_suffix, suffix_num)
-                elif name == self.name_prefix:
-                    # The base prefix exists without a number
-                    highest_suffix = max(highest_suffix, 0)
+                    used_suffixes.add(suffix_num)
             
-            # Create the next available name
-            if highest_suffix == 0 and self.name_prefix not in matching_names:
-                return self.name_prefix
-            else:
-                return f"{self.name_prefix}-{highest_suffix + 1}"
+            # Find the first available suffix number
+            suffix = 1
+            while suffix in used_suffixes:
+                suffix += 1
+                
+            return f"{self.name_prefix}-{suffix}"
                 
         except subprocess.CalledProcessError as e:
             print(f"Error listing Docker containers: {e}")
@@ -686,10 +762,11 @@ class DockerProvisioner(BaseComputerProvisioner):
                 inspect_cmd,
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
+                timeout=10  # Add a timeout to prevent hanging
             )
                 
-            is_running = result.stdout.strip().strip("\"\'") == "true"
+            is_running = result.stdout.strip().strip("\"\'").lower() == "true"
             print(f"Docker container {self.container_name} running status: {is_running}")
             return is_running
         except subprocess.CalledProcessError as e:
@@ -697,6 +774,9 @@ class DockerProvisioner(BaseComputerProvisioner):
             print(f"Error checking Docker container status: {e}")
             if "No such object" in e.stderr:
                 print(f"Docker container {self.container_name} not found")
+            return False
+        except subprocess.TimeoutExpired:
+            print(f"Timeout while checking Docker container status")
             return False
 
     def _is_aws_ecs_running(self) -> bool:
