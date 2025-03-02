@@ -16,9 +16,11 @@ CommandLAB's gym framework is inspired by OpenAI Gym and provides a standardized
 Before you begin, make sure you have:
 
 - CommandLAB installed with gym and local computer support:
+
   ```bash
   pip install "commandlab[local,gym]"
   ```
+
 - For vision-language models, you'll need an API key for OpenAI, Anthropic, or another supported provider
 
 ## Step 1: Understanding the Gym Framework
@@ -335,4 +337,4 @@ If you're experiencing performance issues:
 
 - Learn about [Vision-Language Models](../guides/vision_language_models.md)
 - Explore [Reinforcement Learning](../guides/reinforcement_learning.md)
-- Try the [Custom Agents Guide](../guides/custom_agents.md) 
+- Try the [Custom Agents Guide](../guides/custom_agents.md)

@@ -110,4 +110,4 @@ To add a new benchmark:
 - Run benchmarks on a quiet system with minimal background activity
 - Run multiple iterations (at least 3) to account for variability
 - Compare relative performance rather than absolute numbers
-- Be aware that performance can vary based on hardware and system load 
+- Be aware that performance can vary based on hardware and system load

@@ -4,7 +4,7 @@
 [x] public observation methods hsould also have property accessors
 [x] screenshot should accept a format: Literal['base64', 'PIL', 'path']='PIL'
 [x] add stubs: `pause`, `resume`, `start_stream`, `stop_stream`, `get_stream_url` stubs to the base computer
-[x] add stubs: `upload` (client -> server), `download` (server -> client), `edit(filepath, contents, mode='create_or_replace', encoding)` 
+[x] add stubs: `upload` (client -> server), `download` (server -> client), `edit(filepath, contents, mode='create_or_replace', encoding)`
 [ ] add `@property sysinfo`, `launch(<appname>)` and more stubs to the base computer (think of others)
 [ ] rename most of the action methods to somehting more user friendly. execute_click -> click, execute_shell_command to shell
 [ ] make the computer.drag start coordinates optional

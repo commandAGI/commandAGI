@@ -133,4 +133,4 @@ computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.AWS_ECS,
     region="us-west-2"
-) 
+)

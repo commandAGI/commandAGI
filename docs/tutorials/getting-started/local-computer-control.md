@@ -29,13 +29,16 @@ This will install the necessary dependencies, including pynput, PyAutoGUI, and m
 ### Platform-Specific Requirements
 
 **Windows**:
+
 - No additional requirements
 
 **macOS**:
+
 - You may need to grant accessibility permissions to your terminal or Python application
 - Go to System Preferences > Security & Privacy > Privacy > Accessibility and add your terminal application
 
 **Linux**:
+
 - X11 is required for input control
 - Install X11 dependencies: `sudo apt-get install python3-xlib python3-tk python3-dev`
 
@@ -386,6 +389,7 @@ else:  # Linux
 **Problem**: `PermissionError` when trying to control mouse or keyboard
 
 **Solution**:
+
 - Run your script with administrator/root privileges
 - On macOS, grant accessibility permissions to your terminal
 - On Linux, ensure you have the necessary X11 permissions
@@ -395,6 +399,7 @@ else:  # Linux
 **Problem**: Clicks are not happening at the expected coordinates
 
 **Solution**:
+
 - Check if you have multiple monitors and adjust coordinates accordingly
 - Use `get_screenshot()` to verify the screen dimensions
 - Add debugging to print the actual mouse position using `get_mouse_state()`
@@ -404,6 +409,7 @@ else:  # Linux
 **Problem**: Actions are happening too quickly or too slowly
 
 **Solution**:
+
 - Adjust `move_duration` and `press_duration` parameters
 - Add `time.sleep()` calls between actions
 - Use `get_mouse_state()` and `get_keyboard_state()` to verify the current state
@@ -412,4 +418,4 @@ else:  # Linux
 
 - Learn about [Remote Computer Control](remote_computer_control.md)
 - Explore [Vision-Language Models](vision_language_models.md) for intelligent automation
-- Try the [Basic Automation Tutorial](../tutorials/basic_automation.md) 
+- Try the [Basic Automation Tutorial](../tutorials/basic_automation.md)

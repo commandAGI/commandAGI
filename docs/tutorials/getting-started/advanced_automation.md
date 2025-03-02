@@ -15,4 +15,4 @@ Advanced automation allows you to create complex workflows and interactions.
 
 ## Getting Started
 
-More detailed documentation coming soon. 
+More detailed documentation coming soon.

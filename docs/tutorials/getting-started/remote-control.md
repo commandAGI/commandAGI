@@ -290,11 +290,13 @@ computer.close()
 If you're having trouble connecting to the daemon:
 
 1. **Check Network Connectivity**: Make sure the machines can communicate
+
    ```bash
    ping target-machine-ip
    ```
 
 2. **Check Firewall Settings**: Make sure the daemon port is open
+
    ```bash
    # On Linux
    sudo ufw status
@@ -304,6 +306,7 @@ If you're having trouble connecting to the daemon:
    ```
 
 3. **Check Daemon Status**: Make sure the daemon is running
+
    ```bash
    # On Linux
    ps aux | grep commandLAB.daemon
@@ -331,4 +334,4 @@ If you're having authentication issues:
 
 - Learn about [Cloud Containers](../guides/cloud_containers.md)
 - Try the [Training Agents Tutorial](training_agents.md)
-- Explore [Provisioners](../concepts/provisioners.md) 
+- Explore [Provisioners](../concepts/provisioners.md)

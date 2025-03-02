@@ -30,4 +30,4 @@ poetry run python 7_automating_computer_interactions.py
 
 ## Next Steps
 
-<!-- This section should be manually filled in with links to related examples or documentation --> 
+<!-- This section should be manually filled in with links to related examples or documentation -->

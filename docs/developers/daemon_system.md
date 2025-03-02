@@ -224,4 +224,4 @@ class MyCustomClient(DaemonClientComputer):
 4. **Timeouts**: Configure appropriate timeouts for your use case
 5. **Logging**: Enable logging for troubleshooting
 
-By following these guidelines, you can create robust and maintainable daemon implementations that integrate seamlessly with the CommandLAB ecosystem. 
+By following these guidelines, you can create robust and maintainable daemon implementations that integrate seamlessly with the CommandLAB ecosystem.

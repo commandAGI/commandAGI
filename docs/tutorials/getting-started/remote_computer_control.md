@@ -14,4 +14,4 @@ Remote computer control allows you to automate tasks on remote machines.
 
 ## Getting Started
 
-More detailed documentation coming soon. 
+More detailed documentation coming soon.

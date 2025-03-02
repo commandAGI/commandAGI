@@ -93,6 +93,7 @@ python -m commandLAB.daemon.cli start \
 ```
 
 The stop commands support two placeholders:
+
 - `{path}` - The full path to the VNC executable
 - `{exe_name}` - The name of the VNC executable (useful for `taskkill` commands on Windows)
 
@@ -226,4 +227,4 @@ If you have issues with RDP:
 
 - Learn about [Remote Control](../getting-started/remote-control.md) to understand how to use the daemon for remote control
 - Explore [Cloud Deployment](cloud-deployment.md) for deploying the daemon in cloud environments
-- Check out [Provisioner Usage](provisioner-usage.md) to learn how to automatically provision daemon environments 
+- Check out [Provisioner Usage](provisioner-usage.md) to learn how to automatically provision daemon environments

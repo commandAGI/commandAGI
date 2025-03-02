@@ -29,7 +29,7 @@ This will:
 mkdocs serve
 ```
 
-This will start a local server at http://127.0.0.1:8000/ where you can preview the documentation.
+This will start a local server at <http://127.0.0.1:8000/> where you can preview the documentation.
 
 ## Documentation Structure
 
