@@ -9,15 +9,12 @@ from azure.identity import DefaultAzureCredential
 from google.cloud import container_v1
 from google.cloud import run_v2
 import threading
-import logging
-import requests
 import re
-from requests.exceptions import RequestException, ConnectionError, Timeout
 
 from commandLAB._utils.command import run_command
 from commandLAB._utils.config import PROJ_DIR
 from commandLAB._utils.network import find_free_port
-from .base_provisioner import BaseComputerProvisioner
+from .base_provisioner import BaseComputerProvisioner, ProvisionerStatus
 from commandLAB.version import get_container_version, get_package_version
 
 
@@ -26,21 +23,6 @@ class DockerPlatform(str, Enum):
     AWS_ECS = "aws_ecs"
     AZURE_CONTAINER_INSTANCES = "azure_container_instances"
     GCP_CLOUD_RUN = "gcp_cloud_run"
-
-
-class DockerProvisionerStatus(str, Enum):
-    """Status states for the Docker provisioner."""
-
-    NOT_STARTED = "not_started"
-    PROVISIONING = "provisioning"
-    STARTING = "starting"
-    HEALTH_CHECKING = "health_checking"
-    RUNNING = "running"
-    STOPPING = "stopping"
-    STOPPED = "stopped"
-    SETUP_ERROR = "setup_error"
-    HEALTH_CHECK_ERROR = "health_check_error"
-    TEARDOWN_ERROR = "teardown_error"
 
 
 class DockerProvisioner(BaseComputerProvisioner):
@@ -105,6 +87,10 @@ class DockerProvisioner(BaseComputerProvisioner):
             daemon_port=daemon_port,
             port_range=port_range,
             daemon_token=daemon_token,
+            max_provisioning_retries=max_retries,
+            timeout=timeout,
+            max_health_retries=max_health_retries,
+            health_check_timeout=health_check_timeout,
         )
 
         self.name_prefix = name_prefix
@@ -117,14 +103,9 @@ class DockerProvisioner(BaseComputerProvisioner):
         self.subnets = subnets or ["subnet-xxxxx"]
         self.security_groups = security_groups or ["sg-xxxxx"]
         self.subscription_id = subscription_id
-        self.max_provisioning_retries = max_retries
-        self.timeout = timeout
-        self._status = DockerProvisionerStatus.NOT_STARTED
         self.container_id = None
         self._task_arn = None
         self.dockerfile_path = dockerfile_path
-        self.max_health_retries = max_health_retries
-        self.health_check_timeout = health_check_timeout
 
         # Initialize cloud clients if needed
         match platform:
@@ -159,80 +140,6 @@ class DockerProvisioner(BaseComputerProvisioner):
 
         In case of errors when listing containers, it generates a name with a timestamp
         to avoid conflicts.
-
-        Examples:
-            >>> # Mock a provisioner with LOCAL platform
-            >>> provisioner = DockerProvisioner(platform=DockerPlatform.LOCAL)
-            >>> provisioner.name_prefix = "test-daemon"
-            >>>
-            >>> # Case 1: No containers exist with the prefix
-            >>> # Mock the subprocess.run to return empty list
-            >>> def mock_run_empty(*args, **kwargs):
-            ...     class Result:
-            ...         stdout = ""
-            ...         stderr = ""
-            ...     return Result()
-            >>>
-            >>> # Patch subprocess.run temporarily
-            >>> import subprocess
-            >>> original_run = subprocess.run
-            >>> subprocess.run = mock_run_empty
-            >>>
-            >>> # Should return the base name
-            >>> provisioner._find_next_available_container_name()
-            'test-daemon'
-            >>>
-            >>> # Case 2: Base name is taken, but no numbered suffixes
-            >>> def mock_run_base_taken(*args, **kwargs):
-            ...     class Result:
-            ...         stdout = "test-daemon\\n"
-            ...         stderr = ""
-            ...     return Result()
-            >>>
-            >>> subprocess.run = mock_run_base_taken
-            >>> provisioner._find_next_available_container_name()
-            'test-daemon-1'
-            >>>
-            >>> # Case 3: Base name and -1 are taken
-            >>> def mock_run_1_taken(*args, **kwargs):
-            ...     class Result:
-            ...         stdout = "test-daemon\\ntest-daemon-1\\n"
-            ...         stderr = ""
-            ...     return Result()
-            >>>
-            >>> subprocess.run = mock_run_1_taken
-            >>> provisioner._find_next_available_container_name()
-            'test-daemon-2'
-            >>>
-            >>> # Case 4: Base name, -1, and -3 are taken (should return -2)
-            >>> def mock_run_gap(*args, **kwargs):
-            ...     class Result:
-            ...         stdout = "test-daemon\\ntest-daemon-1\\ntest-daemon-3\\n"
-            ...         stderr = ""
-            ...     return Result()
-            >>>
-            >>> subprocess.run = mock_run_gap
-            >>> provisioner._find_next_available_container_name()
-            'test-daemon-2'
-            >>>
-            >>> # Case 5: Base name, -1, -2, -3 are taken
-            >>> def mock_run_sequential(*args, **kwargs):
-            ...     class Result:
-            ...         stdout = "test-daemon\\ntest-daemon-1\\ntest-daemon-2\\ntest-daemon-3\\n"
-            ...         stderr = ""
-            ...     return Result()
-            >>>
-            >>> subprocess.run = mock_run_sequential
-            >>> provisioner._find_next_available_container_name()
-            'test-daemon-4'
-            >>>
-            >>> # Case 6: Non-local platform
-            >>> provisioner.platform = DockerPlatform.AWS_ECS
-            >>> provisioner._find_next_available_container_name()
-            'test-daemon'
-            >>>
-            >>> # Restore original subprocess.run
-            >>> subprocess.run = original_run
 
         Returns:
             str: The next available container name
@@ -289,107 +196,39 @@ class DockerProvisioner(BaseComputerProvisioner):
             timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             return f"{self.name_prefix}-{timestamp}"
 
-    def _set_status(self, status: DockerProvisionerStatus) -> None:
-        """Set the provisioner status with logging.
-
-        Args:
-            status: The new status to set
-        """
-        old_status = self._status
-        self._status = status
-        print(f"Status changed: {old_status} -> {status}")
-
-    def setup(self) -> None:
-        print(f"Setting up container with platform {self.platform}")
-        self._set_status(DockerProvisionerStatus.STARTING)
-        provision_attempt = 0
-
-        # First loop: Provisioning with retries
-        while provision_attempt < self.max_provisioning_retries:
-            print(f"Attempt {provision_attempt + 1}/{self.max_provisioning_retries} to setup container")
-            try:
-                self._set_status(DockerProvisionerStatus.PROVISIONING)
-                match self.platform:
-                    case DockerPlatform.LOCAL:
-                        print("Using LOCAL platform setup")
-                        self._setup_local()
-                    case DockerPlatform.AWS_ECS:
-                        print("Using AWS ECS platform setup")
-                        self._setup_aws_ecs()
-                    case DockerPlatform.AZURE_CONTAINER_INSTANCES:
-                        print("Using Azure Container Instances platform setup")
-                        self._setup_azure_container_instances()
-                    case DockerPlatform.GCP_CLOUD_RUN:
-                        print("Using GCP Cloud Run platform setup")
-                        self._setup_gcp_cloud_run()
-                    case _:
-                        raise ValueError(f"Unsupported platform: {self.platform}")
-                
-                # If we get here, provisioning was successful
-                break
-                
-            except Exception as e:
-                provision_attempt += 1
-                if provision_attempt >= self.max_provisioning_retries:
-                    self._set_status(DockerProvisionerStatus.SETUP_ERROR)
-                    print(
-                        f"Failed to setup container after {self.max_provisioning_retries} attempts: {str(e)}"
-                    )
-                    raise
-                backoff_seconds = 2**provision_attempt
-                print(
-                    f"Error setting up container, retrying in {backoff_seconds}s ({provision_attempt}/{self.max_provisioning_retries}): {str(e)}"
-                )
-                time.sleep(backoff_seconds)  # Exponential backoff
+    def _provision_resource(self) -> None:
+        """Provision the Docker container or cloud service based on the selected platform."""
+        print(f"Provisioning container with platform {self.platform}")
         
-        # Second loop: Health checking with its own timeout and retry count
-        self._set_status(DockerProvisionerStatus.HEALTH_CHECKING)
-        print(f"Waiting for container and daemon to be running (timeout: {self.health_check_timeout}s)")
-        
-        health_check_attempt = 0
-        health_check_start_time = time.time()
-        
-        while health_check_attempt < self.max_health_retries:
-            try:
-                # First check if the container is running
-                print("Checking if container is running at the platform level...")
-                container_running = self.is_running()
-                if not container_running:
-                    raise RuntimeError("Container is not running at the platform level")
+        match self.platform:
+            case DockerPlatform.LOCAL:
+                print("Using LOCAL platform setup")
+                self._setup_local()
+            case DockerPlatform.AWS_ECS:
+                print("Using AWS ECS platform setup")
+                self._setup_aws_ecs()
+            case DockerPlatform.AZURE_CONTAINER_INSTANCES:
+                print("Using Azure Container Instances platform setup")
+                self._setup_azure_container_instances()
+            case DockerPlatform.GCP_CLOUD_RUN:
+                print("Using GCP Cloud Run platform setup")
+                self._setup_gcp_cloud_run()
+            case _:
+                raise ValueError(f"Unsupported platform: {self.platform}")
 
-                # Then check if the daemon is responsive
-                print("Container is running. Now checking if daemon is responsive...")
-                daemon_responsive = self.is_daemon_responsive()
-                if not daemon_responsive:
-                    raise RuntimeError("Container is running but daemon is not responsive")
-
-                # Both checks passed
-                print("Container is running and daemon is responsive")
-                self._set_status(DockerProvisionerStatus.RUNNING)
-                print(f"Container and daemon are now running after {int(time.time() - health_check_start_time)}s")
-                return
-                
-            except Exception as e:
-                health_check_attempt += 1
-                elapsed_seconds = int(time.time() - health_check_start_time)
-                
-                # Check if we've exceeded the timeout
-                if elapsed_seconds > self.health_check_timeout:
-                    self._set_status(DockerProvisionerStatus.HEALTH_CHECK_ERROR)
-                    print(f"Timeout waiting for container and daemon to start after {elapsed_seconds}s")
-                    raise TimeoutError(f"Timeout waiting for container and daemon to start after {elapsed_seconds}s")
-                
-                # Check if we've exceeded max retries
-                if health_check_attempt >= self.max_health_retries:
-                    self._set_status(DockerProvisionerStatus.HEALTH_CHECK_ERROR)
-                    print(f"Failed health check after {self.max_health_retries} attempts: {str(e)}")
-                    raise RuntimeError(f"Failed health check after {self.max_health_retries} attempts: {str(e)}")
-                
-                # Wait before retrying
-                retry_wait_seconds = min(5, self.health_check_timeout - elapsed_seconds)  # Don't wait longer than remaining timeout
-                if retry_wait_seconds > 0:
-                    print(f"Health check failed ({health_check_attempt}/{self.max_health_retries}): {str(e)}. Retrying in {retry_wait_seconds}s")
-                    time.sleep(retry_wait_seconds)
+    def _deprovision_resource(self) -> None:
+        """Deprovision the Docker container or cloud service based on the selected platform."""
+        match self.platform:
+            case DockerPlatform.LOCAL:
+                self._teardown_local()
+            case DockerPlatform.AWS_ECS:
+                self._teardown_aws_ecs()
+            case DockerPlatform.AZURE_CONTAINER_INSTANCES:
+                self._teardown_azure_container_instances()
+            case DockerPlatform.GCP_CLOUD_RUN:
+                self._teardown_gcp_cloud_run()
+            case _:
+                raise ValueError(f"Unsupported platform: {self.platform}")
 
     def _setup_local(self):
         """Setup local Docker container"""
@@ -629,27 +468,6 @@ class DockerProvisioner(BaseComputerProvisioner):
         result = operation.result()
         print(f"Started Cloud Run service: {result.name}")
 
-    def teardown(self) -> None:
-        self._set_status(DockerProvisionerStatus.STOPPING)
-
-        try:
-            match self.platform:
-                case DockerPlatform.LOCAL:
-                    self._teardown_local()
-                case DockerPlatform.AWS_ECS:
-                    self._teardown_aws_ecs()
-                case DockerPlatform.AZURE_CONTAINER_INSTANCES:
-                    self._teardown_azure_container_instances()
-                case DockerPlatform.GCP_CLOUD_RUN:
-                    self._teardown_gcp_cloud_run()
-                case _:
-                    raise ValueError(f"Unsupported platform: {self.platform}")
-
-            self._set_status(DockerProvisionerStatus.STOPPED)
-        except Exception as e:
-            self._set_status(DockerProvisionerStatus.TEARDOWN_ERROR)
-            print(f"Error during teardown: {e}")
-
     def _teardown_local(self):
         """Teardown local Docker container"""
         print(f"Stopping Docker container {self.container_name}")
@@ -771,44 +589,6 @@ class DockerProvisioner(BaseComputerProvisioner):
 
         except Exception as e:
             print(f"Error checking if container is running: {e}")
-            return False
-
-    def is_daemon_responsive(self) -> bool:
-        """
-        Check if the daemon API inside the container is responsive.
-
-        This method performs a health check to the daemon API to verify that
-        the service inside the container is up and running.
-
-        Returns:
-            bool: True if the daemon is responsive, False otherwise
-        """
-        try:
-            # Make a health check request to the daemon API
-            health_url = f"{self.daemon_base_url}:{self.daemon_port}/health"
-            print(f"Performing health check to {health_url}")
-
-            # Single attempt health check
-            try:
-                response = requests.get(health_url, timeout=5)
-                if response.status_code == 200 and response.json().get("healthy", False):
-                    print(f"Health check successful: daemon is responsive")
-                    return True
-                else:
-                    print(f"Health check failed: daemon returned status {response.status_code}")
-                    return False
-            except (ConnectionError, Timeout) as e:
-                print(f"Health check failed: could not connect to daemon: {e}")
-                return False
-            except RequestException as e:
-                print(f"Health check failed: request error: {e}")
-                return False
-            except Exception as e:
-                print(f"Health check failed: unexpected error: {e}")
-                return False
-
-        except Exception as e:
-            print(f"Error checking if daemon is responsive: {e}")
             return False
 
     def _is_local_running(self) -> bool:
