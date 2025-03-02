@@ -302,11 +302,11 @@ class DockerProvisioner(BaseComputerProvisioner):
     def setup(self) -> None:
         print(f"Setting up container with platform {self.platform}")
         self._set_status(DockerProvisionerStatus.STARTING)
-        provisioning_retry_count = 0
+        provision_attempt = 0
 
         # First loop: Provisioning with retries
-        while provisioning_retry_count < self.max_provisioning_retries:
-            print(f"Attempt {provisioning_retry_count + 1}/{self.max_provisioning_retries} to setup container")
+        while provision_attempt < self.max_provisioning_retries:
+            print(f"Attempt {provision_attempt + 1}/{self.max_provisioning_retries} to setup container")
             try:
                 self._set_status(DockerProvisionerStatus.PROVISIONING)
                 match self.platform:
@@ -329,27 +329,27 @@ class DockerProvisioner(BaseComputerProvisioner):
                 break
                 
             except Exception as e:
-                provisioning_retry_count += 1
-                if provisioning_retry_count >= self.max_provisioning_retries:
+                provision_attempt += 1
+                if provision_attempt >= self.max_provisioning_retries:
                     self._set_status(DockerProvisionerStatus.SETUP_ERROR)
                     print(
                         f"Failed to setup container after {self.max_provisioning_retries} attempts: {str(e)}"
                     )
                     raise
-                backoff = 2**provisioning_retry_count
+                backoff_seconds = 2**provision_attempt
                 print(
-                    f"Error setting up container, retrying in {backoff}s ({provisioning_retry_count}/{self.max_provisioning_retries}): {str(e)}"
+                    f"Error setting up container, retrying in {backoff_seconds}s ({provision_attempt}/{self.max_provisioning_retries}): {str(e)}"
                 )
-                time.sleep(backoff)  # Exponential backoff
+                time.sleep(backoff_seconds)  # Exponential backoff
         
         # Second loop: Health checking with its own timeout and retry count
         self._set_status(DockerProvisionerStatus.HEALTH_CHECKING)
         print(f"Waiting for container and daemon to be running (timeout: {self.health_check_timeout}s)")
         
-        health_check_retry_count = 0
-        start_time = time.time()
+        health_check_attempt = 0
+        health_check_start_time = time.time()
         
-        while health_check_retry_count < self.max_health_retries:
+        while health_check_attempt < self.max_health_retries:
             try:
                 # First check if the container is running
                 print("Checking if container is running at the platform level...")
@@ -366,30 +366,30 @@ class DockerProvisioner(BaseComputerProvisioner):
                 # Both checks passed
                 print("Container is running and daemon is responsive")
                 self._set_status(DockerProvisionerStatus.RUNNING)
-                print(f"Container and daemon are now running after {int(time.time() - start_time)}s")
+                print(f"Container and daemon are now running after {int(time.time() - health_check_start_time)}s")
                 return
                 
             except Exception as e:
-                health_check_retry_count += 1
-                elapsed = int(time.time() - start_time)
+                health_check_attempt += 1
+                elapsed_seconds = int(time.time() - health_check_start_time)
                 
                 # Check if we've exceeded the timeout
-                if elapsed > self.health_check_timeout:
+                if elapsed_seconds > self.health_check_timeout:
                     self._set_status(DockerProvisionerStatus.HEALTH_CHECK_ERROR)
-                    print(f"Timeout waiting for container and daemon to start after {elapsed}s")
-                    raise TimeoutError(f"Timeout waiting for container and daemon to start after {elapsed}s")
+                    print(f"Timeout waiting for container and daemon to start after {elapsed_seconds}s")
+                    raise TimeoutError(f"Timeout waiting for container and daemon to start after {elapsed_seconds}s")
                 
                 # Check if we've exceeded max retries
-                if health_check_retry_count >= self.max_health_retries:
+                if health_check_attempt >= self.max_health_retries:
                     self._set_status(DockerProvisionerStatus.HEALTH_CHECK_ERROR)
                     print(f"Failed health check after {self.max_health_retries} attempts: {str(e)}")
                     raise RuntimeError(f"Failed health check after {self.max_health_retries} attempts: {str(e)}")
                 
                 # Wait before retrying
-                retry_wait = min(5, self.health_check_timeout - elapsed)  # Don't wait longer than remaining timeout
-                if retry_wait > 0:
-                    print(f"Health check failed ({health_check_retry_count}/{self.max_health_retries}): {str(e)}. Retrying in {retry_wait}s")
-                    time.sleep(retry_wait)
+                retry_wait_seconds = min(5, self.health_check_timeout - elapsed_seconds)  # Don't wait longer than remaining timeout
+                if retry_wait_seconds > 0:
+                    print(f"Health check failed ({health_check_attempt}/{self.max_health_retries}): {str(e)}. Retrying in {retry_wait_seconds}s")
+                    time.sleep(retry_wait_seconds)
 
     def _setup_local(self):
         """Setup local Docker container"""
