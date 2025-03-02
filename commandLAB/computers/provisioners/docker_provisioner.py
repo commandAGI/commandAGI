@@ -11,6 +11,7 @@ from google.cloud import run_v2
 import threading
 import logging
 import requests
+import re
 from requests.exceptions import RequestException, ConnectionError, Timeout
 
 from commandLAB._utils.command import run_command
@@ -28,13 +29,40 @@ class DockerPlatform(str, Enum):
 
 
 class DockerProvisioner(BaseComputerProvisioner):
+    """Docker-based computer provisioner.
+    
+    This provisioner creates and manages Docker containers for running the commandLAB daemon.
+    It supports both local Docker and cloud-based container services.
+    
+    Args:
+        daemon_base_url: Base URL for the daemon service
+        daemon_port: Port for the daemon service
+        port_range: Optional range of ports to try if daemon_port is not available
+        daemon_token: Optional authentication token for the daemon
+        container_name: Optional name for the container. If not provided, a name will be generated
+                       based on name_prefix
+        name_prefix: Prefix to use when generating container names (default: "commandlab-daemon")
+        platform: Container platform to use (LOCAL, AWS_ECS, AZURE_CONTAINER_INSTANCES, GCP_CLOUD_RUN)
+        version: Container image version to use
+        region: Cloud region for cloud platforms
+        resource_group: Resource group for Azure
+        project_id: Project ID for GCP
+        subnets: List of subnet IDs for AWS
+        security_groups: List of security group IDs for AWS
+        subscription_id: Subscription ID for Azure
+        max_retries: Maximum number of retries for setup operations
+        timeout: Timeout in seconds for operations
+        max_health_retries: Maximum number of retries for health checks
+        dockerfile_path: Path to the Dockerfile
+    """
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
         daemon_port: Optional[int] = 8000,
         port_range: Optional[Tuple[int, int]] = None,
         daemon_token: Optional[str] = None,
-        container_name: str = "commandlab-daemon",
+        container_name: Optional[str] = None,
+        name_prefix: str = "commandlab-daemon",
         platform: DockerPlatform = DockerPlatform.LOCAL,
         version: Optional[str] = None,
         # Cloud-specific parameters
@@ -58,6 +86,7 @@ class DockerProvisioner(BaseComputerProvisioner):
             daemon_token=daemon_token
         )
             
+        self.name_prefix = name_prefix
         self.container_name = container_name
         self.platform = platform
         self.version = version or get_container_version()
@@ -97,6 +126,71 @@ class DockerProvisioner(BaseComputerProvisioner):
             case _:
                 pass
 
+    def _find_next_available_container_name(self) -> str:
+        """Find the next available container name with the given prefix.
+        
+        This method checks for existing containers with the prefix and finds the next
+        available name by incrementing a numeric suffix. For example, if containers
+        'commandlab-daemon' and 'commandlab-daemon-1' exist, it will return 'commandlab-daemon-2'.
+        
+        For non-local platforms (AWS, Azure, GCP), it simply returns the name_prefix as is.
+        
+        In case of errors when listing containers, it generates a name with a timestamp
+        to avoid conflicts.
+        
+        Returns:
+            str: The next available container name
+        """
+        if self.platform != DockerPlatform.LOCAL:
+            # For non-local platforms, just use the prefix as the name
+            return self.name_prefix
+            
+        try:
+            # List all containers (including stopped ones)
+            list_cmd = ["docker", "ps", "-a", "--format", "{{.Names}}"]
+            result = subprocess.run(
+                list_cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            # Get all container names
+            container_names = result.stdout.strip().split('\n') if result.stdout.strip() else []
+            
+            # Filter names that match our prefix pattern
+            prefix_pattern = f"^{re.escape(self.name_prefix)}(-\\d+)?$"
+            matching_names = [name for name in container_names if re.match(prefix_pattern, name)]
+            
+            if not matching_names:
+                # No matching containers found, use the prefix as is
+                return self.name_prefix
+                
+            # Find the highest suffix number
+            highest_suffix = 0
+            for name in matching_names:
+                # Extract the suffix number if it exists
+                suffix_match = re.search(f"^{re.escape(self.name_prefix)}-(\\d+)$", name)
+                if suffix_match:
+                    suffix_num = int(suffix_match.group(1))
+                    highest_suffix = max(highest_suffix, suffix_num)
+                elif name == self.name_prefix:
+                    # The base prefix exists without a number
+                    highest_suffix = max(highest_suffix, 0)
+            
+            # Create the next available name
+            if highest_suffix == 0 and self.name_prefix not in matching_names:
+                return self.name_prefix
+            else:
+                return f"{self.name_prefix}-{highest_suffix + 1}"
+                
+        except subprocess.CalledProcessError as e:
+            print(f"Error listing Docker containers: {e}")
+            # In case of error, generate a name with a timestamp to avoid conflicts
+            import datetime
+            timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+            return f"{self.name_prefix}-{timestamp}"
+
     def setup(self) -> None:
         print(f"Setting up container with platform {self.platform}")
         self._status = "starting"
@@ -107,6 +201,11 @@ class DockerProvisioner(BaseComputerProvisioner):
         if self.daemon_port is None or not find_free_port(preferred_port=self.daemon_port):
             self.daemon_port = find_free_port(port_range=self.port_range)
             print(f"Using port {self.daemon_port} for daemon service")
+            
+        # If container_name is not provided, find the next available name
+        if self.container_name is None:
+            self.container_name = self._find_next_available_container_name()
+            print(f"Using container name: {self.container_name}")
 
         while retry_count < self.max_retries:
             print(f"Attempt {retry_count + 1}/{self.max_retries} to setup container")

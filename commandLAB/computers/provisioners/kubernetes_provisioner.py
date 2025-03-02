@@ -3,6 +3,7 @@ from kubernetes import client, config
 from typing import Optional, Tuple
 import time
 import logging
+import re
 from .base_provisioner import BaseComputerProvisioner
 from commandLAB.version import get_container_version
 from commandLAB._utils.network import find_free_port
@@ -18,6 +19,31 @@ class KubernetesPlatform(str, Enum):
 
 
 class KubernetesProvisioner(BaseComputerProvisioner):
+    """Kubernetes-based computer provisioner.
+    
+    This provisioner creates and manages Kubernetes deployments and services for running the commandLAB daemon.
+    It supports both local Kubernetes clusters and cloud-based Kubernetes services.
+    
+    Args:
+        daemon_base_url: Base URL for the daemon service
+        daemon_port: Port for the daemon service
+        port_range: Optional range of ports to try if daemon_port is not available
+        platform: Kubernetes platform to use (LOCAL, AWS_EKS, AZURE_AKS, GCP_GKE)
+        namespace: Kubernetes namespace to use
+        deployment_name: Optional name for the deployment. If not provided, a name will be generated
+                        based on deployment_prefix
+        service_name: Optional name for the service. If not provided, a name will be generated
+                     based on service_prefix
+        deployment_prefix: Prefix to use when generating deployment names (default: "commandlab-daemon")
+        service_prefix: Prefix to use when generating service names (default: "commandlab-daemon-svc")
+        cluster_name: Name of the Kubernetes cluster (required for cloud platforms)
+        region: Cloud region (required for AWS_EKS and GCP_GKE)
+        resource_group: Resource group (required for AZURE_AKS)
+        project_id: Project ID (required for GCP_GKE)
+        version: Container image version to use
+        max_retries: Maximum number of retries for setup operations
+        timeout: Timeout in seconds for operations
+    """
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
@@ -25,6 +51,10 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         port_range: Optional[Tuple[int, int]] = None,
         platform: KubernetesPlatform = KubernetesPlatform.LOCAL,
         namespace: str = "default",
+        deployment_name: Optional[str] = None,
+        service_name: Optional[str] = None,
+        deployment_prefix: str = "commandlab-daemon",
+        service_prefix: str = "commandlab-daemon-svc",
         # Cloud-specific parameters
         cluster_name: Optional[str] = None,
         region: Optional[str] = None,
@@ -43,8 +73,10 @@ class KubernetesProvisioner(BaseComputerProvisioner):
             
         self.platform = platform
         self.namespace = namespace
-        self.deployment_name = "commandlab-daemon"
-        self.service_name = "commandlab-daemon-svc"
+        self.deployment_prefix = deployment_prefix
+        self.service_prefix = service_prefix
+        self.deployment_name = deployment_name
+        self.service_name = service_name
         self.version = version or get_container_version()
         self.max_retries = max_retries
         self.timeout = timeout
@@ -85,6 +117,67 @@ class KubernetesProvisioner(BaseComputerProvisioner):
             logger.error(f"Failed to configure Kubernetes client: {e}")
             raise
 
+    def _find_next_available_name(self, resource_type: str, prefix: str) -> str:
+        """Find the next available name for a Kubernetes resource with the given prefix.
+        
+        This method checks for existing resources with the prefix and finds the next
+        available name by incrementing a numeric suffix. For example, if deployments
+        'commandlab-daemon' and 'commandlab-daemon-1' exist, it will return 'commandlab-daemon-2'.
+        
+        Args:
+            resource_type: Type of resource ('deployment' or 'service')
+            prefix: Prefix to use for the resource name
+            
+        Returns:
+            str: The next available resource name
+        """
+        try:
+            existing_names = []
+            
+            if resource_type == 'deployment':
+                # List all deployments in the namespace
+                deployments = self.apps_v1.list_namespaced_deployment(namespace=self.namespace)
+                existing_names = [d.metadata.name for d in deployments.items]
+            elif resource_type == 'service':
+                # List all services in the namespace
+                services = self.core_v1.list_namespaced_service(namespace=self.namespace)
+                existing_names = [s.metadata.name for s in services.items]
+            else:
+                raise ValueError(f"Unsupported resource type: {resource_type}")
+            
+            # Filter names that match our prefix pattern
+            prefix_pattern = f"^{re.escape(prefix)}(-\\d+)?$"
+            matching_names = [name for name in existing_names if re.match(prefix_pattern, name)]
+            
+            if not matching_names:
+                # No matching resources found, use the prefix as is
+                return prefix
+                
+            # Find the highest suffix number
+            highest_suffix = 0
+            for name in matching_names:
+                # Extract the suffix number if it exists
+                suffix_match = re.search(f"^{re.escape(prefix)}-(\\d+)$", name)
+                if suffix_match:
+                    suffix_num = int(suffix_match.group(1))
+                    highest_suffix = max(highest_suffix, suffix_num)
+                elif name == prefix:
+                    # The base prefix exists without a number
+                    highest_suffix = max(highest_suffix, 0)
+            
+            # Create the next available name
+            if highest_suffix == 0 and prefix not in matching_names:
+                return prefix
+            else:
+                return f"{prefix}-{highest_suffix + 1}"
+                
+        except Exception as e:
+            logger.error(f"Error finding next available {resource_type} name: {e}")
+            # In case of error, generate a name with a timestamp to avoid conflicts
+            import datetime
+            timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+            return f"{prefix}-{timestamp}"
+
     def setup(self) -> None:
         """Create Kubernetes deployment and service"""
         self._status = "starting"
@@ -95,6 +188,16 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         if self.daemon_port is None or not find_free_port(preferred_port=self.daemon_port):
             self.daemon_port = find_free_port(port_range=self.port_range)
             logger.info(f"Using port {self.daemon_port} for daemon service")
+            
+        # If deployment_name is not provided, find the next available name
+        if self.deployment_name is None:
+            self.deployment_name = self._find_next_available_name('deployment', self.deployment_prefix)
+            logger.info(f"Using deployment name: {self.deployment_name}")
+            
+        # If service_name is not provided, find the next available name
+        if self.service_name is None:
+            self.service_name = self._find_next_available_name('service', self.service_prefix)
+            logger.info(f"Using service name: {self.service_name}")
 
         while retry_count < self.max_retries:
             try:
@@ -221,6 +324,7 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                 time.sleep(2**retry_count)  # Exponential backoff
 
     def teardown(self) -> None:
+        """Tear down Kubernetes deployment and service"""
         self._status = "stopping"
 
         try:
@@ -281,6 +385,7 @@ class KubernetesProvisioner(BaseComputerProvisioner):
             logger.error(f"Error during teardown: {e}")
 
     def is_running(self) -> bool:
+        """Check if the Kubernetes deployment is running and available"""
         try:
             deployment = self.apps_v1.read_namespaced_deployment_status(
                 name=self.deployment_name, namespace=self.namespace
