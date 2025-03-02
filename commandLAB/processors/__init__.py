@@ -30,4 +30,4 @@ __all__ = [
     "ScreenParser",
     "AudioTranscription",
     "TextToSpeech",
-] 
+]

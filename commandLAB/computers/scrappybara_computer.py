@@ -43,7 +43,7 @@ from commandLAB._utils.image import process_screenshot
 # Scrapybara-specific mappings
 def mouse_button_to_scrapybara(button: Union[MouseButton, str]) -> str:
     """Convert MouseButton to Scrapybara button action.
-    
+
     Scrapybara uses specific action names for mouse buttons:
     - "left_click" for left button
     - "right_click" for right button
@@ -51,25 +51,28 @@ def mouse_button_to_scrapybara(button: Union[MouseButton, str]) -> str:
     """
     if isinstance(button, str):
         button = MouseButton(button)
-    
+
     # Scrapybara mouse button mapping
     scrapybara_button_mapping = {
         MouseButton.LEFT: "left_click",
         MouseButton.MIDDLE: "middle_click",
-        MouseButton.RIGHT: "right_click"
+        MouseButton.RIGHT: "right_click",
     }
-    
-    return scrapybara_button_mapping.get(button, "left_click")  # Default to left click if not found
+
+    return scrapybara_button_mapping.get(
+        button, "left_click"
+    )  # Default to left click if not found
+
 
 def keyboard_key_to_scrapybara(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to Scrapybara key name.
-    
+
     Scrapybara uses specific key names that may differ from our standard KeyboardKey values.
     For hotkeys, Scrapybara uses the '+' separator (e.g., "ctrl+c").
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
-    
+
     # Scrapybara-specific key mappings
     scrapybara_key_mapping = {
         # Special keys
@@ -83,13 +86,11 @@ def keyboard_key_to_scrapybara(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.END: "end",
         KeyboardKey.PAGE_UP: "pageup",
         KeyboardKey.PAGE_DOWN: "pagedown",
-        
         # Arrow keys
         KeyboardKey.UP: "up",
         KeyboardKey.DOWN: "down",
         KeyboardKey.LEFT: "left",
         KeyboardKey.RIGHT: "right",
-        
         # Modifier keys
         KeyboardKey.SHIFT: "shift",
         KeyboardKey.CTRL: "ctrl",
@@ -101,7 +102,6 @@ def keyboard_key_to_scrapybara(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.META: "meta",  # Command/Windows key
         KeyboardKey.LMETA: "meta",  # Scrapybara doesn't distinguish between left/right
         KeyboardKey.RMETA: "meta",
-        
         # Function keys
         KeyboardKey.F1: "f1",
         KeyboardKey.F2: "f2",
@@ -116,14 +116,14 @@ def keyboard_key_to_scrapybara(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.F11: "f11",
         KeyboardKey.F12: "f12",
     }
-    
+
     # For letter keys and number keys, use the value directly
     return scrapybara_key_mapping.get(key, key.value)
 
 
 class ScrapybaraComputerFile(BaseComputerFile):
     """Implementation of BaseComputerFile for Scrapybara computer files.
-    
+
     This class provides a file-like interface for working with files on a remote computer
     accessed via Scrapybara. It uses temporary local files and Scrapybara's file transfer
     capabilities to provide file-like access.
@@ -146,7 +146,7 @@ class ScrapybaraComputer(BaseComputer):
                 self.client = scrapybara.Client(api_key=self.api_key)
             else:
                 self.client = scrapybara.Client()
-            
+
             # Start a default Ubuntu instance
             self.client = self.client.start_ubuntu()
 
@@ -162,14 +162,16 @@ class ScrapybaraComputer(BaseComputer):
         self._stop()
         self._start()
 
-    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
+    def _get_screenshot(
+        self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
+    ) -> ScreenshotObservation:
         """Return a screenshot of the current state in the specified format."""
-        response  = self.client.screenshot()
+        response = self.client.screenshot()
         return process_screenshot(
             screenshot_data=response.base_64_image,
             output_format=format,
-            input_format='base64',
-            computer_name="scrapybara"
+            input_format="base64",
+            computer_name="scrapybara",
         )
 
     def _get_mouse_state(self) -> MouseStateObservation:
@@ -177,21 +179,21 @@ class ScrapybaraComputer(BaseComputer):
         # Get cursor position using Scrapybara
         response = self.client.computer(action="cursor_position")
         position = response.output
-        
+
         # Parse the position string into x, y coordinates
         # The output is typically in the format "x: X, y: Y"
         x_str = position.split("x:")[1].split(",")[0].strip()
         y_str = position.split("y:")[1].strip()
         x, y = int(x_str), int(y_str)
-            
+
         # Scrapybara doesn't provide button state
         return MouseStateObservation(
             buttons={
                 MouseButton.LEFT: None,
                 MouseButton.MIDDLE: None,
-                MouseButton.RIGHT: None
+                MouseButton.RIGHT: None,
             },
-            position=(x, y)
+            position=(x, y),
         )
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
@@ -231,13 +233,15 @@ class ScrapybaraComputer(BaseComputer):
         # Convert our amount to a vertical scroll (positive = down, negative = up)
         x_scroll = 0
         y_scroll = int(action.amount)
-        
+
         self.client.computer(action="scroll", coordinate=[x_scroll, y_scroll])
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Press mouse button down using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
-        raise NotImplementedError("Scrapybara does not support mouse button down actions")
+        raise NotImplementedError(
+            "Scrapybara does not support mouse button down actions"
+        )
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Release mouse button using Scrapybara."""
@@ -249,7 +253,7 @@ class ScrapybaraComputer(BaseComputer):
         # Scrapybara has a direct click action
         # First move to the position
         self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
-        
+
         # Then perform the appropriate click based on the button
         click_action = mouse_button_to_scrapybara(action.button)
         self.client.computer(action=click_action)
@@ -259,7 +263,7 @@ class ScrapybaraComputer(BaseComputer):
         # Scrapybara uses the computer action with key
         scrapybara_key = keyboard_key_to_scrapybara(action.key)
         self.client.computer(action="key", text=scrapybara_key)
-            
+
     def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
         """Execute a keyboard hotkey using Scrapybara's key action with combined keys."""
         # Combine keys with + for Scrapybara hotkey format
@@ -276,10 +280,13 @@ class ScrapybaraComputer(BaseComputer):
     def _execute_drag(self, action: DragAction):
         """Execute a drag action using Scrapybara's left_click_drag method."""
         # Move to the start position first
-        self.client.computer(action="mouse_move", coordinate=[action.start_x, action.start_y])
+        self.client.computer(
+            action="mouse_move", coordinate=[action.start_x, action.start_y]
+        )
         # Then perform the drag to the end position
-        self.client.computer(action="left_click_drag", coordinate=[action.end_x, action.end_y])
-
+        self.client.computer(
+            action="left_click_drag", coordinate=[action.end_x, action.end_y]
+        )
 
     def _pause(self):
         """Implementation of pause functionality for Scrapybara."""
@@ -290,7 +297,7 @@ class ScrapybaraComputer(BaseComputer):
 
     def _resume(self, timeout_hours: Optional[float] = None):
         """Implementation of resume functionality for Scrapybara.
-        
+
         Args:
             timeout_hours: Optional timeout in hours after which the instance will automatically pause again.
         """
@@ -305,22 +312,24 @@ class ScrapybaraComputer(BaseComputer):
     @property
     def video_stream_url(self) -> str:
         """Get the URL for the video stream of the Scrapybara instance.
-        
+
         Returns:
             str: The URL for the video stream, or an empty string if video streaming is not available.
         """
-        return  self.client.get_stream_url()
+        return self.client.get_stream_url()
 
     def start_video_stream(self) -> bool:
         """Start the video stream for the Scrapybara instance.
-        
+
         Returns:
             bool: True if the video stream was successfully started, False otherwise.
         """
         if not self.client:
-            self.logger.warning("Cannot start video stream: Scrapybara client not initialized")
+            self.logger.warning(
+                "Cannot start video stream: Scrapybara client not initialized"
+            )
             return False
-        
+
         try:
             self.logger.info("Starting Scrapybara video stream")
             if hasattr(self.client, "start_stream"):
@@ -336,14 +345,16 @@ class ScrapybaraComputer(BaseComputer):
 
     def stop_video_stream(self) -> bool:
         """Stop the video stream for the Scrapybara instance.
-        
+
         Returns:
             bool: True if the video stream was successfully stopped, False otherwise.
         """
         if not self.client:
-            self.logger.warning("Cannot stop video stream: Scrapybara client not initialized")
+            self.logger.warning(
+                "Cannot stop video stream: Scrapybara client not initialized"
+            )
             return False
-        
+
         try:
             self.logger.info("Stopping Scrapybara video stream")
             if hasattr(self.client, "stop_stream"):
@@ -359,38 +370,40 @@ class ScrapybaraComputer(BaseComputer):
 
     def _run_process(self, action: RunProcessAction) -> bool:
         """Run a process with the specified parameters.
-        
+
         This method uses the Scrapybara API to run a process in the VM.
-        
+
         Args:
             action: RunProcessAction containing the process parameters
-            
+
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(f"Running process via Scrapybara: {action.command} with args: {action.args}")
+        self.logger.info(
+            f"Running process via Scrapybara: {action.command} with args: {action.args}"
+        )
         return self._default_run_process(action=action)
 
     def _open(
-        self, 
-        path: Union[str, Path], 
-        mode: str = 'r', 
+        self,
+        path: Union[str, Path],
+        mode: str = "r",
         encoding: Optional[str] = None,
         errors: Optional[str] = None,
-        buffering: int = -1
+        buffering: int = -1,
     ) -> ScrapybaraComputerFile:
         """Open a file on the remote computer.
-        
+
         This method uses Scrapybara's capabilities to provide file-like access
         to files on the remote computer.
-        
+
         Args:
             path: Path to the file on the remote computer
             mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
             encoding: Text encoding to use (for text modes)
             errors: How to handle encoding/decoding errors
             buffering: Buffering policy (-1 for default)
-            
+
         Returns:
             A ScrapybaraComputerFile instance for the specified file
         """
@@ -400,8 +413,9 @@ class ScrapybaraComputer(BaseComputer):
             mode=mode,
             encoding=encoding,
             errors=errors,
-            buffering=buffering
+            buffering=buffering,
         )
+
 
 class UbuntuScrapybaraComputer(ScrapybaraComputer):
     """Scrapybara computer specifically for Ubuntu instances"""
@@ -417,7 +431,7 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
                 client = scrapybara.Client(api_key=self.api_key)
             else:
                 client = scrapybara.Client()
-            
+
             # Start an Ubuntu instance
             self.client = client.start_ubuntu()
 
@@ -427,12 +441,12 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
 
     def edit_file(self, path: str, command: str, **kwargs) -> bool:
         """Edit a file on the Ubuntu instance.
-        
+
         Args:
             path: Path to the file
             command: Content to write to the file
             **kwargs: Additional arguments to pass to the edit method
-            
+
         Returns:
             bool: True if the edit was successful
         """
@@ -460,7 +474,7 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
                 self.client = scrapybara.Client(api_key=self.api_key)
             else:
                 self.client = scrapybara.Client()
-            
+
             # Start a Browser instance
             self.client = self.client.start_browser()
 
@@ -471,10 +485,10 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
 
     def save_auth(self, name: str = "default") -> str:
         """Save the current browser authentication state.
-        
+
         Args:
             name: Name to identify the saved auth state
-            
+
         Returns:
             The auth state ID that can be used to restore this state
         """
@@ -483,20 +497,22 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
 
     def authenticate(self, auth_state_id: str):
         """Authenticate the browser using a saved auth state.
-        
+
         Args:
             auth_state_id: The ID of the saved auth state to restore
         """
         self.client.authenticate(auth_state_id=auth_state_id)
-    
+
     def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a command in the browser instance.
-        
+
         Note: Browser instances don't support bash commands directly.
         This is a limitation of the browser-only environment.
         """
         self.logger.warning("Browser instances don't support direct command execution")
-        raise NotImplementedError("Browser instances don't support direct command execution")
+        raise NotImplementedError(
+            "Browser instances don't support direct command execution"
+        )
 
 
 class WindowsScrapybaraComputer(ScrapybaraComputer):
@@ -513,29 +529,29 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
                 client = scrapybara.Client(api_key=self.api_key)
             else:
                 client = scrapybara.Client()
-            
+
             # Start a Windows instance
             self.client = client.start_windows()
 
     def _execute_shell_command(self, action: ShellCommandAction):
         """Execute a command in the Windows instance.
-        
+
         Note: Windows instances don't support bash commands directly.
         This implementation uses computer actions to open cmd and type commands.
         """
         # Open Windows Run dialog
         self.client.computer(action="key", text="meta+r")
         self.client.computer(action="wait")  # Wait for Run dialog to open
-        
+
         # Type cmd and press Enter
         self.client.computer(action="type", text="cmd")
         self.client.computer(action="key", text="enter")
         self.client.computer(action="wait")  # Wait for cmd to open
-        
+
         # Type the command and press Enter
         self.client.computer(action="type", text=action.command)
         self.client.computer(action="key", text="enter")
-        
+
         # Wait for command to complete if timeout is specified
         if action.timeout:
             self.client.computer(action="wait")

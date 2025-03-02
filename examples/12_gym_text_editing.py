@@ -18,7 +18,9 @@ from typing import Dict, Any
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+        NaiveComputerAgent,
+    )
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
         ShellCommandAction,
@@ -29,7 +31,9 @@ try:
         ComputerAction,
     )
 except ImportError:
-    print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
+    print(
+        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+    )
     print("pip install commandlab[local,gym]")
     exit(1)
 
@@ -42,12 +46,14 @@ class TextEditingEnv(ComputerEnv):
         self.task_completed = False
         self.steps_taken = 0
         self.max_steps = 20  # Maximum number of steps before ending the episode
-        self.task_description = "Open a text editor, type 'Hello, CommandLAB!', and save the file."
+        self.task_description = (
+            "Open a text editor, type 'Hello, CommandLAB!', and save the file."
+        )
 
     def get_reward(self, action: ComputerAction) -> float:
         """
         Define a reward function for text editing tasks.
-        
+
         Rewards:
         - Small positive reward for each action (encourages exploration)
         - Large positive reward for completing the task
@@ -55,32 +61,32 @@ class TextEditingEnv(ComputerEnv):
         """
         # Small negative reward for each step to encourage efficiency
         reward = -0.1
-        
+
         # Check if the action is typing text
         if action.type is not None:
             # Reward for typing text
             reward += 0.5
-            
+
             # Extra reward if the text contains the target phrase
             if "Hello, CommandLAB!" in action.type.text:
                 reward += 2.0
-        
+
         # Reward for using keyboard shortcuts (like Ctrl+S for saving)
         if action.keyboard_hotkey is not None:
             keys = action.keyboard_hotkey.keys
             if KeyboardKey.CTRL in keys and KeyboardKey.S in keys:
                 reward += 3.0
                 self.task_completed = True
-        
+
         # Increment step counter
         self.steps_taken += 1
-        
+
         return reward
 
     def get_done(self, action: ComputerAction) -> bool:
         """
         Determine if the episode is done.
-        
+
         The episode is done if:
         - The task is completed (file saved)
         - The maximum number of steps is reached
@@ -126,12 +132,14 @@ def main():
         # Create an agent
         print("Creating the agent...")
         # Note: This requires an OpenAI API key or other LLM provider
-        agent = NaiveComputerAgent(chat_model_options={
-            "model_provider": "openai",
-            "model": "gpt-4-vision-preview",
-            # Add your API key here if not set as environment variable
-            # "api_key": "your-api-key",
-        })
+        agent = NaiveComputerAgent(
+            chat_model_options={
+                "model_provider": "openai",
+                "model": "gpt-4-vision-preview",
+                # Add your API key here if not set as environment variable
+                # "api_key": "your-api-key",
+            }
+        )
 
         # Create a driver
         print("Creating the driver...")
@@ -151,10 +159,12 @@ def main():
         if os.name == "nt":  # Windows
             env._computer.shell(ShellCommandAction(command="notepad", timeout=5))
         elif os.uname().sysname == "Darwin":  # macOS
-            env._computer.shell(ShellCommandAction(command="open -a TextEdit", timeout=5))
+            env._computer.shell(
+                ShellCommandAction(command="open -a TextEdit", timeout=5)
+            )
         else:  # Linux
             env._computer.shell(ShellCommandAction(command="gedit", timeout=5))
-        
+
         time.sleep(2)  # Wait for the editor to open
 
         # Collect the episode
@@ -184,4 +194,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

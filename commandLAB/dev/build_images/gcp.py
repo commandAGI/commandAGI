@@ -9,6 +9,7 @@ from commandLAB._utils.command import run_command
 from commandLAB.dev.build_images.utils import ensure_packer_template
 from commandLAB._utils.config import PROJ_DIR
 from commandLAB.dev.build_images.cli import cli
+
 logger = logging.getLogger("build_images")
 
 
@@ -59,4 +60,4 @@ def build_gcp_vm(
     ensure_packer_template(gcp_template_path, gcp_template)
 
     cmd = ["packer", "build", "-var", f"version={version}", gcp_template_path]
-    run_command(cmd, "GCP VM image build") 
+    run_command(cmd, "GCP VM image build")

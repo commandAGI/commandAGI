@@ -43,29 +43,32 @@ from commandLAB._utils.image import process_screenshot
 # PigDev-specific mappings
 def mouse_button_to_pigdev(button: Union[MouseButton, str]) -> str:
     """Convert MouseButton to PigDev button name.
-    
+
     PigDev uses string names for mouse buttons that match our MouseButton values.
     """
     if isinstance(button, str):
         button = MouseButton(button)
-    
+
     # PigDev mouse button mapping
     pigdev_button_mapping = {
         MouseButton.LEFT: "left",
         MouseButton.MIDDLE: "middle",
-        MouseButton.RIGHT: "right"
+        MouseButton.RIGHT: "right",
     }
-    
-    return pigdev_button_mapping.get(button, "left")  # Default to left button if not found
+
+    return pigdev_button_mapping.get(
+        button, "left"
+    )  # Default to left button if not found
+
 
 def keyboard_key_to_pigdev(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to PigDev key name.
-    
+
     PigDev uses specific key names that may differ from our standard KeyboardKey values.
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
-    
+
     # PigDev-specific key mappings
     pigdev_key_mapping = {
         # Special keys
@@ -79,13 +82,11 @@ def keyboard_key_to_pigdev(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.END: "end",
         KeyboardKey.PAGE_UP: "pageup",
         KeyboardKey.PAGE_DOWN: "pagedown",
-        
         # Arrow keys
         KeyboardKey.UP: "up",
         KeyboardKey.DOWN: "down",
         KeyboardKey.LEFT: "left",
         KeyboardKey.RIGHT: "right",
-        
         # Modifier keys
         KeyboardKey.SHIFT: "shift",
         KeyboardKey.CTRL: "ctrl",
@@ -97,7 +98,6 @@ def keyboard_key_to_pigdev(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.META: "super",  # Command/Windows key is called "super" in PigDev
         KeyboardKey.LMETA: "super",  # PigDev may not distinguish between left/right
         KeyboardKey.RMETA: "super",
-        
         # Function keys
         KeyboardKey.F1: "f1",
         KeyboardKey.F2: "f2",
@@ -112,18 +112,19 @@ def keyboard_key_to_pigdev(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.F11: "f11",
         KeyboardKey.F12: "f12",
     }
-    
+
     # For letter keys and number keys, use the value directly
     return pigdev_key_mapping.get(key, key.value)
 
 
 class PigDevComputerFile(BaseComputerFile):
     """Implementation of BaseComputerFile for PigDev computer files.
-    
+
     This class provides a file-like interface for working with files on a remote computer
     accessed via PigDev. It uses temporary local files and PigDev's file transfer
     capabilities to provide file-like access.
     """
+
 
 class PigDevComputer(BaseComputer):
     """Environment that uses PigDev for secure computer interactions"""
@@ -138,7 +139,7 @@ class PigDevComputer(BaseComputer):
 
     def _start(self):
         """Start the PigDev environment and establish a connection.
-        
+
         This method initializes the Pig client, selects the appropriate machine,
         and establishes a connection that will be maintained throughout the session.
         """
@@ -150,7 +151,7 @@ class PigDevComputer(BaseComputer):
         else:
             self.logger.debug("Using default API key from environment")
             self.client = Client()
-            
+
         # Get the machine (either local or remote)
         if self.machine_id:
             self.logger.info(f"Connecting to remote machine with ID: {self.machine_id}")
@@ -158,7 +159,7 @@ class PigDevComputer(BaseComputer):
         else:
             self.logger.info("Connecting to local machine")
             self.machine = self.client.machines.local()
-        
+
         # Establish a connection that will be maintained throughout the session
         self.logger.info("Establishing connection to machine")
         self.connection = self.machine.connect().__enter__()
@@ -167,7 +168,7 @@ class PigDevComputer(BaseComputer):
 
     def _stop(self):
         """Stop the PigDev environment and close the connection.
-        
+
         This method properly closes the connection and cleans up resources.
         """
         if self.connection:
@@ -175,7 +176,7 @@ class PigDevComputer(BaseComputer):
             # Properly exit the connection context manager
             self.machine.connect().__exit__(None, None, None)
             self.connection = None
-            
+
         self.client = None
         self.machine = None
         self.logger.info("PigDev connection closed successfully")
@@ -188,18 +189,20 @@ class PigDevComputer(BaseComputer):
         self._stop()
         self._start()
 
-    def _get_screenshot(self, display_id: int = 0, format: Literal['base64', 'PIL', 'path'] = 'PIL') -> ScreenshotObservation:
+    def _get_screenshot(
+        self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
+    ) -> ScreenshotObservation:
         """Return a screenshot of the current state in the specified format."""
         # Get the screenshot from PigDev (returns PIL Image)
         self.logger.debug("Capturing screenshot via PigDev")
         screenshot = self.connection.screenshot()
-        
+
         # Use the utility function to process the screenshot
         return process_screenshot(
             screenshot_data=screenshot,
             output_format=format,
-            input_format='PIL',
-            computer_name="pigdev"
+            input_format="PIL",
+            computer_name="pigdev",
         )
 
     def _get_mouse_state(self) -> MouseStateObservation:
@@ -208,15 +211,15 @@ class PigDevComputer(BaseComputer):
         # Get cursor position using the existing connection
         x, y = self.connection.cursor_position()
         self.logger.debug(f"Cursor position: ({x}, {y})")
-            
+
         # PigDev doesn't provide button state, so we return a default state
         return MouseStateObservation(
             buttons={
                 MouseButton.LEFT: False,
                 MouseButton.MIDDLE: False,
-                MouseButton.RIGHT: False
+                MouseButton.RIGHT: False,
             },
-            position=(x, y)
+            position=(x, y),
         )
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
@@ -237,7 +240,7 @@ class PigDevComputer(BaseComputer):
             # Convert to PigDev key format
             key = keyboard_key_to_pigdev(action.key)
             self.logger.debug(f"Pressing key down: {action.key} (PigDev key: {key})")
-            
+
             # Use the existing connection
             self.connection.key_down(key)
         except Exception as e:
@@ -250,7 +253,7 @@ class PigDevComputer(BaseComputer):
             # Convert to PigDev key format
             key = keyboard_key_to_pigdev(action.key)
             self.logger.debug(f"Releasing key: {action.key} (PigDev key: {key})")
-            
+
             # Use the existing connection
             self.connection.key_up(key)
         except Exception as e:
@@ -286,22 +289,28 @@ class PigDevComputer(BaseComputer):
     def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Press mouse button down using PigDev."""
         button = mouse_button_to_pigdev(action.button)
-        self.logger.debug(f"Pressing mouse button down: {action.button} (PigDev button: {button})")
-        
+        self.logger.debug(
+            f"Pressing mouse button down: {action.button} (PigDev button: {button})"
+        )
+
         # Use the existing connection
         self.connection.mouse_down(button)
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Release mouse button using PigDev."""
         button = mouse_button_to_pigdev(action.button)
-        self.logger.debug(f"Releasing mouse button: {action.button} (PigDev button: {button})")
-        
+        self.logger.debug(
+            f"Releasing mouse button: {action.button} (PigDev button: {button})"
+        )
+
         # Use the existing connection
         self.connection.mouse_up(button)
 
     def _execute_click(self, action: ClickAction):
         """Execute a click action at the given coordinates using PigDev's click method."""
-        self.logger.debug(f"Clicking at: ({action.x}, {action.y}) with button: {action.button}")
+        self.logger.debug(
+            f"Clicking at: ({action.x}, {action.y}) with button: {action.button}"
+        )
         # Use the existing connection
         # Move to position first
         self.connection.mouse_move(x=action.x, y=action.y)
@@ -322,7 +331,9 @@ class PigDevComputer(BaseComputer):
 
     def _execute_drag(self, action: DragAction):
         """Execute a drag action using PigDev's left_click_drag method."""
-        self.logger.debug(f"Dragging from: ({action.start_x}, {action.start_y}) to: ({action.end_x}, {action.end_y})")
+        self.logger.debug(
+            f"Dragging from: ({action.start_x}, {action.start_y}) to: ({action.end_x}, {action.end_y})"
+        )
         # Use the existing connection
         # First move to the start position
         self.connection.mouse_move(x=action.start_x, y=action.start_y)
@@ -333,7 +344,7 @@ class PigDevComputer(BaseComputer):
         """Execute pressing a keyboard key using PigDev's key method."""
         key = keyboard_key_to_pigdev(action.key)
         self.logger.debug(f"Pressing key: {action.key} (PigDev key: {key})")
-        
+
         # Use the existing connection
         self.connection.key(key)
 
@@ -343,14 +354,14 @@ class PigDevComputer(BaseComputer):
         keys = [keyboard_key_to_pigdev(key) for key in action.keys]
         hotkey_str = "+".join(keys)
         self.logger.debug(f"Executing hotkey: {hotkey_str}")
-        
+
         # Use the existing connection
         # PigDev supports hotkeys as a single string with '+' separator
         self.connection.key(hotkey_str)
 
     def _pause(self):
         """Pause the PigDev connection.
-        
+
         For PigDev, pausing means putting the machine into a paused state.
         """
         if self.connection:
@@ -364,9 +375,9 @@ class PigDevComputer(BaseComputer):
 
     def _resume(self, timeout_hours: Optional[float] = None):
         """Resume the PigDev connection.
-        
+
         For PigDev, resuming means taking the machine out of a paused state.
-        
+
         Args:
             timeout_hours: Optional timeout in hours after which the machine will automatically pause again.
         """
@@ -377,7 +388,7 @@ class PigDevComputer(BaseComputer):
                 timeout_seconds = None
                 if timeout_hours is not None:
                     timeout_seconds = timeout_hours * 3600
-                
+
                 self.connection.resume(timeout_seconds=timeout_seconds)
                 self.logger.info("PigDev machine resumed successfully")
             except Exception as e:
@@ -387,14 +398,16 @@ class PigDevComputer(BaseComputer):
     @property
     def video_stream_url(self) -> str:
         """Get the URL for the video stream of the PigDev instance.
-        
+
         Returns:
             str: The URL for the video stream, or an empty string if video streaming is not available.
         """
         if not self.connection:
-            self.logger.warning("Cannot get video stream URL: PigDev connection not established")
+            self.logger.warning(
+                "Cannot get video stream URL: PigDev connection not established"
+            )
             return ""
-        
+
         try:
             stream_info = self.connection.get_stream_info()
             if stream_info and "url" in stream_info:
@@ -406,40 +419,42 @@ class PigDevComputer(BaseComputer):
 
     def _run_process(self, action: RunProcessAction) -> bool:
         """Run a process with the specified parameters.
-        
+
         This method attempts to use the PigDev API to run a process, but falls back
         to the default implementation using shell commands if direct process execution
         is not supported.
-        
+
         Args:
             action: RunProcessAction containing the process parameters
-            
+
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(f"Running process via PigDev: {action.command} with args: {action.args}")
+        self.logger.info(
+            f"Running process via PigDev: {action.command} with args: {action.args}"
+        )
         return self._default_run_process(action=action)
 
     def _open(
-        self, 
-        path: Union[str, Path], 
-        mode: str = 'r', 
+        self,
+        path: Union[str, Path],
+        mode: str = "r",
         encoding: Optional[str] = None,
         errors: Optional[str] = None,
-        buffering: int = -1
+        buffering: int = -1,
     ) -> PigDevComputerFile:
         """Open a file on the remote computer.
-        
+
         This method uses PigDev's file transfer capabilities to provide
         file-like access to files on the remote computer.
-        
+
         Args:
             path: Path to the file on the remote computer
             mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
             encoding: Text encoding to use (for text modes)
             errors: How to handle encoding/decoding errors
             buffering: Buffering policy (-1 for default)
-            
+
         Returns:
             A PigDevComputerFile instance for the specified file
         """
@@ -449,5 +464,5 @@ class PigDevComputer(BaseComputer):
             mode=mode,
             encoding=encoding,
             errors=errors,
-            buffering=buffering
+            buffering=buffering,
         )

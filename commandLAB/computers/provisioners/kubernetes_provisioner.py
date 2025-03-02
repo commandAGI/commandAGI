@@ -20,10 +20,10 @@ class KubernetesPlatform(str, Enum):
 
 class KubernetesProvisioner(BaseComputerProvisioner):
     """Kubernetes-based computer provisioner.
-    
+
     This provisioner creates and manages Kubernetes deployments and services for running the commandLAB daemon.
     It supports both local Kubernetes clusters and cloud-based Kubernetes services.
-    
+
     Args:
         daemon_base_url: Base URL for the daemon service
         daemon_port: Port for the daemon service
@@ -44,6 +44,7 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         max_retries: Maximum number of retries for setup operations
         timeout: Timeout in seconds for operations
     """
+
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
@@ -68,9 +69,9 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         super().__init__(
             daemon_base_url=daemon_base_url,
             daemon_port=daemon_port,
-            port_range=port_range
+            port_range=port_range,
         )
-            
+
         self.platform = platform
         self.namespace = namespace
         self.deployment_prefix = deployment_prefix
@@ -119,40 +120,46 @@ class KubernetesProvisioner(BaseComputerProvisioner):
 
     def _find_next_available_name(self, resource_type: str, prefix: str) -> str:
         """Find the next available name for a Kubernetes resource with the given prefix.
-        
+
         This method checks for existing resources with the prefix and finds the next
         available name by incrementing a numeric suffix. For example, if deployments
         'commandlab-daemon' and 'commandlab-daemon-1' exist, it will return 'commandlab-daemon-2'.
-        
+
         Args:
             resource_type: Type of resource ('deployment' or 'service')
             prefix: Prefix to use for the resource name
-            
+
         Returns:
             str: The next available resource name
         """
         try:
             existing_names = []
-            
-            if resource_type == 'deployment':
+
+            if resource_type == "deployment":
                 # List all deployments in the namespace
-                deployments = self.apps_v1.list_namespaced_deployment(namespace=self.namespace)
+                deployments = self.apps_v1.list_namespaced_deployment(
+                    namespace=self.namespace
+                )
                 existing_names = [d.metadata.name for d in deployments.items]
-            elif resource_type == 'service':
+            elif resource_type == "service":
                 # List all services in the namespace
-                services = self.core_v1.list_namespaced_service(namespace=self.namespace)
+                services = self.core_v1.list_namespaced_service(
+                    namespace=self.namespace
+                )
                 existing_names = [s.metadata.name for s in services.items]
             else:
                 raise ValueError(f"Unsupported resource type: {resource_type}")
-            
+
             # Filter names that match our prefix pattern
             prefix_pattern = f"^{re.escape(prefix)}(-\\d+)?$"
-            matching_names = [name for name in existing_names if re.match(prefix_pattern, name)]
-            
+            matching_names = [
+                name for name in existing_names if re.match(prefix_pattern, name)
+            ]
+
             if not matching_names:
                 # No matching resources found, use the prefix as is
                 return prefix
-                
+
             # Find the highest suffix number
             highest_suffix = 0
             for name in matching_names:
@@ -164,17 +171,18 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                 elif name == prefix:
                     # The base prefix exists without a number
                     highest_suffix = max(highest_suffix, 0)
-            
+
             # Create the next available name
             if highest_suffix == 0 and prefix not in matching_names:
                 return prefix
             else:
                 return f"{prefix}-{highest_suffix + 1}"
-                
+
         except Exception as e:
             logger.error(f"Error finding next available {resource_type} name: {e}")
             # In case of error, generate a name with a timestamp to avoid conflicts
             import datetime
+
             timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             return f"{prefix}-{timestamp}"
 
@@ -183,20 +191,26 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         self._status = "starting"
         self.resources_created = False
         retry_count = 0
-        
+
         # Find an available port if needed
-        if self.daemon_port is None or not find_free_port(preferred_port=self.daemon_port):
+        if self.daemon_port is None or not find_free_port(
+            preferred_port=self.daemon_port
+        ):
             self.daemon_port = find_free_port(port_range=self.port_range)
             logger.info(f"Using port {self.daemon_port} for daemon service")
-            
+
         # If deployment_name is not provided, find the next available name
         if self.deployment_name is None:
-            self.deployment_name = self._find_next_available_name('deployment', self.deployment_prefix)
+            self.deployment_name = self._find_next_available_name(
+                "deployment", self.deployment_prefix
+            )
             logger.info(f"Using deployment name: {self.deployment_name}")
-            
+
         # If service_name is not provided, find the next available name
         if self.service_name is None:
-            self.service_name = self._find_next_available_name('service', self.service_prefix)
+            self.service_name = self._find_next_available_name(
+                "service", self.service_prefix
+            )
             logger.info(f"Using service name: {self.service_name}")
 
         while retry_count < self.max_retries:
@@ -230,13 +244,20 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                                         env=[
                                             client.V1EnvVar(
                                                 name="DAEMON_PORT",
-                                                value=str(self.daemon_port)
+                                                value=str(self.daemon_port),
                                             ),
                                             # Add token if it exists
-                                            client.V1EnvVar(
-                                                name="DAEMON_TOKEN",
-                                                value=getattr(self, 'daemon_token', "")
-                                            ) if hasattr(self, 'daemon_token') and self.daemon_token else None,
+                                            (
+                                                client.V1EnvVar(
+                                                    name="DAEMON_TOKEN",
+                                                    value=getattr(
+                                                        self, "daemon_token", ""
+                                                    ),
+                                                )
+                                                if hasattr(self, "daemon_token")
+                                                and self.daemon_token
+                                                else None
+                                            ),
                                         ],
                                         args=[
                                             "--port",
@@ -254,7 +275,9 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                 # Filter out None values from env list
                 if deployment.spec.template.spec.containers[0].env:
                     deployment.spec.template.spec.containers[0].env = [
-                        env for env in deployment.spec.template.spec.containers[0].env if env is not None
+                        env
+                        for env in deployment.spec.template.spec.containers[0].env
+                        if env is not None
                     ]
 
                 # Create service

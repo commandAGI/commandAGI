@@ -64,9 +64,15 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
 
         action_fns = {
             "command": lambda x: self._computer.shell(x),
-            "keyboard_keys_press": lambda x: self._computer.execute_keyboard_keys_press(x),
-            "keyboard_keys_down": lambda x: self._computer.execute_keyboard_keys_down(x),
-            "keyboard_keys_release": lambda x: self._computer.execute_keyboard_keys_release(x),
+            "keyboard_keys_press": lambda x: self._computer.execute_keyboard_keys_press(
+                x
+            ),
+            "keyboard_keys_down": lambda x: self._computer.execute_keyboard_keys_down(
+                x
+            ),
+            "keyboard_keys_release": lambda x: self._computer.execute_keyboard_keys_release(
+                x
+            ),
             "keyboard_hotkey": lambda x: self._computer.execute_keyboard_hotkey(x),
             "type": lambda x: self._computer.execute_type(x),
             "mouse_move": lambda x: self._computer.execute_mouse_move(x),

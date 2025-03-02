@@ -68,4 +68,4 @@ def build_azure_vm(
     ensure_packer_template(azure_template_path, azure_template)
 
     cmd = ["packer", "build", "-var", f"version={version}", azure_template_path]
-    run_command(cmd, "Azure VM image build") 
+    run_command(cmd, "Azure VM image build")

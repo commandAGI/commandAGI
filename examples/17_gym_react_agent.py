@@ -16,7 +16,9 @@ from typing import Dict, Any
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.react_vision_language_computer_agent import ReactComputerAgent
+    from commandLAB.gym.agents.react_vision_language_computer_agent import (
+        ReactComputerAgent,
+    )
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
         ShellCommandAction,
@@ -29,7 +31,9 @@ except ImportError as e:
     print(f"Detailed import error: {e}")
     print("Traceback:")
     traceback.print_exc()
-    print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
+    print(
+        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+    )
     print("pip install commandlab[local,gym]")
     exit(1)
 
@@ -42,7 +46,9 @@ class TextEditingTask(ComputerEnv):
         self.task_completed = False
         self.steps_taken = 0
         self.max_steps = 20  # Maximum number of steps before ending the episode
-        self.task_description = "Open a text editor, type 'Hello from ReactAgent!', and save the file."
+        self.task_description = (
+            "Open a text editor, type 'Hello from ReactAgent!', and save the file."
+        )
         self.editor_opened = False
         self.text_typed = False
         self.file_saved = False
@@ -51,7 +57,7 @@ class TextEditingTask(ComputerEnv):
         """Define a reward function for text editing tasks."""
         # Small negative reward for each step to encourage efficiency
         reward = -0.1
-        
+
         # Check if the action is executing a command (opening a text editor)
         if action.command is not None and not self.editor_opened:
             cmd = action.command.command.lower()
@@ -59,26 +65,30 @@ class TextEditingTask(ComputerEnv):
                 reward += 2.0
                 self.editor_opened = True
                 print("Text editor opened! +2.0 reward")
-        
+
         # Check if the action is typing text
         if action.type is not None and self.editor_opened and not self.text_typed:
             if "Hello from ReactAgent!" in action.type.text:
                 reward += 3.0
                 self.text_typed = True
                 print("Target text typed! +3.0 reward")
-        
+
         # Check if the action is saving the file (Ctrl+S)
-        if action.keyboard_hotkey is not None and self.text_typed and not self.file_saved:
+        if (
+            action.keyboard_hotkey is not None
+            and self.text_typed
+            and not self.file_saved
+        ):
             keys = action.keyboard_hotkey.keys
             if KeyboardKey.CTRL in keys and KeyboardKey.S in keys:
                 reward += 5.0
                 self.file_saved = True
                 self.task_completed = True
                 print("File saved! +5.0 reward")
-        
+
         # Increment step counter
         self.steps_taken += 1
-        
+
         return reward
 
     def get_done(self, action: ComputerAction) -> bool:
@@ -109,8 +119,12 @@ class TextEditingTask(ComputerEnv):
 def main():
     print("CommandLAB Gym React Agent Example")
     print("==================================")
-    print("This example demonstrates how to use the CommandLAB gym framework with the ReactComputerAgent.")
-    print("It will create an environment and agent, and collect an episode using the ReAct framework.")
+    print(
+        "This example demonstrates how to use the CommandLAB gym framework with the ReactComputerAgent."
+    )
+    print(
+        "It will create an environment and agent, and collect an episode using the ReAct framework."
+    )
     print()
 
     try:
@@ -134,7 +148,7 @@ def main():
         # Note: This requires a Hugging Face model
         agent = ReactComputerAgent(
             model="mistralai/Mistral-7B-Instruct-v0.2",  # Use an appropriate model
-            device="cpu"  # Use "cuda" if you have a GPU
+            device="cpu",  # Use "cuda" if you have a GPU
         )
 
         # Create a driver
@@ -177,4 +191,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -4,6 +4,7 @@ from typing import Annotated, Dict, List, Literal, Optional, TypedDict, Union, A
 
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 
+
 class MouseButton(str, Enum):
     LEFT = "left"
     RIGHT = "right"
@@ -111,6 +112,7 @@ class KeyboardKey(str, Enum):
 # Platform enumeration
 class Platform(str, Enum):
     """Operating system platform."""
+
     WINDOWS = "windows"
     MACOS = "macos"
     LINUX = "linux"
@@ -181,25 +183,26 @@ class KeyboardStateObservation(BaseComputerObservation):
 # Define component tree types
 class UIElementCommonProperties(TypedDict, total=False):
     """Common properties of a UI element across all platforms."""
+
     name: Optional[str]  # Name/label of the element
     role: Optional[str]  # Role/type of the element (normalized across platforms)
     value: Optional[Any]  # Current value of the element
     description: Optional[str]  # Description of the element
-    
+
     # State properties
     enabled: Optional[bool]  # Whether the element is enabled
     focused: Optional[bool]  # Whether the element has keyboard focus
     visible: Optional[bool]  # Whether the element is visible
     offscreen: Optional[bool]  # Whether the element is off-screen
-    
+
     # Position and size
     bounds: Optional[Dict[str, int]]  # {left, top, width, height}
-    
+
     # Control-specific properties
     selected: Optional[bool]  # Whether the element is selected
     checked: Optional[bool]  # Whether the element is checked
     expanded: Optional[bool]  # Whether the element is expanded
-    
+
     # For elements with range values (sliders, progress bars)
     current_value: Optional[float]  # Current value
     min_value: Optional[float]  # Minimum value
@@ -209,18 +212,20 @@ class UIElementCommonProperties(TypedDict, total=False):
 
 class UIElement(TypedDict):
     """A UI element in the accessibility tree."""
+
     # Common properties normalized across platforms
     properties: UIElementCommonProperties
     # Platform-specific properties
     platform: Platform  # The platform this element was retrieved from
     platform_properties: Dict[str, Any]  # Raw platform-specific properties
     # Child elements
-    children: List['UIElement']
+    children: List["UIElement"]
 
 
 # Define process information type
 class ProcessInfo(TypedDict):
     """Information about a running process."""
+
     # Common properties across platforms
     pid: int  # Process ID
     name: str  # Process name
@@ -235,6 +240,7 @@ class ProcessInfo(TypedDict):
 # Define window information type
 class WindowInfo(TypedDict):
     """Information about a window."""
+
     # Common properties across platforms
     title: str  # Window title
     bounds: Dict[str, int]  # {left, top, width, height}
@@ -249,6 +255,7 @@ class WindowInfo(TypedDict):
 # Define display information type
 class DisplayInfo(TypedDict):
     """Information about a display."""
+
     # Common properties across platforms
     id: int  # Display ID
     bounds: Dict[str, int]  # {left, top, width, height}
@@ -280,13 +287,13 @@ class DisplaysObservation(BaseComputerObservation):
 
 # Define a Union type for computer observations
 ComputerObservationUnion = Union[
-    ScreenshotObservation, 
-    MouseStateObservation, 
+    ScreenshotObservation,
+    MouseStateObservation,
     KeyboardStateObservation,
     LayoutTreeObservation,
     ProcessesObservation,
     WindowsObservation,
-    DisplaysObservation
+    DisplaysObservation,
 ]
 
 
@@ -464,33 +471,45 @@ class RunProcessAction(BaseComputerAction):
 
 
 class FileCopyToComputerAction(BaseComputerAction):
-    action_type: Literal["file_copy_to_computer"] = ComputerActionType.FILE_COPY_TO_COMPUTER.value
+    action_type: Literal["file_copy_to_computer"] = (
+        ComputerActionType.FILE_COPY_TO_COMPUTER.value
+    )
     source_path: str
     destination_path: str
 
 
 class FileCopyFromComputerAction(BaseComputerAction):
-    action_type: Literal["file_copy_from_computer"] = ComputerActionType.FILE_COPY_FROM_COMPUTER.value
+    action_type: Literal["file_copy_from_computer"] = (
+        ComputerActionType.FILE_COPY_FROM_COMPUTER.value
+    )
     source_path: str
     destination_path: str
 
 
 class JupyterStartServerAction(BaseComputerAction):
-    action_type: Literal["jupyter_start_server"] = ComputerActionType.JUPYTER_START_SERVER.value
+    action_type: Literal["jupyter_start_server"] = (
+        ComputerActionType.JUPYTER_START_SERVER.value
+    )
     port: int = 8888
     notebook_dir: Optional[str] = None
 
 
 class JupyterStopServerAction(BaseComputerAction):
-    action_type: Literal["jupyter_stop_server"] = ComputerActionType.JUPYTER_STOP_SERVER.value
+    action_type: Literal["jupyter_stop_server"] = (
+        ComputerActionType.JUPYTER_STOP_SERVER.value
+    )
 
 
 class VideoStartStreamAction(BaseComputerAction):
-    action_type: Literal["video_start_stream"] = ComputerActionType.VIDEO_START_STREAM.value
+    action_type: Literal["video_start_stream"] = (
+        ComputerActionType.VIDEO_START_STREAM.value
+    )
 
 
 class VideoStopStreamAction(BaseComputerAction):
-    action_type: Literal["video_stop_stream"] = ComputerActionType.VIDEO_STOP_STREAM.value
+    action_type: Literal["video_stop_stream"] = (
+        ComputerActionType.VIDEO_STOP_STREAM.value
+    )
 
 
 class ComputerStartAction(BaseComputerAction):

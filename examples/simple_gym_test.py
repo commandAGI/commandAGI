@@ -17,7 +17,9 @@ import traceback
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+        NaiveComputerAgent,
+    )
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
         ShellCommandAction,
@@ -33,7 +35,9 @@ except ImportError as e:
     print(f"Detailed import error: {e}")
     print("Traceback:")
     traceback.print_exc()
-    print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
+    print(
+        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+    )
     print("pip install commandlab[local,gym]")
     exit(1)
 
@@ -41,18 +45,20 @@ except ImportError as e:
 # Create a simple mock agent that doesn't require OpenAI API
 class SimpleMockAgent(NaiveComputerAgent):
     """A simple mock agent that doesn't require OpenAI API."""
-    
+
     def __init__(self):
         # Initialize with dummy chat_model_options
-        super().__init__(chat_model_options={
-            "model_provider": "openai",  # Required by get_chat_model
-            "model": "gpt-4o",  # Required by ChatOpenAI
-            "api_key": "dummy-api-key"  # Dummy API key
-        })
+        super().__init__(
+            chat_model_options={
+                "model_provider": "openai",  # Required by get_chat_model
+                "model": "gpt-4o",  # Required by ChatOpenAI
+                "api_key": "dummy-api-key",  # Dummy API key
+            }
+        )
         # Override the chat_model and str_output_parser to avoid API calls
         self.chat_model = None
         self.str_output_parser = None
-        
+
     def act(self, observation: ComputerObservation) -> ComputerAction:
         """Given an observation, determine the next action."""
         # Just return a simple mouse move action
@@ -76,11 +82,12 @@ def main():
             computer_cls_kwargs={},
         )
         env = ComputerEnv(config, computer=computer)
-        
+
         # Enable logging of modality errors for debugging
         from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+
         MultiModalEnv._LOG_MODALITY_ERRORS = True
-        
+
         # Create a mock agent
         print("Creating the agent...")
         agent = SimpleMockAgent()
@@ -123,4 +130,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

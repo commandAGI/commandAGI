@@ -120,7 +120,7 @@ def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
 
 class E2BDesktopComputerFile(BaseComputerFile):
     """Implementation of BaseComputerFile for E2B Desktop computer files.
-    
+
     This class provides a file-like interface for working with files on a remote computer
     accessed via E2B Desktop. It uses temporary local files and E2B Desktop's file transfer
     capabilities to provide file-like access.
@@ -312,7 +312,7 @@ class E2BDesktopComputer(BaseComputer):
 
     def _pause(self):
         """Pause the E2B Desktop instance.
-        
+
         For E2B Desktop, pausing means putting the sandbox into a paused state.
         """
         if self.desktop:
@@ -329,9 +329,9 @@ class E2BDesktopComputer(BaseComputer):
 
     def _resume(self, timeout_hours: Optional[float] = None):
         """Resume the E2B Desktop instance.
-        
+
         For E2B Desktop, resuming means taking the sandbox out of a paused state.
-        
+
         Args:
             timeout_hours: Optional timeout in hours after which the sandbox will automatically pause again.
                           Not used in the current E2B Desktop implementation.
@@ -351,7 +351,7 @@ class E2BDesktopComputer(BaseComputer):
     @property
     def video_stream_url(self) -> str:
         """Get the URL for the video stream of the E2B Desktop instance.
-        
+
         Returns:
             str: The URL for the video stream, or an empty string if video streaming is not available.
         """
@@ -359,38 +359,40 @@ class E2BDesktopComputer(BaseComputer):
 
     def _run_process(self, action: RunProcessAction) -> bool:
         """Run a process with the specified parameters.
-        
+
         This method uses the E2B Desktop API to run a process in the sandbox.
-        
+
         Args:
             action: RunProcessAction containing the process parameters
-            
+
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(f"Running process in E2B Desktop: {action.command} with args: {action.args}")
+        self.logger.info(
+            f"Running process in E2B Desktop: {action.command} with args: {action.args}"
+        )
         return self._default_run_process(action=action)
 
     def _open(
-        self, 
-        path: Union[str, Path], 
-        mode: str = 'r', 
+        self,
+        path: Union[str, Path],
+        mode: str = "r",
         encoding: Optional[str] = None,
         errors: Optional[str] = None,
-        buffering: int = -1
+        buffering: int = -1,
     ) -> E2BDesktopComputerFile:
         """Open a file on the E2B Desktop VM.
-        
+
         This method uses E2B Desktop's file transfer capabilities to provide
         file-like access to files on the VM.
-        
+
         Args:
             path: Path to the file on the E2B Desktop VM
             mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
             encoding: Text encoding to use (for text modes)
             errors: How to handle encoding/decoding errors
             buffering: Buffering policy (-1 for default)
-            
+
         Returns:
             An E2BDesktopComputerFile instance for the specified file
         """
@@ -400,6 +402,5 @@ class E2BDesktopComputer(BaseComputer):
             mode=mode,
             encoding=encoding,
             errors=errors,
-            buffering=buffering
+            buffering=buffering,
         )
-

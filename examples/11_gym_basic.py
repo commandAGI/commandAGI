@@ -39,7 +39,9 @@ except ImportError as e:
     print(f"Detailed import error: {e}")
     print("Traceback:")
     traceback.print_exc()
-    print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
+    print(
+        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+    )
     print("pip install commandlab[local,gym]")
     exit(1)
 
@@ -47,27 +49,27 @@ except ImportError as e:
 # Create a simple mock agent for testing
 class MockAgent(BaseAgent[ComputerObservation, ComputerAction]):
     """A simple mock agent that returns random actions for testing."""
-    
+
     total_reward: float = Field(default=0.0)
-    
+
     def __init__(self):
         super().__init__()
-        
+
     def reset(self) -> None:
         """Reset the agent's internal state."""
         self.total_reward = 0.0
-        
+
     def act(self, observation: ComputerObservation) -> ComputerAction:
         """Given an observation, determine the next action."""
         # Use a mouse move action that should work
         return ComputerAction(
             mouse_move=MouseMoveAction(x=100, y=100, move_duration=0.5)
         )
-        
+
     def update(self, reward: float) -> None:
         """Update the agent's internal state based on the reward."""
         self.total_reward += reward
-        
+
     def train(self, episodes: list[Episode]) -> None:
         """Train the agent on an episode."""
         pass
@@ -93,11 +95,12 @@ def main():
         print("Creating the environment...")
         computer = LocalPynputComputer()
         env = ComputerEnv(config, computer=computer)
-        
+
         # Enable logging of modality errors for debugging
         from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+
         MultiModalEnv._LOG_MODALITY_ERRORS = True
-        
+
         # Create a mock agent instead of the NaiveComputerAgent
         print("Creating the agent...")
         agent = MockAgent()
@@ -140,4 +143,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

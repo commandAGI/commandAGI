@@ -47,9 +47,7 @@ def main():
         else:  # Linux
             browser_cmd = "google-chrome"
 
-        result = computer.shell(
-            ShellCommandAction(command=browser_cmd, timeout=10)
-        )
+        result = computer.shell(ShellCommandAction(command=browser_cmd, timeout=10))
 
         print(f"Browser launch {'succeeded' if result else 'failed'}")
         print("Waiting for the browser to open...")

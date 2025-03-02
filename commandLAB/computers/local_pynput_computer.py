@@ -45,7 +45,7 @@ from commandLAB._utils.image import process_screenshot
 # Pynput-specific mappings
 def mouse_button_to_pynput(button: Union[MouseButton, str]) -> PynputButton:
     """Convert MouseButton to Pynput mouse button.
-    
+
     Pynput uses Button enum for mouse buttons:
     Button.left = left button
     Button.middle = middle button
@@ -53,38 +53,44 @@ def mouse_button_to_pynput(button: Union[MouseButton, str]) -> PynputButton:
     """
     if isinstance(button, str):
         button = MouseButton(button)
-    
+
     # Pynput mouse button mapping
     pynput_button_mapping = {
         MouseButton.LEFT: PynputButton.left,
         MouseButton.MIDDLE: PynputButton.middle,
-        MouseButton.RIGHT: PynputButton.right
+        MouseButton.RIGHT: PynputButton.right,
     }
-    
-    return pynput_button_mapping.get(button, PynputButton.left)  # Default to left button if not found
+
+    return pynput_button_mapping.get(
+        button, PynputButton.left
+    )  # Default to left button if not found
+
 
 def mouse_button_from_pynput(button: PynputButton) -> Optional[MouseButton]:
     """Convert Pynput mouse button to MouseButton.
-    
+
     Maps from pynput.mouse.Button to our MouseButton enum.
     """
     # Pynput to MouseButton mapping
     pynput_to_mouse_button = {
         PynputButton.left: MouseButton.LEFT,
         PynputButton.middle: MouseButton.MIDDLE,
-        PynputButton.right: MouseButton.RIGHT
+        PynputButton.right: MouseButton.RIGHT,
     }
-    
+
     return pynput_to_mouse_button.get(button)  # Returns None if not found
 
-def keyboard_key_to_pynput(key: Union[KeyboardKey, str]) -> Union[PynputKey, PynputKeyCode]:
+
+def keyboard_key_to_pynput(
+    key: Union[KeyboardKey, str],
+) -> Union[PynputKey, PynputKeyCode]:
     """Convert KeyboardKey to Pynput key.
-    
+
     Pynput uses Key enum for special keys and KeyCode for character keys.
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
-    
+
     # Pynput-specific key mappings for special keys
     pynput_key_mapping = {
         # Special keys
@@ -98,13 +104,11 @@ def keyboard_key_to_pynput(key: Union[KeyboardKey, str]) -> Union[PynputKey, Pyn
         KeyboardKey.END: PynputKey.end,
         KeyboardKey.PAGE_UP: PynputKey.page_up,
         KeyboardKey.PAGE_DOWN: PynputKey.page_down,
-        
         # Arrow keys
         KeyboardKey.UP: PynputKey.up,
         KeyboardKey.DOWN: PynputKey.down,
         KeyboardKey.LEFT: PynputKey.left,
         KeyboardKey.RIGHT: PynputKey.right,
-        
         # Modifier keys
         KeyboardKey.SHIFT: PynputKey.shift,
         KeyboardKey.CTRL: PynputKey.ctrl,
@@ -116,7 +120,6 @@ def keyboard_key_to_pynput(key: Union[KeyboardKey, str]) -> Union[PynputKey, Pyn
         KeyboardKey.META: PynputKey.cmd,  # Command/Windows key
         KeyboardKey.LMETA: PynputKey.cmd_l,
         KeyboardKey.RMETA: PynputKey.cmd_r,
-        
         # Function keys
         KeyboardKey.F1: PynputKey.f1,
         KeyboardKey.F2: PynputKey.f2,
@@ -131,27 +134,28 @@ def keyboard_key_to_pynput(key: Union[KeyboardKey, str]) -> Union[PynputKey, Pyn
         KeyboardKey.F11: PynputKey.f11,
         KeyboardKey.F12: PynputKey.f12,
     }
-    
+
     # Check if it's a special key
     if key in pynput_key_mapping:
         return pynput_key_mapping[key]
-    
+
     # For letter keys and number keys, create a KeyCode
     return PynputKeyCode.from_char(key.value)
 
+
 def keyboard_key_from_pynput(key) -> Optional[KeyboardKey]:
     """Convert Pynput key to KeyboardKey.
-    
+
     Maps from pynput.keyboard.Key or KeyCode to our KeyboardKey enum.
     """
     # Handle character keys (KeyCode objects)
-    if hasattr(key, 'char') and key.char:
+    if hasattr(key, "char") and key.char:
         # Try to find a matching key in KeyboardKey
         for k in KeyboardKey:
             if k.value == key.char:
                 return k
         return None
-    
+
     # Handle special keys (Key enum values)
     # Pynput Key to KeyboardKey mapping
     pynput_to_keyboard_key = {
@@ -194,7 +198,7 @@ def keyboard_key_from_pynput(key) -> Optional[KeyboardKey]:
         PynputKey.f11: KeyboardKey.F11,
         PynputKey.f12: KeyboardKey.F12,
     }
-    
+
     return pynput_to_keyboard_key.get(key)  # Returns None if not found
 
 
@@ -220,7 +224,7 @@ class LocalPynputComputer(LocalComputer):
         """Start the local computer environment with pynput listeners."""
         # Call parent _start method to initialize screen capture and temp directory
         super()._start()
-            
+
         # Start the keyboard listener if not already running
         if self._keyboard_listener is None or not self._keyboard_listener.running:
             self.logger.info("Starting keyboard listener")
@@ -239,8 +243,8 @@ class LocalPynputComputer(LocalComputer):
                 on_scroll=self._on_mouse_scroll,
             )
             self._mouse_listener.start()
-        
-        self.logger.info("Local Pynput computer started successfully")    
+
+        self.logger.info("Local Pynput computer started successfully")
         return True
 
     def _stop(self):
@@ -250,13 +254,13 @@ class LocalPynputComputer(LocalComputer):
             self.logger.info("Stopping keyboard listener")
             self._keyboard_listener.stop()
             self._keyboard_listener = None
-            
+
         # Stop the mouse listener if running
         if self._mouse_listener and self._mouse_listener.running:
             self.logger.info("Stopping mouse listener")
             self._mouse_listener.stop()
             self._mouse_listener = None
-        
+
         # Call parent _stop method to clean up screen capture and temp directory
         super()._stop()
         return True
@@ -265,7 +269,9 @@ class LocalPynputComputer(LocalComputer):
         """Reset environment and return initial observation"""
         self.logger.info("Resetting environment state (showing desktop)")
         # Show desktop to reset the environment state
-        self.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.META, KeyboardKey.D]))
+        self.execute_keyboard_hotkey(
+            KeyboardHotkeyAction(keys=[KeyboardKey.META, KeyboardKey.D])
+        )
         time.sleep(1)  # Give windows time to minimize
 
     def _on_keyboard_press(self, key):
@@ -286,7 +292,9 @@ class LocalPynputComputer(LocalComputer):
 
     def _on_mouse_click(self, x, y, button, pressed):
         """Callback for mouse click events."""
-        self.logger.debug(f"Mouse click detected: ({x}, {y}), button={button}, pressed={pressed}")
+        self.logger.debug(
+            f"Mouse click detected: ({x}, {y}), button={button}, pressed={pressed}"
+        )
         # Map pynput button to our MouseButton enum
         if button == PynputButton.left:
             self._mouse_buttons[MouseButton.LEFT] = pressed
@@ -302,10 +310,11 @@ class LocalPynputComputer(LocalComputer):
 
     def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from pynput listener."""
-        self.logger.debug(f"Getting mouse state: position={self._mouse_pos}, buttons={self._mouse_buttons}")
+        self.logger.debug(
+            f"Getting mouse state: position={self._mouse_pos}, buttons={self._mouse_buttons}"
+        )
         return MouseStateObservation(
-            buttons=self._mouse_buttons.copy(),
-            position=self._mouse_pos
+            buttons=self._mouse_buttons.copy(), position=self._mouse_pos
         )
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
@@ -316,7 +325,7 @@ class LocalPynputComputer(LocalComputer):
             kb_key = keyboard_key_from_pynput(key)
             if kb_key:
                 pressed_keys[kb_key] = True
-                
+
         self.logger.debug(f"Getting keyboard state: {pressed_keys}")
         return KeyboardStateObservation(keys=pressed_keys)
 
@@ -325,11 +334,11 @@ class LocalPynputComputer(LocalComputer):
         screenshot = self.get_screenshot()
         mouse_state = self.get_mouse_state()
         keyboard_state = self.get_keyboard_state()
-        
+
         return ComputerObservation(
             screenshot=screenshot,
             mouse_state=mouse_state,
-            keyboard_state=keyboard_state
+            keyboard_state=keyboard_state,
         )
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
@@ -356,14 +365,14 @@ class LocalPynputComputer(LocalComputer):
         if action.move_duration > 0:
             # Get current position
             current_x, current_y = self._mouse_controller.position
-            
+
             # Calculate number of steps based on duration
             steps = max(int(action.move_duration * 60), 1)  # 60 steps per second
-            
+
             # Calculate step size
             step_x = (action.x - current_x) / steps
             step_y = (action.y - current_y) / steps
-            
+
             # Move in steps
             for i in range(steps):
                 next_x = current_x + step_x * (i + 1)
@@ -379,18 +388,24 @@ class LocalPynputComputer(LocalComputer):
         self.logger.debug(f"Scrolling mouse by: {action.amount}")
         # pynput scroll is done with dx, dy values
         # Positive values scroll up, negative values scroll down
-        self._mouse_controller.scroll(0, action.amount / 100)  # Scale to reasonable values
+        self._mouse_controller.scroll(
+            0, action.amount / 100
+        )  # Scale to reasonable values
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Press mouse button down using pynput."""
         pynput_button = mouse_button_to_pynput(action.button)
-        self.logger.debug(f"Pressing mouse button down: {action.button} (Pynput button: {pynput_button})")
+        self.logger.debug(
+            f"Pressing mouse button down: {action.button} (Pynput button: {pynput_button})"
+        )
         self._mouse_controller.press(pynput_button)
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Release mouse button using pynput."""
         pynput_button = mouse_button_to_pynput(action.button)
-        self.logger.debug(f"Releasing mouse button: {action.button} (Pynput button: {pynput_button})")
+        self.logger.debug(
+            f"Releasing mouse button: {action.button} (Pynput button: {pynput_button})"
+        )
         self._mouse_controller.release(pynput_button)
 
     def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):

@@ -6,8 +6,9 @@ from pydantic import BaseModel
 from commandLAB.gym.schema import Episode
 from commandLAB.types import ComputerAction, ComputerObservation
 
-ObsType = TypeVar('ObsType')
-ActionType = TypeVar('ActionType')
+ObsType = TypeVar("ObsType")
+ActionType = TypeVar("ActionType")
+
 
 class BaseAgent(BaseModel, Generic[ObsType, ActionType], ABC):
     """Base class for agents"""

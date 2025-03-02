@@ -35,52 +35,91 @@ COMPUTER_CLS_OPTIONS = {
     "pyautogui": LocalPyAutoGUIComputer,
 }
 
+
 @cli.command()
 def start(
-    host: Optional[str] = typer.Option(default="0.0.0.0", envvar="DAEMON_HOST", help="The host to bind the daemon to"),
-    port: Optional[int] = typer.Option(default=8000, envvar="DAEMON_PORT", help="The port to bind the daemon to"),
-    token: Optional[str] = typer.Option(None, envvar="DAEMON_TOKEN", help="API token for authentication. If not provided, a random token will be generated."),
-    backend: Optional[str] = typer.Option(default="pynput", envvar="DAEMON_BACKEND", help="The backend to use for the computer. Options: pynput, pyautogui"),
-    additional_computer_cls_kwargs_str: Optional[str] = typer.Option(default='{}', help="Additional keyword arguments to pass to the computer class"),
-    vnc_windows_executables_str: Optional[str] = typer.Option(default=None, help="Comma-separated list of VNC executables to search for on Windows"),
-    vnc_unix_executables_str: Optional[str] = typer.Option(default=None, help="Comma-separated list of VNC executables to search for on Unix-like systems"),
-    vnc_start_commands_str: Optional[str] = typer.Option(default=None, help="JSON string mapping executable names to command templates for starting VNC"),
-    vnc_stop_commands_str: Optional[str] = typer.Option(default=None, help="JSON string mapping executable names to command templates for stopping VNC"),
-    rdp_use_system_commands: bool = typer.Option(default=True, help="Whether to use system commands for RDP on Windows"),
-    mcp_server_name: Optional[str] = typer.Option(default="CommandLAB MCP Server", help="The name of the MCP server"),
-    http_server: bool = typer.Option(default=True, help="Whether to start the HTTP server"),
-    mcp_server: bool = typer.Option(default=False, help="Whether to start the MCP server"),
+    host: Optional[str] = typer.Option(
+        default="0.0.0.0", envvar="DAEMON_HOST", help="The host to bind the daemon to"
+    ),
+    port: Optional[int] = typer.Option(
+        default=8000, envvar="DAEMON_PORT", help="The port to bind the daemon to"
+    ),
+    token: Optional[str] = typer.Option(
+        None,
+        envvar="DAEMON_TOKEN",
+        help="API token for authentication. If not provided, a random token will be generated.",
+    ),
+    backend: Optional[str] = typer.Option(
+        default="pynput",
+        envvar="DAEMON_BACKEND",
+        help="The backend to use for the computer. Options: pynput, pyautogui",
+    ),
+    additional_computer_cls_kwargs_str: Optional[str] = typer.Option(
+        default="{}", help="Additional keyword arguments to pass to the computer class"
+    ),
+    vnc_windows_executables_str: Optional[str] = typer.Option(
+        default=None,
+        help="Comma-separated list of VNC executables to search for on Windows",
+    ),
+    vnc_unix_executables_str: Optional[str] = typer.Option(
+        default=None,
+        help="Comma-separated list of VNC executables to search for on Unix-like systems",
+    ),
+    vnc_start_commands_str: Optional[str] = typer.Option(
+        default=None,
+        help="JSON string mapping executable names to command templates for starting VNC",
+    ),
+    vnc_stop_commands_str: Optional[str] = typer.Option(
+        default=None,
+        help="JSON string mapping executable names to command templates for stopping VNC",
+    ),
+    rdp_use_system_commands: bool = typer.Option(
+        default=True, help="Whether to use system commands for RDP on Windows"
+    ),
+    mcp_server_name: Optional[str] = typer.Option(
+        default="CommandLAB MCP Server", help="The name of the MCP server"
+    ),
+    http_server: bool = typer.Option(
+        default=True, help="Whether to start the HTTP server"
+    ),
+    mcp_server: bool = typer.Option(
+        default=False, help="Whether to start the MCP server"
+    ),
 ):
-    print('Starting daemon...')
+    print("Starting daemon...")
 
     additional_computer_cls_kwargs = json.loads(additional_computer_cls_kwargs_str)
 
     # Configure computer backend
     computer_cls = COMPUTER_CLS_OPTIONS[backend]
-    
+
     # Create the computer instance
     computer = computer_cls(**additional_computer_cls_kwargs)
-    
+
     # Parse VNC and RDP configuration options
     vnc_windows_executables = None
     if vnc_windows_executables_str:
-        vnc_windows_executables = [exe.strip() for exe in vnc_windows_executables_str.split(',')]
-    
+        vnc_windows_executables = [
+            exe.strip() for exe in vnc_windows_executables_str.split(",")
+        ]
+
     vnc_unix_executables = None
     if vnc_unix_executables_str:
-        vnc_unix_executables = [exe.strip() for exe in vnc_unix_executables_str.split(',')]
-    
+        vnc_unix_executables = [
+            exe.strip() for exe in vnc_unix_executables_str.split(",")
+        ]
+
     vnc_start_commands = None
     if vnc_start_commands_str:
         vnc_start_commands = json.loads(vnc_start_commands_str)
-    
+
     vnc_stop_commands = None
     if vnc_stop_commands_str:
         vnc_stop_commands = json.loads(vnc_stop_commands_str)
-    
+
     # Pass the computer instance and configuration to the daemon
     daemon = ComputerDaemon(
-        computer=computer, 
+        computer=computer,
         api_token=token,
         vnc_windows_executables=vnc_windows_executables,
         vnc_unix_executables=vnc_unix_executables,
@@ -91,7 +130,7 @@ def start(
     )
 
     print(f"API Token: {daemon._api_token}")
-    
+
     # Set up signal handlers for graceful shutdown
     def signal_handler(sig, frame):
         print("\nShutting down servers gracefully...")
@@ -103,11 +142,11 @@ def start(
             daemon.stop_fastapi_server()
         print("Shutdown complete.")
         sys.exit(0)
-    
+
     # Register signal handlers
     signal.signal(signal.SIGINT, signal_handler)  # Ctrl+C
     signal.signal(signal.SIGTERM, signal_handler)  # Termination signal
-    
+
     # Start servers based on flags
     if http_server:
         print(f"Starting HTTP server on {host}:{port}")
@@ -116,7 +155,7 @@ def start(
             print(f"Failed to start HTTP server: {message}")
             return
         print(message)
-    
+
     if mcp_server:
         print("Starting MCP server...")
         success, message = daemon.start_mcp_server()
@@ -126,7 +165,7 @@ def start(
                 return
         else:
             print(message)
-    
+
     # Keep the main thread alive to handle signals
     try:
         while True:

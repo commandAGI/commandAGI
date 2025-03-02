@@ -9,9 +9,7 @@ from rich.status import Status
 
 # Configure rich logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    handlers=[logging.StreamHandler()]
+    level=logging.INFO, format="%(message)s", handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger("build_images")
 console = Console()
@@ -30,4 +28,4 @@ def ensure_packer_template(
                 json.dump(template_content, f, indent=2)
             status.update("[bold green]✓ Packer template created")
         else:
-            status.update("[bold green]✓ Packer template exists") 
+            status.update("[bold green]✓ Packer template exists")

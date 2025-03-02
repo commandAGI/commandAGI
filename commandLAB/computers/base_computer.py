@@ -43,63 +43,77 @@ from pydantic import BaseModel, Field
 
 class BaseJupyterNotebook(BaseModel):
     """Base class for Jupyter notebook operations.
-    
+
     This class defines the interface for working with Jupyter notebooks programmatically.
     Implementations should provide methods to create, read, modify, and execute notebooks.
     """
-    
+
     model_config = {"arbitrary_types_allowed": True}
-    
+
     notebook_path: Optional[Path] = None
-    
+
     def create_notebook(self) -> Dict[str, Any]:
         """Create a new empty notebook and return the notebook object."""
         raise NotImplementedError("Subclasses must implement create_notebook")
-    
+
     def read_notebook(self, path: Union[str, Path]) -> Dict[str, Any]:
         """Read a notebook from a file and return the notebook object."""
         raise NotImplementedError("Subclasses must implement read_notebook")
-    
-    def save_notebook(self, notebook: Dict[str, Any], path: Optional[Union[str, Path]] = None) -> Path:
+
+    def save_notebook(
+        self, notebook: Dict[str, Any], path: Optional[Union[str, Path]] = None
+    ) -> Path:
         """Save the notebook to a file and return the path."""
         raise NotImplementedError("Subclasses must implement save_notebook")
-    
-    def add_markdown_cell(self, notebook: Dict[str, Any], source: str, position: Optional[int] = None) -> Dict[str, Any]:
+
+    def add_markdown_cell(
+        self, notebook: Dict[str, Any], source: str, position: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Add a markdown cell to the notebook and return the updated notebook."""
         raise NotImplementedError("Subclasses must implement add_markdown_cell")
-    
-    def add_code_cell(self, notebook: Dict[str, Any], source: str, position: Optional[int] = None) -> Dict[str, Any]:
+
+    def add_code_cell(
+        self, notebook: Dict[str, Any], source: str, position: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Add a code cell to the notebook and return the updated notebook."""
         raise NotImplementedError("Subclasses must implement add_code_cell")
-    
-    def update_cell(self, notebook: Dict[str, Any], index: int, source: str) -> Dict[str, Any]:
+
+    def update_cell(
+        self, notebook: Dict[str, Any], index: int, source: str
+    ) -> Dict[str, Any]:
         """Update the source of a cell at the given index and return the updated notebook."""
         raise NotImplementedError("Subclasses must implement update_cell")
-    
+
     def remove_cell(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
         """Remove a cell at the given index and return the updated notebook."""
         raise NotImplementedError("Subclasses must implement remove_cell")
-    
+
     def list_cells(self, notebook: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Return a list of cells in the notebook."""
         raise NotImplementedError("Subclasses must implement list_cells")
-    
-    def execute_notebook(self, notebook: Dict[str, Any], timeout: int = 600) -> Dict[str, Any]:
+
+    def execute_notebook(
+        self, notebook: Dict[str, Any], timeout: int = 600
+    ) -> Dict[str, Any]:
         """Execute all cells in the notebook and return the executed notebook."""
         raise NotImplementedError("Subclasses must implement execute_notebook")
-    
-    def execute_cell(self, notebook: Dict[str, Any], index: int, timeout: int = 60) -> Dict[str, Any]:
+
+    def execute_cell(
+        self, notebook: Dict[str, Any], index: int, timeout: int = 60
+    ) -> Dict[str, Any]:
         """Execute a specific cell in the notebook and return the executed notebook."""
         raise NotImplementedError("Subclasses must implement execute_cell")
-    
-    def get_cell_output(self, notebook: Dict[str, Any], index: int) -> List[Dict[str, Any]]:
+
+    def get_cell_output(
+        self, notebook: Dict[str, Any], index: int
+    ) -> List[Dict[str, Any]]:
         """Return the output of a cell at the given index."""
         raise NotImplementedError("Subclasses must implement get_cell_output")
-    
+
     def clear_cell_output(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
         """Clear the output of a cell at the given index and return the updated notebook."""
         raise NotImplementedError("Subclasses must implement clear_cell_output")
-    
+
     def clear_all_outputs(self, notebook: Dict[str, Any]) -> Dict[str, Any]:
         """Clear the outputs of all cells in the notebook and return the updated notebook."""
         raise NotImplementedError("Subclasses must implement clear_all_outputs")
@@ -107,11 +121,11 @@ class BaseJupyterNotebook(BaseModel):
 
 class BaseShell(BaseModel):
     """Base class for shell operations.
-    
+
     This class defines the interface for working with a persistent shell/terminal session.
     Implementations should provide methods to execute commands and manage the shell environment.
     """
-    
+
     model_config = {"arbitrary_types_allowed": True}
 
     executable: str = DEFAULT_SHELL_EXECUTIBLE
@@ -119,103 +133,103 @@ class BaseShell(BaseModel):
     env: Dict[str, str] = Field(default_factory=dict)
     pid: Optional[int] = None
     _logger: Optional[logging.Logger] = None
-    
+
     def start(self) -> bool:
         """Start the shell process.
-        
+
         Returns:
             bool: True if the shell was started successfully, False otherwise.
         """
         raise NotImplementedError("Subclasses must implement start")
-    
+
     def stop(self) -> bool:
         """Stop the shell process.
-        
+
         Returns:
             bool: True if the shell was stopped successfully, False otherwise.
         """
         raise NotImplementedError("Subclasses must implement stop")
-    
+
     def execute(self, command: str, timeout: Optional[float] = None) -> Dict[str, Any]:
         """Execute a command in the shell and return the result.
-        
+
         Args:
             command: The command to execute
             timeout: Optional timeout in seconds
-            
+
         Returns:
             Dict containing stdout, stderr, and return code
         """
         raise NotImplementedError("Subclasses must implement execute")
-    
+
     def read_output(self, timeout: Optional[float] = None) -> str:
         """Read any available output from the shell.
-        
+
         Args:
             timeout: Optional timeout in seconds
-            
+
         Returns:
             str: The output from the shell
         """
         raise NotImplementedError("Subclasses must implement read_output")
-    
+
     def send_input(self, text: str) -> bool:
         """Send input to the shell.
-        
+
         Args:
             text: The text to send to the shell
-            
+
         Returns:
             bool: True if the input was sent successfully, False otherwise
         """
         raise NotImplementedError("Subclasses must implement send_input")
-    
+
     def change_directory(self, path: Union[str, Path]) -> bool:
         """Change the current working directory of the shell.
-        
+
         Args:
             path: The path to change to
-            
+
         Returns:
             bool: True if the directory was changed successfully, False otherwise
         """
         raise NotImplementedError("Subclasses must implement change_directory")
-    
+
     def set_environment_variable(self, name: str, value: str) -> bool:
         """Set an environment variable in the shell.
-        
+
         Args:
             name: The name of the environment variable
             value: The value to set
-            
+
         Returns:
             bool: True if the variable was set successfully, False otherwise
         """
         raise NotImplementedError("Subclasses must implement set_environment_variable")
-    
+
     def get_environment_variable(self, name: str) -> Optional[str]:
         """Get the value of an environment variable from the shell.
-        
+
         Args:
             name: The name of the environment variable
-            
+
         Returns:
             Optional[str]: The value of the environment variable, or None if it doesn't exist
         """
         raise NotImplementedError("Subclasses must implement get_environment_variable")
-    
+
     def is_running(self) -> bool:
         """Check if the shell process is running.
-        
+
         Returns:
             bool: True if the shell is running, False otherwise
         """
         raise NotImplementedError("Subclasses must implement is_running")
-    
+
     @property
     def current_directory(self) -> Path:
         """Get the current working directory of the shell.
-        
+
         Returns:
             Path: The current working directory
         """
@@ -224,23 +238,23 @@ class BaseShell(BaseModel):
 
 class BaseComputerFile(FileIO, ABC):
     """Base class for computer-specific file implementations.
-    
+
     This class provides a file-like interface for working with files on remote computers.
     It mimics the built-in file object API to allow for familiar usage patterns.
-    
+
     The implementation copies the file from the computer to a local temporary directory,
     performs operations on the local copy, and syncs changes back to the computer
     when flushing or closing the file.
     """
-    
+
     def __init__(
-        self, 
-        computer: 'BaseComputer',
-        path: Union[str, Path], 
-        mode: str = 'r', 
+        self,
+        computer: "BaseComputer",
+        path: Union[str, Path],
+        mode: str = "r",
         encoding: Optional[str] = None,
         errors: Optional[str] = None,
-        buffering: int = -1
+        buffering: int = -1,
     ):
         # Store basic attributes
         self.computer = computer
@@ -248,51 +262,52 @@ class BaseComputerFile(FileIO, ABC):
         self.mode = mode
         self._closed = False
         self._modified = False
-        
+
         # Create a unique filename in the temp directory
         import os
+
         temp_filename = f"{hash(str(self.path))}-{os.path.basename(self.path)}"
         self._temp_path = Path(self.computer.temp_dir) / temp_filename
-        
+
         # Copy from remote to local temp file if needed
-        if 'r' in mode or 'a' in mode or '+' in mode:
+        if "r" in mode or "a" in mode or "+" in mode:
             try:
                 if self.path.exists():
                     self.computer._copy_from_computer(self.path, self._temp_path)
             except Exception as e:
-                if 'r' in mode and not ('+' in mode or 'a' in mode or 'w' in mode):
+                if "r" in mode and not ("+" in mode or "a" in mode or "w" in mode):
                     # If we're only reading, this is an error
                     raise IOError(f"Could not copy file from computer: {e}")
                 # Otherwise, we'll create a new file
-        
+
         # Open the file
         kwargs = {}
-        if encoding is not None and 'b' not in mode:
-            kwargs['encoding'] = encoding
+        if encoding is not None and "b" not in mode:
+            kwargs["encoding"] = encoding
         if errors is not None:
-            kwargs['errors'] = errors
+            kwargs["errors"] = errors
         if buffering != -1:
-            kwargs['buffering'] = buffering
-            
+            kwargs["buffering"] = buffering
+
         self._file = open(self._temp_path, mode, **kwargs)
-    
+
     def read(self, size=None):
         """Read from the file."""
         return self._file.read() if size is None else self._file.read(size)
-    
+
     def write(self, data):
         """Write to the file."""
         self._modified = True
         return self._file.write(data)
-    
+
     def seek(self, offset, whence=0):
         """Change the stream position."""
         return self._file.seek(offset, whence)
-    
+
     def tell(self):
         """Return the current stream position."""
         return self._file.tell()
-    
+
     def flush(self):
         """Flush the write buffers and sync changes back to the computer."""
         self._file.flush()
@@ -304,51 +319,51 @@ class BaseComputerFile(FileIO, ABC):
                 self._modified = False
             except Exception as e:
                 raise IOError(f"Could not copy file to computer: {e}")
-    
+
     def close(self):
         """Close the file and sync changes back to the computer."""
         if not self._closed:
             self.flush()
             self._file.close()
             self._closed = True
-    
+
     def readable(self):
         """Return True if the file can be read."""
         return self._file.readable()
-    
+
     def writable(self):
         """Return True if the file can be written."""
         return self._file.writable()
-    
+
     def seekable(self):
         """Return True if the file supports random access."""
         return self._file.seekable()
-    
+
     def readline(self, size=-1):
         """Read until newline or EOF."""
         return self._file.readline(size)
-    
+
     def readlines(self, hint=-1):
         """Read until EOF using readline() and return a list of lines."""
         return self._file.readlines(hint)
-    
+
     def writelines(self, lines):
         """Write a list of lines to the file."""
         self._modified = True
         self._file.writelines(lines)
-    
+
     def __iter__(self):
         """Return an iterator over the file's lines."""
         return self._file.__iter__()
-    
+
     def __next__(self):
         """Return the next line from the file."""
         return self._file.__next__()
-    
+
     def __enter__(self):
         """Context manager entry."""
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit."""
         self.close()
@@ -357,9 +372,11 @@ class BaseComputerFile(FileIO, ABC):
 class BaseComputer(BaseModel):
 
     model_config = {"arbitrary_types_allowed": True}
-    
+
     name: str
-    _state: Literal["stopped", "started", "paused"] = "stopped"  # Updated to include paused state
+    _state: Literal["stopped", "started", "paused"] = (
+        "stopped"  # Updated to include paused state
+    )
     logger: Optional[logging.Logger] = None
     _file_handler: Optional[logging.FileHandler] = None
     num_retries: int = 3
@@ -412,7 +429,7 @@ class BaseComputer(BaseModel):
         if self._state == "stopped":
             self.logger.warning("Computer is already stopped")
             return
-        
+
         if self._state == "paused":
             self.logger.info("Computer is paused, stopping anyway")
 
@@ -431,12 +448,11 @@ class BaseComputer(BaseModel):
         """Stop the computer."""
         raise NotImplementedError(f"{self.__class__.__name__}.stop")
 
-
     def pause(self) -> bool:
         """Pause the computer.
-        
+
         This method pauses the computer, which means it's still running but in a suspended state.
-        
+
         Returns:
             bool: True if the computer was successfully paused, False otherwise.
         """
@@ -449,7 +465,9 @@ class BaseComputer(BaseModel):
             try:
                 self._pause()
                 self._state = "paused"
-                self.logger.info(f"{self.__class__.__name__} computer paused successfully")
+                self.logger.info(
+                    f"{self.__class__.__name__} computer paused successfully"
+                )
                 return True
             except Exception as e:
                 self.logger.error(
@@ -471,10 +489,10 @@ class BaseComputer(BaseModel):
 
     def resume(self, timeout_hours: Optional[float] = None) -> bool:
         """Resume a paused computer.
-        
+
         Args:
             timeout_hours: Optional timeout in hours after which the computer will be paused again.
-            
+
         Returns:
             bool: True if the computer was successfully resumed, False otherwise.
         """
@@ -482,12 +500,17 @@ class BaseComputer(BaseModel):
             self.logger.warning(f"Cannot resume computer in {self._state} state")
             return False
 
-        self.logger.info(f"Attempting to resume {self.__class__.__name__} computer" + (f" with {timeout_hours} hour timeout" if timeout_hours else ""))
+        self.logger.info(
+            f"Attempting to resume {self.__class__.__name__} computer"
+            + (f" with {timeout_hours} hour timeout" if timeout_hours else "")
+        )
         for attempt in range(self.num_retries):
             try:
                 self._resume(timeout_hours)
                 self._state = "started"
-                self.logger.info(f"{self.__class__.__name__} computer resumed successfully")
+                self.logger.info(
+                    f"{self.__class__.__name__} computer resumed successfully"
+                )
                 return True
             except Exception as e:
                 self.logger.error(
@@ -521,28 +544,26 @@ class BaseComputer(BaseModel):
     @property
     def temp_dir(self) -> Path:
         """Get or create a temporary directory for this computer.
-        
+
         This property ensures that a temporary directory exists for file operations
         and returns the path to it.
-        
+
         Returns:
             Path: The path to the temporary directory
         """
         if not self._temp_dir:
             import tempfile
+
             self._temp_dir = tempfile.mkdtemp()
         return Path(self._temp_dir)
-    
+
     _has_created_artifact_dir = False
 
     @property
     def artifact_dir(self) -> Path:
         artifact_dir_path = APPDIR / self.name
 
-        if (
-            not self._has_created_artifact_dir
-            and not artifact_dir_path.exists()
-        ):
+        if not self._has_created_artifact_dir and not artifact_dir_path.exists():
             artifact_dir_path.mkdir(parents=True, exist_ok=True)
             self._has_created_artifact_dir = True
         return artifact_dir_path
@@ -715,7 +736,6 @@ class BaseComputer(BaseModel):
         """Get information about connected displays."""
         return self.get_displays()
 
-
     def get_mouse_state(self) -> MouseStateObservation:
         """Return a MouseStateObservation containing the current mouse button states and position."""
         if self._state == "stopped":
@@ -806,10 +826,13 @@ class BaseComputer(BaseModel):
     def _get_displays(self) -> DisplaysObservation:
         raise NotImplementedError(f"{self.__class__.__name__}.get_displays")
 
-    _jupyter_server_pid: int|None = None
-    def start_jupyter_server(self, port: int = 8888, notebook_dir: Optional[str] = None):
+    _jupyter_server_pid: int | None = None
+
+    def start_jupyter_server(
+        self, port: int = 8888, notebook_dir: Optional[str] = None
+    ):
         """Start a Jupyter notebook server.
-        
+
         Args:
             port: Port number to run the server on
             notebook_dir: Directory to serve notebooks from. If None, uses current directory.
@@ -822,10 +845,10 @@ class BaseComputer(BaseModel):
 
     def create_jupyter_notebook(self) -> BaseJupyterNotebook:
         """Create and return a new BaseJupyterNotebook instance.
-        
+
         This method should be implemented by subclasses to return an appropriate
         implementation of BaseJupyterNotebook for the specific computer type.
-        
+
         Returns:
             BaseJupyterNotebook: A notebook client instance for creating and manipulating notebooks.
         """
@@ -867,53 +890,65 @@ class BaseComputer(BaseModel):
 
     def _default_run_process(self, action: RunProcessAction) -> bool:
         """Default implementation of run_process using shell commands.
-        
+
         This method is deliberately not wired up to the base _run_process to make
         subclasses think about what they really want. It defaults to using shell
         commands to execute the process.
-        
+
         Args:
             action: RunProcessAction containing the process parameters
-            
+
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(f"Running process via shell: {action.command} with args: {action.args}")
-        
+        self.logger.info(
+            f"Running process via shell: {action.command} with args: {action.args}"
+        )
+
         # Change to the specified directory if provided
         if action.cwd:
-            self.shell(f'cd {action.cwd}')
-        
+            self.shell(f"cd {action.cwd}")
+
         # Build the command string
         cmd_parts = [action.command] + action.args
-        cmd_shell_format = ' '.join(cmd_parts)
-        
+        cmd_shell_format = " ".join(cmd_parts)
+
         # Add environment variables if specified
         if action.env:
             # For Unix-like shells
-            env_vars = ' '.join([f'{k}={v}' for k, v in action.env.items()])
-            cmd_shell_format = f'{env_vars} {cmd_shell_format}'
-        
+            env_vars = " ".join([f"{k}={v}" for k, v in action.env.items()])
+            cmd_shell_format = f"{env_vars} {cmd_shell_format}"
+
         # Execute the command with timeout if specified
         return self.shell(cmd_shell_format, timeout=action.timeout)
 
-    def create_shell(self, executable: str = None, cwd: Optional[Union[str, Path]] = None, env: Optional[Dict[str, str]] = None) -> BaseShell:
+    def create_shell(
+        self,
+        executable: str = None,
+        cwd: Optional[Union[str, Path]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> BaseShell:
         """Create and return a new shell instance.
-        
+
         This method creates a persistent shell that can be used to execute commands
         and interact with the system shell environment.
-        
+
         Args:
             executable: Path to the shell executable to use
             cwd: Initial working directory for the shell
             env: Environment variables to set in the shell
-            
+
         Returns:
             BaseShell: A shell instance for executing commands and interacting with the shell
         """
         raise NotImplementedError(f"{self.__class__.__name__}.create_shell")
 
-    def shell(self, command: str, timeout: Optional[float] = None, executible: Optional[str] = None) -> bool:
+    def shell(
+        self,
+        command: str,
+        timeout: Optional[float] = None,
+        executible: Optional[str] = None,
+    ) -> bool:
         """Execute a system command in the global shell environment and return True if successful.
 
         NOTE: its generally a better idea to use `create_shell` so you can run your shell in a separate processon the host machine
@@ -927,7 +962,9 @@ class BaseComputer(BaseModel):
         elif self._state == "paused":
             self.resume()
 
-        action = ShellCommandAction(command=command, timeout=timeout,executible=executible)
+        action = ShellCommandAction(
+            command=command, timeout=timeout, executible=executible
+        )
 
         for attempt in range(self.num_retries):
             try:
@@ -1453,7 +1490,9 @@ class BaseComputer(BaseModel):
         self.logger.debug("Video streaming not implemented for this computer type")
         return False
 
-    def copy_to_computer(self, source_path: Union[str, Path], destination_path: Union[str, Path]) -> bool:
+    def copy_to_computer(
+        self, source_path: Union[str, Path], destination_path: Union[str, Path]
+    ) -> bool:
         """Copy a file or directory to the computer.
 
         Args:
@@ -1469,14 +1508,20 @@ class BaseComputer(BaseModel):
             self.resume()
 
         source_path = Path(source_path) if isinstance(source_path, str) else source_path
-        destination_path = Path(destination_path) if isinstance(destination_path, str) else destination_path
+        destination_path = (
+            Path(destination_path)
+            if isinstance(destination_path, str)
+            else destination_path
+        )
 
         self.logger.info(f"Copying {source_path} to {destination_path} on the computer")
-        
+
         for attempt in range(self.num_retries):
             try:
                 self._copy_to_computer(source_path, destination_path)
-                self.logger.info(f"Successfully copied {source_path} to {destination_path}")
+                self.logger.info(
+                    f"Successfully copied {source_path} to {destination_path}"
+                )
                 return True
             except Exception as e:
                 self.logger.error(
@@ -1489,28 +1534,30 @@ class BaseComputer(BaseModel):
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_to_computer functionality.
-        
+
         This method should be overridden by subclasses to implement computer-specific file transfer.
-        
+
         Args:
             source_path: Path to the source file or directory on the local machine
             destination_path: Path where the file or directory should be copied on the computer
-            
+
         Raises:
             NotImplementedError: If the subclass does not implement this method
         """
         raise NotImplementedError(f"{self.__class__.__name__}._copy_to_computer")
 
-    def copy_from_computer(self, source_path: Union[str, Path], destination_path: Union[str, Path]) -> bool:
+    def copy_from_computer(
+        self, source_path: Union[str, Path], destination_path: Union[str, Path]
+    ) -> bool:
         """Copy a file or directory from the computer to the local machine.
-        
+
         This method copies a file or directory from the computer instance to the local machine.
         It handles retries and ensures the computer is started if needed.
-        
+
         Args:
             source_path: Path to the source file or directory on the computer
             destination_path: Path where the file or directory should be copied on the local machine
-            
+
         Returns:
             bool: True if the copy operation was successful, False otherwise
         """
@@ -1520,14 +1567,22 @@ class BaseComputer(BaseModel):
             self.resume()
 
         source_path = Path(source_path) if isinstance(source_path, str) else source_path
-        destination_path = Path(destination_path) if isinstance(destination_path, str) else destination_path
+        destination_path = (
+            Path(destination_path)
+            if isinstance(destination_path, str)
+            else destination_path
+        )
 
-        self.logger.info(f"Copying {source_path} from the computer to {destination_path}")
-        
+        self.logger.info(
+            f"Copying {source_path} from the computer to {destination_path}"
+        )
+
         for attempt in range(self.num_retries):
             try:
                 self._copy_from_computer(source_path, destination_path)
-                self.logger.info(f"Successfully copied {source_path} from the computer to {destination_path}")
+                self.logger.info(
+                    f"Successfully copied {source_path} from the computer to {destination_path}"
+                )
                 return True
             except Exception as e:
                 self.logger.error(
@@ -1540,38 +1595,38 @@ class BaseComputer(BaseModel):
 
     def _copy_from_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_from_computer functionality.
-        
+
         This method should be overridden by subclasses to implement computer-specific file transfer.
-        
+
         Args:
             source_path: Path to the source file or directory on the computer
             destination_path: Path where the file or directory should be copied on the local machine
-            
+
         Raises:
             NotImplementedError: If the subclass does not implement this method
         """
         raise NotImplementedError(f"{self.__class__.__name__}._copy_from_computer")
 
     def open(
-        self, 
-        path: Union[str, Path], 
-        mode: str = 'r', 
+        self,
+        path: Union[str, Path],
+        mode: str = "r",
         encoding: Optional[str] = None,
         errors: Optional[str] = None,
-        buffering: int = -1
+        buffering: int = -1,
     ) -> BaseComputerFile:
         """Open a file on the computer.
-        
+
         This method returns a file-like object that can be used to read from or write to
         a file on the computer. The returned object mimics the built-in file object API.
-        
+
         Args:
             path: Path to the file on the computer
             mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
             encoding: Text encoding to use (for text modes)
             errors: How to handle encoding/decoding errors
             buffering: Buffering policy (-1 for default)
-            
+
         Returns:
             A file-like object for the specified file
         """
@@ -1579,28 +1634,28 @@ class BaseComputer(BaseModel):
             self._start()
         elif self._state == "paused":
             self.resume()
-            
+
         self.logger.debug(f"Opening file: {path} with mode: {mode}")
         return self._open(path, mode, encoding, errors, buffering)
-    
+
     @abstractmethod
     def _open(
-        self, 
-        path: Union[str, Path], 
-        mode: str = 'r', 
+        self,
+        path: Union[str, Path],
+        mode: str = "r",
         encoding: Optional[str] = None,
         errors: Optional[str] = None,
-        buffering: int = -1
+        buffering: int = -1,
     ) -> BaseComputerFile:
         """Implementation-specific method to open a file on the computer.
-        
+
         Args:
             path: Path to the file on the computer
             mode: File mode ('r', 'w', 'a', 'rb', 'wb', etc.)
             encoding: Text encoding to use (for text modes)
             errors: How to handle encoding/decoding errors
             buffering: Buffering policy (-1 for default)
-            
+
         Returns:
             A file-like object for the specified file
         """

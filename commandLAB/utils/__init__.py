@@ -20,4 +20,4 @@ __all__ = [
     "load_image",
     "resize_image",
     "ImageViewer",
-] 
+]

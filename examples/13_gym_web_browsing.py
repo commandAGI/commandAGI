@@ -22,7 +22,9 @@ from PIL import Image
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+        NaiveComputerAgent,
+    )
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
         ShellCommandAction,
@@ -36,9 +38,13 @@ try:
         MouseClickAction,
         MouseButton,
     )
-    from commandLAB.processors.screen_parser.pytesseract_screen_parser import parse_screenshot
+    from commandLAB.processors.screen_parser.pytesseract_screen_parser import (
+        parse_screenshot,
+    )
 except ImportError:
-    print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
+    print(
+        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+    )
     print("pip install commandlab[local,gym,pytesseract]")
     exit(1)
 
@@ -56,14 +62,14 @@ class WebBrowsingEnv(ComputerEnv):
         self.navigated_to_site = False
         self.found_target = False
         self.target_text = "More information"
-        
+
         # Create output directory if it doesn't exist
         os.makedirs("output", exist_ok=True)
 
     def get_reward(self, action: ComputerAction) -> float:
         """
         Define a reward function for web browsing tasks.
-        
+
         Rewards:
         - Small negative reward for each step (encourages efficiency)
         - Reward for opening a browser
@@ -72,30 +78,33 @@ class WebBrowsingEnv(ComputerEnv):
         """
         # Small negative reward for each step to encourage efficiency
         reward = -0.1
-        
+
         # Check if the action is executing a command (opening a browser)
         if action.command is not None and not self.browser_opened:
-            if "chrome" in action.command.command.lower() or "firefox" in action.command.command.lower():
+            if (
+                "chrome" in action.command.command.lower()
+                or "firefox" in action.command.command.lower()
+            ):
                 reward += 2.0
                 self.browser_opened = True
                 print("Browser opened! +2.0 reward")
-        
+
         # Check if the action is typing a URL
         if action.type is not None and not self.navigated_to_site:
             if "example.com" in action.type.text:
                 reward += 3.0
                 self.navigated_to_site = True
                 print("Navigated to example.com! +3.0 reward")
-        
+
         # Check if the target text is visible on the screen
         if not self.found_target and self.navigated_to_site:
             # Get the screenshot
             screenshot = self._computer.get_screenshot()
-            
+
             try:
                 # Parse the screenshot to extract text
                 parsed_screenshot = parse_screenshot(screenshot.screenshot)
-                
+
                 # Check if the target text is in any of the extracted elements
                 for element in parsed_screenshot.elements:
                     if self.target_text.lower() in element.text.lower():
@@ -103,27 +112,27 @@ class WebBrowsingEnv(ComputerEnv):
                         self.found_target = True
                         self.task_completed = True
                         print(f"Found target text '{self.target_text}'! +5.0 reward")
-                        
+
                         # Save the screenshot with the target highlighted
                         img_data = base64.b64decode(screenshot.screenshot)
                         img = Image.open(io.BytesIO(img_data))
                         screenshot_path = "output/web_target_found.png"
                         img.save(screenshot_path)
                         print(f"Screenshot saved to {screenshot_path}")
-                        
+
                         break
             except Exception as e:
                 print(f"Error parsing screenshot: {e}")
-        
+
         # Increment step counter
         self.steps_taken += 1
-        
+
         return reward
 
     def get_done(self, action: ComputerAction) -> bool:
         """
         Determine if the episode is done.
-        
+
         The episode is done if:
         - The task is completed (target found)
         - The maximum number of steps is reached
@@ -154,18 +163,20 @@ class WebBrowsingEnv(ComputerEnv):
 # Create a simple mock agent that doesn't require OpenAI API
 class SimpleMockAgent(NaiveComputerAgent):
     """A simple mock agent that doesn't require OpenAI API."""
-    
+
     def __init__(self):
         # Initialize with dummy chat_model_options
-        super().__init__(chat_model_options={
-            "model_provider": "openai",  # Required by get_chat_model
-            "model": "gpt-4o",  # Required by ChatOpenAI
-            "api_key": "dummy-api-key"  # Dummy API key
-        })
+        super().__init__(
+            chat_model_options={
+                "model_provider": "openai",  # Required by get_chat_model
+                "model": "gpt-4o",  # Required by ChatOpenAI
+                "api_key": "dummy-api-key",  # Dummy API key
+            }
+        )
         # Override the chat_model and str_output_parser to avoid API calls
         self.chat_model = None
         self.str_output_parser = None
-        
+
     def act(self, observation: ComputerObservation) -> ComputerAction:
         """Given an observation, determine the next action."""
         # Simulate web browsing by moving the mouse and typing a URL
@@ -178,28 +189,24 @@ class SimpleMockAgent(NaiveComputerAgent):
             # Second action: Click on address bar
             return ComputerAction(
                 mouse_click=MouseClickAction(
-                    x=300, y=50, 
-                    button=MouseButton.LEFT,
-                    move_duration=0.5
+                    x=300, y=50, button=MouseButton.LEFT, move_duration=0.5
                 )
             )
         elif self.steps_taken == 2:
             # Third action: Type a URL
-            return ComputerAction(
-                type=TypeAction(text="example.com")
-            )
+            return ComputerAction(type=TypeAction(text="example.com"))
         else:
             # Default action: Move mouse around
             return ComputerAction(
                 mouse_move=MouseMoveAction(x=400, y=300, move_duration=0.5)
             )
-            
+
     def update(self, reward: float) -> None:
         """Update the agent's internal state based on the reward."""
-        if not hasattr(self, 'steps_taken'):
+        if not hasattr(self, "steps_taken"):
             self.steps_taken = 0
         self.steps_taken += 1
-        
+
     def reset(self) -> None:
         """Reset the agent's internal state."""
         self.steps_taken = 0
@@ -211,7 +218,9 @@ def main():
     print("This example demonstrates how to use the CommandLAB gym framework")
     print("to automate a web browsing task.")
     print()
-    print("Task: Open a web browser, navigate to example.com, and find the 'More information' link.")
+    print(
+        "Task: Open a web browser, navigate to example.com, and find the 'More information' link."
+    )
     print()
 
     try:
@@ -225,9 +234,10 @@ def main():
         # Create the custom web browsing environment
         print("Creating the web browsing environment...")
         env = WebBrowsingEnv(config)
-        
+
         # Enable logging of modality errors for debugging
         from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+
         MultiModalEnv._LOG_MODALITY_ERRORS = True
 
         # Create a mock agent instead of the NaiveComputerAgent
@@ -276,4 +286,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

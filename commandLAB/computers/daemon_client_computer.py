@@ -192,14 +192,12 @@ class DaemonClientComputer(BaseComputer):
 
         # Store the provisioner
         self.provisioner = provisioner
-        
+
         # Use the provided token or get it from the provisioner
         self.daemon_token = daemon_token or self.provisioner.daemon_token
 
         # Setup the provisioner
-        self.logger.info(
-            f"Starting daemon services at {self.provisioner.daemon_url}"
-        )
+        self.logger.info(f"Starting daemon services at {self.provisioner.daemon_url}")
         self.provisioner.setup()
 
         # Create the authenticated client
@@ -207,7 +205,9 @@ class DaemonClientComputer(BaseComputer):
             base_url=self.provisioner.daemon_url,
             token=self.daemon_token,
         )
-        self.logger.info(f"Successfully connected to daemon services at {self.provisioner.daemon_url}")
+        self.logger.info(
+            f"Successfully connected to daemon services at {self.provisioner.daemon_url}"
+        )
 
     def _start(self):
         """Start the daemon services"""
@@ -220,7 +220,9 @@ class DaemonClientComputer(BaseComputer):
                 base_url=self.provisioner.daemon_url,
                 token=self.daemon_token,
             )
-            self.logger.info(f"Successfully connected to daemon services at {self.provisioner.daemon_url}")
+            self.logger.info(
+                f"Successfully connected to daemon services at {self.provisioner.daemon_url}"
+            )
         return True
 
     def _stop(self):

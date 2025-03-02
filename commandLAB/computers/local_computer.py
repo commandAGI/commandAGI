@@ -28,6 +28,7 @@ if platform.system() != "Windows":
 else:
     # For Windows, we need msvcrt for console I/O
     import msvcrt
+
     # Define dummy imports for Unix-specific modules
     pty = None
     select = None
@@ -57,6 +58,7 @@ except ImportError:
 uiautomation_available = False
 try:
     import uiautomation as auto
+
     uiautomation_available = True
 except ImportError:
     auto = None
@@ -65,6 +67,7 @@ except ImportError:
 pyax_available = False
 try:
     import pyax
+
     pyax_available = True
 except ImportError:
     pyax = None
@@ -73,6 +76,7 @@ except ImportError:
 pyatspi_available = False
 try:
     import pyatspi
+
     pyatspi_available = True
 except ImportError:
     pyatspi = None
@@ -121,10 +125,14 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
         super().__init__()
         self._client = None
 
-    def _get_client(self, notebook: Dict[str, Any], timeout: int = 600) -> NotebookClient:
+    def _get_client(
+        self, notebook: Dict[str, Any], timeout: int = 600
+    ) -> NotebookClient:
         """Get or create a NotebookClient instance."""
         if self._client is None:
-            self._client = NotebookClient(notebook, timeout=timeout, kernel_name="python3")
+            self._client = NotebookClient(
+                notebook, timeout=timeout, kernel_name="python3"
+            )
         return self._client
 
     def create_notebook(self) -> Dict[str, Any]:
@@ -537,7 +545,9 @@ class LocalShell(BaseShell):
 
                 # Check if there's any output available
                 if timeout is not None:
-                    ready_to_read, _, _ = select.select([self._master_fd], [], [], timeout)
+                    ready_to_read, _, _ = select.select(
+                        [self._master_fd], [], [], timeout
+                    )
                     if not ready_to_read:
                         return ""
 
@@ -972,10 +982,8 @@ class LocalComputer(BaseComputer):
             self.logger.error(
                 "UIAutomation not available. Install with: pip install uiautomation"
             )
-            return LayoutTreeObservation(
-                tree={"error": "UIAutomation not available"}
-            )
-            
+            return LayoutTreeObservation(tree={"error": "UIAutomation not available"})
+
         try:
             desktop = auto.GetRootControl()
 
@@ -1052,12 +1060,11 @@ class LocalComputer(BaseComputer):
     def _get_macos_layout_tree(self) -> LayoutTreeObservation:
         """Get the UI component tree on macOS using pyax (Accessibility API)."""
         if not pyax_available:
-            self.logger.error(
-                "pyax not available. Install with: pip install pyax"
-            )
+            self.logger.error("pyax not available. Install with: pip install pyax")
             return LayoutTreeObservation(tree={"error": "pyax not available"})
-            
+
         try:
+
             def build_tree(element):
                 if not element:
                     return None
@@ -1149,11 +1156,10 @@ class LocalComputer(BaseComputer):
             self.logger.error(
                 "pyatspi not available. Install with: pip install pyatspi"
             )
-            return LayoutTreeObservation(
-                tree={"error": "pyatspi not available"}
-            )
-            
+            return LayoutTreeObservation(tree={"error": "pyatspi not available"})
+
         try:
+
             def build_tree(element):
                 if not element:
                     return None

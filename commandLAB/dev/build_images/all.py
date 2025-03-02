@@ -19,7 +19,6 @@ logger = logging.getLogger("build_images")
 console = Console()
 
 
-
 @cli.command()
 def build_all_images(
     version: Optional[str] = typer.Option(
@@ -33,7 +32,7 @@ def build_all_images(
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
-        console=console
+        console=console,
     ) as progress:
         # Build Docker image
         task = progress.add_task("Building Docker image...", total=None)
@@ -65,7 +64,9 @@ def build_all_images(
             progress.update(task, completed=True)
 
         except (subprocess.CalledProcessError, FileNotFoundError):
-            console.print("[bold yellow]⚠️ Packer not found. Skipping cloud image builds.[/]")
+            console.print(
+                "[bold yellow]⚠️ Packer not found. Skipping cloud image builds.[/]"
+            )
             console.print(
                 "[bold yellow]To build cloud images, please install Packer: https://www.packer.io/downloads[/]"
             )

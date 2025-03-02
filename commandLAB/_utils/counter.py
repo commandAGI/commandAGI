@@ -3,10 +3,10 @@ _COUNTER: dict[str, int] = {}
 
 def next_for_cls(key):
     """Get the next counter value for a class.
-    
+
     Args:
         key: Either a class object or a class name as string
-    
+
     Returns:
         int: The next counter value for this class
     """

@@ -8,9 +8,7 @@ from rich.status import Status
 
 # Configure rich logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    handlers=[logging.StreamHandler()]
+    level=logging.INFO, format="%(message)s", handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger("commandLAB")
 console = Console()
@@ -27,8 +25,8 @@ def run_command(cmd: List[str], description: str) -> bool:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
-                encoding='utf-8',
-                errors='replace'
+                encoding="utf-8",
+                errors="replace",
             )
             # Stream the output line by line
             while True:
@@ -55,4 +53,4 @@ def run_command(cmd: List[str], description: str) -> bool:
         except Exception as e:
             status.update(f"[bold red]✗ {description} failed")
             logger.error(f"{description} failed with exception: {e}")
-            return False 
+            return False

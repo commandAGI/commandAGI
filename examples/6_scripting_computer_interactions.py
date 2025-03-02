@@ -56,9 +56,7 @@ def main():
             "Executing a command to open Notepad (on Windows) or TextEdit (on macOS)..."
         )
         if os.name == "nt":  # Windows
-            result = computer.shell(
-                ShellCommandAction(command="notepad", timeout=5)
-            )
+            result = computer.shell(ShellCommandAction(command="notepad", timeout=5))
         else:  # macOS or Linux
             result = computer.shell(
                 ShellCommandAction(

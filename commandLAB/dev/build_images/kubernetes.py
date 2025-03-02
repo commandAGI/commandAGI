@@ -8,6 +8,7 @@ from commandLAB.version import get_container_version, get_package_version
 from commandLAB._utils.command import run_command
 from commandLAB._utils.config import PROJ_DIR
 from commandLAB.dev.build_images.cli import cli
+
 logger = logging.getLogger("build_images")
 
 
@@ -37,4 +38,4 @@ def build_kubernetes_image(
         os.path.join(dockerfile_path, "Dockerfile"),
         ".",
     ]
-    run_command(cmd, "Kubernetes Docker image build") 
+    run_command(cmd, "Kubernetes Docker image build")

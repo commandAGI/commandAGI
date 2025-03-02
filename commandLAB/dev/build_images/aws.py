@@ -68,4 +68,4 @@ def build_aws_ami(
     ensure_packer_template(aws_template_path, aws_template)
 
     cmd = ["packer", "build", "-var", f"version={version}", aws_template_path]
-    run_command(cmd, "AWS AMI build") 
+    run_command(cmd, "AWS AMI build")

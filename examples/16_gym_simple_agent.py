@@ -15,7 +15,9 @@ import traceback
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+        NaiveComputerAgent,
+    )
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.types import (
         ShellCommandAction,
@@ -27,7 +29,9 @@ except ImportError as e:
     print(f"Detailed import error: {e}")
     print("Traceback:")
     traceback.print_exc()
-    print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
+    print(
+        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+    )
     print("pip install commandlab[local,gym]")
     exit(1)
 
@@ -35,7 +39,9 @@ except ImportError as e:
 def main():
     print("CommandLAB Gym Simple Agent Example")
     print("===================================")
-    print("This example demonstrates how to use the CommandLAB gym framework with the built-in agents.")
+    print(
+        "This example demonstrates how to use the CommandLAB gym framework with the built-in agents."
+    )
     print("It will create a simple environment and agent, and collect an episode.")
     print()
 
@@ -58,12 +64,14 @@ def main():
         # Create an agent using the NaiveComputerAgent from the gym
         print("Creating the agent...")
         # Note: This requires an OpenAI API key or other LLM provider
-        agent = NaiveComputerAgent(chat_model_options={
-            "model_provider": "openai",
-            "model": "gpt-4-vision-preview",
-            # Add your API key here if not set as environment variable
-            # "api_key": "your-api-key",
-        })
+        agent = NaiveComputerAgent(
+            chat_model_options={
+                "model_provider": "openai",
+                "model": "gpt-4-vision-preview",
+                # Add your API key here if not set as environment variable
+                # "api_key": "your-api-key",
+            }
+        )
 
         # Create a driver
         print("Creating the driver...")
@@ -104,4 +112,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

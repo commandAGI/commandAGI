@@ -45,21 +45,29 @@ class QEMUProvisioner(BaseComputerProvisioner):
                 # Build QEMU command
                 qemu_cmd = [
                     "qemu-system-x86_64",
-                    "-name", self.vm_name,
-                    "-m", self.memory,
-                    "-smp", str(self.cpus),
-                    "-drive", f"file={self.vm_image},format=qcow2",
-                    "-netdev", f"user,id=net0,hostfwd=tcp::{self.port}-:{self.port}",
-                    "-device", "virtio-net-pci,netdev=net0",
+                    "-name",
+                    self.vm_name,
+                    "-m",
+                    self.memory,
+                    "-smp",
+                    str(self.cpus),
+                    "-drive",
+                    f"file={self.vm_image},format=qcow2",
+                    "-netdev",
+                    f"user,id=net0,hostfwd=tcp::{self.port}-:{self.port}",
+                    "-device",
+                    "virtio-net-pci,netdev=net0",
                     "-nographic",
-                    "-daemonize"
+                    "-daemonize",
                 ]
 
                 # Start the VM
                 subprocess.run(qemu_cmd, check=True)
 
                 # Get VM PID
-                ps_output = subprocess.check_output(["pgrep", "-f", self.vm_name]).decode()
+                ps_output = subprocess.check_output(
+                    ["pgrep", "-f", self.vm_name]
+                ).decode()
                 self._vm_pid = int(ps_output.strip())
 
                 # Wait for VM to be running
@@ -71,12 +79,16 @@ class QEMUProvisioner(BaseComputerProvisioner):
 
                         # Wait for SSH to be available and run daemon setup
                         time.sleep(30)  # Basic delay for system boot
-                        subprocess.run([
-                            "ssh", 
-                            "-p", str(self.port),
-                            "user@localhost",
-                            f"pip install commandlab[local,daemon-server] && python -m commandlab.daemon.daemon --port {self.port} --backend pynput"
-                        ], check=True)
+                        subprocess.run(
+                            [
+                                "ssh",
+                                "-p",
+                                str(self.port),
+                                "user@localhost",
+                                f"pip install commandlab[local,daemon-server] && python -m commandlab.daemon.daemon --port {self.port} --backend pynput",
+                            ],
+                            check=True,
+                        )
 
                         return
                     time.sleep(5)
@@ -90,9 +102,13 @@ class QEMUProvisioner(BaseComputerProvisioner):
                 retry_count += 1
                 if retry_count >= self.max_retries:
                     self._status = "error"
-                    logger.error(f"Failed to start VM after {self.max_retries} attempts: {e}")
+                    logger.error(
+                        f"Failed to start VM after {self.max_retries} attempts: {e}"
+                    )
                     raise
-                logger.warning(f"Error starting VM, retrying ({retry_count}/{self.max_retries}): {e}")
+                logger.warning(
+                    f"Error starting VM, retrying ({retry_count}/{self.max_retries}): {e}"
+                )
                 time.sleep(2**retry_count)  # Exponential backoff
 
     def teardown(self) -> None:

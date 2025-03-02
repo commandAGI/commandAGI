@@ -30,10 +30,10 @@ class DockerPlatform(str, Enum):
 
 class DockerProvisioner(BaseComputerProvisioner):
     """Docker-based computer provisioner.
-    
+
     This provisioner creates and manages Docker containers for running the commandLAB daemon.
     It supports both local Docker and cloud-based container services.
-    
+
     Args:
         daemon_base_url: Base URL for the daemon service
         daemon_port: Port for the daemon service
@@ -56,6 +56,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         health_check_timeout: Timeout in seconds for the daemon responsiveness check
         dockerfile_path: Path to the Dockerfile
     """
+
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
@@ -78,16 +79,19 @@ class DockerProvisioner(BaseComputerProvisioner):
         timeout: int = 900,  # 15 minutes
         max_health_retries: int = 3,
         health_check_timeout: int = 60,  # 1 minute
-        dockerfile_path: Optional[str] = Path(__file__).parent.parent.parent.parent / "resources" / "docker" / "Dockerfile",
+        dockerfile_path: Optional[str] = Path(__file__).parent.parent.parent.parent
+        / "resources"
+        / "docker"
+        / "Dockerfile",
     ):
         # Initialize the base class with daemon URL and port
         super().__init__(
             daemon_base_url=daemon_base_url,
             daemon_port=daemon_port,
             port_range=port_range,
-            daemon_token=daemon_token
+            daemon_token=daemon_token,
         )
-            
+
         self.name_prefix = name_prefix
         self.container_name = container_name
         self.platform = platform
@@ -131,21 +135,21 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def _find_next_available_container_name(self) -> str:
         """Find the next available container name with the given prefix.
-        
+
         This method checks for existing containers with the prefix and finds the next
         available name by incrementing a numeric suffix. For example, if containers
         'commandlab-daemon' and 'commandlab-daemon-1' exist, it will return 'commandlab-daemon-2'.
-        
+
         For non-local platforms (AWS, Azure, GCP), it simply returns the name_prefix as is.
-        
+
         In case of errors when listing containers, it generates a name with a timestamp
         to avoid conflicts.
-        
+
         Examples:
             >>> # Mock a provisioner with LOCAL platform
             >>> provisioner = DockerProvisioner(platform=DockerPlatform.LOCAL)
             >>> provisioner.name_prefix = "test-daemon"
-            >>> 
+            >>>
             >>> # Case 1: No containers exist with the prefix
             >>> # Mock the subprocess.run to return empty list
             >>> def mock_run_empty(*args, **kwargs):
@@ -153,120 +157,124 @@ class DockerProvisioner(BaseComputerProvisioner):
             ...         stdout = ""
             ...         stderr = ""
             ...     return Result()
-            >>> 
+            >>>
             >>> # Patch subprocess.run temporarily
             >>> import subprocess
             >>> original_run = subprocess.run
             >>> subprocess.run = mock_run_empty
-            >>> 
+            >>>
             >>> # Should return the base name
             >>> provisioner._find_next_available_container_name()
             'test-daemon'
-            >>> 
+            >>>
             >>> # Case 2: Base name is taken, but no numbered suffixes
             >>> def mock_run_base_taken(*args, **kwargs):
             ...     class Result:
             ...         stdout = "test-daemon\\n"
             ...         stderr = ""
             ...     return Result()
-            >>> 
+            >>>
             >>> subprocess.run = mock_run_base_taken
             >>> provisioner._find_next_available_container_name()
             'test-daemon-1'
-            >>> 
+            >>>
             >>> # Case 3: Base name and -1 are taken
             >>> def mock_run_1_taken(*args, **kwargs):
             ...     class Result:
             ...         stdout = "test-daemon\\ntest-daemon-1\\n"
             ...         stderr = ""
             ...     return Result()
-            >>> 
+            >>>
             >>> subprocess.run = mock_run_1_taken
             >>> provisioner._find_next_available_container_name()
             'test-daemon-2'
-            >>> 
+            >>>
             >>> # Case 4: Base name, -1, and -3 are taken (should return -2)
             >>> def mock_run_gap(*args, **kwargs):
             ...     class Result:
             ...         stdout = "test-daemon\\ntest-daemon-1\\ntest-daemon-3\\n"
             ...         stderr = ""
             ...     return Result()
-            >>> 
+            >>>
             >>> subprocess.run = mock_run_gap
             >>> provisioner._find_next_available_container_name()
             'test-daemon-2'
-            >>> 
+            >>>
             >>> # Case 5: Base name, -1, -2, -3 are taken
             >>> def mock_run_sequential(*args, **kwargs):
             ...     class Result:
             ...         stdout = "test-daemon\\ntest-daemon-1\\ntest-daemon-2\\ntest-daemon-3\\n"
             ...         stderr = ""
             ...     return Result()
-            >>> 
+            >>>
             >>> subprocess.run = mock_run_sequential
             >>> provisioner._find_next_available_container_name()
             'test-daemon-4'
-            >>> 
+            >>>
             >>> # Case 6: Non-local platform
             >>> provisioner.platform = DockerPlatform.AWS_ECS
             >>> provisioner._find_next_available_container_name()
             'test-daemon'
-            >>> 
+            >>>
             >>> # Restore original subprocess.run
             >>> subprocess.run = original_run
-        
+
         Returns:
             str: The next available container name
         """
         if self.platform != DockerPlatform.LOCAL:
             # For non-local platforms, just use the prefix as the name
             return self.name_prefix
-            
+
         try:
             # List all containers (including stopped ones)
             list_cmd = ["docker", "ps", "-a", "--format", "{{.Names}}"]
             result = subprocess.run(
-                list_cmd,
-                capture_output=True,
-                text=True,
-                check=True
+                list_cmd, capture_output=True, text=True, check=True
             )
-            
+
             # Get all container names
-            container_names = result.stdout.strip().split('\n') if result.stdout.strip() else []
-            
+            container_names = (
+                result.stdout.strip().split("\n") if result.stdout.strip() else []
+            )
+
             # Filter names that match our prefix pattern
             prefix_pattern = f"^{re.escape(self.name_prefix)}(-\\d+)?$"
-            matching_names = [name for name in container_names if re.match(prefix_pattern, name)]
-            
+            matching_names = [
+                name for name in container_names if re.match(prefix_pattern, name)
+            ]
+
             if not matching_names:
                 # No matching containers found, use the prefix as is
                 return self.name_prefix
-                
+
             # Check if the base name is available
             if self.name_prefix not in matching_names:
                 return self.name_prefix
-                
+
             # Find all used suffix numbers
             used_suffixes = set()
             for name in matching_names:
                 # Extract the suffix number if it exists
-                suffix_match = re.search(f"^{re.escape(self.name_prefix)}-(\\d+)$", name)
+                suffix_match = re.search(
+                    f"^{re.escape(self.name_prefix)}-(\\d+)$", name
+                )
                 if suffix_match:
                     suffix_num = int(suffix_match.group(1))
                     used_suffixes.add(suffix_num)
-            
+
             # Find the first available suffix number
             suffix = 1
             while suffix in used_suffixes:
                 suffix += 1
-                
+
             return f"{self.name_prefix}-{suffix}"
-                
+
         except subprocess.CalledProcessError as e:
             print(f"Error listing Docker containers: {e}")
             # In case of error, generate a name with a timestamp to avoid conflicts
             import datetime
+
             timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             return f"{self.name_prefix}-{timestamp}"
 
@@ -275,15 +283,21 @@ class DockerProvisioner(BaseComputerProvisioner):
         self._status = "starting"
         print(f"Status set to: {self._status}")
         retry_count = 0
-        
+
         # Find an available port if needed
         if self.daemon_port is None:
             # No port specified, find one in the given range or any available port
             original_port_range = self.port_range
             try:
                 self.daemon_port = find_free_port(port_range=self.port_range)
-                print(f"Selected port {self.daemon_port} for daemon service" + 
-                      (f" from range {original_port_range}" if original_port_range else ""))
+                print(
+                    f"Selected port {self.daemon_port} for daemon service"
+                    + (
+                        f" from range {original_port_range}"
+                        if original_port_range
+                        else ""
+                    )
+                )
             except RuntimeError as e:
                 # Handle the case where no ports are available in the specified range
                 print(f"Warning: {str(e)}. Trying to find any available port.")
@@ -295,7 +309,9 @@ class DockerProvisioner(BaseComputerProvisioner):
             original_port = self.daemon_port
             try:
                 self.daemon_port = find_free_port(port_range=self.port_range)
-                print(f"Using alternative port {self.daemon_port} instead of {original_port}")
+                print(
+                    f"Using alternative port {self.daemon_port} instead of {original_port}"
+                )
             except RuntimeError as e:
                 # Handle the case where no ports are available in the specified range
                 print(f"Warning: {str(e)}. Trying to find any available port.")
@@ -304,7 +320,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         else:
             # Specified port is available, use it
             print(f"Using requested port {self.daemon_port} for daemon service")
-            
+
         # If container_name is not provided, find the next available name
         if self.container_name is None:
             self.container_name = self._find_next_available_container_name()
@@ -330,22 +346,32 @@ class DockerProvisioner(BaseComputerProvisioner):
                         raise ValueError(f"Unsupported platform: {self.platform}")
 
                 # Wait for the container to be running and the daemon to be responsive
-                print(f"Waiting for container and daemon to be running (container timeout: {self.timeout}s, daemon timeout: {self.health_check_timeout}s)")
+                print(
+                    f"Waiting for container and daemon to be running (container timeout: {self.timeout}s, daemon timeout: {self.health_check_timeout}s)"
+                )
                 start_time = time.time()
                 while time.time() - start_time < self.timeout:
                     # Use the combined check which has its own internal timeouts
                     if self.is_running_and_responsive():
                         self._status = "running"
-                        print(f"Container and daemon are now running after {int(time.time() - start_time)}s")
+                        print(
+                            f"Container and daemon are now running after {int(time.time() - start_time)}s"
+                        )
                         return
-                    print("Waiting for container to be running and daemon to be responsive, checking again in 5s")
+                    print(
+                        "Waiting for container to be running and daemon to be responsive, checking again in 5s"
+                    )
                     time.sleep(5)
 
                 # If we get here, the container didn't start in time or the daemon isn't responsive
                 self._status = "error"
                 elapsed = int(time.time() - start_time)
-                print(f"Timeout waiting for container and daemon to start after {elapsed}s")
-                raise TimeoutError(f"Timeout waiting for container and daemon to start after {elapsed}s")
+                print(
+                    f"Timeout waiting for container and daemon to start after {elapsed}s"
+                )
+                raise TimeoutError(
+                    f"Timeout waiting for container and daemon to start after {elapsed}s"
+                )
 
             except Exception as e:
                 retry_count += 1
@@ -368,19 +394,21 @@ class DockerProvisioner(BaseComputerProvisioner):
         # Run the container using Docker CLI with output streaming in a separate thread
         run_cmd = [
             "docker",
-            "run", 
+            "run",
             "-it",
             "-d",  # detached mode
-            "--name", self.container_name,  # Add container name
+            "--name",
+            self.container_name,  # Add container name
             "-p",
             f"{self.daemon_port}:{self.daemon_port}",
-            "-e", f"DAEMON_PORT={self.daemon_port}",
+            "-e",
+            f"DAEMON_PORT={self.daemon_port}",
         ]
-        
+
         # Add token if it exists
-        if hasattr(self, 'daemon_token') and self.daemon_token:
+        if hasattr(self, "daemon_token") and self.daemon_token:
             run_cmd.extend(["-e", f"DAEMON_TOKEN={self.daemon_token}"])
-            
+
         # Add the image name
         run_cmd.append(f"commandlab-daemon:{self.version}")
 
@@ -393,17 +421,17 @@ class DockerProvisioner(BaseComputerProvisioner):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
-                encoding='utf-8',
-                errors='replace',
+                encoding="utf-8",
+                errors="replace",
                 bufsize=1,
-                universal_newlines=True
+                universal_newlines=True,
             )
 
             # Store the process so it can be accessed during teardown
             self._docker_process = process
 
             # Stream the output
-            for line in iter(process.stdout.readline, ''):
+            for line in iter(process.stdout.readline, ""):
                 line = line.strip()
                 if line:
                     print(f"Docker run: {line}")
@@ -549,19 +577,21 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _teardown_local(self):
         """Teardown local Docker container"""
         print(f"Stopping Docker container {self.container_name}")
-        
+
         try:
             # Stop the container
             stop_cmd = ["docker", "stop", self.container_name]
             print(f"Running command: {' '.join(stop_cmd)}")
             subprocess.run(stop_cmd, check=True, capture_output=True, text=True)
-            
+
             # Remove the container
             rm_cmd = ["docker", "rm", self.container_name]
             print(f"Running command: {' '.join(rm_cmd)}")
             subprocess.run(rm_cmd, check=True, capture_output=True, text=True)
-            
-            print(f"Docker container {self.container_name} stopped and removed successfully")
+
+            print(
+                f"Docker container {self.container_name} stopped and removed successfully"
+            )
         except subprocess.CalledProcessError as e:
             print(f"Error stopping/removing Docker container: {e}")
             print(f"Error output: {e.stderr}")
@@ -587,9 +617,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                             break
                         status = response["tasks"][0]["lastStatus"]
                         if status == "STOPPED":
-                            print(
-                                f"ECS task {self._task_arn} stopped successfully"
-                            )
+                            print(f"ECS task {self._task_arn} stopped successfully")
                             break
                         print(f"ECS task status: {status}")
                         time.sleep(5)
@@ -634,9 +662,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                 time.sleep(5)
 
             if operation.done():
-                print(
-                    f"Cloud Run service {self.container_name} deleted successfully"
-                )
+                print(f"Cloud Run service {self.container_name} deleted successfully")
             else:
                 print(f"Timeout waiting for Cloud Run service deletion")
         except Exception as e:
@@ -645,11 +671,11 @@ class DockerProvisioner(BaseComputerProvisioner):
     def is_running(self) -> bool:
         """
         Check if the container is running at the platform level.
-        
+
         This method only checks if the container/service is running on the selected platform
         (Docker, AWS ECS, Azure Container Instances, or GCP Cloud Run) without checking
         if the daemon inside the container is responsive.
-        
+
         Returns:
             bool: True if the container is running, False otherwise
         """
@@ -666,18 +692,18 @@ class DockerProvisioner(BaseComputerProvisioner):
                     return self._is_gcp_cloud_run_running()
                 case _:
                     return False
-                
+
         except Exception as e:
             print(f"Error checking if container is running: {e}")
             return False
-            
+
     def is_daemon_responsive(self) -> bool:
         """
         Check if the daemon API inside the container is responsive.
-        
+
         This method performs a health check to the daemon API to verify that
         the service inside the container is up and running.
-        
+
         Returns:
             bool: True if the daemon is responsive, False otherwise
         """
@@ -685,71 +711,83 @@ class DockerProvisioner(BaseComputerProvisioner):
             # Make a health check request to the daemon API
             health_url = f"{self.daemon_base_url}:{self.daemon_port}/health"
             print(f"Performing health check to {health_url}")
-            
+
             # Add retry logic for health check to handle temporary failures
             health_retry_delay = 2  # seconds
             start_time = time.time()
-            
+
             for retry in range(self.max_health_retries):
                 # Check if we've exceeded the health check timeout
                 if time.time() - start_time > self.health_check_timeout:
-                    print(f"Health check timed out after {int(time.time() - start_time)}s")
+                    print(
+                        f"Health check timed out after {int(time.time() - start_time)}s"
+                    )
                     return False
-                    
+
                 try:
                     response = requests.get(health_url, timeout=5)
-                    if response.status_code == 200 and response.json().get("healthy", False):
+                    if response.status_code == 200 and response.json().get(
+                        "healthy", False
+                    ):
                         print(f"Health check successful: daemon is responsive")
                         return True
                     else:
-                        print(f"Health check attempt {retry+1}/{self.max_health_retries} failed: daemon returned status {response.status_code}")
+                        print(
+                            f"Health check attempt {retry+1}/{self.max_health_retries} failed: daemon returned status {response.status_code}"
+                        )
                         if retry < self.max_health_retries - 1:
                             print(f"Retrying in {health_retry_delay} seconds...")
                             time.sleep(health_retry_delay)
                             # Increase delay for next retry (exponential backoff)
                             health_retry_delay *= 2
                 except (ConnectionError, Timeout) as e:
-                    print(f"Health check attempt {retry+1}/{self.max_health_retries} failed: could not connect to daemon: {e}")
+                    print(
+                        f"Health check attempt {retry+1}/{self.max_health_retries} failed: could not connect to daemon: {e}"
+                    )
                     if retry < self.max_health_retries - 1:
                         print(f"Retrying in {health_retry_delay} seconds...")
                         time.sleep(health_retry_delay)
                         # Increase delay for next retry (exponential backoff)
                         health_retry_delay *= 2
                 except RequestException as e:
-                    print(f"Health check attempt {retry+1}/{self.max_health_retries} failed: request error: {e}")
+                    print(
+                        f"Health check attempt {retry+1}/{self.max_health_retries} failed: request error: {e}"
+                    )
                     if retry < self.max_health_retries - 1:
                         print(f"Retrying in {health_retry_delay} seconds...")
                         time.sleep(health_retry_delay)
                         # Increase delay for next retry (exponential backoff)
                         health_retry_delay *= 2
                 except Exception as e:
-                    print(f"Health check attempt {retry+1}/{self.max_health_retries} failed: unexpected error: {e}")
+                    print(
+                        f"Health check attempt {retry+1}/{self.max_health_retries} failed: unexpected error: {e}"
+                    )
                     if retry < self.max_health_retries - 1:
                         print(f"Retrying in {health_retry_delay} seconds...")
                         time.sleep(health_retry_delay)
                         # Increase delay for next retry (exponential backoff)
                         health_retry_delay *= 2
-            
+
             # If we get here, all retries failed
             print(f"All health check attempts failed. Daemon is not responsive.")
             return False
-                
+
         except Exception as e:
             print(f"Error checking if daemon is responsive: {e}")
             return False
-            
+
     def is_running_and_responsive(self) -> bool:
         """
         Check if the container is running and the daemon is responsive.
-        
+
         This method combines the checks from is_running() and is_daemon_responsive()
         to verify that both the container is running at the platform level and
         the daemon inside the container is responsive.
-        
+
         The two checks are independent and have their own timeout and retry mechanisms:
         - Container running check: Uses the main timeout and max_retries parameters
         - Daemon responsiveness check: Uses health_check_timeout and max_health_retries parameters
-        
+
         Returns:
             bool: True if the container is running and the daemon is responsive, False otherwise
         """
@@ -759,14 +797,14 @@ class DockerProvisioner(BaseComputerProvisioner):
         if not container_running:
             print("Container is not running at the platform level")
             return False
-            
+
         # Then check if the daemon is responsive
         print("Container is running. Now checking if daemon is responsive...")
         daemon_responsive = self.is_daemon_responsive()
         if not daemon_responsive:
             print("Container is running but daemon is not responsive")
             return False
-            
+
         print("Container is running and daemon is responsive")
         return True
 
@@ -778,20 +816,22 @@ class DockerProvisioner(BaseComputerProvisioner):
                 "docker",
                 "inspect",
                 "-f",
-                "\"{{.State.Running}}\"",
-                self.container_name
+                '"{{.State.Running}}"',
+                self.container_name,
             ]
-            
+
             result = subprocess.run(
                 inspect_cmd,
                 capture_output=True,
                 text=True,
                 check=True,
-                timeout=10  # Add a timeout to prevent hanging
+                timeout=10,  # Add a timeout to prevent hanging
             )
-                
-            is_running = result.stdout.strip().strip("\"\'").lower() == "true"
-            print(f"Docker container {self.container_name} running status: {is_running}")
+
+            is_running = result.stdout.strip().strip("\"'").lower() == "true"
+            print(
+                f"Docker container {self.container_name} running status: {is_running}"
+            )
             return is_running
         except subprocess.CalledProcessError as e:
             # This likely means the container doesn't exist

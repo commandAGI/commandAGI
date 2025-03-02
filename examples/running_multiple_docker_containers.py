@@ -12,15 +12,15 @@ for i in range(num_containers):
     provisioner = DockerProvisioner(
         container_name=f"commandlab-daemon-{i}",
         port_range=(8000, 9000),  # Use a port in this range
-        daemon_token=f"token-for-container-{i}"
+        daemon_token=f"token-for-container-{i}",
     )
-    
+
     # Create computer with the provisioner
     computer = DaemonClientComputer(provisioner=provisioner)
     computers.append(computer)
-    
+
     print(f"Container {i} started at {provisioner.daemon_url}")
-    
+
     # Optional: Add a small delay between container starts
     time.sleep(1)
 

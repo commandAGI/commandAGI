@@ -39,7 +39,7 @@ from commandLAB._utils.image import process_screenshot
 # PyAutoGUI-specific mappings
 def mouse_button_to_pyautogui(button: Union[MouseButton, str]) -> str:
     """Convert MouseButton to PyAutoGUI button name.
-    
+
     PyAutoGUI uses string names for mouse buttons:
     'left' = left button
     'middle' = middle button
@@ -49,24 +49,27 @@ def mouse_button_to_pyautogui(button: Union[MouseButton, str]) -> str:
     """
     if isinstance(button, str):
         button = MouseButton(button)
-    
+
     # PyAutoGUI mouse button mapping
     pyautogui_button_mapping = {
         MouseButton.LEFT: "left",
         MouseButton.MIDDLE: "middle",
-        MouseButton.RIGHT: "right"
+        MouseButton.RIGHT: "right",
     }
-    
-    return pyautogui_button_mapping.get(button, "left")  # Default to left button if not found
+
+    return pyautogui_button_mapping.get(
+        button, "left"
+    )  # Default to left button if not found
+
 
 def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to PyAutoGUI key name.
-    
+
     PyAutoGUI uses specific key names that may differ from our standard KeyboardKey values.
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
-    
+
     # PyAutoGUI-specific key mappings
     pyautogui_key_mapping = {
         # Special keys
@@ -80,13 +83,11 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.END: "end",
         KeyboardKey.PAGE_UP: "pageup",
         KeyboardKey.PAGE_DOWN: "pagedown",
-        
         # Arrow keys
         KeyboardKey.UP: "up",
         KeyboardKey.DOWN: "down",
         KeyboardKey.LEFT: "left",
         KeyboardKey.RIGHT: "right",
-        
         # Modifier keys
         KeyboardKey.SHIFT: "shift",
         KeyboardKey.CTRL: "ctrl",
@@ -98,7 +99,6 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.META: "win",  # Windows key
         KeyboardKey.LMETA: "winleft",
         KeyboardKey.RMETA: "winright",
-        
         # Function keys
         KeyboardKey.F1: "f1",
         KeyboardKey.F2: "f2",
@@ -113,7 +113,7 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.F11: "f11",
         KeyboardKey.F12: "f12",
     }
-    
+
     # For letter keys and number keys, use the value directly
     return pyautogui_key_mapping.get(key, key.value)
 
@@ -146,13 +146,17 @@ class LocalPyAutoGUIComputer(LocalComputer):
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
         pyautogui_key = keyboard_key_to_pyautogui(action.key)
-        self.logger.debug(f"Pressing key down: {action.key} (PyAutoGUI key: {pyautogui_key})")
+        self.logger.debug(
+            f"Pressing key down: {action.key} (PyAutoGUI key: {pyautogui_key})"
+        )
         pyautogui.keyDown(pyautogui_key)
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key."""
         pyautogui_key = keyboard_key_to_pyautogui(action.key)
-        self.logger.debug(f"Releasing key: {action.key} (PyAutoGUI key: {pyautogui_key})")
+        self.logger.debug(
+            f"Releasing key: {action.key} (PyAutoGUI key: {pyautogui_key})"
+        )
         pyautogui.keyUp(pyautogui_key)
 
     def _execute_type(self, action: TypeAction):
@@ -162,7 +166,9 @@ class LocalPyAutoGUIComputer(LocalComputer):
 
     def _execute_mouse_move(self, action: MouseMoveAction):
         """Move mouse to specified coordinates using PyAutoGUI."""
-        self.logger.debug(f"Moving mouse to: ({action.x}, {action.y}) with duration {action.move_duration}")
+        self.logger.debug(
+            f"Moving mouse to: ({action.x}, {action.y}) with duration {action.move_duration}"
+        )
         pyautogui.moveTo(action.x, action.y, duration=action.move_duration)
 
     def _execute_mouse_scroll(self, action: MouseScrollAction):
@@ -173,11 +179,15 @@ class LocalPyAutoGUIComputer(LocalComputer):
     def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         """Press mouse button down using PyAutoGUI."""
         pyautogui_button = mouse_button_to_pyautogui(action.button)
-        self.logger.debug(f"Pressing mouse button down: {action.button} (PyAutoGUI button: {pyautogui_button})")
+        self.logger.debug(
+            f"Pressing mouse button down: {action.button} (PyAutoGUI button: {pyautogui_button})"
+        )
         pyautogui.mouseDown(button=pyautogui_button)
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         """Release mouse button using PyAutoGUI."""
         pyautogui_button = mouse_button_to_pyautogui(action.button)
-        self.logger.debug(f"Releasing mouse button: {action.button} (PyAutoGUI button: {pyautogui_button})")
+        self.logger.debug(
+            f"Releasing mouse button: {action.button} (PyAutoGUI button: {pyautogui_button})"
+        )
         pyautogui.mouseUp(button=pyautogui_button)

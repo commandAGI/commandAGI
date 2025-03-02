@@ -18,7 +18,9 @@ from typing import Dict, Any, List, Optional
 try:
     from commandLAB.computers.local_pynput_computer import LocalPynputComputer
     from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+        NaiveComputerAgent,
+    )
     from commandLAB.gym.drivers import SimpleDriver
     from commandLAB.gym.tasks.base import BaseTask
     from commandLAB.gym.tasks.computer_task import ComputerTaskMixin
@@ -33,7 +35,9 @@ try:
         ComputerObservation,
     )
 except ImportError:
-    print("Error: Required modules not found. Make sure CommandLAB is installed with the required extras:")
+    print(
+        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+    )
     print("pip install commandlab[local,gym]")
     exit(1)
 
@@ -42,7 +46,7 @@ class CalculatorTask(ComputerTaskMixin):
     """
     A task that requires the agent to open the calculator app and perform a calculation.
     """
-    
+
     def __init__(self, calculation: str, expected_result: str):
         super().__init__()
         self.description = f"Open the calculator app and calculate {calculation}."
@@ -52,45 +56,49 @@ class CalculatorTask(ComputerTaskMixin):
         )
         self.calculation = calculation
         self.expected_result = expected_result
-    
-    def evaluate(self, env: ComputerEnv, episode: Episode[ComputerObservation, ComputerAction]) -> bool:
+
+    def evaluate(
+        self, env: ComputerEnv, episode: Episode[ComputerObservation, ComputerAction]
+    ) -> bool:
         """
         Evaluate if the task was completed successfully.
-        
+
         Returns:
             bool: True if the task was completed successfully, False otherwise.
         """
         # Check if the calculator was opened
         calculator_opened = False
         calculation_performed = False
-        
+
         # Analyze the actions taken
         for step in episode:
             action = step.action
-            
+
             # Check if the calculator was opened
             if action.command is not None:
                 cmd = action.command.command.lower()
                 if "calc" in cmd or "calculator" in cmd:
                     calculator_opened = True
-            
+
             # Check if the calculation was performed
             if action.type is not None and calculator_opened:
                 text = action.type.text
                 if self.calculation in text:
                     calculation_performed = True
-        
+
         # Get the final state from the environment
         if hasattr(env, "result_found") and env.result_found:
             return True
-        
+
         return calculator_opened and calculation_performed
 
 
 class CalculatorEnv(ComputerEnv):
     """Custom environment for calculator tasks."""
 
-    def __init__(self, config: ComputerEnvConfig, calculation: str, expected_result: str):
+    def __init__(
+        self, config: ComputerEnvConfig, calculation: str, expected_result: str
+    ):
         super().__init__(config)
         self.task_completed = False
         self.steps_taken = 0
@@ -101,14 +109,14 @@ class CalculatorEnv(ComputerEnv):
         self.calculator_opened = False
         self.calculation_performed = False
         self.result_found = False
-        
+
         # Create output directory if it doesn't exist
         os.makedirs("output", exist_ok=True)
 
     def get_reward(self, action: ComputerAction) -> float:
         """
         Define a reward function for calculator tasks.
-        
+
         Rewards:
         - Small negative reward for each step (encourages efficiency)
         - Reward for opening the calculator
@@ -117,7 +125,7 @@ class CalculatorEnv(ComputerEnv):
         """
         # Small negative reward for each step to encourage efficiency
         reward = -0.1
-        
+
         # Check if the action is executing a command (opening the calculator)
         if action.command is not None and not self.calculator_opened:
             cmd = action.command.command.lower()
@@ -125,34 +133,39 @@ class CalculatorEnv(ComputerEnv):
                 reward += 2.0
                 self.calculator_opened = True
                 print("Calculator opened! +2.0 reward")
-        
+
         # Check if the action is typing the calculation
-        if action.type is not None and self.calculator_opened and not self.calculation_performed:
+        if (
+            action.type is not None
+            and self.calculator_opened
+            and not self.calculation_performed
+        ):
             text = action.type.text
             if self.calculation in text:
                 reward += 3.0
                 self.calculation_performed = True
                 print(f"Calculation '{self.calculation}' performed! +3.0 reward")
-        
+
         # Check if the action is pressing Enter or = to get the result
         if self.calculation_performed and not self.result_found:
-            if (action.keyboard_key_press is not None and 
-                (action.keyboard_key_press.key == KeyboardKey.ENTER or 
-                 action.keyboard_key_press.key == "=")):
+            if action.keyboard_key_press is not None and (
+                action.keyboard_key_press.key == KeyboardKey.ENTER
+                or action.keyboard_key_press.key == "="
+            ):
                 reward += 5.0
                 self.result_found = True
                 self.task_completed = True
                 print("Result found! +5.0 reward")
-        
+
         # Increment step counter
         self.steps_taken += 1
-        
+
         return reward
 
     def get_done(self, action: ComputerAction) -> bool:
         """
         Determine if the episode is done.
-        
+
         The episode is done if:
         - The task is completed (result found)
         - The maximum number of steps is reached
@@ -190,7 +203,7 @@ def main():
     # Define the calculation task
     calculation = "2 + 2"
     expected_result = "4"
-    
+
     print(f"Task: Open the calculator app and calculate {calculation}.")
     print(f"Expected result: {expected_result}")
     print()
@@ -199,7 +212,7 @@ def main():
         # Create the task
         print("Creating the calculator task...")
         task = CalculatorTask(calculation=calculation, expected_result=expected_result)
-        
+
         # Configure the environment
         print("Configuring the environment...")
         config = ComputerEnvConfig(
@@ -209,17 +222,21 @@ def main():
 
         # Create the custom calculator environment
         print("Creating the calculator environment...")
-        env = CalculatorEnv(config, calculation=calculation, expected_result=expected_result)
+        env = CalculatorEnv(
+            config, calculation=calculation, expected_result=expected_result
+        )
 
         # Create an agent
         print("Creating the agent...")
         # Note: This requires an OpenAI API key or other LLM provider
-        agent = NaiveComputerAgent(chat_model_options={
-            "model_provider": "openai",
-            "model": "gpt-4-vision-preview",
-            # Add your API key here if not set as environment variable
-            # "api_key": "your-api-key",
-        })
+        agent = NaiveComputerAgent(
+            chat_model_options={
+                "model_provider": "openai",
+                "model": "gpt-4-vision-preview",
+                # Add your API key here if not set as environment variable
+                # "api_key": "your-api-key",
+            }
+        )
 
         # Create a driver
         print("Creating the driver...")
@@ -240,7 +257,7 @@ def main():
         # Evaluate the task
         print("\nEvaluating task completion...")
         task_success = task.evaluate(env, episode)
-        
+
         # Print episode statistics
         print("\nEpisode collection complete!")
         print(f"Episode length: {episode.num_steps} steps")
@@ -266,4 +283,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()
