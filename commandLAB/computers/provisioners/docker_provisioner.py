@@ -80,7 +80,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         subscription_id: str = None,
         max_retries: int = 3,
         timeout: int = 900,  # 15 minutes
-        max_health_retries: int = 3,
+        max_health_retries: int = 10,
         health_check_timeout: int = 60,  # 1 minute
         dockerfile_path: Optional[str] = Path(__file__).parent.parent.parent.parent
         / "resources"

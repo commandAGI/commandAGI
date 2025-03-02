@@ -29,7 +29,7 @@ class BaseComputerProvisioner(ABC):
         daemon_token: Optional[str] = None,
         max_provisioning_retries: int = 3,
         timeout: int = 900,  # 15 minutes
-        max_health_retries: int = 3,
+        max_health_retries: int = 10,
         health_check_timeout: int = 60,  # 1 minute
     ):
         """Initialize the base provisioner.

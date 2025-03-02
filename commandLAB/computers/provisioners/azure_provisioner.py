@@ -25,7 +25,7 @@ class AzureProvisioner(BaseComputerProvisioner):
         name_prefix: str = "commandlab-daemon",
         max_provisioning_retries: int = 3,
         timeout: int = 600,  # 10 minutes
-        max_health_retries: int = 3,
+        max_health_retries: int = 10,
         health_check_timeout: int = 60,  # 1 minute
     ):
         super().__init__(
