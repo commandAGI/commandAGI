@@ -10,6 +10,8 @@ from google.cloud import container_v1
 from google.cloud import run_v2
 import threading
 import logging
+import requests
+from requests.exceptions import RequestException, ConnectionError, Timeout
 
 from commandLAB._utils.command import run_command
 from commandLAB._utils.config import PROJ_DIR
@@ -31,6 +33,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         daemon_base_url: str = "http://localhost",
         daemon_port: Optional[int] = 8000,
         port_range: Optional[Tuple[int, int]] = None,
+        daemon_token: Optional[str] = None,
         container_name: str = "commandlab-daemon",
         platform: DockerPlatform = DockerPlatform.LOCAL,
         version: Optional[str] = None,
@@ -44,13 +47,15 @@ class DockerProvisioner(BaseComputerProvisioner):
         subscription_id: str = None,
         max_retries: int = 3,
         timeout: int = 900,  # 15 minutes
+        max_health_retries: int = 3,
         dockerfile_path: Optional[str] = Path(__file__).parent.parent.parent.parent / "resources" / "docker" / "Dockerfile",
     ):
         # Initialize the base class with daemon URL and port
         super().__init__(
             daemon_base_url=daemon_base_url,
             daemon_port=daemon_port,
-            port_range=port_range
+            port_range=port_range,
+            daemon_token=daemon_token
         )
             
         self.container_name = container_name
@@ -68,6 +73,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         self.container_id = None
         self._task_arn = None
         self.dockerfile_path = dockerfile_path
+        self.max_health_retries = max_health_retries
 
         # Initialize cloud clients if needed
         match platform:
@@ -121,22 +127,22 @@ class DockerProvisioner(BaseComputerProvisioner):
                     case _:
                         raise ValueError(f"Unsupported platform: {self.platform}")
 
-                # Wait for the container to be running
-                print(f"Waiting for container to be running (timeout: {self.timeout}s)")
+                # Wait for the container to be running and the daemon to be responsive
+                print(f"Waiting for container and daemon to be running (timeout: {self.timeout}s)")
                 start_time = time.time()
                 while time.time() - start_time < self.timeout:
                     if self.is_running():
                         self._status = "running"
-                        print(f"Container is now running after {int(time.time() - start_time)}s")
+                        print(f"Container and daemon are now running after {int(time.time() - start_time)}s")
                         return
-                    print("Container not yet running, checking again in 5s")
+                    print("Container or daemon not yet running, checking again in 5s")
                     time.sleep(5)
 
-                # If we get here, the container didn't start in time
+                # If we get here, the container didn't start in time or the daemon isn't responsive
                 self._status = "error"
                 elapsed = int(time.time() - start_time)
-                print(f"Timeout waiting for container to start after {elapsed}s")
-                raise TimeoutError(f"Timeout waiting for container to start after {elapsed}s")
+                print(f"Timeout waiting for container and daemon to start after {elapsed}s")
+                raise TimeoutError(f"Timeout waiting for container and daemon to start after {elapsed}s")
 
             except Exception as e:
                 retry_count += 1
@@ -434,18 +440,75 @@ class DockerProvisioner(BaseComputerProvisioner):
             print(f"Error deleting Cloud Run service: {e}")
 
     def is_running(self) -> bool:
+        """
+        Check if the container is running by first checking the platform-specific status
+        and then performing a health check to the daemon API.
+        """
         try:
+            # First check if the container/service is running at the platform level
+            platform_running = False
             match self.platform:
                 case DockerPlatform.LOCAL:
-                    return self._is_local_running()
+                    platform_running = self._is_local_running()
                 case DockerPlatform.AWS_ECS:
-                    return self._is_aws_ecs_running()
+                    platform_running = self._is_aws_ecs_running()
                 case DockerPlatform.AZURE_CONTAINER_INSTANCES:
-                    return self._is_azure_container_instances_running()
+                    platform_running = self._is_azure_container_instances_running()
                 case DockerPlatform.GCP_CLOUD_RUN:
-                    return self._is_gcp_cloud_run_running()
+                    platform_running = self._is_gcp_cloud_run_running()
                 case _:
                     return False
+            
+            # If the container is not running at the platform level, no need to check the daemon
+            if not platform_running:
+                return False
+            
+            # Now check if the daemon is responsive by making a health check request
+            health_url = f"{self.daemon_base_url}:{self.daemon_port}/health"
+            print(f"Performing health check to {health_url}")
+            
+            # Add retry logic for health check to handle temporary failures
+            health_retry_delay = 2  # seconds
+            
+            for retry in range(self.max_health_retries):
+                try:
+                    response = requests.get(health_url, timeout=5)
+                    if response.status_code == 200 and response.json().get("healthy", False):
+                        print(f"Health check successful: daemon is responsive")
+                        return True
+                    else:
+                        print(f"Health check attempt {retry+1}/{self.max_health_retries} failed: daemon returned status {response.status_code}")
+                        if retry < self.max_health_retries - 1:
+                            print(f"Retrying in {health_retry_delay} seconds...")
+                            time.sleep(health_retry_delay)
+                            # Increase delay for next retry (exponential backoff)
+                            health_retry_delay *= 2
+                except (ConnectionError, Timeout) as e:
+                    print(f"Health check attempt {retry+1}/{self.max_health_retries} failed: could not connect to daemon: {e}")
+                    if retry < self.max_health_retries - 1:
+                        print(f"Retrying in {health_retry_delay} seconds...")
+                        time.sleep(health_retry_delay)
+                        # Increase delay for next retry (exponential backoff)
+                        health_retry_delay *= 2
+                except RequestException as e:
+                    print(f"Health check attempt {retry+1}/{self.max_health_retries} failed: request error: {e}")
+                    if retry < self.max_health_retries - 1:
+                        print(f"Retrying in {health_retry_delay} seconds...")
+                        time.sleep(health_retry_delay)
+                        # Increase delay for next retry (exponential backoff)
+                        health_retry_delay *= 2
+                except Exception as e:
+                    print(f"Health check attempt {retry+1}/{self.max_health_retries} failed: unexpected error: {e}")
+                    if retry < self.max_health_retries - 1:
+                        print(f"Retrying in {health_retry_delay} seconds...")
+                        time.sleep(health_retry_delay)
+                        # Increase delay for next retry (exponential backoff)
+                        health_retry_delay *= 2
+            
+            # If we get here, all retries failed
+            print(f"All health check attempts failed. Container may be running but daemon is not responsive.")
+            return False
+                
         except Exception as e:
             print(f"Error checking if container is running: {e}")
             return False

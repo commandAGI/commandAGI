@@ -8,6 +8,9 @@ import subprocess
 import os
 import sys
 import tempfile
+import time
+import platform as sys_platform
+import psutil
 from typing import Optional, Dict, Any, List, Tuple, Literal
 from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -288,6 +291,37 @@ class ComputerDaemon:
         @app.get("/observation/displays")
         async def get_displays(token: str = Depends(verify_token)) -> DisplaysObservation:
             return self._computer.get_displays()
+
+        @app.get("/health")
+        async def health_check() -> Dict[str, Any]:
+            """
+            Simple health check endpoint that doesn't require authentication.
+            Returns information about the daemon status.
+            """
+            try:
+                
+                # Check if the computer is responsive
+                computer_responsive = self._computer is not None
+                
+                return {
+                    "healthy": True,
+                    "timestamp": time.time(),
+                    "daemon_info": {
+                        "version": getattr(self._computer, 'version', 'unknown'),
+                        "platform": sys_platform.system(),
+                        "python_version": sys_platform.python_version(),
+                        "cpu_percent": psutil.cpu_percent(interval=0.1),
+                        "memory_percent": psutil.virtual_memory().percent
+                    },
+                    "computer_responsive": computer_responsive
+                }
+            except Exception as e:
+                # If there's an error, we're still "healthy" but we report the error
+                return {
+                    "healthy": True,
+                    "error": str(e),
+                    "timestamp": time.time()
+                }
 
         @app.post("/file/copy_to_computer", response_model=SuccessResponse)
         async def copy_to_computer(
