@@ -40,7 +40,7 @@ class TestDockerProvisioner(unittest.TestCase):
         self.assertEqual(self.provisioner.container_name, "test-container")
         self.assertEqual(self.provisioner.platform, DockerPlatform.LOCAL)
         self.assertEqual(self.provisioner.version, "test-version")
-        self.assertEqual(self.provisioner.max_retries, 2)
+        self.assertEqual(self.provisioner.max_provisioning_retries, 2)
         self.assertEqual(self.provisioner.timeout, 300)
         self.assertEqual(self.provisioner._status, "not_started")
 

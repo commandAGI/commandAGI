@@ -117,7 +117,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         self.subnets = subnets or ["subnet-xxxxx"]
         self.security_groups = security_groups or ["sg-xxxxx"]
         self.subscription_id = subscription_id
-        self.max_retries = max_retries
+        self.max_provisioning_retries = max_retries
         self.timeout = timeout
         self._status = DockerProvisionerStatus.NOT_STARTED
         self.container_id = None
@@ -302,10 +302,11 @@ class DockerProvisioner(BaseComputerProvisioner):
     def setup(self) -> None:
         print(f"Setting up container with platform {self.platform}")
         self._set_status(DockerProvisionerStatus.STARTING)
-        retry_count = 0
+        provisioning_retry_count = 0
 
-        while retry_count < self.max_retries:
-            print(f"Attempt {retry_count + 1}/{self.max_retries} to setup container")
+        # First loop: Provisioning with retries
+        while provisioning_retry_count < self.max_provisioning_retries:
+            print(f"Attempt {provisioning_retry_count + 1}/{self.max_provisioning_retries} to setup container")
             try:
                 self._set_status(DockerProvisionerStatus.PROVISIONING)
                 match self.platform:
@@ -323,49 +324,72 @@ class DockerProvisioner(BaseComputerProvisioner):
                         self._setup_gcp_cloud_run()
                     case _:
                         raise ValueError(f"Unsupported platform: {self.platform}")
-
-                # Wait for the container to be running and the daemon to be responsive
-                self._set_status(DockerProvisionerStatus.HEALTH_CHECKING)
-                print(
-                    f"Waiting for container and daemon to be running (container timeout: {self.timeout}s, daemon timeout: {self.health_check_timeout}s)"
-                )
-                start_time = time.time()
-                while time.time() - start_time < self.timeout:
-                    # Use the combined check which has its own internal timeouts
-                    if self.is_running_and_responsive():
-                        self._set_status(DockerProvisionerStatus.RUNNING)
-                        print(
-                            f"Container and daemon are now running after {int(time.time() - start_time)}s"
-                        )
-                        return
-                    print(
-                        "Waiting for container to be running and daemon to be responsive, checking again in 5s"
-                    )
-                    time.sleep(5)
-
-                # If we get here, the container didn't start in time or the daemon isn't responsive
-                self._set_status(DockerProvisionerStatus.HEALTH_CHECK_ERROR)
-                elapsed = int(time.time() - start_time)
-                print(
-                    f"Timeout waiting for container and daemon to start after {elapsed}s"
-                )
-                raise TimeoutError(
-                    f"Timeout waiting for container and daemon to start after {elapsed}s"
-                )
-
+                
+                # If we get here, provisioning was successful
+                break
+                
             except Exception as e:
-                retry_count += 1
-                if retry_count >= self.max_retries:
+                provisioning_retry_count += 1
+                if provisioning_retry_count >= self.max_provisioning_retries:
                     self._set_status(DockerProvisionerStatus.SETUP_ERROR)
                     print(
-                        f"Failed to setup container after {self.max_retries} attempts: {str(e)}"
+                        f"Failed to setup container after {self.max_provisioning_retries} attempts: {str(e)}"
                     )
                     raise
-                backoff = 2**retry_count
+                backoff = 2**provisioning_retry_count
                 print(
-                    f"Error setting up container, retrying in {backoff}s ({retry_count}/{self.max_retries}): {str(e)}"
+                    f"Error setting up container, retrying in {backoff}s ({provisioning_retry_count}/{self.max_provisioning_retries}): {str(e)}"
                 )
                 time.sleep(backoff)  # Exponential backoff
+        
+        # Second loop: Health checking with its own timeout and retry count
+        self._set_status(DockerProvisionerStatus.HEALTH_CHECKING)
+        print(f"Waiting for container and daemon to be running (timeout: {self.health_check_timeout}s)")
+        
+        health_check_retry_count = 0
+        start_time = time.time()
+        
+        while health_check_retry_count < self.max_health_retries:
+            try:
+                # First check if the container is running
+                print("Checking if container is running at the platform level...")
+                container_running = self.is_running()
+                if not container_running:
+                    raise RuntimeError("Container is not running at the platform level")
+
+                # Then check if the daemon is responsive
+                print("Container is running. Now checking if daemon is responsive...")
+                daemon_responsive = self.is_daemon_responsive()
+                if not daemon_responsive:
+                    raise RuntimeError("Container is running but daemon is not responsive")
+
+                # Both checks passed
+                print("Container is running and daemon is responsive")
+                self._set_status(DockerProvisionerStatus.RUNNING)
+                print(f"Container and daemon are now running after {int(time.time() - start_time)}s")
+                return
+                
+            except Exception as e:
+                health_check_retry_count += 1
+                elapsed = int(time.time() - start_time)
+                
+                # Check if we've exceeded the timeout
+                if elapsed > self.health_check_timeout:
+                    self._set_status(DockerProvisionerStatus.HEALTH_CHECK_ERROR)
+                    print(f"Timeout waiting for container and daemon to start after {elapsed}s")
+                    raise TimeoutError(f"Timeout waiting for container and daemon to start after {elapsed}s")
+                
+                # Check if we've exceeded max retries
+                if health_check_retry_count >= self.max_health_retries:
+                    self._set_status(DockerProvisionerStatus.HEALTH_CHECK_ERROR)
+                    print(f"Failed health check after {self.max_health_retries} attempts: {str(e)}")
+                    raise RuntimeError(f"Failed health check after {self.max_health_retries} attempts: {str(e)}")
+                
+                # Wait before retrying
+                retry_wait = min(5, self.health_check_timeout - elapsed)  # Don't wait longer than remaining timeout
+                if retry_wait > 0:
+                    print(f"Health check failed ({health_check_retry_count}/{self.max_health_retries}): {str(e)}. Retrying in {retry_wait}s")
+                    time.sleep(retry_wait)
 
     def _setup_local(self):
         """Setup local Docker container"""
@@ -764,101 +788,28 @@ class DockerProvisioner(BaseComputerProvisioner):
             health_url = f"{self.daemon_base_url}:{self.daemon_port}/health"
             print(f"Performing health check to {health_url}")
 
-            # Add retry logic for health check to handle temporary failures
-            health_retry_delay = 2  # seconds
-            start_time = time.time()
-
-            for retry in range(self.max_health_retries):
-                # Check if we've exceeded the health check timeout
-                if time.time() - start_time > self.health_check_timeout:
-                    print(
-                        f"Health check timed out after {int(time.time() - start_time)}s"
-                    )
+            # Single attempt health check
+            try:
+                response = requests.get(health_url, timeout=5)
+                if response.status_code == 200 and response.json().get("healthy", False):
+                    print(f"Health check successful: daemon is responsive")
+                    return True
+                else:
+                    print(f"Health check failed: daemon returned status {response.status_code}")
                     return False
-
-                try:
-                    response = requests.get(health_url, timeout=5)
-                    if response.status_code == 200 and response.json().get(
-                        "healthy", False
-                    ):
-                        print(f"Health check successful: daemon is responsive")
-                        return True
-                    else:
-                        print(
-                            f"Health check attempt {retry+1}/{self.max_health_retries} failed: daemon returned status {response.status_code}"
-                        )
-                        if retry < self.max_health_retries - 1:
-                            print(f"Retrying in {health_retry_delay} seconds...")
-                            time.sleep(health_retry_delay)
-                            # Increase delay for next retry (exponential backoff)
-                            health_retry_delay *= 2
-                except (ConnectionError, Timeout) as e:
-                    print(
-                        f"Health check attempt {retry+1}/{self.max_health_retries} failed: could not connect to daemon: {e}"
-                    )
-                    if retry < self.max_health_retries - 1:
-                        print(f"Retrying in {health_retry_delay} seconds...")
-                        time.sleep(health_retry_delay)
-                        # Increase delay for next retry (exponential backoff)
-                        health_retry_delay *= 2
-                except RequestException as e:
-                    print(
-                        f"Health check attempt {retry+1}/{self.max_health_retries} failed: request error: {e}"
-                    )
-                    if retry < self.max_health_retries - 1:
-                        print(f"Retrying in {health_retry_delay} seconds...")
-                        time.sleep(health_retry_delay)
-                        # Increase delay for next retry (exponential backoff)
-                        health_retry_delay *= 2
-                except Exception as e:
-                    print(
-                        f"Health check attempt {retry+1}/{self.max_health_retries} failed: unexpected error: {e}"
-                    )
-                    if retry < self.max_health_retries - 1:
-                        print(f"Retrying in {health_retry_delay} seconds...")
-                        time.sleep(health_retry_delay)
-                        # Increase delay for next retry (exponential backoff)
-                        health_retry_delay *= 2
-
-            # If we get here, all retries failed
-            print(f"All health check attempts failed. Daemon is not responsive.")
-            return False
+            except (ConnectionError, Timeout) as e:
+                print(f"Health check failed: could not connect to daemon: {e}")
+                return False
+            except RequestException as e:
+                print(f"Health check failed: request error: {e}")
+                return False
+            except Exception as e:
+                print(f"Health check failed: unexpected error: {e}")
+                return False
 
         except Exception as e:
             print(f"Error checking if daemon is responsive: {e}")
             return False
-
-    def is_running_and_responsive(self) -> bool:
-        """
-        Check if the container is running and the daemon is responsive.
-
-        This method combines the checks from is_running() and is_daemon_responsive()
-        to verify that both the container is running at the platform level and
-        the daemon inside the container is responsive.
-
-        The two checks are independent and have their own timeout and retry mechanisms:
-        - Container running check: Uses the main timeout and max_retries parameters
-        - Daemon responsiveness check: Uses health_check_timeout and max_health_retries parameters
-
-        Returns:
-            bool: True if the container is running and the daemon is responsive, False otherwise
-        """
-        # First check if the container is running at the platform level
-        print("Checking if container is running at the platform level...")
-        container_running = self.is_running()
-        if not container_running:
-            print("Container is not running at the platform level")
-            return False
-
-        # Then check if the daemon is responsive
-        print("Container is running. Now checking if daemon is responsive...")
-        daemon_responsive = self.is_daemon_responsive()
-        if not daemon_responsive:
-            print("Container is running but daemon is not responsive")
-            return False
-
-        print("Container is running and daemon is responsive")
-        return True
 
     def _is_local_running(self) -> bool:
         """Check if local Docker container is running"""

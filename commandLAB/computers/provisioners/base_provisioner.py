@@ -61,22 +61,6 @@ class BaseComputerProvisioner(ABC):
         """
         pass
 
-    @abstractmethod
-    def is_running_and_responsive(self) -> bool:
-        """
-        Check if the container is running and the daemon is responsive.
-
-        This method should combine the checks from is_running() and is_daemon_responsive()
-        to verify that both the container is running at the platform level and
-        the daemon inside the container is responsive.
-
-        The two checks should be independent and have their own timeout and retry mechanisms.
-
-        Returns:
-            bool: True if the container is running and the daemon is responsive, False otherwise
-        """
-        pass
-
     @property
     def daemon_url(self) -> str:
         """Get the full daemon URL including base URL and port."""
