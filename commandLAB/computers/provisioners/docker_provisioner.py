@@ -28,6 +28,21 @@ class DockerPlatform(str, Enum):
     GCP_CLOUD_RUN = "gcp_cloud_run"
 
 
+class DockerProvisionerStatus(str, Enum):
+    """Status states for the Docker provisioner."""
+
+    NOT_STARTED = "not_started"
+    PROVISIONING = "provisioning"
+    STARTING = "starting"
+    HEALTH_CHECKING = "health_checking"
+    RUNNING = "running"
+    STOPPING = "stopping"
+    STOPPED = "stopped"
+    SETUP_ERROR = "setup_error"
+    HEALTH_CHECK_ERROR = "health_check_error"
+    TEARDOWN_ERROR = "teardown_error"
+
+
 class DockerProvisioner(BaseComputerProvisioner):
     """Docker-based computer provisioner.
 
@@ -104,7 +119,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         self.subscription_id = subscription_id
         self.max_retries = max_retries
         self.timeout = timeout
-        self._status = "not_started"
+        self._status = DockerProvisionerStatus.NOT_STARTED
         self.container_id = None
         self._task_arn = None
         self.dockerfile_path = dockerfile_path
@@ -274,15 +289,25 @@ class DockerProvisioner(BaseComputerProvisioner):
             timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             return f"{self.name_prefix}-{timestamp}"
 
+    def _set_status(self, status: DockerProvisionerStatus) -> None:
+        """Set the provisioner status with logging.
+
+        Args:
+            status: The new status to set
+        """
+        old_status = self._status
+        self._status = status
+        print(f"Status changed: {old_status} -> {status}")
+
     def setup(self) -> None:
         print(f"Setting up container with platform {self.platform}")
-        self._status = "starting"
-        print(f"Status set to: {self._status}")
+        self._set_status(DockerProvisionerStatus.STARTING)
         retry_count = 0
 
         while retry_count < self.max_retries:
             print(f"Attempt {retry_count + 1}/{self.max_retries} to setup container")
             try:
+                self._set_status(DockerProvisionerStatus.PROVISIONING)
                 match self.platform:
                     case DockerPlatform.LOCAL:
                         print("Using LOCAL platform setup")
@@ -300,6 +325,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                         raise ValueError(f"Unsupported platform: {self.platform}")
 
                 # Wait for the container to be running and the daemon to be responsive
+                self._set_status(DockerProvisionerStatus.HEALTH_CHECKING)
                 print(
                     f"Waiting for container and daemon to be running (container timeout: {self.timeout}s, daemon timeout: {self.health_check_timeout}s)"
                 )
@@ -307,7 +333,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                 while time.time() - start_time < self.timeout:
                     # Use the combined check which has its own internal timeouts
                     if self.is_running_and_responsive():
-                        self._status = "running"
+                        self._set_status(DockerProvisionerStatus.RUNNING)
                         print(
                             f"Container and daemon are now running after {int(time.time() - start_time)}s"
                         )
@@ -318,7 +344,7 @@ class DockerProvisioner(BaseComputerProvisioner):
                     time.sleep(5)
 
                 # If we get here, the container didn't start in time or the daemon isn't responsive
-                self._status = "error"
+                self._set_status(DockerProvisionerStatus.HEALTH_CHECK_ERROR)
                 elapsed = int(time.time() - start_time)
                 print(
                     f"Timeout waiting for container and daemon to start after {elapsed}s"
@@ -330,7 +356,7 @@ class DockerProvisioner(BaseComputerProvisioner):
             except Exception as e:
                 retry_count += 1
                 if retry_count >= self.max_retries:
-                    self._status = "error"
+                    self._set_status(DockerProvisionerStatus.SETUP_ERROR)
                     print(
                         f"Failed to setup container after {self.max_retries} attempts: {str(e)}"
                     )
@@ -344,7 +370,7 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _setup_local(self):
         """Setup local Docker container"""
         print(f"Starting local Docker container")
-        
+
         # Find an available port if needed for local setup
         if self.daemon_port is None:
             # No port specified, find one in the given range or any available port
@@ -381,7 +407,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         else:
             # Specified port is available, use it
             print(f"Using requested port {self.daemon_port} for daemon service")
-            
+
         # If container_name is not provided, find the next available name for local setup
         if self.container_name is None:
             self.container_name = self._find_next_available_container_name()
@@ -448,12 +474,12 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _setup_aws_ecs(self):
         """Setup AWS ECS container"""
         print(f"Starting AWS ECS task in region {self.region}")
-        
+
         # For cloud platforms, use fixed port 8000 if not specified
         if self.daemon_port is None:
             self.daemon_port = 8000
             print(f"Using default port {self.daemon_port} for AWS ECS")
-            
+
         # Use simple naming for cloud platforms
         if self.container_name is None:
             self.container_name = f"{self.name_prefix}-ecs"
@@ -484,13 +510,17 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def _setup_azure_container_instances(self):
         """Setup Azure Container Instances"""
-        print(f"Starting Azure Container Instance in resource group {self.resource_group}")
-        
+        print(
+            f"Starting Azure Container Instance in resource group {self.resource_group}"
+        )
+
         # For cloud platforms, use fixed port 8000 if not specified
         if self.daemon_port is None:
             self.daemon_port = 8000
-            print(f"Using default port {self.daemon_port} for Azure Container Instances")
-            
+            print(
+                f"Using default port {self.daemon_port} for Azure Container Instances"
+            )
+
         # Use simple naming for cloud platforms
         if self.container_name is None:
             self.container_name = f"{self.name_prefix}-aci"
@@ -531,12 +561,12 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _setup_gcp_cloud_run(self):
         """Setup GCP Cloud Run container"""
         print(f"Starting GCP Cloud Run service in project {self.project_id}")
-        
+
         # For cloud platforms, use fixed port 8000 if not specified
         if self.daemon_port is None:
             self.daemon_port = 8000
             print(f"Using default port {self.daemon_port} for GCP Cloud Run")
-            
+
         # Use simple naming for cloud platforms
         if self.container_name is None:
             self.container_name = f"{self.name_prefix}-gcr"
@@ -576,7 +606,7 @@ class DockerProvisioner(BaseComputerProvisioner):
         print(f"Started Cloud Run service: {result.name}")
 
     def teardown(self) -> None:
-        self._status = "stopping"
+        self._set_status(DockerProvisionerStatus.STOPPING)
 
         try:
             match self.platform:
@@ -591,9 +621,9 @@ class DockerProvisioner(BaseComputerProvisioner):
                 case _:
                     raise ValueError(f"Unsupported platform: {self.platform}")
 
-            self._status = "stopped"
+            self._set_status(DockerProvisionerStatus.STOPPED)
         except Exception as e:
-            self._status = "error"
+            self._set_status(DockerProvisionerStatus.TEARDOWN_ERROR)
             print(f"Error during teardown: {e}")
 
     def _teardown_local(self):
@@ -920,4 +950,4 @@ class DockerProvisioner(BaseComputerProvisioner):
 
     def get_status(self) -> str:
         """Get the current status of the provisioner."""
-        return self._status
+        return self._status.value
