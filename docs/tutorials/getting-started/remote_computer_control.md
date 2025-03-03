@@ -1,6 +1,6 @@
 # Remote Computer Control
 
-This guide explains how to control remote computers with commandLAB.
+This guide explains how to control remote computers with commandAGI2.
 
 ## Overview
 

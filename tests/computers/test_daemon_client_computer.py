@@ -1,11 +1,11 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from commandLAB.computers.daemon_client_computer import (
+from commandAGI2.computers.daemon_client_computer import (
     DaemonClientComputer,
     ProvisioningMethod,
 )
-from commandLAB.types import (
+from commandAGI2.types import (
     ClickAction,
     ShellCommandAction,
     KeyboardKeyDownAction,
@@ -23,8 +23,8 @@ from commandLAB.types import (
 
 
 class TestDaemonClientComputer(unittest.TestCase):
-    @patch("commandLAB.computers.daemon_client_computer.requests")
-    @patch("commandLAB.computers.provisioners.manual_provisioner.ManualProvisioner")
+    @patch("commandAGI2.computers.daemon_client_computer.requests")
+    @patch("commandAGI2.computers.provisioners.manual_provisioner.ManualProvisioner")
     def setUp(self, mock_provisioner_cls, mock_requests):
         # Create a mock provisioner
         self.mock_provisioner = mock_provisioner_cls.return_value
@@ -241,7 +241,7 @@ class TestDaemonClientComputer(unittest.TestCase):
         self.assertTrue(result)
 
     @patch(
-        "commandLAB.computers.daemon_client_computer.ProvisioningMethod.get_provisioner_cls"
+        "commandAGI2.computers.daemon_client_computer.ProvisioningMethod.get_provisioner_cls"
     )
     def test_provisioning_method(self, mock_get_provisioner_cls):
         # Create a mock provisioner class

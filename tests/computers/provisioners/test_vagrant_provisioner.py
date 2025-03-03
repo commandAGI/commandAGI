@@ -5,7 +5,7 @@
 # import subprocess
 # from pathlib import Path
 
-# from commandLAB.computers.provisioners.vagrant_provisioner import VagrantProvisioner
+# from commandAGI2.computers.provisioners.vagrant_provisioner import VagrantProvisioner
 
 
 # class TestVagrantProvisioner(unittest.TestCase):

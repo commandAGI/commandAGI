@@ -1,5 +1,5 @@
 """
-MkDocs integration functions for CommandLAB documentation macros.
+MkDocs integration functions for commandAGI2 documentation macros.
 """
 
 from .example_macros import (

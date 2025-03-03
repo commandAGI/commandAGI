@@ -1,5 +1,5 @@
 """
-Benchmarks for CommandLAB daemon server.
+Benchmarks for commandAGI2 daemon server.
 
 This module contains benchmarks for measuring the performance of the daemon server.
 """
@@ -19,10 +19,10 @@ import io
 import json
 import uuid
 
-from commandLAB.daemon.server import ComputerDaemon
-from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-from commandLAB.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
-from commandLAB.types import (
+from commandAGI2.daemon.server import ComputerDaemon
+from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI2.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
+from commandAGI2.types import (
     ClickAction,
     TypeAction,
     KeyboardHotkeyAction,
@@ -43,7 +43,7 @@ def generate_test_image(width=800, height=600):
     draw.line([600, 100, 700, 500], fill="green", width=3)
 
     # Add some text
-    draw.text((100, 400), "CommandLAB Benchmark", fill="black")
+    draw.text((100, 400), "commandAGI2 Benchmark", fill="black")
 
     # Convert to base64
     buffer = io.BytesIO()
@@ -288,7 +288,7 @@ def plot_results(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark CommandLAB daemon server")
+    parser = argparse.ArgumentParser(description="Benchmark commandAGI2 daemon server")
     parser.add_argument("--port", type=int, default=8000, help="Daemon server port")
     parser.add_argument(
         "--runs", type=int, default=5, help="Number of benchmark runs per endpoint"

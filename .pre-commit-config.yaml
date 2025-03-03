@@ -30,4 +30,4 @@ repos:
         entry: python docs/build_docs.py
         language: system
         pass_filenames: false
-        files: ^(examples/.*\.py|commandLAB/.*\.py|docs/.*\.md|mkdocs\.yml)$
+        files: ^(examples/.*\.py|commandAGI2/.*\.py|docs/.*\.md|mkdocs\.yml)$

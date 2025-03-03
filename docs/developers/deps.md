@@ -1,5 +1,5 @@
 ```
-(commandLAB) PS C:\Users\Jacob\source\repos\active\commandAGI\commandLAB> uv pip list                      
+(commandAGI2) PS C:\Users\Jacob\source\repos\active\commandAGI\commandAGI2> uv pip list                      
 Package                      Version     Editable project location
 ---------------------------- ----------- --------------------------------------------------------
 aiohappyeyeballs             2.4.6
@@ -33,7 +33,7 @@ click                        8.1.8
 cloudpickle                  3.1.1
 colorama                     0.4.6
 comm                         0.2.2
-commandlab                   0.0.1       C:\Users\Jacob\source\repos\active\commandAGI\commandLAB
+commandagi2                   0.0.1       C:\Users\Jacob\source\repos\active\commandAGI\commandAGI2
 comtypes                     1.4.10
 constantly                   23.10.4
 contourpy                    1.3.1

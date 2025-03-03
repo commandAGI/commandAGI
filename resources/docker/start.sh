@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting commandlab daemon..."
+echo "Starting commandagi2 daemon..."
 
 # Get port from environment variable or use default
 PORT=${DAEMON_PORT:-8000}
@@ -29,4 +29,4 @@ sleep 2  # Give VNC server time to initialize
 
 # Activate virtual environment and run daemon in foreground
 source .venv/bin/activate
-python3 -m commandLAB.daemon.cli --port $PORT --backend pynput --token "$DAEMON_TOKEN"
+python3 -m commandAGI2.daemon.cli --port $PORT --backend pynput --token "$DAEMON_TOKEN"

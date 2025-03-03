@@ -2,7 +2,7 @@ import unittest
 from pynput.keyboard import Key as PynputKey
 from pynput.mouse import Button as PynputButton
 
-from commandLAB.types import MouseButton, KeyboardKey
+from commandAGI2.types import MouseButton, KeyboardKey
 
 
 class TestMouseButton(unittest.TestCase):

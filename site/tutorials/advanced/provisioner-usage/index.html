@@ -16,7 +16,7 @@
     
     
       
-        <title>Using Provisioners in CommandLAB - commandLAB</title>
+        <title>Using Provisioners in commandAGI2 - commandAGI2</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#using-provisioners-in-commandlab" class="md-skip">
+        <a href="#using-provisioners-in-commandagi2" class="md-skip">
           Skip to content
         </a>
       
@@ -86,7 +86,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="commandLAB" class="md-header__button md-logo" aria-label="commandLAB" data-md-component="logo">
+    <a href="../../.." title="commandAGI2" class="md-header__button md-logo" aria-label="commandAGI2" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,13 +100,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            commandLAB
+            commandAGI2
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Using Provisioners in CommandLAB
+              Using Provisioners in commandAGI2
             
           </span>
         </div>
@@ -207,13 +207,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="commandLAB" class="md-nav__button md-logo" aria-label="commandLAB" data-md-component="logo">
+    <a href="../../.." title="commandAGI2" class="md-nav__button md-logo" aria-label="commandAGI2" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    commandLAB
+    commandAGI2
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1331,8 +1331,8 @@
 
 
 
-<h1 id="using-provisioners-in-commandlab">Using Provisioners in CommandLAB</h1>
-<p>Provisioners in CommandLAB allow you to automatically set up and manage computer environments across different platforms. This guide explains how to use provisioners in your projects.</p>
+<h1 id="using-provisioners-in-commandagi2">Using Provisioners in commandAGI2</h1>
+<p>Provisioners in commandAGI2 allow you to automatically set up and manage computer environments across different platforms. This guide explains how to use provisioners in your projects.</p>
 <h2 id="what-are-provisioners">What are Provisioners?</h2>
 <p>Provisioners handle the lifecycle of computer environments:</p>
 <ol>
@@ -1342,11 +1342,11 @@
 </ol>
 <p>This allows you to work with ephemeral environments that can be created and destroyed as needed.</p>
 <h2 id="available-provisioners">Available Provisioners</h2>
-<p>CommandLAB includes provisioners for various platforms:</p>
+<p>commandAGI2 includes provisioners for various platforms:</p>
 <h3 id="local-docker">Local Docker</h3>
 <p>Run environments in Docker containers on your local machine:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.provisioners.docker_provisioner</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerPlatform</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.provisioners.docker_provisioner</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerPlatform</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Create a computer with local Docker provisioning</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">DaemonClientComputer</span><span class="p">(</span>
@@ -1362,7 +1362,7 @@
 </code></pre></div>
 <h3 id="aws">AWS</h3>
 <p>Run environments in AWS EC2 instances:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># Create a computer with AWS provisioning</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">DaemonClientComputer</span><span class="p">(</span>
@@ -1381,7 +1381,7 @@
 </code></pre></div>
 <h3 id="azure">Azure</h3>
 <p>Run environments in Azure VMs:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Create a computer with Azure provisioning</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">DaemonClientComputer</span><span class="p">(</span>
@@ -1401,7 +1401,7 @@
 </code></pre></div>
 <h3 id="google-cloud-platform">Google Cloud Platform</h3>
 <p>Run environments in GCP VMs:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Create a computer with GCP provisioning</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">DaemonClientComputer</span><span class="p">(</span>
@@ -1420,8 +1420,8 @@
 </code></pre></div>
 <h3 id="kubernetes">Kubernetes</h3>
 <p>Run environments in Kubernetes clusters:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.provisioners.kubernetes_provisioner</span><span class="w"> </span><span class="kn">import</span> <span class="n">KubernetesPlatform</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.provisioners.kubernetes_provisioner</span><span class="w"> </span><span class="kn">import</span> <span class="n">KubernetesPlatform</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Create a computer with Kubernetes provisioning</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">DaemonClientComputer</span><span class="p">(</span>
@@ -1441,8 +1441,8 @@
 </code></pre></div>
 <h3 id="container-services">Container Services</h3>
 <p>Run environments in managed container services:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.provisioners.docker_provisioner</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerPlatform</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.provisioners.docker_provisioner</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockerPlatform</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># AWS ECS</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">DaemonClientComputer</span><span class="p">(</span>
@@ -1479,7 +1479,7 @@
 <h2 id="advanced-configuration">Advanced Configuration</h2>
 <h3 id="timeouts-and-retries">Timeouts and Retries</h3>
 <p>You can configure timeouts and retry behavior:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">DaemonClientComputer</span><span class="p">(</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">provisioning_method</span><span class="o">=</span><span class="n">ProvisioningMethod</span><span class="o">.</span><span class="n">AWS</span><span class="p">,</span>
@@ -1490,7 +1490,7 @@
 </code></pre></div>
 <h3 id="status-checking">Status Checking</h3>
 <p>You can check the status of a provisioner:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.daemon_client_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DaemonClientComputer</span><span class="p">,</span> <span class="n">ProvisioningMethod</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">DaemonClientComputer</span><span class="p">(</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">provisioning_method</span><span class="o">=</span><span class="n">ProvisioningMethod</span><span class="o">.</span><span class="n">DOCKER</span>

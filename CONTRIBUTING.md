@@ -1,12 +1,12 @@
-# Contributing to CommandLab
+# Contributing to commandAGI2
 
 ## Quick Start
 
 1. Fork & clone:
 
    ```bash
-   git clone https://github.com/commandAGI/commandLAB.git
-   cd commandLAB
+   git clone https://github.com/commandAGI/commandAGI2.git
+   cd commandAGI2
    ```
 
 2. Set up dev environment:
@@ -57,4 +57,4 @@ Additional requirements:
 
 ## Questions?
 
-[Open an issue](https://github.com/commandAGI/commandLAB/issues/new) or start a discussion.
+[Open an issue](https://github.com/commandAGI/commandAGI2/issues/new) or start a discussion.

@@ -1,6 +1,6 @@
 # Installation Guide
 
-This guide provides detailed instructions for installing CommandLAB and its dependencies on different operating systems.
+This guide provides detailed instructions for installing commandAGI2 and its dependencies on different operating systems.
 
 ## System Requirements
 
@@ -18,10 +18,10 @@ This guide provides detailed instructions for installing CommandLAB and its depe
 
 ## Basic Installation
 
-The simplest way to install CommandLAB is using pip:
+The simplest way to install commandAGI2 is using pip:
 
 ```bash
-pip install commandlab
+pip install commandagi2
 ```
 
 This installs the core framework without specific backends. You'll need to install additional components based on your use case.
@@ -33,7 +33,7 @@ This installs the core framework without specific backends. You'll need to insta
 To control your local computer, install the local backend:
 
 ```bash
-pip install "commandlab[local]"
+pip install "commandagi2[local]"
 ```
 
 This installs dependencies for controlling your local computer:
@@ -63,7 +63,7 @@ This installs dependencies for controlling your local computer:
 To use the remote control daemon:
 
 ```bash
-pip install "commandlab[daemon]"
+pip install "commandagi2[daemon]"
 ```
 
 This installs:
@@ -76,7 +76,7 @@ This installs:
 For Docker container support:
 
 ```bash
-pip install "commandlab[docker]"
+pip install "commandagi2[docker]"
 ```
 
 This requires:
@@ -87,7 +87,7 @@ This requires:
 For Kubernetes support:
 
 ```bash
-pip install "commandlab[kubernetes]"
+pip install "commandagi2[kubernetes]"
 ```
 
 This requires:
@@ -100,25 +100,25 @@ This requires:
 For AWS support:
 
 ```bash
-pip install "commandlab[aws]"
+pip install "commandagi2[aws]"
 ```
 
 For Azure support:
 
 ```bash
-pip install "commandlab[azure]"
+pip install "commandagi2[azure]"
 ```
 
 For Google Cloud Platform support:
 
 ```bash
-pip install "commandlab[gcp]"
+pip install "commandagi2[gcp]"
 ```
 
 For all cloud providers:
 
 ```bash
-pip install "commandlab[cloud]"
+pip install "commandagi2[cloud]"
 ```
 
 ### Integration Components
@@ -126,7 +126,7 @@ pip install "commandlab[cloud]"
 For OCR capabilities:
 
 ```bash
-pip install "commandlab[pytesseract]"
+pip install "commandagi2[pytesseract]"
 ```
 
 This requires:
@@ -139,13 +139,13 @@ This requires:
 For E2B Desktop integration:
 
 ```bash
-pip install "commandlab[e2b-desktop]"
+pip install "commandagi2[e2b-desktop]"
 ```
 
 For LangChain integration:
 
 ```bash
-pip install "commandlab[langchain]"
+pip install "commandagi2[langchain]"
 ```
 
 ### All Features
@@ -153,19 +153,19 @@ pip install "commandlab[langchain]"
 To install all available backends and features:
 
 ```bash
-pip install "commandlab[all]"
+pip install "commandagi2[all]"
 ```
 
 Note that this will install all dependencies, which may include conflicting packages. It's generally better to install only the components you need.
 
 ## Development Installation
 
-For contributing to CommandLAB:
+For contributing to commandAGI2:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/commandlab.git
-cd commandlab
+git clone https://github.com/your-org/commandagi2.git
+cd commandagi2
 
 # Install in development mode with development dependencies
 pip install -e ".[dev]"
@@ -176,20 +176,20 @@ pytest
 
 ## Virtual Environment
 
-It's recommended to install CommandLAB in a virtual environment:
+It's recommended to install commandAGI2 in a virtual environment:
 
 ```bash
 # Create a virtual environment
-python -m venv commandlab-env
+python -m venv commandagi2-env
 
 # Activate the environment
 # On Windows:
-commandlab-env\Scripts\activate
+commandagi2-env\Scripts\activate
 # On macOS/Linux:
-source commandlab-env/bin/activate
+source commandagi2-env/bin/activate
 
-# Install CommandLAB
-pip install "commandlab[local,daemon]"
+# Install commandAGI2
+pip install "commandagi2[local,daemon]"
 ```
 
 ## Troubleshooting
@@ -212,7 +212,7 @@ pip install "commandlab[local,daemon]"
 
 **Solution**:
 
-- Ensure you've installed the correct extras: `pip install "commandlab[local]"`
+- Ensure you've installed the correct extras: `pip install "commandagi2[local]"`
 - Check if your virtual environment is activated
 
 #### Docker Issues
@@ -239,7 +239,7 @@ pip install "commandlab[local,daemon]"
 
 If you encounter issues not covered here:
 
-1. Check the [GitHub Issues](https://github.com/your-org/commandlab/issues) for similar problems
+1. Check the [GitHub Issues](https://github.com/your-org/commandagi2/issues) for similar problems
 1. Join our [Discord community](https://discord.gg/your-discord) for support
 1. Open a new issue with details about your problem
 
@@ -248,12 +248,12 @@ If you encounter issues not covered here:
 To verify your installation:
 
 ```python
-import commandLAB
-print(f"CommandLAB version: {commandLAB.__version__}")
+import commandAGI2
+print(f"commandAGI2 version: {commandAGI2.__version__}")
 
 # Test local computer if installed
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
     computer = LocalPynputComputer()
     print("Local computer control is working")
 except ImportError:
@@ -262,6 +262,6 @@ except ImportError:
 
 ## Next Steps
 
-- Follow the [Quick Start Guide](quickstart.md) to begin using CommandLAB
+- Follow the [Quick Start Guide](quickstart.md) to begin using commandAGI2
 - Explore the [Core Concepts](concepts/index.md) to understand the framework
 - Try the [Basic Automation Tutorial](tutorials/basic_automation.md) for a hands-on example

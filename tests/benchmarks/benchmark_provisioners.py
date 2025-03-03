@@ -1,5 +1,5 @@
 """
-Benchmarks for CommandLAB provisioners.
+Benchmarks for commandAGI2 provisioners.
 
 This module contains benchmarks for measuring the performance of various provisioners.
 """
@@ -11,12 +11,12 @@ from typing import Dict, List, Type, Any
 import matplotlib.pyplot as plt
 import numpy as np
 
-from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
-from commandLAB.computers.provisioners.docker_provisioner import (
+from commandAGI2.computers.provisioners.base_provisioner import BaseComputerProvisioner
+from commandAGI2.computers.provisioners.docker_provisioner import (
     DockerProvisioner,
     DockerPlatform,
 )
-from commandLAB.computers.provisioners.manual_provisioner import ManualProvisioner
+from commandAGI2.computers.provisioners.manual_provisioner import ManualProvisioner
 
 
 def benchmark_provisioner(
@@ -163,7 +163,7 @@ def plot_results(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark CommandLAB provisioners")
+    parser = argparse.ArgumentParser(description="Benchmark commandAGI2 provisioners")
     parser.add_argument("--runs", type=int, default=3, help="Number of benchmark runs")
     parser.add_argument(
         "--no-teardown", action="store_true", help="Skip teardown benchmarking"

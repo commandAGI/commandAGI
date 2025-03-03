@@ -1,5 +1,5 @@
 """
-Utility functions for CommandLAB documentation macros.
+Utility functions for commandAGI2 documentation macros.
 """
 
 import os
@@ -67,14 +67,14 @@ def generate_single_page_api_docs():
     """
     Generate a single-page API documentation by scanning the codebase.
 
-    This function scans the CommandLAB codebase and generates a single Markdown page
+    This function scans the commandAGI2 codebase and generates a single Markdown page
     containing documentation for all modules, organized by package structure.
 
     Returns:
         str: A message indicating the result of the operation
     """
     # Define the base package directory
-    base_dir = Path("commandLAB")
+    base_dir = Path("commandAGI2")
     if not base_dir.exists():
         return f"Error: Package directory {base_dir} not found"
 
@@ -83,8 +83,8 @@ def generate_single_page_api_docs():
     ensure_directory_exists(output_file.parent)
 
     # Initialize content with header
-    content = "# CommandLAB API Reference\n\n"
-    content += "This page contains the complete API reference for CommandLAB.\n\n"
+    content = "# commandAGI2 API Reference\n\n"
+    content += "This page contains the complete API reference for commandAGI2.\n\n"
     content += "## Table of Contents\n\n"
 
     # Track all modules to document

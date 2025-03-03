@@ -1,14 +1,14 @@
-# Running CommandLAB in the Cloud
+# Running commandAGI2 in the Cloud
 
-This guide helps you run CommandLAB daemons in various cloud container services without needing to manage full VMs.
+This guide helps you run commandAGI2 daemons in various cloud container services without needing to manage full VMs.
 
 ## Quick Start
 
 ### AWS ECS (Elastic Container Service)
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.docker_provisioner import DockerPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.docker_provisioner import DockerPlatform
 
 computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.DOCKER,
@@ -20,8 +20,8 @@ computer = DaemonClientComputer(
 ### Azure Container Instances
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.docker_provisioner import DockerPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.docker_provisioner import DockerPlatform
 
 computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.DOCKER,
@@ -34,8 +34,8 @@ computer = DaemonClientComputer(
 ### Google Cloud Run
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.docker_provisioner import DockerPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.docker_provisioner import DockerPlatform
 
 computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.DOCKER,
@@ -50,8 +50,8 @@ computer = DaemonClientComputer(
 ### Amazon EKS
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
 
 computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.KUBERNETES,
@@ -64,8 +64,8 @@ computer = DaemonClientComputer(
 ### Azure AKS
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
 
 computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.KUBERNETES,
@@ -78,8 +78,8 @@ computer = DaemonClientComputer(
 ### Google GKE
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
 
 computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.KUBERNETES,

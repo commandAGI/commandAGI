@@ -1,5 +1,5 @@
 """
-Benchmarks for CommandLAB image utilities.
+Benchmarks for commandAGI2 image utilities.
 
 This module contains benchmarks for measuring the performance of image utility functions.
 """
@@ -14,8 +14,8 @@ from PIL import Image, ImageDraw
 import io
 import base64
 
-from commandLAB.utils.image import b64ToImage, imageToB64, imageToBytes, bytesToImage
-from commandLAB.processors.grid_overlay import overlay_grid
+from commandAGI2.utils.image import b64ToImage, imageToB64, imageToBytes, bytesToImage
+from commandAGI2.processors.grid_overlay import overlay_grid
 
 
 def generate_test_images(sizes: List[Tuple[int, int]]) -> Dict[str, Image.Image]:
@@ -226,7 +226,7 @@ def plot_results(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark CommandLAB image utilities")
+    parser = argparse.ArgumentParser(description="Benchmark commandAGI2 image utilities")
     parser.add_argument(
         "--runs", type=int, default=10, help="Number of benchmark runs per function"
     )

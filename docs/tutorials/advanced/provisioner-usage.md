@@ -1,6 +1,6 @@
-# Using Provisioners in CommandLAB
+# Using Provisioners in commandAGI2
 
-Provisioners in CommandLAB allow you to automatically set up and manage computer environments across different platforms. This guide explains how to use provisioners in your projects.
+Provisioners in commandAGI2 allow you to automatically set up and manage computer environments across different platforms. This guide explains how to use provisioners in your projects.
 
 ## What are Provisioners?
 
@@ -14,15 +14,15 @@ This allows you to work with ephemeral environments that can be created and dest
 
 ## Available Provisioners
 
-CommandLAB includes provisioners for various platforms:
+commandAGI2 includes provisioners for various platforms:
 
 ### Local Docker
 
 Run environments in Docker containers on your local machine:
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.docker_provisioner import DockerPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.docker_provisioner import DockerPlatform
 
 # Create a computer with local Docker provisioning
 computer = DaemonClientComputer(
@@ -42,7 +42,7 @@ computer.close()  # Stops and removes the container
 Run environments in AWS EC2 instances:
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer with AWS provisioning
 computer = DaemonClientComputer(
@@ -65,7 +65,7 @@ computer.close()  # Terminates the EC2 instance
 Run environments in Azure VMs:
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer with Azure provisioning
 computer = DaemonClientComputer(
@@ -89,7 +89,7 @@ computer.close()  # Deletes the Azure VM
 Run environments in GCP VMs:
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer with GCP provisioning
 computer = DaemonClientComputer(
@@ -112,8 +112,8 @@ computer.close()  # Deletes the GCP VM
 Run environments in Kubernetes clusters:
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
 
 # Create a computer with Kubernetes provisioning
 computer = DaemonClientComputer(
@@ -137,8 +137,8 @@ computer.close()  # Deletes the Kubernetes resources
 Run environments in managed container services:
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandLAB.computers.provisioners.docker_provisioner import DockerPlatform
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.provisioners.docker_provisioner import DockerPlatform
 
 # AWS ECS
 computer = DaemonClientComputer(
@@ -180,7 +180,7 @@ computer.close()
 You can configure timeouts and retry behavior:
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.AWS,
@@ -195,7 +195,7 @@ computer = DaemonClientComputer(
 You can check the status of a provisioner:
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 computer = DaemonClientComputer(
     provisioning_method=ProvisioningMethod.DOCKER

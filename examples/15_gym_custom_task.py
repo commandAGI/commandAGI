@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Gym Custom Task Example
+commandAGI2 Gym Custom Task Example
 
-This example demonstrates how to create and use a custom task with the CommandLAB gym framework.
+This example demonstrates how to create and use a custom task with the commandAGI2 gym framework.
 It shows how to define task-specific goals, rewards, and evaluation criteria.
 
 Status: Not tested
@@ -16,16 +16,16 @@ import os
 from typing import Dict, Any, List, Optional
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI2.gym.agents.naive_vision_language_computer_agent import (
         NaiveComputerAgent,
     )
-    from commandLAB.gym.drivers import SimpleDriver
-    from commandLAB.gym.tasks.base import BaseTask
-    from commandLAB.gym.tasks.computer_task import ComputerTaskMixin
-    from commandLAB.gym.schema import Episode
-    from commandLAB.types import (
+    from commandAGI2.gym.drivers import SimpleDriver
+    from commandAGI2.gym.tasks.base import BaseTask
+    from commandAGI2.gym.tasks.computer_task import ComputerTaskMixin
+    from commandAGI2.gym.schema import Episode
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -36,9 +36,9 @@ try:
     )
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
     )
-    print("pip install commandlab[local,gym]")
+    print("pip install commandagi2[local,gym]")
     exit(1)
 
 
@@ -194,10 +194,10 @@ class CalculatorEnv(ComputerEnv):
 
 
 def main():
-    print("CommandLAB Gym Custom Task Example")
+    print("commandAGI2 Gym Custom Task Example")
     print("==================================")
     print("This example demonstrates how to create and use a custom task")
-    print("with the CommandLAB gym framework.")
+    print("with the commandAGI2 gym framework.")
     print()
 
     # Define the calculation task

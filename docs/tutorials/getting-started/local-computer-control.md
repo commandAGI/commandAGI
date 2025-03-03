@@ -1,10 +1,10 @@
 # Local Computer Control
 
-This guide explains how to use CommandLAB to control your local computer, including mouse and keyboard automation, taking screenshots, and executing system commands.
+This guide explains how to use commandAGI2 to control your local computer, including mouse and keyboard automation, taking screenshots, and executing system commands.
 
 ## Introduction
 
-CommandLAB provides several implementations for controlling your local computer:
+commandAGI2 provides several implementations for controlling your local computer:
 
 - `LocalPynputComputer`: Uses the pynput library for precise control
 - `LocalPyAutoGUIComputer`: Uses the PyAutoGUI library for cross-platform compatibility
@@ -18,10 +18,10 @@ These implementations allow you to:
 
 ## Installation
 
-To use local computer control, install CommandLAB with the local extra:
+To use local computer control, install commandAGI2 with the local extra:
 
 ```bash
-pip install "commandlab[local]"
+pip install "commandagi2[local]"
 ```
 
 This will install the necessary dependencies, including pynput, PyAutoGUI, and mss.
@@ -47,7 +47,7 @@ This will install the necessary dependencies, including pynput, PyAutoGUI, and m
 ### Creating a Computer Instance
 
 ```python
-from commandLAB.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
 
 # Create a computer instance
 computer = LocalPynputComputer()
@@ -70,7 +70,7 @@ screenshot = computer.get_screenshot()
 print(f"Screenshot size: {len(screenshot.screenshot)} bytes")
 
 # You can convert it to a PIL Image
-from commandLAB.utils.image import b64ToImage
+from commandAGI2.utils.image import b64ToImage
 image = b64ToImage(screenshot.screenshot)
 print(f"Image dimensions: {image.size}")
 
@@ -81,7 +81,7 @@ image.save("screenshot.png")
 ### Mouse Control
 
 ```python
-from commandLAB.types import (
+from commandAGI2.types import (
     ClickAction,
     DoubleClickAction,
     DragAction,
@@ -143,7 +143,7 @@ computer.execute_mouse_button_up(MouseButtonUpAction(
 ### Keyboard Control
 
 ```python
-from commandLAB.types import (
+from commandAGI2.types import (
     TypeAction,
     KeyboardHotkeyAction,
     KeyboardKeyPressAction,
@@ -154,7 +154,7 @@ from commandLAB.types import (
 
 # Type text
 computer.execute_type(TypeAction(
-    text="Hello, CommandLAB!"
+    text="Hello, commandAGI2!"
 ))
 
 # Press a key
@@ -180,11 +180,11 @@ computer.execute_keyboard_key_release(KeyboardKeyReleaseAction(
 ### Executing System Commands
 
 ```python
-from commandLAB.types import CommandAction
+from commandAGI2.types import CommandAction
 
 # Execute a system command
 result = computer.execute_command(CommandAction(
-    command="echo Hello, CommandLAB!",
+    command="echo Hello, commandAGI2!",
     timeout=5  # Timeout in seconds (None for no timeout)
 ))
 
@@ -212,14 +212,14 @@ print(f"Shift key pressed: {keyboard_state.keys.get(KeyboardKey.SHIFT, False)}")
 ### Using PyAutoGUI Instead of Pynput
 
 ```python
-from commandLAB.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
+from commandAGI2.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 
 # Create a PyAutoGUI computer instance
 computer = LocalPyAutoGUIComputer()
 
 # Use the same API as with pynput
 computer.execute_click(ClickAction(x=100, y=100))
-computer.execute_type(TypeAction(text="Hello, CommandLAB!"))
+computer.execute_type(TypeAction(text="Hello, commandAGI2!"))
 ```
 
 ### Handling Errors
@@ -236,7 +236,7 @@ except Exception as e:
 ### Opening an Application
 
 ```python
-from commandLAB.types import CommandAction
+from commandAGI2.types import CommandAction
 
 # Windows
 computer.execute_command(CommandAction(command="start notepad"))
@@ -253,7 +253,7 @@ computer.execute_command(CommandAction(command="gedit"))
 ```python
 import time
 from datetime import datetime
-from commandLAB.utils.image import b64ToImage
+from commandAGI2.utils.image import b64ToImage
 
 # Take a screenshot
 screenshot = computer.get_screenshot()
@@ -270,7 +270,7 @@ image.save(f"screenshot_{timestamp}.png")
 
 ```python
 import time
-from commandLAB.types import (
+from commandAGI2.types import (
     CommandAction,
     TypeAction,
     KeyboardKeyPressAction,
@@ -287,7 +287,7 @@ computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER
 time.sleep(2)  # Wait for the page to load
 
 # Search for something
-computer.execute_type(TypeAction(text="CommandLAB python automation"))
+computer.execute_type(TypeAction(text="commandAGI2 python automation"))
 computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 ```
 
@@ -295,7 +295,7 @@ computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER
 
 ```python
 import time
-from commandLAB.types import (
+from commandAGI2.types import (
     CommandAction,
     TypeAction,
     KeyboardHotkeyAction,
@@ -308,14 +308,14 @@ computer.execute_command(CommandAction(command="start notepad"))
 time.sleep(1)  # Wait for Notepad to open
 
 # Type some text
-computer.execute_type(TypeAction(text="Hello, CommandLAB!\n\nThis is an automated test."))
+computer.execute_type(TypeAction(text="Hello, commandAGI2!\n\nThis is an automated test."))
 
 # Save the file
 computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S]))
 time.sleep(1)  # Wait for the save dialog
 
 # Type the filename
-computer.execute_type(TypeAction(text="commandlab_test.txt"))
+computer.execute_type(TypeAction(text="commandAGI2_test.txt"))
 computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 ```
 

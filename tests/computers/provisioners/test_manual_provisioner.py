@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import socket
 
-from commandLAB.computers.provisioners.manual_provisioner import ManualProvisioner
+from commandAGI2.computers.provisioners.manual_provisioner import ManualProvisioner
 
 
 class TestManualProvisioner(unittest.TestCase):

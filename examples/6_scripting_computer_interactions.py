@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-CommandLAB Scripting Computer Interactions Example
+commandAGI2 Scripting Computer Interactions Example
 
 This example demonstrates how to use the manual provisioner to script computer interactions.
-The manual provisioner is the simplest way to get started with CommandLAB.
+The manual provisioner is the simplest way to get started with commandAGI2.
 
 Status: ⚠️ Requires manual setup
 - Needs the daemon to be running in a separate terminal
@@ -13,11 +13,11 @@ import time
 import os
 
 try:
-    from commandLAB.computers.daemon_client_computer import (
+    from commandAGI2.computers.daemon_client_computer import (
         DaemonClientComputer,
         ProvisioningMethod,
     )
-    from commandLAB.types import (
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -27,8 +27,8 @@ try:
         MouseButton,
     )
 except ImportError:
-    print("Error: Required modules not found. Make sure CommandLAB is installed:")
-    print("pip install commandlab")
+    print("Error: Required modules not found. Make sure commandAGI2 is installed:")
+    print("pip install commandagi2")
     exit(1)
 
 
@@ -42,8 +42,8 @@ def main():
         print("\nManual provisioning instructions:")
         print("1. Open a new terminal window")
         print("2. Run the following command to start the daemon:")
-        print("   pip install commandlab[local,daemon]")
-        print("   python -m commandlab.daemon.daemon --port 8000 --backend pynput")
+        print("   pip install commandagi2[local,daemon]")
+        print("   python -m commandagi2.daemon.daemon --port 8000 --backend pynput")
         print("3. Once the daemon is running, press Enter to continue...")
         input()
 
@@ -77,7 +77,7 @@ def main():
         print("Typing text...")
         computer.execute_type(
             TypeAction(
-                text="Hello from CommandLAB!\n\nThis is an example of scripting computer interactions."
+                text="Hello from commandAGI2!\n\nThis is an example of scripting computer interactions."
             )
         )
         time.sleep(1)
@@ -91,7 +91,7 @@ def main():
 
         # Type a filename
         print("Typing filename...")
-        computer.execute_type(TypeAction(text="commandlab_example.txt"))
+        computer.execute_type(TypeAction(text="commandAGI2_example.txt"))
         time.sleep(1)
 
         # Press Enter to save
@@ -108,7 +108,7 @@ def main():
         )
 
         print("\nExample completed successfully!")
-        print("A file named 'commandlab_example.txt' should have been created.")
+        print("A file named 'commandAGI2_example.txt' should have been created.")
 
     except Exception as e:
         print(f"Error: {e}")

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Concepts Example
+commandAGI2 Concepts Example
 
-This example demonstrates basic concepts of CommandLAB, including:
+This example demonstrates basic concepts of commandAGI2, including:
 - Creating a computer instance
 - Taking a screenshot
 - Saving the screenshot to a file
@@ -18,12 +18,12 @@ import io
 
 # Import the local computer implementation
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
 except ImportError:
     print(
-        "Error: LocalPynputComputer not found. Make sure CommandLAB is installed with the local extra:"
+        "Error: LocalPynputComputer not found. Make sure commandAGI2 is installed with the local extra:"
     )
-    print("pip install commandlab[local]")
+    print("pip install commandagi2[local]")
     exit(1)
 
 

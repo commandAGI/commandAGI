@@ -35,7 +35,7 @@ def start_daemon_with_custom_vnc_executables():
     cmd = [
         sys.executable,
         "-m",
-        "commandLAB.daemon.cli",
+        "commandAGI2.daemon.cli",
         "start",
         "--port",
         "8001",
@@ -88,7 +88,7 @@ def start_daemon_with_custom_vnc_commands():
     cmd = [
         sys.executable,
         "-m",
-        "commandLAB.daemon.cli",
+        "commandAGI2.daemon.cli",
         "start",
         "--port",
         "8002",
@@ -123,7 +123,7 @@ def start_daemon_with_custom_rdp_config():
     cmd = [
         sys.executable,
         "-m",
-        "commandLAB.daemon.cli",
+        "commandAGI2.daemon.cli",
         "start",
         "--port",
         "8003",
@@ -171,7 +171,7 @@ def start_daemon_with_all_custom_configs():
     cmd = [
         sys.executable,
         "-m",
-        "commandLAB.daemon.cli",
+        "commandAGI2.daemon.cli",
         "start",
         "--port",
         "8004",
@@ -208,8 +208,8 @@ def use_computer_daemon_class_directly():
     """
     print("\nUsing ComputerDaemon class directly...")
 
-    from commandLAB.daemon.server import ComputerDaemon
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.daemon.server import ComputerDaemon
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
     import threading
 
     # Custom VNC configurations

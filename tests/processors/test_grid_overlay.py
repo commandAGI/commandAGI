@@ -1,7 +1,7 @@
 import unittest
 from PIL import Image, ImageDraw
 
-from commandLAB.processors.grid_overlay import overlay_grid
+from commandAGI2.processors.grid_overlay import overlay_grid
 
 
 class TestGridOverlay(unittest.TestCase):

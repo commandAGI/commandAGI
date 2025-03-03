@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run all CommandLAB benchmarks.
+Run all commandAGI2 benchmarks.
 
 This script runs all the benchmark modules and generates a summary report.
 """
@@ -43,7 +43,7 @@ def run_benchmark(benchmark_module: str, args: list = None) -> bool:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run CommandLAB benchmarks")
+    parser = argparse.ArgumentParser(description="Run commandAGI2 benchmarks")
     parser.add_argument("--runs", type=int, default=3, help="Number of benchmark runs")
     parser.add_argument("--plot", action="store_true", help="Generate plots")
     parser.add_argument(
@@ -100,7 +100,7 @@ def main():
     # Generate summary report
     report_path = os.path.join(args.output, "benchmark_summary.txt")
     with open(report_path, "w") as f:
-        f.write(f"CommandLAB Benchmark Summary\n")
+        f.write(f"commandAGI2 Benchmark Summary\n")
         f.write(f"===========================\n\n")
         f.write(f"Date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write(f"Total time: {total_time:.2f}s\n\n")

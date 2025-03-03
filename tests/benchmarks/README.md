@@ -1,6 +1,6 @@
-# CommandLAB Benchmarks
+# commandAGI2 Benchmarks
 
-This directory contains benchmarks for measuring the performance of various CommandLAB components.
+This directory contains benchmarks for measuring the performance of various commandAGI2 components.
 
 ## Available Benchmarks
 

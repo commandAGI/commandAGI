@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Installing commandlab dependencies..."
+echo "Installing commandagi2 dependencies..."
 
 # install uv
 pip install uv
@@ -15,7 +15,7 @@ source .venv/bin/activate
 uv pip install -e ".[all]"
 
 # Verify installation
-python3 -c "import commandLAB" || echo "Failed to install commandlab package"
+python3 -c "import commandAGI2" || echo "Failed to install commandagi2 package"
 
 # Configure VNC by setting a password
 mkdir -p /root/.vnc

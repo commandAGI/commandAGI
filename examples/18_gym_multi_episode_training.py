@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Gym Multi-Episode Training Example
+commandAGI2 Gym Multi-Episode Training Example
 
-This example demonstrates how to train an agent over multiple episodes using the CommandLAB gym framework.
+This example demonstrates how to train an agent over multiple episodes using the commandAGI2 gym framework.
 It shows how to collect episodes, evaluate performance, and track training progress.
 
 Status: not tested
@@ -23,15 +23,15 @@ except ImportError:
     print("pip install matplotlib numpy")
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI2.gym.agents.naive_vision_language_computer_agent import (
         NaiveComputerAgent,
     )
-    from commandLAB.gym.drivers import SimpleDriver
-    from commandLAB.gym.trainer import OnlineTrainer
-    from commandLAB.gym.schema import Episode, Step
-    from commandLAB.types import (
+    from commandAGI2.gym.drivers import SimpleDriver
+    from commandAGI2.gym.trainer import OnlineTrainer
+    from commandAGI2.gym.schema import Episode, Step
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -43,9 +43,9 @@ except ImportError as e:
     print("Traceback:")
     traceback.print_exc()
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
     )
-    print("pip install commandlab[local,gym]")
+    print("pip install commandagi2[local,gym]")
     exit(1)
 
 
@@ -212,10 +212,10 @@ class TrackingAgent(NaiveComputerAgent):
 
 
 def main():
-    print("CommandLAB Gym Multi-Episode Training Example")
+    print("commandAGI2 Gym Multi-Episode Training Example")
     print("============================================")
     print("This example demonstrates how to train an agent over multiple episodes")
-    print("using the CommandLAB gym framework.")
+    print("using the commandAGI2 gym framework.")
     print()
 
     try:

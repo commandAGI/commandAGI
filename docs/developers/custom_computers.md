@@ -1,10 +1,10 @@
 # Creating Custom Computers
 
-This guide explains how to create custom computer implementations in CommandLAB. Custom computers allow you to extend CommandLAB to control new types of systems or to integrate with existing automation frameworks.
+This guide explains how to create custom computer implementations in commandAGI2. Custom computers allow you to extend commandAGI2 to control new types of systems or to integrate with existing automation frameworks.
 
 ## Introduction
 
-The `BaseComputer` class in CommandLAB defines a standard interface for controlling computers. By implementing this interface, you can create custom computer implementations that work with the rest of the CommandLAB ecosystem.
+The `BaseComputer` class in commandAGI2 defines a standard interface for controlling computers. By implementing this interface, you can create custom computer implementations that work with the rest of the commandAGI2 ecosystem.
 
 Some reasons to create a custom computer implementation:
 
@@ -66,8 +66,8 @@ The base class also provides default implementations for composite actions like 
 Start by creating a new class that inherits from `BaseComputer`:
 
 ```python
-from commandLAB.computers.base_computer import BaseComputer
-from commandLAB.types import (
+from commandAGI2.computers.base_computer import BaseComputer
+from commandAGI2.types import (
     ScreenshotObservation,
     MouseStateObservation,
     KeyboardStateObservation,
@@ -212,8 +212,8 @@ from selenium.webdriver.common.keys import Keys
 import base64
 import time
 
-from commandLAB.computers.base_computer import BaseComputer
-from commandLAB.types import (
+from commandAGI2.computers.base_computer import BaseComputer
+from commandAGI2.types import (
     ScreenshotObservation,
     MouseStateObservation,
     KeyboardStateObservation,
@@ -346,7 +346,7 @@ class WebDriverComputer(BaseComputer):
             return False
     
     def _convert_to_selenium_key(self, key: KeyboardKey):
-        """Convert CommandLAB key to Selenium key"""
+        """Convert commandAGI2 key to Selenium key"""
         key_mapping = {
             KeyboardKey.ENTER: Keys.ENTER,
             KeyboardKey.TAB: Keys.TAB,
@@ -434,7 +434,7 @@ class MyCustomComputer(BaseComputer):
     A custom computer implementation that controls XYZ system.
     
     This implementation uses the ABC library to interact with XYZ hardware.
-    It supports all standard CommandLAB actions and adds custom methods
+    It supports all standard commandAGI2 actions and adds custom methods
     for XYZ-specific functionality.
     
     Args:
@@ -470,23 +470,23 @@ def test_my_custom_computer():
         computer.close()
 ```
 
-## Integration with CommandLAB
+## Integration with commandAGI2
 
-Once you've created your custom computer implementation, you can use it with the rest of the CommandLAB ecosystem:
+Once you've created your custom computer implementation, you can use it with the rest of the commandAGI2 ecosystem:
 
 ```python
 from my_module import MyCustomComputer
-from commandLAB.types import ClickAction, TypeAction
+from commandAGI2.types import ClickAction, TypeAction
 
 # Create an instance of your custom computer
 computer = MyCustomComputer(custom_param="value")
 
 # Use it like any other computer
 computer.execute_click(ClickAction(x=100, y=100))
-computer.execute_type(TypeAction(text="Hello, CommandLAB!"))
+computer.execute_type(TypeAction(text="Hello, commandAGI2!"))
 
 # Use it with the gym framework
-from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
 
 # Create an environment with your custom computer
 env = ComputerEnv(ComputerEnvConfig(
@@ -540,4 +540,4 @@ def execute_command(self, action: CommandAction) -> bool:
 
 - Learn about [Creating Custom Provisioners](custom_provisioners.md)
 - Explore [Creating Custom Agents](custom_agents.md)
-- Contribute your implementation to the CommandLAB project
+- Contribute your implementation to the commandAGI2 project

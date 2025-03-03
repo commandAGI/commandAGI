@@ -5,7 +5,7 @@
 # import subprocess
 # from pathlib import Path
 
-# from commandLAB.computers.provisioners.virtualbox_provisioner import VirtualBoxProvisioner
+# from commandAGI2.computers.provisioners.virtualbox_provisioner import VirtualBoxProvisioner
 
 
 # class TestVirtualBoxProvisioner(unittest.TestCase):

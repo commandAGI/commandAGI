@@ -7,7 +7,7 @@
 # # Add the mocks directory to the path
 # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../mocks')))
 
-# from commandLAB.computers.provisioners.gcp_provisioner import GCPProvisioner
+# from commandAGI2.computers.provisioners.gcp_provisioner import GCPProvisioner
 
 
 # class TestGCPProvisioner(unittest.TestCase):
@@ -33,7 +33,7 @@
 #         self.assertEqual(self.provisioner.project, "test-project")
 #         self.assertEqual(self.provisioner.zone, "us-central1-a")
 #         self.assertEqual(self.provisioner.machine_type, "n1-standard-1")
-#         self.assertEqual(self.provisioner.instance_name, "commandlab-daemon")
+#         self.assertEqual(self.provisioner.instance_name, "commandagi2-daemon")
 #         self.assertEqual(self.provisioner.source_image, "projects/test-project/global/images/test-image")
 #         self.assertEqual(self.provisioner.max_retries, 2)
 #         self.assertEqual(self.provisioner.timeout, 10)
@@ -65,7 +65,7 @@
 
 #         # Check that the instance configuration is correct
 #         instance = kwargs['instance_resource']
-#         self.assertEqual(instance.name, "commandlab-daemon")
+#         self.assertEqual(instance.name, "commandagi2-daemon")
 #         self.assertEqual(instance.machine_type, f"zones/us-central1-a/machineTypes/n1-standard-1")
 
 #         # Check that is_running was called

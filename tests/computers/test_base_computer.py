@@ -2,8 +2,8 @@ import unittest
 from unittest.mock import MagicMock, patch
 import time
 
-from commandLAB.computers.base_computer import BaseComputer
-from commandLAB.types import (
+from commandAGI2.computers.base_computer import BaseComputer
+from commandAGI2.types import (
     ClickAction,
     ShellCommandAction,
     DoubleClickAction,

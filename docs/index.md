@@ -1,8 +1,8 @@
-# Welcome to CommandLAB
+# Welcome to commandAGI2
 
-CommandLAB is a powerful framework for automating and controlling computers across different environments. It provides a unified interface for interacting with local and remote computers, making it easy to build automation tools, test applications, and train AI agents.
+commandAGI2 is a powerful framework for automating and controlling computers across different environments. It provides a unified interface for interacting with local and remote computers, making it easy to build automation tools, test applications, and train AI agents.
 
-![CommandLAB Overview](assets/images/commandlab_overview.png)
+![commandAGI2 Overview](assets/images/commandAGI2_overview.png)
 
 ## Key Features
 
@@ -17,34 +17,34 @@ CommandLAB is a powerful framework for automating and controlling computers acro
 ## Installation
 
 ```bash
-pip install commandlab
+pip install commandagi2
 ```
 
 ### Optional Components
 
-CommandLAB uses a modular design with optional components that can be installed based on your needs:
+commandAGI2 uses a modular design with optional components that can be installed based on your needs:
 
 | Component | Description | Installation |
 |-----------|-------------|--------------|
-| Local control | Control your local computer | `pip install "commandlab[local]"` |
-| VNC support | Control computers via VNC | `pip install "commandlab[vnc]"` |
-| Docker support | Run in Docker containers | `pip install "commandlab[docker]"` |
-| Kubernetes support | Deploy in Kubernetes | `pip install "commandlab[kubernetes]"` |
-| Cloud providers | AWS, Azure, GCP integration | `pip install "commandlab[cloud]"` |
-| Daemon | Remote control server | `pip install "commandlab[daemon]"` |
-| E2B Desktop | [E2B Desktop](https://e2b.dev/) integration | `pip install "commandlab[e2b-desktop]"` |
-| Scrapybara | [Scrapybara](https://scrapybara.com/) integration | `pip install "commandlab[scrapybara]"` |
-| LangChain | [LangChain](https://www.langchain.com/) integration | `pip install "commandlab[langchain]"` |
-| PIG | [PIG](https://www.pig.dev/) integration | `pip install "commandlab[pig]"` |
-| OCR | [Pytesseract](https://github.com/madmaze/pytesseract) OCR | `pip install "commandlab[pytesseract]"` |
-| Development | Tools for contributing | `pip install "commandlab[dev]"` |
-| All features | Everything included | `pip install "commandlab[all]"` |
+| Local control | Control your local computer | `pip install "commandagi2[local]"` |
+| VNC support | Control computers via VNC | `pip install "commandagi2[vnc]"` |
+| Docker support | Run in Docker containers | `pip install "commandagi2[docker]"` |
+| Kubernetes support | Deploy in Kubernetes | `pip install "commandagi2[kubernetes]"` |
+| Cloud providers | AWS, Azure, GCP integration | `pip install "commandagi2[cloud]"` |
+| Daemon | Remote control server | `pip install "commandagi2[daemon]"` |
+| E2B Desktop | [E2B Desktop](https://e2b.dev/) integration | `pip install "commandagi2[e2b-desktop]"` |
+| Scrapybara | [Scrapybara](https://scrapybara.com/) integration | `pip install "commandagi2[scrapybara]"` |
+| LangChain | [LangChain](https://www.langchain.com/) integration | `pip install "commandagi2[langchain]"` |
+| PIG | [PIG](https://www.pig.dev/) integration | `pip install "commandagi2[pig]"` |
+| OCR | [Pytesseract](https://github.com/madmaze/pytesseract) OCR | `pip install "commandagi2[pytesseract]"` |
+| Development | Tools for contributing | `pip install "commandagi2[dev]"` |
+| All features | Everything included | `pip install "commandagi2[all]"` |
 
 ## Quick Example
 
 ```python
-from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-from commandLAB.types import ClickAction, TypeAction
+from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI2.types import ClickAction, TypeAction
 
 # Create a computer instance
 computer = LocalPynputComputer()
@@ -56,13 +56,13 @@ screenshot = computer.get_screenshot()
 computer.execute_click(ClickAction(x=100, y=100))
 
 # Type text
-computer.execute_type(TypeAction(text="Hello, CommandLAB!"))
+computer.execute_type(TypeAction(text="Hello, commandAGI2!"))
 ```
 
 ## Remote Control Example
 
 ```python
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer with Docker provisioning
 computer = DaemonClientComputer(
@@ -92,9 +92,9 @@ computer.close()
   - [Advanced](tutorials/index.md#advanced) - Advanced topics
   - [Examples](tutorials/index.md#examples) - Real-world examples
 - [API Reference](api/index.md) - Detailed API documentation
-- [Developer Guide](developers/index.md) - Contributing to CommandLAB
+- [Developer Guide](developers/index.md) - Contributing to commandAGI2
 
-## Who is CommandLAB for?
+## Who is commandAGI2 for?
 
 - **Automation Engineers**: Create robust automation scripts that work across different environments
 - **AI Researchers**: Train and evaluate computer-using agents with a standardized interface
@@ -104,10 +104,10 @@ computer.close()
 
 ## Community and Support
 
-- [GitHub Repository](https://github.com/your-org/commandlab) - Source code and issue tracking
-- [Documentation](https://your-org.github.io/commandlab) - Online documentation
+- [GitHub Repository](https://github.com/your-org/commandagi2) - Source code and issue tracking
+- [Documentation](https://your-org.github.io/commandagi2) - Online documentation
 - [Discord Community](https://discord.gg/your-discord) - Community support and discussions
 
 ## License
 
-CommandLAB is released under the MIT License. See the [LICENSE](https://github.com/your-org/commandlab/blob/main/LICENSE) file for details.
+commandAGI2 is released under the MIT License. See the [LICENSE](https://github.com/your-org/commandagi2/blob/main/LICENSE) file for details.

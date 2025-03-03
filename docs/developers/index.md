@@ -1,19 +1,19 @@
 # Developer Guide
 
-Welcome to the CommandLAB developer guide! This section provides detailed information for developers who want to contribute to CommandLAB or extend it for their own projects.
+Welcome to the commandAGI2 developer guide! This section provides detailed information for developers who want to contribute to commandAGI2 or extend it for their own projects.
 
 ## Getting Started
 
 - [Development Environment Setup](environment_setup.md) - Setting up your development environment
-- [Project Structure](project_structure.md) - Understanding the CommandLAB project structure
+- [Project Structure](project_structure.md) - Understanding the commandAGI2 project structure
 - [Coding Standards](coding_standards.md) - Coding standards and style guidelines
-- [Contributing Guidelines](contributing.md) - How to contribute to CommandLAB
+- [Contributing Guidelines](contributing.md) - How to contribute to commandAGI2
 
 ## Architecture
 
-- [Architecture Overview](architecture_overview.md) - High-level overview of the CommandLAB architecture
+- [Architecture Overview](architecture_overview.md) - High-level overview of the commandAGI2 architecture
 - [Core Components](core_components.md) - Detailed explanation of core components
-- [Design Patterns](design_patterns.md) - Design patterns used in CommandLAB
+- [Design Patterns](design_patterns.md) - Design patterns used in commandAGI2
 - [Type System](type_system.md) - Detailed explanation of the type system
 
 ## Component Documentation
@@ -46,7 +46,7 @@ Welcome to the CommandLAB developer guide! This section provides detailed inform
 
 ## Advanced Topics
 
-- [Performance Optimization](performance_optimization.md) - Optimizing CommandLAB performance
+- [Performance Optimization](performance_optimization.md) - Optimizing commandAGI2 performance
 - [Security Considerations](security_considerations.md) - Security considerations for developers
 - [Cross-Platform Development](cross_platform_development.md) - Developing for multiple platforms
 - [Cloud Integration](cloud_integration.md) - Integrating with cloud providers
@@ -76,16 +76,16 @@ Welcome to the CommandLAB developer guide! This section provides detailed inform
 
 ## Related Tutorials
 
-For step-by-step guides on extending CommandLAB, see these tutorials:
+For step-by-step guides on extending commandAGI2, see these tutorials:
 
 - [Custom Computers](../tutorials/advanced/custom-computers.md) - Implementing custom computer backends
 - [Custom Provisioners](../tutorials/advanced/custom-provisioners.md) - Creating custom provisioning solutions
 - [Custom Agents](../tutorials/advanced/custom-agents.md) - Creating your own AI agents
-- [CI/CD Integration](../tutorials/advanced/ci-cd-integration.md) - Integrating CommandLAB into CI/CD pipelines
+- [CI/CD Integration](../tutorials/advanced/ci-cd-integration.md) - Integrating commandAGI2 into CI/CD pipelines
 
 ## Community
 
-- [Community Guidelines](community_guidelines.md) - Guidelines for the CommandLAB community
+- [Community Guidelines](community_guidelines.md) - Guidelines for the commandAGI2 community
 - [Code of Conduct](code_of_conduct.md) - Code of conduct for contributors
 - [Governance](governance.md) - Project governance
 - [Roadmap](roadmap.md) - Project roadmap

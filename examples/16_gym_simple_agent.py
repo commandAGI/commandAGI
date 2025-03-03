@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Gym Simple Agent Example
+commandAGI2 Gym Simple Agent Example
 
-This example demonstrates how to use the CommandLAB gym framework with the built-in agents.
+This example demonstrates how to use the commandAGI2 gym framework with the built-in agents.
 It shows how to create a simple environment and agent, and collect an episode.
 
 Status: not tested
@@ -13,13 +13,13 @@ import os
 import traceback
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI2.gym.agents.naive_vision_language_computer_agent import (
         NaiveComputerAgent,
     )
-    from commandLAB.gym.drivers import SimpleDriver
-    from commandLAB.types import (
+    from commandAGI2.gym.drivers import SimpleDriver
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -30,17 +30,17 @@ except ImportError as e:
     print("Traceback:")
     traceback.print_exc()
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
     )
-    print("pip install commandlab[local,gym]")
+    print("pip install commandagi2[local,gym]")
     exit(1)
 
 
 def main():
-    print("CommandLAB Gym Simple Agent Example")
+    print("commandAGI2 Gym Simple Agent Example")
     print("===================================")
     print(
-        "This example demonstrates how to use the CommandLAB gym framework with the built-in agents."
+        "This example demonstrates how to use the commandAGI2 gym framework with the built-in agents."
     )
     print("It will create a simple environment and agent, and collect an episode.")
     print()

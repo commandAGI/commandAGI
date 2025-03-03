@@ -1,6 +1,6 @@
 import unittest
 
-from commandLAB.types import (
+from commandAGI2.types import (
     ComputerObservationType,
     ScreenshotObservation,
     MouseStateObservation,

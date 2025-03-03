@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CommandLAB Simple Gym Test
+commandAGI2 Simple Gym Test
 
 This is a simplified version of the gym example that uses the proper implementation classes.
 
@@ -15,13 +15,13 @@ import os
 import traceback
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI2.gym.agents.naive_vision_language_computer_agent import (
         NaiveComputerAgent,
     )
-    from commandLAB.gym.drivers import SimpleDriver
-    from commandLAB.types import (
+    from commandAGI2.gym.drivers import SimpleDriver
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -30,15 +30,15 @@ try:
         ComputerObservation,
         MouseMoveAction,
     )
-    from commandLAB.gym.schema import Episode
+    from commandAGI2.gym.schema import Episode
 except ImportError as e:
     print(f"Detailed import error: {e}")
     print("Traceback:")
     traceback.print_exc()
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
     )
-    print("pip install commandlab[local,gym]")
+    print("pip install commandagi2[local,gym]")
     exit(1)
 
 
@@ -68,7 +68,7 @@ class SimpleMockAgent(NaiveComputerAgent):
 
 
 def main():
-    print("CommandLAB Simple Gym Test")
+    print("commandAGI2 Simple Gym Test")
     print("==========================")
     print("This is a simplified version of the gym example.")
     print()
@@ -84,7 +84,7 @@ def main():
         env = ComputerEnv(config, computer=computer)
 
         # Enable logging of modality errors for debugging
-        from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+        from commandAGI2.gym.environments.multimodal_env import MultiModalEnv
 
         MultiModalEnv._LOG_MODALITY_ERRORS = True
 

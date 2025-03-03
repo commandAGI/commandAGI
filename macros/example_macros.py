@@ -1,5 +1,5 @@
 """
-Macros for handling example code in CommandLAB documentation.
+Macros for handling example code in commandAGI2 documentation.
 """
 
 import os

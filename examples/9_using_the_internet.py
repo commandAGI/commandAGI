@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Web Automation Example
+commandAGI2 Web Automation Example
 
-This example demonstrates how to use CommandLAB for web automation tasks,
+This example demonstrates how to use commandAGI2 for web automation tasks,
 such as opening a browser, navigating to a website, and interacting with web elements.
 
 Status: ⚠️ Works with minor issues
@@ -14,8 +14,8 @@ import time
 import os
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.types import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.types import (
         ShellCommandAction,
         ClickAction,
         TypeAction,
@@ -25,9 +25,9 @@ try:
     )
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the local extra:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the local extra:"
     )
-    print("pip install commandlab[local]")
+    print("pip install commandagi2[local]")
     exit(1)
 
 

@@ -1,6 +1,6 @@
 # Advanced Automation
 
-This guide explains advanced automation techniques with commandLAB.
+This guide explains advanced automation techniques with commandAGI2.
 
 ## Overview
 

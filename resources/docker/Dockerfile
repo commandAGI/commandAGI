@@ -3,7 +3,7 @@ FROM ubuntu:20.04
 ARG VERSION=latest
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DISPLAY=:0
-ENV COMMANDLAB_VERSION=$VERSION
+ENV commandAGI2_VERSION=$VERSION
 ENV DAEMON_PORT=8000
 ENV DAEMON_TOKEN=""
 
@@ -40,24 +40,24 @@ RUN python3 -m pip install --upgrade six
 RUN python3 -m pip install --upgrade urllib3
 
 # Copy the local codebase
-COPY . /commandlab
-WORKDIR /commandlab
+COPY . /commandagi2
+WORKDIR /commandagi2
 
 # Install dependencies using pip
 RUN apt-get update
 RUN apt-get install -y libssl-dev openssl
 
 # Execute setup script (using the already copied script)
-RUN chmod +x /commandlab/resources/docker/setup.sh
-RUN /commandlab/resources/docker/setup.sh
+RUN chmod +x /commandagi2/resources/docker/setup.sh
+RUN /commandagi2/resources/docker/setup.sh
 
 # Make startup script executable (using the already copied script)
-RUN chmod +x /commandlab/resources/docker/start.sh
+RUN chmod +x /commandagi2/resources/docker/start.sh
 
 # Expose both VNC and daemon ports
 EXPOSE 5900 8000
 
 # Start services
-# leading /commandlab is fine bec this is an abs path
-# but we are already in the commandlab directory so just ./resources/docker/start.sh would be fine also
-CMD ["/commandlab/resources/docker/start.sh"]
+# leading /commandagi2 is fine bec this is an abs path
+# but we are already in the commandagi2 directory so just ./resources/docker/start.sh would be fine also
+CMD ["/commandagi2/resources/docker/start.sh"]

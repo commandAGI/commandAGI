@@ -1,6 +1,6 @@
 ______________________________________________________________________
 
-## name: Feature Request about: Suggest a feature for CommandLab title: '[FEATURE] ' labels: enhancement assignees: ''
+## name: Feature Request about: Suggest a feature for commandAGI2 title: '[FEATURE] ' labels: enhancement assignees: ''
 
 **Description**
 Clear description of the feature.

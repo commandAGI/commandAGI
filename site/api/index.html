@@ -20,7 +20,7 @@
     
     
       
-        <title>Complete API Reference - commandLAB</title>
+        <title>Complete API Reference - commandAGI2</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#commandlab-api-reference" class="md-skip">
+        <a href="#commandagi2-api-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="commandLAB" class="md-header__button md-logo" aria-label="commandLAB" data-md-component="logo">
+    <a href=".." title="commandAGI2" class="md-header__button md-logo" aria-label="commandAGI2" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            commandLAB
+            commandAGI2
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -211,13 +211,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="commandLAB" class="md-nav__button md-logo" aria-label="commandLAB" data-md-component="logo">
+    <a href=".." title="commandAGI2" class="md-nav__button md-logo" aria-label="commandAGI2" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    commandLAB
+    commandAGI2
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1327,71 +1327,71 @@
 
 
 
-<h1 id="commandlab-api-reference">CommandLAB API Reference</h1>
-<p>This page contains the complete API reference for CommandLAB.</p>
+<h1 id="commandagi2-api-reference">commandAGI2 API Reference</h1>
+<p>This page contains the complete API reference for commandAGI2.</p>
 <h2 id="table-of-contents">Table of Contents</h2>
 <ul>
-<li><a href="#commandlab-cli">Cli</a><ul>
-<li><a href="#commandlab-computers-base_computer">Base Computer</a></li>
-<li><a href="#commandlab-computers-daemon_client_computer">Daemon Client Computer</a></li>
-<li><a href="#commandlab-computers-e2b_desktop_computer">E2B Desktop Computer</a></li>
-<li><a href="#commandlab-computers-local_pyautogui_computer">Local Pyautogui Computer</a></li>
-<li><a href="#commandlab-computers-local_pynput_computer">Local Pynput Computer</a></li>
-<li><a href="#commandlab-computers-provisioners-aws_provisioner">Aws Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-azure_provisioner">Azure Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-base_provisioner">Base Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-docker_provisioner">Docker Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-gcp_provisioner">Gcp Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-kubernetes_provisioner">Kubernetes Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-manual_provisioner">Manual Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-vagrant_provisioner">Vagrant Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-virtualbox_provisioner">Virtualbox Provisioner</a></li>
-<li><a href="#commandlab-computers-provisioners-vmware_provisioner">Vmware Provisioner</a></li>
-<li><a href="#commandlab-daemon-cli">Cli</a></li>
-<li><a href="#commandlab-daemon-client">Client</a></li>
-<li><a href="#commandlab-daemon-server">Server</a></li>
-<li><a href="#commandlab-dev-build_images">Build Images</a></li>
-<li><a href="#commandlab-dev-dev_cli">Dev Cli</a></li>
-<li><a href="#commandlab-dev-update_daemon_client">Update Daemon Client</a></li>
-<li><a href="#commandlab-gym-_utils-llms">Llms</a></li>
-<li><a href="#commandlab-gym-agents-base_agent">Base Agent</a></li>
-<li><a href="#commandlab-gym-agents-naive_vision_language_computer_agent">Naive Vision Language Computer Agent</a></li>
-<li><a href="#commandlab-gym-agents-react_vision_language_computer_agent">React Vision Language Computer Agent</a></li>
-<li><a href="#commandlab-gym-drivers">Drivers</a></li>
-<li><a href="#commandlab-gym-environments-base_env">Base Env</a></li>
-<li><a href="#commandlab-gym-environments-computer_env">Computer Env</a></li>
-<li><a href="#commandlab-gym-environments-multimodal_env">Multimodal Env</a><ul>
-<li><a href="#commandlab-gym-environments-wrappers-grid_overlay_wrapper">Grid Overlay Wrapper</a></li>
-<li><a href="#commandlab-gym-environments-wrappers-gymnasium">Gymnasium</a></li>
-<li><a href="#commandlab-gym-environments-wrappers-screen_parser_wrapper">Screen Parser Wrapper</a></li>
+<li><a href="#commandagi2-cli">Cli</a><ul>
+<li><a href="#commandagi2-computers-base_computer">Base Computer</a></li>
+<li><a href="#commandagi2-computers-daemon_client_computer">Daemon Client Computer</a></li>
+<li><a href="#commandagi2-computers-e2b_desktop_computer">E2B Desktop Computer</a></li>
+<li><a href="#commandagi2-computers-local_pyautogui_computer">Local Pyautogui Computer</a></li>
+<li><a href="#commandagi2-computers-local_pynput_computer">Local Pynput Computer</a></li>
+<li><a href="#commandagi2-computers-provisioners-aws_provisioner">Aws Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-azure_provisioner">Azure Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-base_provisioner">Base Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-docker_provisioner">Docker Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-gcp_provisioner">Gcp Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-kubernetes_provisioner">Kubernetes Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-manual_provisioner">Manual Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-vagrant_provisioner">Vagrant Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-virtualbox_provisioner">Virtualbox Provisioner</a></li>
+<li><a href="#commandagi2-computers-provisioners-vmware_provisioner">Vmware Provisioner</a></li>
+<li><a href="#commandagi2-daemon-cli">Cli</a></li>
+<li><a href="#commandagi2-daemon-client">Client</a></li>
+<li><a href="#commandagi2-daemon-server">Server</a></li>
+<li><a href="#commandagi2-dev-build_images">Build Images</a></li>
+<li><a href="#commandagi2-dev-dev_cli">Dev Cli</a></li>
+<li><a href="#commandagi2-dev-update_daemon_client">Update Daemon Client</a></li>
+<li><a href="#commandagi2-gym-_utils-llms">Llms</a></li>
+<li><a href="#commandagi2-gym-agents-base_agent">Base Agent</a></li>
+<li><a href="#commandagi2-gym-agents-naive_vision_language_computer_agent">Naive Vision Language Computer Agent</a></li>
+<li><a href="#commandagi2-gym-agents-react_vision_language_computer_agent">React Vision Language Computer Agent</a></li>
+<li><a href="#commandagi2-gym-drivers">Drivers</a></li>
+<li><a href="#commandagi2-gym-environments-base_env">Base Env</a></li>
+<li><a href="#commandagi2-gym-environments-computer_env">Computer Env</a></li>
+<li><a href="#commandagi2-gym-environments-multimodal_env">Multimodal Env</a><ul>
+<li><a href="#commandagi2-gym-environments-wrappers-grid_overlay_wrapper">Grid Overlay Wrapper</a></li>
+<li><a href="#commandagi2-gym-environments-wrappers-gymnasium">Gymnasium</a></li>
+<li><a href="#commandagi2-gym-environments-wrappers-screen_parser_wrapper">Screen Parser Wrapper</a></li>
 </ul>
 </li>
-<li><a href="#commandlab-gym-evals-llm_based_evals">Llm Based Evals</a></li>
-<li><a href="#commandlab-gym-schema">Schema</a></li>
-<li><a href="#commandlab-gym-tasks-base">Base</a></li>
-<li><a href="#commandlab-gym-tasks-computer_task">Computer Task</a></li>
-<li><a href="#commandlab-gym-trainer">Trainer</a></li>
-<li><a href="#commandlab-processors-audio_transcription-whisper">Whisper</a></li>
-<li><a href="#commandlab-processors-grid_overlay">Grid Overlay</a></li>
-<li><a href="#commandlab-processors-screen_parser-pytesseract_screen_parser">Pytesseract Screen Parser</a></li>
-<li><a href="#commandlab-processors-screen_parser-screenparse_ai_screen_parser">Screenparse Ai Screen Parser</a></li>
-<li><a href="#commandlab-processors-screen_parser-types">Types</a></li>
-<li><a href="#commandlab-processors-tts-openai">Openai</a></li>
-<li><a href="#commandlab-processors-tts-some_local_model">Some Local Model</a></li>
+<li><a href="#commandagi2-gym-evals-llm_based_evals">Llm Based Evals</a></li>
+<li><a href="#commandagi2-gym-schema">Schema</a></li>
+<li><a href="#commandagi2-gym-tasks-base">Base</a></li>
+<li><a href="#commandagi2-gym-tasks-computer_task">Computer Task</a></li>
+<li><a href="#commandagi2-gym-trainer">Trainer</a></li>
+<li><a href="#commandagi2-processors-audio_transcription-whisper">Whisper</a></li>
+<li><a href="#commandagi2-processors-grid_overlay">Grid Overlay</a></li>
+<li><a href="#commandagi2-processors-screen_parser-pytesseract_screen_parser">Pytesseract Screen Parser</a></li>
+<li><a href="#commandagi2-processors-screen_parser-screenparse_ai_screen_parser">Screenparse Ai Screen Parser</a></li>
+<li><a href="#commandagi2-processors-screen_parser-types">Types</a></li>
+<li><a href="#commandagi2-processors-tts-openai">Openai</a></li>
+<li><a href="#commandagi2-processors-tts-some_local_model">Some Local Model</a></li>
 </ul>
 </li>
-<li><a href="#commandlab-types">Types</a><ul>
-<li><a href="#commandlab-utils-image">Image</a></li>
-<li><a href="#commandlab-utils-viewer">Viewer</a></li>
+<li><a href="#commandagi2-types">Types</a><ul>
+<li><a href="#commandagi2-utils-image">Image</a></li>
+<li><a href="#commandagi2-utils-viewer">Viewer</a></li>
 </ul>
 </li>
-<li><a href="#commandlab-version">Version</a></li>
+<li><a href="#commandagi2-version">Version</a></li>
 </ul>
 <hr />
 <h2 id="cli">Cli</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.cli</code></p>
-<p>CommandLAB CLI</p>
-<p>A command-line interface for interacting with CommandLAB functionality.</p>
+<p><strong>Module Path:</strong> <code>commandAGI2.cli</code></p>
+<p>commandAGI2 CLI</p>
+<p>A command-line interface for interacting with commandAGI2 functionality.</p>
 <p>Subcommands:
   run-example     Run one of the example scripts
   run-gym         Run a gym environment with a specified agent
@@ -1402,90 +1402,90 @@
   version         Display version information</p>
 <hr />
 <h2 id="base-computer">Base Computer</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.base_computer</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.base_computer</code></p>
 <p>Return a ScreenshotObservation containing the screenshot encoded as a base64 string.</p>
 <hr />
 <h2 id="daemon-client-computer">Daemon Client Computer</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.daemon_client_computer</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.daemon_client_computer</code></p>
 <p>Return the appropriate provisioner class based on the provisioning method</p>
 <hr />
 <h2 id="e2b-desktop-computer">E2B Desktop Computer</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.e2b_desktop_computer</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.e2b_desktop_computer</code></p>
 <p>Environment that uses E2B Desktop Sandbox for secure computer interactions</p>
 <hr />
 <h2 id="local-pyautogui-computer">Local Pyautogui Computer</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.local_pyautogui_computer</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.local_pyautogui_computer</code></p>
 <p>Reset environment and return initial observation</p>
 <hr />
 <h2 id="local-pynput-computer">Local Pynput Computer</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.local_pynput_computer</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.local_pynput_computer</code></p>
 <p>Reset environment, initialize pynput listener threads, and return the initial observation.</p>
 <hr />
 <h2 id="aws-provisioner">Aws Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.aws_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.aws_provisioner</code></p>
 <h1 id="binbash">!/bin/bash</h1>
-<div class="highlight"><pre><span></span><code>                    pip install commandlab[local,daemon]
-                    python -m commandlab.daemon.daemon --port {self.port} --backend pynput
+<div class="highlight"><pre><span></span><code>                    pip install commandagi2[local,daemon]
+                    python -m commandagi2.daemon.daemon --port {self.port} --backend pynput
 </code></pre></div>
 <hr />
 <h2 id="azure-provisioner">Azure Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.azure_provisioner</code></p>
-<p>pip install commandlab[local,daemon]
-                                python -m commandlab.daemon.daemon --port {self.port} --backend pynput</p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.azure_provisioner</code></p>
+<p>pip install commandagi2[local,daemon]
+                                python -m commandagi2.daemon.daemon --port {self.port} --backend pynput</p>
 <hr />
 <h2 id="base-provisioner">Base Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.base_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.base_provisioner</code></p>
 <p>Setup the daemon with the specific provisioning method</p>
 <hr />
 <h2 id="docker-provisioner">Docker Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.docker_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.docker_provisioner</code></p>
 <p>Setup local Docker container</p>
 <hr />
 <h2 id="gcp-provisioner">Gcp Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.gcp_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.gcp_provisioner</code></p>
 <p>Setup GCP Compute Engine instance</p>
 <hr />
 <h2 id="kubernetes-provisioner">Kubernetes Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.kubernetes_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.kubernetes_provisioner</code></p>
 <p>Create Kubernetes deployment and service</p>
 <hr />
 <h2 id="manual-provisioner">Manual Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.manual_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.manual_provisioner</code></p>
 <hr />
 <h2 id="vagrant-provisioner">Vagrant Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.vagrant_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.vagrant_provisioner</code></p>
 <p>Setup a Vagrant VM and start the daemon.</p>
 <hr />
 <h2 id="virtualbox-provisioner">Virtualbox Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.virtualbox_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.virtualbox_provisioner</code></p>
 <p>Setup a VirtualBox VM and start the daemon.</p>
 <hr />
 <h2 id="vmware-provisioner">Vmware Provisioner</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.computers.provisioners.vmware_provisioner</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.computers.provisioners.vmware_provisioner</code></p>
 <p>Setup a VMware VM and start the daemon.</p>
 <hr />
 <h2 id="cli_1">Cli</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.daemon.cli</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.daemon.cli</code></p>
 <hr />
 <h2 id="client">Client</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.daemon.client</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.daemon.client</code></p>
 <hr />
 <h2 id="server">Server</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.daemon.server</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.daemon.server</code></p>
 <hr />
 <h2 id="build-images">Build Images</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.dev.build_images</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.dev.build_images</code></p>
 <p>Get base directory paths for resources</p>
 <hr />
 <h2 id="dev-cli">Dev Cli</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.dev.dev_cli</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.dev.dev_cli</code></p>
 <p>Update the daemon client from the OpenAPI spec</p>
 <hr />
 <h2 id="update-daemon-client">Update Daemon Client</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.dev.update_daemon_client</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.dev.update_daemon_client</code></p>
 <hr />
 <h2 id="llms">Llms</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym._utils.llms</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym._utils.llms</code></p>
 <p>Instantiate and return a chat model based on the specified model provider.</p>
 <div class="highlight"><pre><span></span><code>Args:
     model_provider (str): One of &quot;openai&quot;, &quot;custom_openai_compat&quot;, &quot;anthropic&quot;, or &quot;huggingface&quot;.
@@ -1499,15 +1499,15 @@ Raises:
 </code></pre></div>
 <hr />
 <h2 id="base-agent">Base Agent</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.agents.base_agent</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.agents.base_agent</code></p>
 <p>Base class for agents</p>
 <hr />
 <h2 id="naive-vision-language-computer-agent">Naive Vision Language Computer Agent</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.agents.naive_vision_language_computer_agent</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.agents.naive_vision_language_computer_agent</code></p>
 <p>List of action functions that can be called to create ComputerAction objects.</p>
 <hr />
 <h2 id="react-vision-language-computer-agent">React Vision Language Computer Agent</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.agents.react_vision_language_computer_agent</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.agents.react_vision_language_computer_agent</code></p>
 <p>Initialize the React agent with a Hugging Face model.</p>
 <div class="highlight"><pre><span></span><code>    Args:
         model: Name of the Hugging Face model to use
@@ -1515,57 +1515,57 @@ Raises:
 </code></pre></div>
 <hr />
 <h2 id="drivers">Drivers</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.drivers</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.drivers</code></p>
 <p>Abstract base class for drivers.</p>
 <hr />
 <h2 id="base-env">Base Env</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.environments.base_env</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.environments.base_env</code></p>
 <p>Abstract base class for environments.</p>
 <hr />
 <h2 id="computer-env">Computer Env</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.environments.computer_env</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.environments.computer_env</code></p>
 <p>Configuration for the computer environment.</p>
 <hr />
 <h2 id="multimodal-env">Multimodal Env</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.environments.multimodal_env</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.environments.multimodal_env</code></p>
 <p>Base class for environments with multiple modalities for observations and actions</p>
 <hr />
 <h2 id="grid-overlay-wrapper">Grid Overlay Wrapper</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.environments.wrappers.grid_overlay_wrapper</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.environments.wrappers.grid_overlay_wrapper</code></p>
 <p>Wrapper that adds a grid overlay to screenshot observations.</p>
 <hr />
 <h2 id="gymnasium">Gymnasium</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.environments.wrappers.gymnasium</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.environments.wrappers.gymnasium</code></p>
 <p>Wrapper that converts BaseComputerEnv to OpenRL Gym environment</p>
 <hr />
 <h2 id="screen-parser-wrapper">Screen Parser Wrapper</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.environments.wrappers.screen_parser_wrapper</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.environments.wrappers.screen_parser_wrapper</code></p>
 <p>Wrapper that adds a grid overlay to screenshot observations and optionally parses screen text.</p>
 <hr />
 <h2 id="llm-based-evals">Llm Based Evals</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.evals.llm_based_evals</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.evals.llm_based_evals</code></p>
 <p>A base class for evaluators that use LLMs to evaluate tasks.</p>
 <hr />
 <h2 id="schema">Schema</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.schema</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.schema</code></p>
 <p>Abstract base class for episodes.</p>
 <hr />
 <h2 id="base">Base</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.tasks.base</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.tasks.base</code></p>
 <p>A task is a description of the goal of the agent.</p>
 <hr />
 <h2 id="computer-task">Computer Task</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.tasks.computer_task</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.tasks.computer_task</code></p>
 <hr />
 <h2 id="trainer">Trainer</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.gym.trainer</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.gym.trainer</code></p>
 <p>Base class for trainers.</p>
 <hr />
 <h2 id="whisper">Whisper</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.processors.audio_transcription.whisper</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.processors.audio_transcription.whisper</code></p>
 <hr />
 <h2 id="grid-overlay">Grid Overlay</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.processors.grid_overlay</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.processors.grid_overlay</code></p>
 <p>Overlay a grid on an image.</p>
 <div class="highlight"><pre><span></span><code>Args:
     img: PIL Image to overlay grid on
@@ -1597,7 +1597,7 @@ Examples:
 </code></pre></div>
 <hr />
 <h2 id="pytesseract-screen-parser">Pytesseract Screen Parser</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.processors.screen_parser.pytesseract_screen_parser</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.processors.screen_parser.pytesseract_screen_parser</code></p>
 <p>Parse a screenshot using Tesseract OCR.</p>
 <div class="highlight"><pre><span></span><code>Args:
     screenshot_b64: Base64 encoded screenshot image
@@ -1615,7 +1615,7 @@ Examples:
     &gt;&gt;&gt; img = Image.new(&#39;RGB&#39;, (200, 50), color=&#39;white&#39;)
     &gt;&gt;&gt; # Add text to the image
     &gt;&gt;&gt; draw = ImageDraw.Draw(img)
-    &gt;&gt;&gt; draw.text((10, 10), &quot;Hello CommandLAB&quot;, fill=&#39;black&#39;)
+    &gt;&gt;&gt; draw.text((10, 10), &quot;Hello commandAGI2&quot;, fill=&#39;black&#39;)
     &gt;&gt;&gt; # Convert to base64
     &gt;&gt;&gt; buffer = io.BytesIO()
     &gt;&gt;&gt; img.save(buffer, format=&quot;PNG&quot;)
@@ -1635,7 +1635,7 @@ Examples:
 </code></pre></div>
 <hr />
 <h2 id="screenparse-ai-screen-parser">Screenparse Ai Screen Parser</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.processors.screen_parser.screenparse_ai_screen_parser</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.processors.screen_parser.screenparse_ai_screen_parser</code></p>
 <p>Parse a screenshot using the ScreenParse.ai API.</p>
 <div class="highlight"><pre><span></span><code>Args:
     base64_image: Base64 encoded image string
@@ -1647,21 +1647,21 @@ Returns:
 </code></pre></div>
 <hr />
 <h2 id="types">Types</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.processors.screen_parser.types</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.processors.screen_parser.types</code></p>
 <hr />
 <h2 id="openai">Openai</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.processors.tts.openai</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.processors.tts.openai</code></p>
 <hr />
 <h2 id="some-local-model">Some Local Model</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.processors.tts.some_local_model</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.processors.tts.some_local_model</code></p>
 <hr />
 <h2 id="types_1">Types</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.types</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.types</code></p>
 <p>Convert a standard mouse button into the VNC-compatible code.
         For VNC, left=1, middle=2, right=3.</p>
 <hr />
 <h2 id="image">Image</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.utils.image</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.utils.image</code></p>
 <p>Convert a base64 encoded image string to a PIL Image.</p>
 <div class="highlight"><pre><span></span><code>Args:
     b64: Base64 encoded image string
@@ -1686,7 +1686,7 @@ Examples:
 </code></pre></div>
 <hr />
 <h2 id="viewer">Viewer</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.utils.viewer</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.utils.viewer</code></p>
 <p>Initialize the Environment Viewer.</p>
 <div class="highlight"><pre><span></span><code>    computer_or_env: An environment instance that supports _get_observation(), returning a ComputerObservation.
     refresh_rate: Refresh interval in milliseconds.
@@ -1695,7 +1695,7 @@ Examples:
 </code></pre></div>
 <hr />
 <h2 id="version">Version</h2>
-<p><strong>Module Path:</strong> <code>commandLAB.version</code></p>
+<p><strong>Module Path:</strong> <code>commandAGI2.version</code></p>
 <p>Get the container version to use for deployments</p>
 <hr />
 

@@ -3,8 +3,8 @@ from unittest.mock import patch, MagicMock
 import secrets
 
 from fastapi.testclient import TestClient
-from commandLAB.daemon.server import ComputerDaemon
-from commandLAB.types import (
+from commandAGI2.daemon.server import ComputerDaemon
+from commandAGI2.types import (
     ShellCommandAction,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -163,7 +163,7 @@ class TestComputerDaemon(unittest.TestCase):
 
     def test_execute_type_endpoint(self):
         # Test the execute_type endpoint
-        action = TypeAction(text="Hello, CommandLAB!")
+        action = TypeAction(text="Hello, commandAGI2!")
         response = self.client.post(
             "/execute/type",
             json=action.model_dump(),
@@ -176,7 +176,7 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that execute_type was called on the computer with the right action
         self.mock_computer.execute_type.assert_called_once()
         call_args = self.mock_computer.execute_type.call_args[0][0]
-        self.assertEqual(call_args.text, "Hello, CommandLAB!")
+        self.assertEqual(call_args.text, "Hello, commandAGI2!")
 
     def test_execute_mouse_move_endpoint(self):
         # Test the execute_mouse_move endpoint

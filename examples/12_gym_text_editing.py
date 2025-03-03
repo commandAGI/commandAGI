@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Gym Text Editing Example
+commandAGI2 Gym Text Editing Example
 
-This example demonstrates how to use the CommandLAB gym framework to automate a text editing task.
+This example demonstrates how to use the commandAGI2 gym framework to automate a text editing task.
 It creates a custom environment that rewards the agent for successfully completing text editing tasks.
 
 Status: Not tested
@@ -16,13 +16,13 @@ import os
 from typing import Dict, Any
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI2.gym.agents.naive_vision_language_computer_agent import (
         NaiveComputerAgent,
     )
-    from commandLAB.gym.drivers import SimpleDriver
-    from commandLAB.types import (
+    from commandAGI2.gym.drivers import SimpleDriver
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -32,9 +32,9 @@ try:
     )
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
     )
-    print("pip install commandlab[local,gym]")
+    print("pip install commandagi2[local,gym]")
     exit(1)
 
 
@@ -47,7 +47,7 @@ class TextEditingEnv(ComputerEnv):
         self.steps_taken = 0
         self.max_steps = 20  # Maximum number of steps before ending the episode
         self.task_description = (
-            "Open a text editor, type 'Hello, CommandLAB!', and save the file."
+            "Open a text editor, type 'Hello, commandAGI2!', and save the file."
         )
 
     def get_reward(self, action: ComputerAction) -> float:
@@ -68,7 +68,7 @@ class TextEditingEnv(ComputerEnv):
             reward += 0.5
 
             # Extra reward if the text contains the target phrase
-            if "Hello, CommandLAB!" in action.type.text:
+            if "Hello, commandAGI2!" in action.type.text:
                 reward += 2.0
 
         # Reward for using keyboard shortcuts (like Ctrl+S for saving)
@@ -109,12 +109,12 @@ class TextEditingEnv(ComputerEnv):
 
 
 def main():
-    print("CommandLAB Gym Text Editing Example")
+    print("commandAGI2 Gym Text Editing Example")
     print("===================================")
-    print("This example demonstrates how to use the CommandLAB gym framework")
+    print("This example demonstrates how to use the commandAGI2 gym framework")
     print("to automate a text editing task.")
     print()
-    print("Task: Open a text editor, type 'Hello, CommandLAB!', and save the file.")
+    print("Task: Open a text editor, type 'Hello, commandAGI2!', and save the file.")
     print()
 
     try:

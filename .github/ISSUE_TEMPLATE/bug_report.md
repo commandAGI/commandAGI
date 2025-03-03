@@ -1,6 +1,6 @@
 ______________________________________________________________________
 
-## name: Bug Report about: Report a bug in CommandLab title: '[BUG] ' labels: bug assignees: ''
+## name: Bug Report about: Report a bug in commandAGI2 title: '[BUG] ' labels: bug assignees: ''
 
 **Description**
 Clear description of the bug.
@@ -19,5 +19,5 @@ Clear description of the bug.
 **Environment**
 
 - Python version:
-- CommandLab version:
+- commandAGI2 version:
 - OS:

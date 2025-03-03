@@ -1,6 +1,6 @@
-# CommandLAB Documentation
+# commandAGI2 Documentation
 
-This directory contains the documentation for CommandLAB.
+This directory contains the documentation for commandAGI2.
 
 ## Building the Documentation
 

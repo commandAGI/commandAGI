@@ -4,7 +4,7 @@ import time
 import boto3
 from botocore.exceptions import ClientError
 
-from commandLAB.computers.provisioners.aws_provisioner import AWSProvisioner
+from commandAGI2.computers.provisioners.aws_provisioner import AWSProvisioner
 
 
 class TestAWSProvisioner(unittest.TestCase):

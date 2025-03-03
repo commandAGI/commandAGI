@@ -1,10 +1,10 @@
-# Basic Automation with commandLAB
+# Basic Automation with commandAGI2
 
-This tutorial will guide you through the basics of automating computer interactions using commandLAB.
+This tutorial will guide you through the basics of automating computer interactions using commandAGI2.
 
 ## Prerequisites
 
-- commandLAB installed (see [Installation](../installation.md))
+- commandAGI2 installed (see [Installation](../installation.md))
 - Basic understanding of Python
 
 ## Getting Started
@@ -14,7 +14,7 @@ In this tutorial, we'll create a simple automation script that performs basic ta
 ### Step 1: Import the necessary modules
 
 ```python
-from commandLAB import LocalPynputComputer
+from commandAGI2 import LocalPynputComputer
 ```
 
 ### Step 2: Create a computer instance

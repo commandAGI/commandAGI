@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-CommandLAB Kubernetes Example
+commandAGI2 Kubernetes Example
 
 This example demonstrates how to use the Kubernetes provisioner to create and control
-a Kubernetes pod running the CommandLAB daemon.
+a Kubernetes pod running the commandAGI2 daemon.
 
 Status: ❌ Not implemented yet
 - This is a placeholder for future implementation

@@ -16,7 +16,7 @@
     
     
       
-        <title>Local Computer Control - commandLAB</title>
+        <title>Local Computer Control - commandAGI2</title>
       
     
     
@@ -86,7 +86,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="commandLAB" class="md-header__button md-logo" aria-label="commandLAB" data-md-component="logo">
+    <a href="../../.." title="commandAGI2" class="md-header__button md-logo" aria-label="commandAGI2" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            commandLAB
+            commandAGI2
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -207,13 +207,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="commandLAB" class="md-nav__button md-logo" aria-label="commandLAB" data-md-component="logo">
+    <a href="../../.." title="commandAGI2" class="md-nav__button md-logo" aria-label="commandAGI2" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    commandLAB
+    commandAGI2
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1425,9 +1425,9 @@
 
 
 <h1 id="local-computer-control">Local Computer Control</h1>
-<p>This guide explains how to use CommandLAB to control your local computer, including mouse and keyboard automation, taking screenshots, and executing system commands.</p>
+<p>This guide explains how to use commandAGI2 to control your local computer, including mouse and keyboard automation, taking screenshots, and executing system commands.</p>
 <h2 id="introduction">Introduction</h2>
-<p>CommandLAB provides several implementations for controlling your local computer:</p>
+<p>commandAGI2 provides several implementations for controlling your local computer:</p>
 <ul>
 <li><code>LocalPynputComputer</code>: Uses the pynput library for precise control</li>
 <li><code>LocalPyAutoGUIComputer</code>: Uses the PyAutoGUI library for cross-platform compatibility</li>
@@ -1440,8 +1440,8 @@
 <li>Execute system commands</li>
 </ul>
 <h2 id="installation">Installation</h2>
-<p>To use local computer control, install CommandLAB with the local extra:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandlab[local]&quot;</span>
+<p>To use local computer control, install commandAGI2 with the local extra:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[local]&quot;</span>
 </code></pre></div>
 <p>This will install the necessary dependencies, including pynput, PyAutoGUI, and mss.</p>
 <h3 id="platform-specific-requirements">Platform-Specific Requirements</h3>
@@ -1455,7 +1455,7 @@
 - Install X11 dependencies: <code>sudo apt-get install python3-xlib python3-tk python3-dev</code></p>
 <h2 id="basic-usage">Basic Usage</h2>
 <h3 id="creating-a-computer-instance">Creating a Computer Instance</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># Create a computer instance</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">LocalPynputComputer</span><span class="p">()</span>
@@ -1475,7 +1475,7 @@
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Screenshot size: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">screenshot</span><span class="o">.</span><span class="n">screenshot</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># You can convert it to a PIL Image</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.utils.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">b64ToImage</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.utils.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">b64ToImage</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">image</span> <span class="o">=</span> <span class="n">b64ToImage</span><span class="p">(</span><span class="n">screenshot</span><span class="o">.</span><span class="n">screenshot</span><span class="p">)</span>
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image dimensions: </span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
@@ -1483,7 +1483,7 @@
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;screenshot.png&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="mouse-control">Mouse Control</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">ClickAction</span><span class="p">,</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">DoubleClickAction</span><span class="p">,</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">DragAction</span><span class="p">,</span>
@@ -1542,7 +1542,7 @@
 <a id="__codelineno-3-57" name="__codelineno-3-57" href="#__codelineno-3-57"></a><span class="p">))</span>
 </code></pre></div>
 <h3 id="keyboard-control">Keyboard Control</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">TypeAction</span><span class="p">,</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">KeyboardHotkeyAction</span><span class="p">,</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">KeyboardKeyPressAction</span><span class="p">,</span>
@@ -1553,7 +1553,7 @@
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># Type text</span>
 <a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, CommandLAB!&quot;</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, commandAGI2!&quot;</span>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">))</span>
 <a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
 <a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="c1"># Press a key</span>
@@ -1576,11 +1576,11 @@
 <a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="p">))</span>
 </code></pre></div>
 <h3 id="executing-system-commands">Executing System Commands</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandAction</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandAction</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Execute a system command</span>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">result</span> <span class="o">=</span> <span class="n">computer</span><span class="o">.</span><span class="n">execute_command</span><span class="p">(</span><span class="n">CommandAction</span><span class="p">(</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">command</span><span class="o">=</span><span class="s2">&quot;echo Hello, CommandLAB!&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">command</span><span class="o">=</span><span class="s2">&quot;echo Hello, commandAGI2!&quot;</span><span class="p">,</span>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span>  <span class="c1"># Timeout in seconds (None for no timeout)</span>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">))</span>
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
@@ -1601,14 +1601,14 @@
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shift key pressed: </span><span class="si">{</span><span class="n">keyboard_state</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">KeyboardKey</span><span class="o">.</span><span class="n">SHIFT</span><span class="p">,</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="using-pyautogui-instead-of-pynput">Using PyAutoGUI Instead of Pynput</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.computers.local_pyautogui_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPyAutoGUIComputer</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.local_pyautogui_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPyAutoGUIComputer</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># Create a PyAutoGUI computer instance</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">computer</span> <span class="o">=</span> <span class="n">LocalPyAutoGUIComputer</span><span class="p">()</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># Use the same API as with pynput</span>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_click</span><span class="p">(</span><span class="n">ClickAction</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, CommandLAB!&quot;</span><span class="p">))</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, commandAGI2!&quot;</span><span class="p">))</span>
 </code></pre></div>
 <h3 id="handling-errors">Handling Errors</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">try</span><span class="p">:</span>
@@ -1618,7 +1618,7 @@
 </code></pre></div>
 <h2 id="common-tasks">Common Tasks</h2>
 <h3 id="opening-an-application">Opening an Application</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandAction</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandAction</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># Windows</span>
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_command</span><span class="p">(</span><span class="n">CommandAction</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="s2">&quot;start notepad&quot;</span><span class="p">))</span>
@@ -1632,7 +1632,7 @@
 <h3 id="taking-a-screenshot-and-saving-it">Taking a Screenshot and Saving It</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.utils.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">b64ToImage</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.utils.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">b64ToImage</span>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1"># Take a screenshot</span>
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">screenshot</span> <span class="o">=</span> <span class="n">computer</span><span class="o">.</span><span class="n">get_screenshot</span><span class="p">()</span>
@@ -1646,7 +1646,7 @@
 </code></pre></div>
 <h3 id="automating-a-web-browser">Automating a Web Browser</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">CommandAction</span><span class="p">,</span>
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">TypeAction</span><span class="p">,</span>
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">KeyboardKeyPressAction</span><span class="p">,</span>
@@ -1663,12 +1663,12 @@
 <a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Wait for the page to load</span>
 <a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>
 <a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="c1"># Search for something</span>
-<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;CommandLAB python automation&quot;</span><span class="p">))</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;commandAGI2 python automation&quot;</span><span class="p">))</span>
 <a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_keyboard_key_press</span><span class="p">(</span><span class="n">KeyboardKeyPressAction</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">KeyboardKey</span><span class="o">.</span><span class="n">ENTER</span><span class="p">))</span>
 </code></pre></div>
 <h3 id="automating-a-text-editor">Automating a Text Editor</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandLAB.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">CommandAction</span><span class="p">,</span>
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">TypeAction</span><span class="p">,</span>
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">KeyboardHotkeyAction</span><span class="p">,</span>
@@ -1681,14 +1681,14 @@
 <a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Wait for Notepad to open</span>
 <a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
 <a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="c1"># Type some text</span>
-<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, CommandLAB!</span><span class="se">\n\n</span><span class="s2">This is an automated test.&quot;</span><span class="p">))</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, commandAGI2!</span><span class="se">\n\n</span><span class="s2">This is an automated test.&quot;</span><span class="p">))</span>
 <a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>
 <a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="c1"># Save the file</span>
 <a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_keyboard_hotkey</span><span class="p">(</span><span class="n">KeyboardHotkeyAction</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="n">KeyboardKey</span><span class="o">.</span><span class="n">CTRL</span><span class="p">,</span> <span class="n">KeyboardKey</span><span class="o">.</span><span class="n">S</span><span class="p">]))</span>
 <a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Wait for the save dialog</span>
 <a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>
 <a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="c1"># Type the filename</span>
-<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;commandlab_test.txt&quot;</span><span class="p">))</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;commandAGI2_test.txt&quot;</span><span class="p">))</span>
 <a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_keyboard_key_press</span><span class="p">(</span><span class="n">KeyboardKeyPressAction</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">KeyboardKey</span><span class="o">.</span><span class="n">ENTER</span><span class="p">))</span>
 </code></pre></div>
 <h2 id="best-practices">Best Practices</h2>

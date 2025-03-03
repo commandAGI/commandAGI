@@ -1,21 +1,21 @@
 <div align="center">
-  <img src="assets/commandLAB-art.svg" alt="CommandAGI Lab Logo" width="400"/>
+  <img src="assets/commandAGI2-art.svg" alt="CommandAGI Lab Logo" width="400"/>
 </div>
 
 CommandAGI Lab framework, high performance, easy to learn, easy to use, production-ready
 
-[![PyPI version](https://badge.fury.io/py/commandLAB.svg)](https://badge.fury.io/py/commandLAB)
+[![PyPI version](https://badge.fury.io/py/commandAGI2.svg)](https://badge.fury.io/py/commandAGI2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Documentation Status](https://readthedocs.org/projects/commandLAB/badge/?version=latest)](https://commandagi.com/documentation/commandLAB)
-[![Build Status](https://github.com/commandAGI/commandLAB/workflows/CI/badge.svg)](https://github.com/commandAGI/commandLAB/actions)
+[![Documentation Status](https://readthedocs.org/projects/commandAGI2/badge/?version=latest)](https://commandagi.com/documentation/commandAGI2)
+[![Build Status](https://github.com/commandAGI/commandAGI2/workflows/CI/badge.svg)](https://github.com/commandAGI/commandAGI2/actions)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ---
 
-📖 Documentation [commandagi.com/documentation/commandLAB](https://commandagi.com/documentation/commandLAB)
+📖 Documentation [commandagi.com/documentation/commandAGI2](https://commandagi.com/documentation/commandAGI2)
 
-🐙 Source Code [github.com/commandAGI/commandLAB](https://github.com/commandAGI/commandLAB)
+🐙 Source Code [github.com/commandAGI/commandAGI2](https://github.com/commandAGI/commandAGI2)
 
 ---
 
@@ -27,7 +27,7 @@ CommandAGI Lab is a framework for developing agents that control computers like 
   - Take screenshots
   - Send mouse and keyboard commands
   - Read the mouse and keyboard states
-  - Send/receive microphone/speaker/camera streams ([planned](https://github.com/commandAGI/commandLAB/issues/5))
+  - Send/receive microphone/speaker/camera streams ([planned](https://github.com/commandAGI/commandAGI2/issues/5))
 
 - Work anywhere, at any scale:
   - directly control your local desktop
@@ -49,13 +49,13 @@ CommandAGI Lab is a framework for developing agents that control computers like 
 You can install CommandAGI Lab using pip:
 
 ```bash
-pip install commandLAB
+pip install commandAGI2
 ```
 
 Or using Poetry (recommended):
 
 ```bash
-poetry add commandLAB
+poetry add commandAGI2
 ```
 
 ### Optional Dependencies
@@ -64,13 +64,13 @@ CommandAGI Lab provides optional dependencies for different use cases:
 
 ```bash
 # For Docker support
-poetry add commandLAB[docker]
+poetry add commandAGI2[docker]
 
 # For Kubernetes support
-poetry add commandLAB[kubernetes]
+poetry add commandAGI2[kubernetes]
 
 # For daemon support
-poetry add commandLAB[daemon]
+poetry add commandAGI2[daemon]
 ```
 
 ## Quick Start
@@ -78,7 +78,7 @@ poetry add commandLAB[daemon]
 Check out the `examples/` directory to get started quickly:
 
 ```python
-from commandLAB import Agent
+from commandAGI2 import Agent
 
 # Initialize an agent
 agent = Agent()
@@ -89,11 +89,11 @@ agent.execute("open_browser")
 
 ### Using the Daemon
 
-CommandLAB includes a daemon server that allows remote control of computers:
+commandAGI2 includes a daemon server that allows remote control of computers:
 
 ```python
-from commandLAB.daemon.server import ComputerDaemon
-from commandLAB.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI2.daemon.server import ComputerDaemon
+from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
 
 # Create a computer instance
 computer = LocalPynputComputer()
@@ -116,7 +116,7 @@ daemon.start_server(host="0.0.0.0", port=8000)
 You can also start the daemon from the command line:
 
 ```bash
-python -m commandLAB.daemon.cli start --port 8000
+python -m commandAGI2.daemon.cli start --port 8000
 ```
 
 For more details on configuring VNC and RDP options, see the [VNC/RDP Configuration Tutorial](docs/tutorials/advanced/vnc-rdp-configuration.md).
@@ -127,8 +127,8 @@ To set up the development environment:
 
 ```bash
 # Clone the repository
-git clone https://github.com/commandagi/commandLAB.git
-cd commandLAB
+git clone https://github.com/commandagi/commandAGI2.git
+cd commandAGI2
 
 # Install dependencies with Poetry
 poetry install --with dev
@@ -141,8 +141,8 @@ poetry run pre-commit install
 
 For detailed documentation, visit:
 
-- [Official Documentation](https://commandagi.com/documentation/commandLAB)
-- [API Reference](https://commandagi.com/documentation/commandLAB/api)
+- [Official Documentation](https://commandagi.com/documentation/commandAGI2)
+- [API Reference](https://commandagi.com/documentation/commandAGI2/api)
 
 ## License
 
@@ -151,5 +151,5 @@ This project is licensed under the MIT License - see the [LICENSE file](LICENSE)
 ## Additional Links
 
 - [Homepage](https://commandagi.com)
-- [PyPI Package](https://pypi.org/project/commandLAB/)
+- [PyPI Package](https://pypi.org/project/commandAGI2/)
 - [Discord Community](https://discord.gg/commandagi)

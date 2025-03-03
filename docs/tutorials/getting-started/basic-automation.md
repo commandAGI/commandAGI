@@ -1,17 +1,17 @@
 # Basic Automation Tutorial
 
-In this tutorial, we'll create a simple automation script using CommandLAB to open a text editor, type some text, and save a file.
+In this tutorial, we'll create a simple automation script using commandAGI2 to open a text editor, type some text, and save a file.
 
 ## Prerequisites
 
-- CommandLAB installed with local backend: `pip install commandlab[local]`
+- commandAGI2 installed with local backend: `pip install commandagi2[local]`
 - A text editor (like Notepad on Windows or TextEdit on macOS)
 
 ## Step 1: Import Required Modules
 
 ```python
-from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-from commandLAB.types import (
+from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI2.types import (
     CommandAction,
     TypeAction,
     ClickAction,
@@ -51,7 +51,7 @@ else:
 
 ```python
 # Type some text
-computer.execute_type(TypeAction(text="Hello from CommandLAB!\n\nThis file was created automatically."))
+computer.execute_type(TypeAction(text="Hello from commandAGI2!\n\nThis file was created automatically."))
 print("Typed text")
 ```
 
@@ -64,7 +64,7 @@ print("Pressed Ctrl+S")
 time.sleep(1)
 
 # Type the filename
-computer.execute_type(TypeAction(text="commandlab_example.txt"))
+computer.execute_type(TypeAction(text="commandAGI2_example.txt"))
 print("Entered filename")
 time.sleep(1)
 
@@ -89,8 +89,8 @@ Here's the complete script:
 ```python
 import os
 import time
-from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-from commandLAB.types import (
+from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI2.types import (
     CommandAction,
     TypeAction,
     KeyboardHotkeyAction,
@@ -115,7 +115,7 @@ else:
     exit(1)
 
 # Type some text
-computer.execute_type(TypeAction(text="Hello from CommandLAB!\n\nThis file was created automatically."))
+computer.execute_type(TypeAction(text="Hello from commandAGI2!\n\nThis file was created automatically."))
 print("Typed text")
 
 # Press Ctrl+S to save
@@ -124,7 +124,7 @@ print("Pressed Ctrl+S")
 time.sleep(1)
 
 # Type the filename
-computer.execute_type(TypeAction(text="commandlab_example.txt"))
+computer.execute_type(TypeAction(text="commandAGI2_example.txt"))
 print("Entered filename")
 time.sleep(1)
 

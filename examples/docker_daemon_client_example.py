@@ -4,7 +4,7 @@ Docker Daemon Client Example
 
 This example demonstrates how to use the Docker provisioner to create a daemon computer client
 and send various commands to it. The Docker provisioner will automatically start a container
-with the CommandLAB daemon running, and the client will connect to it.
+with the commandAGI2 daemon running, and the client will connect to it.
 
 Note: This example requires Docker to be installed and running on your system.
 
@@ -21,14 +21,14 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from commandLAB.computers.daemon_client_computer import DaemonClientComputer
-from commandLAB.computers.provisioners.docker_provisioner import (
+from commandAGI2.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI2.computers.provisioners.docker_provisioner import (
     DockerProvisioner,
     DockerPlatform,
 )
-from commandLAB.computers.provisioners.base_provisioner import BaseComputerProvisioner
-from commandLAB.version import get_container_version
-from commandLAB.types import (
+from commandAGI2.computers.provisioners.base_provisioner import BaseComputerProvisioner
+from commandAGI2.version import get_container_version
+from commandAGI2.types import (
     KeyboardKey,
     MouseButton,
     TypeAction,
@@ -71,7 +71,7 @@ def main():
         provisioner = DockerProvisioner(
             port=8000,
             platform=DockerPlatform.LOCAL,
-            container_name="commandlab-daemon-example",
+            container_name="commandagi2-daemon-example",
             version=container_version,  # Use the default container version
             max_retries=3,
             timeout=60,  # 1 minute timeout
@@ -105,7 +105,7 @@ def main():
 
         # Example 2: Type some text
         logger.info("\n=== Example 2: Typing Text ===")
-        success = computer.execute_type(text="Hello from CommandLAB Docker!")
+        success = computer.execute_type(text="Hello from commandAGI2 Docker!")
         logger.info(f"Type action success: {success}")
 
         # Example 3: Move the mouse

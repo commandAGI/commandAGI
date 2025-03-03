@@ -1,5 +1,5 @@
 """
-MkDocs macros for CommandLAB documentation.
+MkDocs macros for commandAGI2 documentation.
 """
 
 from .example_macros import (

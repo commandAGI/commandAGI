@@ -1,6 +1,6 @@
 # Provisioner System for Developers
 
-This guide provides detailed information about the CommandLAB provisioner system for library developers who want to extend or modify the system.
+This guide provides detailed information about the commandAGI2 provisioner system for library developers who want to extend or modify the system.
 
 ## Architecture Overview
 
@@ -134,7 +134,7 @@ class AzureProvisioner(BaseComputerProvisioner):
     def __init__(
         self, 
         port: int = 8000, 
-        resource_group: str = "commandlab-rg", 
+        resource_group: str = "commandagi2-rg", 
         location: str = "eastus", 
         vm_size: str = "Standard_DS1_v2",
         subscription_id: str = None, 
@@ -185,7 +185,7 @@ class DockerProvisioner(BaseComputerProvisioner):
     def __init__(
         self, 
         port: int = 8000, 
-        container_name: str = "commandlab-daemon",
+        container_name: str = "commandagi2-daemon",
         platform: DockerPlatform = DockerPlatform.LOCAL,
         version: Optional[str] = None,
         region: str = None,
@@ -243,7 +243,7 @@ The build system is responsible for creating images for different platforms:
 The `build_images.py` script provides a CLI for building images:
 
 ```python
-cli = typer.Typer(help="Build CommandLAB daemon images for different platforms")
+cli = typer.Typer(help="Build commandAGI2 daemon images for different platforms")
 
 @cli.command()
 def build_docker_image(version: Optional[str] = ...):
@@ -355,4 +355,4 @@ def build_all_images(version: Optional[str] = ...):
 1. **Resource Cleanup**: Ensure proper cleanup in the `teardown()` method
 1. **Validation**: Validate required parameters in the constructor
 
-By following these guidelines, you can create robust and maintainable provisioners that integrate seamlessly with the CommandLAB ecosystem.
+By following these guidelines, you can create robust and maintainable provisioners that integrate seamlessly with the commandAGI2 ecosystem.

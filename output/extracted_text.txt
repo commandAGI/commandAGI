@@ -8,11 +8,11 @@ Run
 =
 <5
 P
-commandLAB
+commandAGI2
 OPP
-®»
+ï¿½ï¿½
 Y
-@®
+@ï¿½
 docs
 e
 M+
@@ -24,7 +24,7 @@ installation.md
 M+
 quickstart.md
 1
-¥
+ï¿½
 (i
 examples
 e
@@ -70,7 +70,7 @@ BO
 -
 docs
 >
-M¢
+Mï¿½
 installation.md
 >
 &d
@@ -171,7 +171,7 @@ Cancel
 and
 resume
 >
-&®
+&ï¿½
 site
 FAILED
 tests/computers/provisioners/test_docker_provisioner.py
@@ -196,7 +196,7 @@ for
 http+docker://localnpi
 VS
 ferimers
-pe/v1.47/images/create?tag=test-version&fromImage=commandlab-d
+pe/v1.47/images/create?tag=test-version&fromImage=commandagi2-d
 @
 @testversionpy
 @
@@ -209,9 +209,9 @@ int
 aemon:
 Not
 Found
-(“pull
+(ï¿½pull
 access...
-®
+ï¿½
 docker_provisioner.py
 @
 gcp_provisioner.py
@@ -230,7 +230,7 @@ in
 Sore
 iE
 PS
-C:\Users\Jacob\source\repos\active\commandAGI\commandLAB>
+C:\Users\Jacob\source\repos\active\commandAGI\commandAGI2>
 []
 eo
 Agent
@@ -252,7 +252,7 @@ GOl1t
 @O0A79
 WO
 GitGraph
-©
+ï¿½
 Blame
 Jacob
 Valdez
@@ -277,7 +277,7 @@ Prettier
 Q
 a
 f
-‘
+ï¿½
 @
 a
 11:22
@@ -290,5 +290,5 @@ GBS
 w
 Aa
 29)
-®
+ï¿½
 araans

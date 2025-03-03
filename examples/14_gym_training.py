@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Gym Training Example
+commandAGI2 Gym Training Example
 
-This example demonstrates how to use the CommandLAB gym framework to train an agent
+This example demonstrates how to use the commandAGI2 gym framework to train an agent
 over multiple episodes. It shows how to collect episodes, evaluate performance,
 and save/load trained agents.
 
@@ -22,15 +22,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI2.gym.agents.naive_vision_language_computer_agent import (
         NaiveComputerAgent,
     )
-    from commandLAB.gym.drivers import SimpleDriver
-    from commandLAB.gym.trainer import OnlineTrainer
-    from commandLAB.gym.schema import Episode, Step
-    from commandLAB.types import (
+    from commandAGI2.gym.drivers import SimpleDriver
+    from commandAGI2.gym.trainer import OnlineTrainer
+    from commandAGI2.gym.schema import Episode, Step
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -42,9 +42,9 @@ try:
     )
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
     )
-    print("pip install commandlab[local,gym]")
+    print("pip install commandagi2[local,gym]")
     print("pip install matplotlib numpy")  # For plotting
     exit(1)
 
@@ -244,9 +244,9 @@ class SimpleMockTrainableAgent(NaiveComputerAgent):
 
 
 def main():
-    print("CommandLAB Gym Training Example")
+    print("commandAGI2 Gym Training Example")
     print("===============================")
-    print("This example demonstrates how to use the CommandLAB gym framework")
+    print("This example demonstrates how to use the commandAGI2 gym framework")
     print("to train an agent over multiple episodes.")
     print()
 
@@ -263,7 +263,7 @@ def main():
         env = SimpleTaskEnv(config)
 
         # Enable logging of modality errors for debugging
-        from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+        from commandAGI2.gym.environments.multimodal_env import MultiModalEnv
 
         MultiModalEnv._LOG_MODALITY_ERRORS = True
 

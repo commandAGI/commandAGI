@@ -1,6 +1,6 @@
-# CommandLAB Examples
+# commandAGI2 Examples
 
-This page provides an overview of the example scripts included in the CommandLAB repository. Each example demonstrates different aspects of the framework and can be used as a starting point for your own automation projects.
+This page provides an overview of the example scripts included in the commandAGI2 repository. Each example demonstrates different aspects of the framework and can be used as a starting point for your own automation projects.
 
 ## Example Status Legend
 
@@ -14,7 +14,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 
 **File**: `examples/1_getting_started.py`
 
-**Description**: Demonstrates how to import the CommandLAB library and print its version.
+**Description**: Demonstrates how to import the commandAGI2 library and print its version.
 
 **Status**: ✅ Works perfectly
 
@@ -26,7 +26,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 
 **File**: `examples/2_concepts.py`
 
-**Description**: Demonstrates basic concepts of CommandLAB, including creating a computer instance, taking a screenshot, and saving it to a file.
+**Description**: Demonstrates basic concepts of commandAGI2, including creating a computer instance, taking a screenshot, and saving it to a file.
 
 **Status**: ✅ Works perfectly
 
@@ -38,7 +38,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 
 **File**: `examples/3_advanced_concepts.py`
 
-**Description**: Demonstrates advanced concepts of CommandLAB, including mouse movement and clicking, keyboard typing, keyboard hotkeys, and getting mouse and keyboard state.
+**Description**: Demonstrates advanced concepts of commandAGI2, including mouse movement and clicking, keyboard typing, keyboard hotkeys, and getting mouse and keyboard state.
 
 **Status**: ✅ Works perfectly
 
@@ -63,7 +63,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 
 **File**: `examples/5_using_kubernetes.py`
 
-**Description**: Demonstrates how to use the Kubernetes provisioner to create and control a Kubernetes pod running the CommandLAB daemon.
+**Description**: Demonstrates how to use the Kubernetes provisioner to create and control a Kubernetes pod running the commandAGI2 daemon.
 
 **Status**: ❌ Not implemented yet
 
@@ -75,7 +75,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 
 **File**: `examples/6_scripting_computer_interactions.py`
 
-**Description**: Demonstrates how to use the manual provisioner to script computer interactions. The manual provisioner is the simplest way to get started with CommandLAB.
+**Description**: Demonstrates how to use the manual provisioner to script computer interactions. The manual provisioner is the simplest way to get started with commandAGI2.
 
 **Status**: ⚠️ Requires manual setup
 
@@ -111,7 +111,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 
 **File**: `examples/9_using_the_internet.py`
 
-**Description**: Demonstrates how to use CommandLAB for web automation tasks, such as opening a browser, navigating to a website, and interacting with web elements.
+**Description**: Demonstrates how to use commandAGI2 for web automation tasks, such as opening a browser, navigating to a website, and interacting with web elements.
 
 **Status**: ⚠️ Works with minor issues
 
@@ -124,7 +124,7 @@ This page provides an overview of the example scripts included in the CommandLAB
 
 **File**: `examples/10_programming.py`
 
-**Description**: Demonstrates how to use CommandLAB for programming tasks, such as opening a code editor, writing code, and running it.
+**Description**: Demonstrates how to use commandAGI2 for programming tasks, such as opening a code editor, writing code, and running it.
 
 **Status**: ⚠️ Works with limitations
 
@@ -136,17 +136,17 @@ This page provides an overview of the example scripts included in the CommandLAB
 
 ## Running the Examples
 
-To run any of the examples, make sure you have CommandLAB installed with the appropriate extras:
+To run any of the examples, make sure you have commandAGI2 installed with the appropriate extras:
 
 ```bash
 # For basic examples
-pip install commandlab[local]
+pip install commandagi2[local]
 
 # For Docker examples
-pip install commandlab[docker]
+pip install commandagi2[docker]
 
 # For OCR examples
-pip install commandlab[local,pytesseract]
+pip install commandagi2[local,pytesseract]
 ```
 
 Then run the example using Python:
@@ -166,6 +166,6 @@ poetry run python examples/1_getting_started.py
 If you encounter issues running the examples:
 
 1. Make sure you have all the required dependencies installed
-1. Check that you're running the examples from the root of the CommandLAB repository
+1. Check that you're running the examples from the root of the commandAGI2 repository
 1. For Docker examples, ensure Docker is installed and running
 1. For examples that require manual setup, follow the instructions in the console output

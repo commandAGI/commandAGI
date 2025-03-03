@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Gym React Agent Example
+commandAGI2 Gym React Agent Example
 
-This example demonstrates how to use the CommandLAB gym framework with the ReactComputerAgent.
+This example demonstrates how to use the commandAGI2 gym framework with the ReactComputerAgent.
 It shows how to create an environment and agent, and collect an episode using the ReAct framework.
 
 Status: not tested
@@ -14,13 +14,13 @@ import traceback
 from typing import Dict, Any
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.react_vision_language_computer_agent import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI2.gym.agents.react_vision_language_computer_agent import (
         ReactComputerAgent,
     )
-    from commandLAB.gym.drivers import SimpleDriver
-    from commandLAB.types import (
+    from commandAGI2.gym.drivers import SimpleDriver
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -32,9 +32,9 @@ except ImportError as e:
     print("Traceback:")
     traceback.print_exc()
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
     )
-    print("pip install commandlab[local,gym]")
+    print("pip install commandagi2[local,gym]")
     exit(1)
 
 
@@ -117,10 +117,10 @@ class TextEditingTask(ComputerEnv):
 
 
 def main():
-    print("CommandLAB Gym React Agent Example")
+    print("commandAGI2 Gym React Agent Example")
     print("==================================")
     print(
-        "This example demonstrates how to use the CommandLAB gym framework with the ReactComputerAgent."
+        "This example demonstrates how to use the commandAGI2 gym framework with the ReactComputerAgent."
     )
     print(
         "It will create an environment and agent, and collect an episode using the ReAct framework."

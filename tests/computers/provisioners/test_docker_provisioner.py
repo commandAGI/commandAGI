@@ -4,7 +4,7 @@ import time
 import docker
 from docker.errors import DockerException, NotFound
 
-from commandLAB.computers.provisioners.docker_provisioner import (
+from commandAGI2.computers.provisioners.docker_provisioner import (
     DockerProvisioner,
     DockerPlatform,
 )
@@ -348,7 +348,7 @@ class TestDockerProvisioner(unittest.TestCase):
     #     mock_ecs.stop_task.assert_called_once_with(
     #         cluster="default",
     #         task="task-arn",
-    #         reason="Stopped by CommandLAB"
+    #         reason="Stopped by commandAGI2"
     #     )
 
     #     # Check that status was updated
@@ -453,7 +453,7 @@ class TestDockerProvisioner(unittest.TestCase):
 
         # Check that describe_tasks was called with the right arguments
         mock_ecs.describe_tasks.assert_called_once_with(
-            cluster="commandlab-cluster", tasks=["task-arn"]
+            cluster="commandagi2-cluster", tasks=["task-arn"]
         )
 
     @patch("azure.mgmt.containerinstance.ContainerInstanceManagementClient")
@@ -494,12 +494,12 @@ class TestDockerProvisioner(unittest.TestCase):
 
         # Check that get was called with the right arguments
         mock_container_groups.get.assert_called_once_with(
-            "test-rg", "commandlab-daemon"
+            "test-rg", "commandagi2-daemon"
         )
 
     @patch("google.cloud.run_v2.ServicesClient")
     @patch(
-        "commandLAB.computers.provisioners.docker_provisioner.DockerProvisioner.__init__"
+        "commandAGI2.computers.provisioners.docker_provisioner.DockerProvisioner.__init__"
     )
     def test_is_running_gcp_cloud_run_true(self, mock_init, mock_services_client_cls):
         # Mock the __init__ method to avoid the CloudRunClient initialization
@@ -512,7 +512,7 @@ class TestDockerProvisioner(unittest.TestCase):
         provisioner.platform = DockerPlatform.GCP_CLOUD_RUN
         provisioner.project_id = "test-project"
         provisioner.region = "us-central1"
-        provisioner.container_name = "commandlab-daemon"
+        provisioner.container_name = "commandagi2-daemon"
 
         # Mock Cloud Run client
         mock_services_client = mock_services_client_cls.return_value
@@ -530,7 +530,7 @@ class TestDockerProvisioner(unittest.TestCase):
         self.assertTrue(provisioner.is_running())
 
         # Check that get_service was called with the right arguments
-        name = f"projects/test-project/locations/us-central1/services/commandlab-daemon"
+        name = f"projects/test-project/locations/us-central1/services/commandagi2-daemon"
         mock_services_client.get_service.assert_called_once_with(name=name)
 
     def test_get_status(self):

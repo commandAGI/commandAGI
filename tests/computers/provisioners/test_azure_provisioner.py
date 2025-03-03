@@ -7,7 +7,7 @@
 # # Add the mocks directory to the path
 # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../mocks')))
 
-# from commandLAB.computers.provisioners.azure_provisioner import AzureProvisioner
+# from commandAGI2.computers.provisioners.azure_provisioner import AzureProvisioner
 
 
 # class TestAzureProvisioner(unittest.TestCase):
@@ -41,7 +41,7 @@
 #         self.assertEqual(self.provisioner.resource_group, "test-rg")
 #         self.assertEqual(self.provisioner.location, "eastus")
 #         self.assertEqual(self.provisioner.vm_size, "Standard_DS1_v2")
-#         self.assertEqual(self.provisioner.vm_name, "commandlab-daemon")
+#         self.assertEqual(self.provisioner.vm_name, "commandagi2-daemon")
 #         self.assertEqual(self.provisioner.subscription_id, "test-subscription")
 #         self.assertEqual(self.provisioner.image_id, "/test/image/id")
 #         self.assertEqual(self.provisioner.max_retries, 2)
@@ -80,7 +80,7 @@
 #         self.mock_vm_client.begin_create_or_update.assert_called_once()
 #         args, kwargs = self.mock_vm_client.begin_create_or_update.call_args
 #         self.assertEqual(args[0], "test-rg")
-#         self.assertEqual(args[1], "commandlab-daemon")
+#         self.assertEqual(args[1], "commandagi2-daemon")
 
 #         # Check that the VM configuration is correct
 #         vm_config = args[2]
@@ -180,7 +180,7 @@
 #         # Check that begin_delete was called with the right arguments
 #         self.mock_vm_client.begin_delete.assert_called_once_with(
 #             "test-rg",
-#             "commandlab-daemon"
+#             "commandagi2-daemon"
 #         )
 
 #         # Check that the status was updated
@@ -231,7 +231,7 @@
 #         # Check that get was called with the right arguments
 #         self.mock_vm_client.get.assert_called_once_with(
 #             "test-rg",
-#             "commandlab-daemon",
+#             "commandagi2-daemon",
 #             expand='instanceView'
 #         )
 

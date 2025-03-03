@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CommandLAB Gym Web Browsing Example
+commandAGI2 Gym Web Browsing Example
 
-This example demonstrates how to use the CommandLAB gym framework to automate a web browsing task.
+This example demonstrates how to use the commandAGI2 gym framework to automate a web browsing task.
 It creates a custom environment that rewards the agent for successfully completing web browsing tasks.
 
 Status: Not tested
@@ -20,13 +20,13 @@ from typing import Dict, Any
 from PIL import Image
 
 try:
-    from commandLAB.computers.local_pynput_computer import LocalPynputComputer
-    from commandLAB.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandLAB.gym.agents.naive_vision_language_computer_agent import (
+    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI2.gym.agents.naive_vision_language_computer_agent import (
         NaiveComputerAgent,
     )
-    from commandLAB.gym.drivers import SimpleDriver
-    from commandLAB.types import (
+    from commandAGI2.gym.drivers import SimpleDriver
+    from commandAGI2.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -38,14 +38,14 @@ try:
         MouseClickAction,
         MouseButton,
     )
-    from commandLAB.processors.screen_parser.pytesseract_screen_parser import (
+    from commandAGI2.processors.screen_parser.pytesseract_screen_parser import (
         parse_screenshot,
     )
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure CommandLAB is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
     )
-    print("pip install commandlab[local,gym,pytesseract]")
+    print("pip install commandagi2[local,gym,pytesseract]")
     exit(1)
 
 
@@ -213,9 +213,9 @@ class SimpleMockAgent(NaiveComputerAgent):
 
 
 def main():
-    print("CommandLAB Gym Web Browsing Example")
+    print("commandAGI2 Gym Web Browsing Example")
     print("===================================")
-    print("This example demonstrates how to use the CommandLAB gym framework")
+    print("This example demonstrates how to use the commandAGI2 gym framework")
     print("to automate a web browsing task.")
     print()
     print(
@@ -236,7 +236,7 @@ def main():
         env = WebBrowsingEnv(config)
 
         # Enable logging of modality errors for debugging
-        from commandLAB.gym.environments.multimodal_env import MultiModalEnv
+        from commandAGI2.gym.environments.multimodal_env import MultiModalEnv
 
         MultiModalEnv._LOG_MODALITY_ERRORS = True
 

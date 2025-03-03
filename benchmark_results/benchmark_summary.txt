@@ -1,4 +1,4 @@
-CommandLAB Benchmark Summary
+commandAGI2 Benchmark Summary
 ===========================
 
 Date: 2025-02-24 20:50:44
