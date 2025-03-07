@@ -1,5 +1,5 @@
 """
-MkDocs macros for commandAGI2 documentation.
+MkDocs macros for commandAGI documentation.
 """
 
 from .example_macros import (

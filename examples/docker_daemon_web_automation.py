@@ -20,13 +20,13 @@ import time
 import os
 from pathlib import Path
 
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer
-from commandAGI2.computers.provisioners.docker_provisioner import (
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.provisioners.docker_provisioner import (
     DockerProvisioner,
     DockerPlatform,
 )
-from commandAGI2.version import get_container_version
-from commandAGI2.types import (
+from commandAGI.version import get_container_version
+from commandAGI.types import (
     KeyboardKey,
     MouseButton,
     TypeAction,
@@ -39,13 +39,13 @@ from commandAGI2.types import (
 
 def main():
     print("=== Docker Daemon Web Automation Example ===")
-    print("Starting Docker container with commandAGI2 daemon...")
+    print("Starting Docker container with commandAGI daemon...")
 
     # Create a Docker provisioner
     provisioner = DockerProvisioner(
         port=8000,
         platform=DockerPlatform.LOCAL,
-        container_name="commandagi2-web-automation",
+        container_name="commandagi-web-automation",
         version=get_container_version(),
         max_retries=3,
         timeout=60,  # 1 minute timeout
@@ -165,7 +165,7 @@ def main():
 
 
 def perform_web_search(
-    computer, search_engine="https://www.google.com", query="commandAGI2 automation"
+    computer, search_engine="https://www.google.com", query="commandAGI automation"
 ):
     """Perform a web search using the specified search engine and query."""
     print(f"\n=== Performing Web Search on {search_engine} ===")

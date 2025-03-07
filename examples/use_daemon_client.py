@@ -3,11 +3,11 @@
 Example of using the DaemonClientComputer with the generated OpenAPI client.
 """
 
-from commandAGI2.computers.daemon_client_computer import (
+from commandAGI.computers.daemon_client_computer import (
     DaemonClientComputer,
     ProvisioningMethod,
 )
-from commandAGI2.types import (
+from commandAGI.types import (
     TypeAction,
     MouseMoveAction,
     KeyboardHotkeyAction,
@@ -30,13 +30,13 @@ def main():
     )
 
     # Use with manual provisioning
-    from commandAGI2.computers.provisioners.manual_provisioner import ManualProvisioner
+    from commandAGI.computers.provisioners.manual_provisioner import ManualProvisioner
 
     provisioner = ManualProvisioner(port=8000)
     computer = DaemonClientComputer(daemon_port=8000, provisioner=provisioner)
 
     # Use with Docker provisioning
-    from commandAGI2.computers.provisioners.docker_provisioner import DockerProvisioner
+    from commandAGI.computers.provisioners.docker_provisioner import DockerProvisioner
 
     provisioner = DockerProvisioner(port=8000)
     computer = DaemonClientComputer(daemon_port=8000, provisioner=provisioner)
@@ -62,7 +62,7 @@ def main():
 
         # Example 4: Execute a command
         print("\nExample 4: Executing command...")
-        command_action = ShellCommandAction(command="echo 'Hello from commandAGI2'")
+        command_action = ShellCommandAction(command="echo 'Hello from commandAGI'")
         success = computer.shell(command_action)
         print(f"Command execution success: {success}")
 

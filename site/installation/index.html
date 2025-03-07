@@ -20,7 +20,7 @@
     
     
       
-        <title>Installation - commandAGI2</title>
+        <title>Installation - commandAGI</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="commandAGI2" class="md-header__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href=".." title="commandAGI" class="md-header__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            commandAGI2
+            commandAGI
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -211,13 +211,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="commandAGI2" class="md-nav__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href=".." title="commandAGI" class="md-nav__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    commandAGI2
+    commandAGI
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1610,7 +1610,7 @@
 
 
 <h1 id="installation-guide">Installation Guide</h1>
-<p>This guide provides detailed instructions for installing commandAGI2 and its dependencies on different operating systems.</p>
+<p>This guide provides detailed instructions for installing commandAGI and its dependencies on different operating systems.</p>
 <h2 id="system-requirements">System Requirements</h2>
 <ul>
 <li><strong>Python</strong>: Python 3.9 or higher</li>
@@ -1626,14 +1626,14 @@
 <li>Cloud deployments require appropriate cloud provider credentials</li>
 </ul>
 <h2 id="basic-installation">Basic Installation</h2>
-<p>The simplest way to install commandAGI2 is using pip:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>commandagi2
+<p>The simplest way to install commandAGI is using pip:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>commandagi
 </code></pre></div>
 <p>This installs the core framework without specific backends. You'll need to install additional components based on your use case.</p>
 <h2 id="installation-with-backends">Installation with Backends</h2>
 <h3 id="local-computer-control">Local Computer Control</h3>
 <p>To control your local computer, install the local backend:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[local]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[local]&quot;</span>
 </code></pre></div>
 <p>This installs dependencies for controlling your local computer:</p>
 <ul>
@@ -1658,7 +1658,7 @@
 </ul>
 <h3 id="remote-daemon">Remote Daemon</h3>
 <p>To use the remote control daemon:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[daemon]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[daemon]&quot;</span>
 </code></pre></div>
 <p>This installs:</p>
 <ul>
@@ -1667,7 +1667,7 @@
 </ul>
 <h3 id="container-support">Container Support</h3>
 <p>For Docker container support:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[docker]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[docker]&quot;</span>
 </code></pre></div>
 <p>This requires:</p>
 <ul>
@@ -1675,7 +1675,7 @@
 <li>Python Docker SDK</li>
 </ul>
 <p>For Kubernetes support:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[kubernetes]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[kubernetes]&quot;</span>
 </code></pre></div>
 <p>This requires:</p>
 <ul>
@@ -1684,20 +1684,20 @@
 </ul>
 <h3 id="cloud-provider-support">Cloud Provider Support</h3>
 <p>For AWS support:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[aws]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[aws]&quot;</span>
 </code></pre></div>
 <p>For Azure support:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[azure]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[azure]&quot;</span>
 </code></pre></div>
 <p>For Google Cloud Platform support:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[gcp]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[gcp]&quot;</span>
 </code></pre></div>
 <p>For all cloud providers:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[cloud]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[cloud]&quot;</span>
 </code></pre></div>
 <h3 id="integration-components">Integration Components</h3>
 <p>For OCR capabilities:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[pytesseract]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[pytesseract]&quot;</span>
 </code></pre></div>
 <p>This requires:</p>
 <ul>
@@ -1707,21 +1707,21 @@
 <li>Linux: <code>sudo apt-get install tesseract-ocr</code></li>
 </ul>
 <p>For E2B Desktop integration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[e2b-desktop]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[e2b-desktop]&quot;</span>
 </code></pre></div>
 <p>For LangChain integration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[langchain]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[langchain]&quot;</span>
 </code></pre></div>
 <h3 id="all-features">All Features</h3>
 <p>To install all available backends and features:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[all]&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[all]&quot;</span>
 </code></pre></div>
 <p>Note that this will install all dependencies, which may include conflicting packages. It's generally better to install only the components you need.</p>
 <h2 id="development-installation">Development Installation</h2>
-<p>For contributing to commandAGI2:</p>
+<p>For contributing to commandAGI:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Clone the repository</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/your-org/commandagi2.git
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">cd</span><span class="w"> </span>commandagi2
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/your-org/commandagi.git
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">cd</span><span class="w"> </span>commandagi
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
 <a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># Install in development mode with development dependencies</span>
 <a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
@@ -1730,18 +1730,18 @@
 <a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>pytest
 </code></pre></div>
 <h2 id="virtual-environment">Virtual Environment</h2>
-<p>It's recommended to install commandAGI2 in a virtual environment:</p>
+<p>It's recommended to install commandAGI in a virtual environment:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Create a virtual environment</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>commandagi2-env
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>commandagi-env
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
 <a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Activate the environment</span>
 <a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># On Windows:</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>commandagi2-env<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>commandagi-env<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
 <a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># On macOS/Linux:</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="nb">source</span><span class="w"> </span>commandagi2-env/bin/activate
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="nb">source</span><span class="w"> </span>commandagi-env/bin/activate
 <a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="c1"># Install commandAGI2</span>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi2[local,daemon]&quot;</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="c1"># Install commandAGI</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;commandagi[local,daemon]&quot;</span>
 </code></pre></div>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <h3 id="common-issues">Common Issues</h3>
@@ -1757,7 +1757,7 @@
 <p><strong>Problem</strong>: <code>ImportError: No module named 'pynput'</code> or similar</p>
 <p><strong>Solution</strong>:</p>
 <ul>
-<li>Ensure you've installed the correct extras: <code>pip install "commandagi2[local]"</code></li>
+<li>Ensure you've installed the correct extras: <code>pip install "commandagi[local]"</code></li>
 <li>Check if your virtual environment is activated</li>
 </ul>
 <h4 id="docker-issues">Docker Issues</h4>
@@ -1779,18 +1779,18 @@
 <h3 id="getting-help">Getting Help</h3>
 <p>If you encounter issues not covered here:</p>
 <ol>
-<li>Check the <a href="https://github.com/your-org/commandagi2/issues">GitHub Issues</a> for similar problems</li>
+<li>Check the <a href="https://github.com/your-org/commandagi/issues">GitHub Issues</a> for similar problems</li>
 <li>Join our <a href="https://discord.gg/your-discord">Discord community</a> for support</li>
 <li>Open a new issue with details about your problem</li>
 </ol>
 <h2 id="verifying-installation">Verifying Installation</h2>
 <p>To verify your installation:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">commandAGI2</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;commandAGI2 version: </span><span class="si">{</span><span class="n">commandAGI2</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">commandAGI</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;commandAGI version: </span><span class="si">{</span><span class="n">commandAGI</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Test local computer if installed</span>
 <a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
 <a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="n">computer</span> <span class="o">=</span> <span class="n">LocalPynputComputer</span><span class="p">()</span>
 <a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Local computer control is working&quot;</span><span class="p">)</span>
 <a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -1798,7 +1798,7 @@
 </code></pre></div>
 <h2 id="next-steps">Next Steps</h2>
 <ul>
-<li>Follow the <a href="../quickstart/">Quick Start Guide</a> to begin using commandAGI2</li>
+<li>Follow the <a href="../quickstart/">Quick Start Guide</a> to begin using commandAGI</li>
 <li>Explore the <a href="concepts/index.md">Core Concepts</a> to understand the framework</li>
 <li>Try the <a href="../tutorials/basic_automation/">Basic Automation Tutorial</a> for a hands-on example</li>
 </ul>

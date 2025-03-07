@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Gym Basic Example
+commandAGI Gym Basic Example
 
-This example demonstrates how to use the commandAGI2 gym framework to create an environment,
+This example demonstrates how to use the commandAGI gym framework to create an environment,
 agent, and collect an episode. It shows the basic structure of a reinforcement learning
-setup with commandAGI2.
+setup with commandAGI.
 
 Status: Working but doesn't stop
 - Successfully initializes the environment, agent, and driver
@@ -20,11 +20,11 @@ import random
 from typing import List, Optional
 
 try:
-    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-    from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-    from commandAGI2.gym.agents.base_agent import BaseAgent
-    from commandAGI2.gym.drivers import SimpleDriver
-    from commandAGI2.types import (
+    from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+    from commandAGI.gym.agents.base_agent import BaseAgent
+    from commandAGI.gym.drivers import SimpleDriver
+    from commandAGI.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -33,16 +33,16 @@ try:
         ComputerObservation,
         MouseMoveAction,
     )
-    from commandAGI2.gym.schema import Episode
+    from commandAGI.gym.schema import Episode
     from pydantic import Field
 except ImportError as e:
     print(f"Detailed import error: {e}")
     print("Traceback:")
     traceback.print_exc()
     print(
-        "Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:"
+        "Error: Required modules not found. Make sure commandAGI is installed with the required extras:"
     )
-    print("pip install commandagi2[local,gym]")
+    print("pip install commandagi[local,gym]")
     exit(1)
 
 
@@ -76,9 +76,9 @@ class MockAgent(BaseAgent[ComputerObservation, ComputerAction]):
 
 
 def main():
-    print("commandAGI2 Gym Basic Example")
+    print("commandAGI Gym Basic Example")
     print("============================")
-    print("This example demonstrates how to use the commandAGI2 gym framework.")
+    print("This example demonstrates how to use the commandAGI gym framework.")
     print("It will create an environment, agent, and collect an episode.")
     print()
 
@@ -97,7 +97,7 @@ def main():
         env = ComputerEnv(config, computer=computer)
 
         # Enable logging of modality errors for debugging
-        from commandAGI2.gym.environments.multimodal_env import MultiModalEnv
+        from commandAGI.gym.environments.multimodal_env import MultiModalEnv
 
         MultiModalEnv._LOG_MODALITY_ERRORS = True
 

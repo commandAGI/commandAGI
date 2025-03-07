@@ -20,7 +20,7 @@
     
     
       
-        <title>Advanced Concepts - commandAGI2</title>
+        <title>Advanced Concepts - commandAGI</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#commandagi2-advanced-concepts-example" class="md-skip">
+        <a href="#commandagi-advanced-concepts-example" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="commandAGI2" class="md-header__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href="../.." title="commandAGI" class="md-header__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            commandAGI2
+            commandAGI
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -211,13 +211,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="commandAGI2" class="md-nav__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href="../.." title="commandAGI" class="md-nav__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    commandAGI2
+    commandAGI
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1309,9 +1309,9 @@
 
 
 
-<h1 id="commandagi2-advanced-concepts-example">commandAGI2 Advanced Concepts Example</h1>
+<h1 id="commandagi-advanced-concepts-example">commandAGI Advanced Concepts Example</h1>
 <h2 id="description">Description</h2>
-<p>This example demonstrates advanced concepts of commandAGI2, including:
+<p>This example demonstrates advanced concepts of commandAGI, including:
 - Mouse movement and clicking
 - Keyboard typing
 - Keyboard hotkeys
@@ -1321,9 +1321,9 @@
 <h2 id="code">Code</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/usr/bin/env python3</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">commandAGI2 Advanced Concepts Example</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">commandAGI Advanced Concepts Example</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">This example demonstrates advanced concepts of commandAGI2, including:</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">This example demonstrates advanced concepts of commandAGI, including:</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="sd">- Mouse movement and clicking</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="sd">- Keyboard typing</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="sd">- Keyboard hotkeys</span>
@@ -1337,8 +1337,8 @@
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># Import the local computer implementation</span>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="n">MouseButton</span><span class="p">,</span>
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="n">KeyboardKey</span><span class="p">,</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        <span class="n">ClickAction</span><span class="p">,</span>
@@ -1348,9 +1348,9 @@
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="p">)</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="nb">print</span><span class="p">(</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="s2">&quot;Error: Required modules not found. Make sure commandAGI2 is installed with the local extra:&quot;</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="s2">&quot;Error: Required modules not found. Make sure commandAGI is installed with the local extra:&quot;</span>
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="p">)</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pip install commandagi2[local]&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pip install commandagi[local]&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
@@ -1394,7 +1394,7 @@
 <a id="__codelineno-0-73" name="__codelineno-0-73" href="#__codelineno-0-73"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Typing text...&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-74" name="__codelineno-0-74" href="#__codelineno-0-74"></a>        <span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span>
 <a id="__codelineno-0-75" name="__codelineno-0-75" href="#__codelineno-0-75"></a>            <span class="n">TypeAction</span><span class="p">(</span>
-<a id="__codelineno-0-76" name="__codelineno-0-76" href="#__codelineno-0-76"></a>                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello from commandAGI2!</span><span class="se">\n\n</span><span class="s2">This text was typed automatically.&quot;</span>
+<a id="__codelineno-0-76" name="__codelineno-0-76" href="#__codelineno-0-76"></a>                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello from commandAGI!</span><span class="se">\n\n</span><span class="s2">This text was typed automatically.&quot;</span>
 <a id="__codelineno-0-77" name="__codelineno-0-77" href="#__codelineno-0-77"></a>            <span class="p">)</span>
 <a id="__codelineno-0-78" name="__codelineno-0-78" href="#__codelineno-0-78"></a>        <span class="p">)</span>
 <a id="__codelineno-0-79" name="__codelineno-0-79" href="#__codelineno-0-79"></a>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1410,7 +1410,7 @@
 <a id="__codelineno-0-89" name="__codelineno-0-89" href="#__codelineno-0-89"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Typing more text...&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-90" name="__codelineno-0-90" href="#__codelineno-0-90"></a>        <span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span>
 <a id="__codelineno-0-91" name="__codelineno-0-91" href="#__codelineno-0-91"></a>            <span class="n">TypeAction</span><span class="p">(</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92" href="#__codelineno-0-92"></a>                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;This text replaced the selected text.</span><span class="se">\n\n</span><span class="s2">commandAGI2 makes automation easy!&quot;</span>
+<a id="__codelineno-0-92" name="__codelineno-0-92" href="#__codelineno-0-92"></a>                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;This text replaced the selected text.</span><span class="se">\n\n</span><span class="s2">commandAGI makes automation easy!&quot;</span>
 <a id="__codelineno-0-93" name="__codelineno-0-93" href="#__codelineno-0-93"></a>            <span class="p">)</span>
 <a id="__codelineno-0-94" name="__codelineno-0-94" href="#__codelineno-0-94"></a>        <span class="p">)</span>
 <a id="__codelineno-0-95" name="__codelineno-0-95" href="#__codelineno-0-95"></a>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1442,8 +1442,8 @@
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>3_advanced_concepts.py
 </code></pre></div>
 <h2 id="expected-output">Expected Output</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Error: Required modules not found. Make sure commandAGI2 is installed with the local extra:
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pip install commandagi2[local]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Error: Required modules not found. Make sure commandAGI is installed with the local extra:
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pip install commandagi[local]
 </code></pre></div>
 <h2 id="key-concepts">Key Concepts</h2>
 <!-- This section should be manually filled in with key concepts demonstrated by the example -->

@@ -1,10 +1,10 @@
 # Remote Control Tutorial
 
-This tutorial will guide you through the process of setting up and using commandAGI2's remote control capabilities. You'll learn how to control a computer remotely using the daemon.
+This tutorial will guide you through the process of setting up and using commandAGI's remote control capabilities. You'll learn how to control a computer remotely using the daemon.
 
 ## Introduction
 
-commandAGI2's remote control feature allows you to control one computer from another. This is useful for:
+commandAGI's remote control feature allows you to control one computer from another. This is useful for:
 
 - Automating tasks on remote servers
 - Controlling headless machines
@@ -15,16 +15,16 @@ commandAGI2's remote control feature allows you to control one computer from ano
 
 Before you begin, make sure you have:
 
-- commandAGI2 installed on both the controller and target machines
+- commandAGI installed on both the controller and target machines
 - Network connectivity between the machines
 - Appropriate permissions to run the daemon on the target machine
 
 ### Installation
 
-On both machines, install commandAGI2 with daemon support:
+On both machines, install commandAGI with daemon support:
 
 ```bash
-pip install "commandagi2[daemon]"
+pip install "commandagi[daemon]"
 ```
 
 ## Step 1: Start the Daemon on the Target Machine
@@ -32,7 +32,7 @@ pip install "commandagi2[daemon]"
 The first step is to start the daemon on the target machine (the one you want to control).
 
 ```bash
-python -m commandAGI2.daemon.cli start --port 8000 --backend pynput
+python -m commandAGI.daemon.cli start --port 8000 --backend pynput
 ```
 
 This will start the daemon on port 8000 using the pynput backend for computer control. The daemon will print an API token that looks something like this:
@@ -49,7 +49,7 @@ Make note of this token, as you'll need it to authenticate with the daemon.
 The daemon includes built-in support for starting and stopping VNC and RDP servers, which can be useful for remote viewing and control. You can configure these options when starting the daemon:
 
 ```bash
-python -m commandAGI2.daemon.cli start --port 8000 --backend pynput \
+python -m commandAGI.daemon.cli start --port 8000 --backend pynput \
     --vnc-windows-executables-str "ultravnc.exe,tightvnc.exe" \
     --vnc-unix-executables-str "tigervnc,x11vnc" \
     --rdp-use-system-commands true
@@ -62,8 +62,8 @@ For more detailed configuration options, see the [VNC/RDP Configuration Tutorial
 Now, on the controller machine, you can connect to the daemon using the `DaemonClientComputer` class:
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandAGI2.types import TypeAction, ClickAction, KeyboardHotkeyAction, KeyboardKey
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.types import TypeAction, ClickAction, KeyboardHotkeyAction, KeyboardKey
 
 # Connect to the daemon
 computer = DaemonClientComputer(
@@ -100,7 +100,7 @@ computer.execute_keyboard_hotkey(KeyboardHotkeyAction(
 You can also execute system commands on the remote machine:
 
 ```python
-from commandAGI2.types import CommandAction
+from commandAGI.types import CommandAction
 
 # Execute a command on the remote machine
 result = computer.execute_command(CommandAction(
@@ -119,7 +119,7 @@ else:
 In addition to programmatic control, you can use VNC and RDP for remote viewing and interactive control:
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer
 
 # Connect to the daemon
 computer = DaemonClientComputer(
@@ -158,8 +158,8 @@ Here's a complete example that automates opening a browser and performing a web 
 
 ```python
 import time
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandAGI2.types import (
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.types import (
     CommandAction,
     TypeAction,
     KeyboardKeyPressAction,
@@ -185,7 +185,7 @@ try:
     time.sleep(2)  # Wait for the page to load
 
     # Type a search query
-    computer.execute_type(TypeAction(text="commandAGI2 python automation"))
+    computer.execute_type(TypeAction(text="commandAGI python automation"))
     computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
     time.sleep(2)  # Wait for search results
 
@@ -216,7 +216,7 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -node
 Start the daemon with HTTPS:
 
 ```bash
-python -m commandAGI2.daemon.cli start --port 8443 --backend pynput --ssl-cert cert.pem --ssl-key key.pem
+python -m commandAGI.daemon.cli start --port 8443 --backend pynput --ssl-cert cert.pem --ssl-key key.pem
 ```
 
 Connect using HTTPS:
@@ -238,7 +238,7 @@ Restrict access to the daemon port using a firewall:
 sudo ufw allow from trusted-ip-address to any port 8000
 
 # On Windows
-netsh advfirewall firewall add rule name="commandAGI2 Daemon" dir=in action=allow protocol=TCP localport=8000 remoteip=trusted-ip-address
+netsh advfirewall firewall add rule name="commandAGI Daemon" dir=in action=allow protocol=TCP localport=8000 remoteip=trusted-ip-address
 ```
 
 ## Advanced: Automatic Provisioning
@@ -248,8 +248,8 @@ Instead of manually starting the daemon, you can use provisioners to automatical
 ### Docker Provisioning
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandAGI2.computers.provisioners.docker_provisioner import DockerPlatform
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
 # Create a computer with Docker provisioning
 computer = DaemonClientComputer(
@@ -267,7 +267,7 @@ computer.close()
 ### Cloud Provisioning
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer in AWS EC2
 computer = DaemonClientComputer(
@@ -302,14 +302,14 @@ If you're having trouble connecting to the daemon:
    sudo ufw status
    
    # On Windows
-   netsh advfirewall firewall show rule name="commandAGI2 Daemon"
+   netsh advfirewall firewall show rule name="commandAGI Daemon"
    ```
 
 3. **Check Daemon Status**: Make sure the daemon is running
 
    ```bash
    # On Linux
-   ps aux | grep commandAGI2.daemon
+   ps aux | grep commandAGI.daemon
    
    # On Windows
    tasklist | findstr python

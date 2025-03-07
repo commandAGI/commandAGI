@@ -1,5 +1,5 @@
 """
-Benchmarks for commandAGI2 screen parsers.
+Benchmarks for commandAGI screen parsers.
 
 This module contains benchmarks for measuring the performance of screen parsing utilities.
 """
@@ -17,7 +17,7 @@ import os
 import tempfile
 
 try:
-    from commandAGI2.processors.screen_parser.pytesseract_screen_parser import (
+    from commandAGI.processors.screen_parser.pytesseract_screen_parser import (
         parse_screenshot as pytesseract_parse,
     )
 
@@ -26,7 +26,7 @@ except ImportError:
     PYTESSERACT_AVAILABLE = False
 
 try:
-    from commandAGI2.processors.screen_parser.screenparse_ai_screen_parser import (
+    from commandAGI.processors.screen_parser.screenparse_ai_screen_parser import (
         parse_screenshot as screenparse_ai_parse,
     )
 
@@ -34,7 +34,7 @@ try:
 except ImportError:
     SCREENPARSE_AI_AVAILABLE = False
 
-from commandAGI2.utils.image import imageToB64
+from commandAGI.utils.image import imageToB64
 
 
 def generate_test_images(
@@ -290,7 +290,7 @@ def plot_results(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark commandAGI2 screen parsers")
+    parser = argparse.ArgumentParser(description="Benchmark commandAGI screen parsers")
     parser.add_argument(
         "--runs", type=int, default=3, help="Number of benchmark runs per parser"
     )

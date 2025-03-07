@@ -16,7 +16,7 @@
     
     
       
-        <title>Basic Automation Tutorial - commandAGI2</title>
+        <title>Basic Automation Tutorial - commandAGI</title>
       
     
     
@@ -86,7 +86,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="commandAGI2" class="md-header__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href="../../.." title="commandAGI" class="md-header__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            commandAGI2
+            commandAGI
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -207,13 +207,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="commandAGI2" class="md-nav__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href="../../.." title="commandAGI" class="md-nav__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    commandAGI2
+    commandAGI
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1218,15 +1218,15 @@
 
 
 <h1 id="basic-automation-tutorial">Basic Automation Tutorial</h1>
-<p>In this tutorial, we'll create a simple automation script using commandAGI2 to open a text editor, type some text, and save a file.</p>
+<p>In this tutorial, we'll create a simple automation script using commandAGI to open a text editor, type some text, and save a file.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
-<li>commandAGI2 installed with local backend: <code>pip install commandagi2[local]</code></li>
+<li>commandAGI installed with local backend: <code>pip install commandagi[local]</code></li>
 <li>A text editor (like Notepad on Windows or TextEdit on macOS)</li>
 </ul>
 <h2 id="step-1-import-required-modules">Step 1: Import Required Modules</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">CommandAction</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">TypeAction</span><span class="p">,</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">ClickAction</span><span class="p">,</span>
@@ -1257,7 +1257,7 @@
 </code></pre></div>
 <h2 id="step-4-type-some-text">Step 4: Type Some Text</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Type some text</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello from commandAGI2!</span><span class="se">\n\n</span><span class="s2">This file was created automatically.&quot;</span><span class="p">))</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello from commandAGI!</span><span class="se">\n\n</span><span class="s2">This file was created automatically.&quot;</span><span class="p">))</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Typed text&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="step-5-save-the-file">Step 5: Save the File</h2>
@@ -1285,8 +1285,8 @@
 <p>Here's the complete script:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">CommandAction</span><span class="p">,</span>
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">TypeAction</span><span class="p">,</span>
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">KeyboardHotkeyAction</span><span class="p">,</span>
@@ -1311,7 +1311,7 @@
 <a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>
 <a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a><span class="c1"># Type some text</span>
-<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello from commandAGI2!</span><span class="se">\n\n</span><span class="s2">This file was created automatically.&quot;</span><span class="p">))</span>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a><span class="n">computer</span><span class="o">.</span><span class="n">execute_type</span><span class="p">(</span><span class="n">TypeAction</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello from commandAGI!</span><span class="se">\n\n</span><span class="s2">This file was created automatically.&quot;</span><span class="p">))</span>
 <a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Typed text&quot;</span><span class="p">)</span>
 <a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>
 <a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a><span class="c1"># Press Ctrl+S to save</span>

@@ -1,32 +1,32 @@
 # Quick Start Guide
 
-This guide will help you get up and running with commandAGI2 quickly. We'll cover the basics of local computer control, remote control via daemon, and using Docker provisioning.
+This guide will help you get up and running with commandAGI quickly. We'll cover the basics of local computer control, remote control via daemon, and using Docker provisioning.
 
 ## Installation
 
-First, install commandAGI2 with the components you need:
+First, install commandAGI with the components you need:
 
 ```bash
 # For local computer control
-pip install "commandagi2[local]"
+pip install "commandagi[local]"
 
 # For remote control via daemon
-pip install "commandagi2[daemon]"
+pip install "commandagi[daemon]"
 
 # For Docker provisioning
-pip install "commandagi2[docker]"
+pip install "commandagi[docker]"
 
 # For all features
-pip install "commandagi2[all]"
+pip install "commandagi[all]"
 ```
 
 ## Basic Usage: Local Computer Control
 
-The simplest way to use commandAGI2 is to control your local computer:
+The simplest way to use commandAGI is to control your local computer:
 
 ```python
-from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-from commandAGI2.types import ClickAction, TypeAction, KeyboardHotkeyAction, KeyboardKey
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.types import ClickAction, TypeAction, KeyboardHotkeyAction, KeyboardKey
 
 # Create a computer instance
 computer = LocalPynputComputer()
@@ -38,7 +38,7 @@ screenshot = computer.get_screenshot()
 computer.execute_click(ClickAction(x=100, y=100))
 
 # Type text
-computer.execute_type(TypeAction(text="Hello, commandAGI2!"))
+computer.execute_type(TypeAction(text="Hello, commandAGI!"))
 
 # Press keyboard shortcut (Ctrl+S)
 computer.execute_keyboard_hotkey(KeyboardHotkeyAction(
@@ -48,7 +48,7 @@ computer.execute_keyboard_hotkey(KeyboardHotkeyAction(
 
 ### Available Actions
 
-commandAGI2 provides a rich set of actions for controlling computers:
+commandAGI provides a rich set of actions for controlling computers:
 
 | Action | Description | Example |
 |--------|-------------|---------|
@@ -82,7 +82,7 @@ print(f"Shift key pressed: {keyboard_state.keys.get(KeyboardKey.SHIFT, False)}")
 
 ## Remote Control via Daemon
 
-commandAGI2 allows you to control remote computers using a daemon server:
+commandAGI allows you to control remote computers using a daemon server:
 
 ### Starting the Daemon
 
@@ -90,7 +90,7 @@ First, start the daemon on the target computer:
 
 ```bash
 # Start the daemon on port 8000 using the pynput backend
-python -m commandAGI2.daemon.cli start --port 8000 --backend pynput
+python -m commandAGI.daemon.cli start --port 8000 --backend pynput
 ```
 
 The daemon will print an API token that you'll need to connect to it.
@@ -100,8 +100,8 @@ The daemon will print an API token that you'll need to connect to it.
 Then, control it from another machine:
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandAGI2.types import TypeAction, ClickAction
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.types import TypeAction, ClickAction
 
 # Connect to the daemon manually
 computer = DaemonClientComputer(
@@ -125,12 +125,12 @@ computer.close()
 
 ## Using Docker Provisioning
 
-commandAGI2 can automatically provision and manage Docker containers:
+commandAGI can automatically provision and manage Docker containers:
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
-from commandAGI2.types import CommandAction, TypeAction
-from commandAGI2.computers.provisioners.docker_provisioner import DockerPlatform
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.types import CommandAction, TypeAction
+from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
 # Create a computer with Docker provisioning
 computer = DaemonClientComputer(
@@ -150,12 +150,12 @@ computer.close()
 
 ## Using Cloud Provisioning
 
-commandAGI2 supports provisioning computers in various cloud environments:
+commandAGI supports provisioning computers in various cloud environments:
 
 ### AWS EC2
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer in AWS EC2
 computer = DaemonClientComputer(
@@ -174,7 +174,7 @@ computer.close()
 ### Azure VM
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer in Azure
 computer = DaemonClientComputer(
@@ -193,7 +193,7 @@ computer.close()
 ### Google Cloud Platform
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer in GCP
 computer = DaemonClientComputer(
@@ -211,12 +211,12 @@ computer.close()
 
 ## Using the Gym Framework
 
-commandAGI2 includes a reinforcement learning framework for training agents:
+commandAGI includes a reinforcement learning framework for training agents:
 
 ```python
-from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-from commandAGI2.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
-from commandAGI2.gym.drivers import SimpleDriver
+from commandAGI.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+from commandAGI.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+from commandAGI.gym.drivers import SimpleDriver
 
 # Configure the environment
 config = ComputerEnvConfig(
@@ -249,8 +249,8 @@ Here's a complete example that automates opening a browser and performing a web 
 
 ```python
 import time
-from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-from commandAGI2.types import (
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.types import (
     CommandAction,
     TypeAction,
     ClickAction,
@@ -272,7 +272,7 @@ computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER
 time.sleep(2)  # Wait for the page to load
 
 # Type a search query
-computer.execute_type(TypeAction(text="commandAGI2 python automation"))
+computer.execute_type(TypeAction(text="commandAGI python automation"))
 computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 time.sleep(2)  # Wait for search results
 
@@ -286,7 +286,7 @@ computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ALT, Key
 
 ## Next Steps
 
-Now that you've learned the basics of commandAGI2, you can:
+Now that you've learned the basics of commandAGI, you can:
 
 - Learn about [Core Concepts](concepts/index.md)
 - Explore [Computer Types](concepts/computers.md)

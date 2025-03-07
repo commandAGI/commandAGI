@@ -8,7 +8,7 @@ Run
 =
 <5
 P
-commandAGI2
+commandAGI
 OPP
 ��
 Y
@@ -196,7 +196,7 @@ for
 http+docker://localnpi
 VS
 ferimers
-pe/v1.47/images/create?tag=test-version&fromImage=commandagi2-d
+pe/v1.47/images/create?tag=test-version&fromImage=commandagi-d
 @
 @testversionpy
 @
@@ -230,7 +230,7 @@ in
 Sore
 iE
 PS
-C:\Users\Jacob\source\repos\active\commandAGI\commandAGI2>
+C:\Users\Jacob\source\repos\active\commandAGI\commandAGI>
 []
 eo
 Agent

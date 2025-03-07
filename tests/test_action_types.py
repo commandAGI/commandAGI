@@ -1,6 +1,6 @@
 import unittest
 
-from commandAGI2.types import (
+from commandAGI.types import (
     ClickAction,
     ShellCommandAction,
     DoubleClickAction,
@@ -104,10 +104,10 @@ class TestKeyboardActions(unittest.TestCase):
 
     def test_type_action(self):
         # Test creating a TypeAction
-        action = TypeAction(text="Hello, commandAGI2!")
+        action = TypeAction(text="Hello, commandAGI!")
 
         # Check attributes
-        self.assertEqual(action.text, "Hello, commandAGI2!")
+        self.assertEqual(action.text, "Hello, commandAGI!")
 
 
 class TestMouseActions(unittest.TestCase):

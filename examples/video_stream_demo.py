@@ -9,7 +9,7 @@ It starts a local computer, starts the video stream, and then waits for the user
 import time
 import logging
 import webbrowser
-from commandAGI2.computers import LocalPynputComputer
+from commandAGI.computers import LocalPynputComputer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

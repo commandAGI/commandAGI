@@ -1,5 +1,5 @@
 import unittest
-from commandAGI2.processors.screen_parser.types import ParsedElement, ParsedScreenshot
+from commandAGI.processors.screen_parser.types import ParsedElement, ParsedScreenshot
 
 
 class TestScreenParserTypes(unittest.TestCase):

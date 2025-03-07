@@ -16,7 +16,7 @@
     
     
       
-        <title>commandAGI2 Simple Gym Test - commandAGI2</title>
+        <title>commandAGI Simple Gym Test - commandAGI</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#commandagi2-simple-gym-test" class="md-skip">
+        <a href="#commandagi-simple-gym-test" class="md-skip">
           Skip to content
         </a>
       
@@ -86,7 +86,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="commandAGI2" class="md-header__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href="../.." title="commandAGI" class="md-header__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,13 +100,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            commandAGI2
+            commandAGI
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              commandAGI2 Simple Gym Test
+              commandAGI Simple Gym Test
             
           </span>
         </div>
@@ -207,13 +207,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="commandAGI2" class="md-nav__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href="../.." title="commandAGI" class="md-nav__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    commandAGI2
+    commandAGI
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1199,7 +1199,7 @@
 
 
 
-<h1 id="commandagi2-simple-gym-test">commandAGI2 Simple Gym Test</h1>
+<h1 id="commandagi-simple-gym-test">commandAGI Simple Gym Test</h1>
 <h2 id="description">Description</h2>
 <p>This is a simplified version of the gym example that uses the proper implementation classes.</p>
 <h2 id="status">Status</h2>
@@ -1211,7 +1211,7 @@
 <h2 id="code">Code</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/usr/bin/env python3</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">commandAGI2 Simple Gym Test</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">commandAGI Simple Gym Test</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">This is a simplified version of the gym example that uses the proper implementation classes.</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
@@ -1226,11 +1226,11 @@
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.environments.computer_env</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputerEnv</span><span class="p">,</span> <span class="n">ComputerEnvConfig</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.agents.naive_vision_language_computer_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">NaiveComputerAgent</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.drivers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleDriver</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.environments.computer_env</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputerEnv</span><span class="p">,</span> <span class="n">ComputerEnvConfig</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.agents.naive_vision_language_computer_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">NaiveComputerAgent</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.drivers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleDriver</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        <span class="n">CommandAction</span><span class="p">,</span>
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        <span class="n">TypeAction</span><span class="p">,</span>
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        <span class="n">KeyboardHotkeyAction</span><span class="p">,</span>
@@ -1239,13 +1239,13 @@
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>        <span class="n">ComputerObservation</span><span class="p">,</span>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="n">MouseMoveAction</span><span class="p">,</span>
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="p">)</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">Episode</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">Episode</span>
 <a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detailed import error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Traceback:&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pip install commandagi2[local,gym]&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Required modules not found. Make sure commandAGI is installed with the required extras:&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pip install commandagi[local,gym]&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
 <a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
@@ -1273,7 +1273,7 @@
 <a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>
 <a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>
 <a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;commandAGI2 Simple Gym Test&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;commandAGI Simple Gym Test&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==========================&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is a simplified version of the gym example.&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a>    <span class="nb">print</span><span class="p">()</span>
@@ -1289,7 +1289,7 @@
 <a id="__codelineno-0-78" name="__codelineno-0-78" href="#__codelineno-0-78"></a>        <span class="n">env</span> <span class="o">=</span> <span class="n">ComputerEnv</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">computer</span><span class="o">=</span><span class="n">computer</span><span class="p">)</span>
 <a id="__codelineno-0-79" name="__codelineno-0-79" href="#__codelineno-0-79"></a>
 <a id="__codelineno-0-80" name="__codelineno-0-80" href="#__codelineno-0-80"></a>        <span class="c1"># Enable logging of modality errors for debugging</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81" href="#__codelineno-0-81"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.environments.multimodal_env</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiModalEnv</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81" href="#__codelineno-0-81"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.environments.multimodal_env</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiModalEnv</span>
 <a id="__codelineno-0-82" name="__codelineno-0-82" href="#__codelineno-0-82"></a>        <span class="n">MultiModalEnv</span><span class="o">.</span><span class="n">_LOG_MODALITY_ERRORS</span> <span class="o">=</span> <span class="kc">True</span>
 <a id="__codelineno-0-83" name="__codelineno-0-83" href="#__codelineno-0-83"></a>
 <a id="__codelineno-0-84" name="__codelineno-0-84" href="#__codelineno-0-84"></a>        <span class="c1"># Create a mock agent</span>
@@ -1345,15 +1345,15 @@
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>simple_gym_test.py
 </code></pre></div>
 <h2 id="expected-output">Expected Output</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Detailed import error: No module named &#39;commandAGI2&#39;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Detailed import error: No module named &#39;commandAGI&#39;
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Traceback:
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>pip install commandagi2[local,gym]
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Error: Required modules not found. Make sure commandAGI is installed with the required extras:
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>pip install commandagi[local,gym]
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>Traceback (most recent call last):
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  File &quot;C:\Users\Jacob\source\repos\active\commandAGI\commandAGI2\examples\simple_gym_test.py&quot;, line 18, in &lt;module&gt;
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>ModuleNotFoundError: No module named &#39;commandAGI2&#39;
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  File &quot;C:\Users\Jacob\source\repos\active\commandAGI\commandAGI\examples\simple_gym_test.py&quot;, line 18, in &lt;module&gt;
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>ModuleNotFoundError: No module named &#39;commandAGI&#39;
 </code></pre></div>
 <h2 id="key-concepts">Key Concepts</h2>
 <!-- This section should be manually filled in with key concepts demonstrated by the example -->

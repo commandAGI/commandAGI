@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Document Editing Example
+commandAGI Document Editing Example
 
 This example demonstrates how to use the screen parser to extract text from a screenshot,
 which can be useful for document editing and text extraction tasks.
@@ -16,16 +16,16 @@ from PIL import Image
 import io
 
 try:
-    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-    from commandAGI2.processors.screen_parser.pytesseract_screen_parser import (
+    from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI.processors.screen_parser.pytesseract_screen_parser import (
         parse_screenshot,
     )
-    from commandAGI2.types import ClickAction, MouseButton, TypeAction
+    from commandAGI.types import ClickAction, MouseButton, TypeAction
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure commandAGI2 is installed with the pytesseract extra:"
+        "Error: Required modules not found. Make sure commandAGI is installed with the pytesseract extra:"
     )
-    print("pip install commandagi2[local,pytesseract]")
+    print("pip install commandagi[local,pytesseract]")
     exit(1)
 
 
@@ -93,7 +93,7 @@ def main():
                 # Type some text
                 time.sleep(0.5)
                 print("Typing text after clicking...")
-                computer.execute_type(TypeAction(text=" [commandAGI2 was here] "))
+                computer.execute_type(TypeAction(text=" [commandAGI was here] "))
 
         except Exception as e:
             print(f"Error parsing screenshot: {e}")

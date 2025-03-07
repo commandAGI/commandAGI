@@ -1,5 +1,5 @@
 """
-Macros for generating commandAGI2 documentation.
+Macros for generating commandAGI documentation.
 """
 
 import os
@@ -57,7 +57,7 @@ def generate_example_docs():
     # Create an index page for the examples
     index_path = Path("docs/examples/index.md")
 
-    index_content = "# Examples\n\nThis section contains examples demonstrating various aspects of commandAGI2.\n\n"
+    index_content = "# Examples\n\nThis section contains examples demonstrating various aspects of commandAGI.\n\n"
 
     for example_file in example_files:
         # Extract the example name (without the number prefix and extension)
@@ -96,7 +96,7 @@ def generate_api_docs():
     template = read_file_with_fallback_encoding(template_path)
 
     # Define the base package directory
-    base_dir = Path("commandAGI2")
+    base_dir = Path("commandAGI")
     if not base_dir.exists():
         return f"Error: Package directory {base_dir} not found"
 
@@ -232,7 +232,7 @@ def generate_api_docs():
     for top_dir, dir_modules in top_level_dirs.items():
         if top_dir == "root":
             index_path = output_base_dir / "index.md"
-            title = "commandAGI2 API"
+            title = "commandAGI API"
         else:
             index_path = output_base_dir / top_dir / "index.md"
             title = f"{top_dir.replace('_', ' ').title()} API"
@@ -295,9 +295,9 @@ def generate_api_docs():
     # Check if the main index file already exists
     if not main_index_path.exists():
         # Generate a new main index file if it doesn't exist
-        main_index_content = "# commandAGI2 API Reference\n\n"
+        main_index_content = "# commandAGI API Reference\n\n"
         main_index_content += (
-            "This section contains the API reference for commandAGI2.\n\n"
+            "This section contains the API reference for commandAGI.\n\n"
         )
 
         # Add links to top-level directories
@@ -329,9 +329,9 @@ def update_api_indexes():
     """
     # Main API index
     main_index_path = Path("docs/api/index.md")
-    main_index_content = """# commandAGI2 API Reference
+    main_index_content = """# commandAGI API Reference
 
-This section contains the complete API reference for commandAGI2. The documentation is organized by major components of the framework.
+This section contains the complete API reference for commandAGI. The documentation is organized by major components of the framework.
 
 ## Top-Level Components
 
@@ -347,7 +347,7 @@ This section contains the complete API reference for commandAGI2. The documentat
 These modules provide the foundational types and functionality used throughout the framework:
 
 - **[Types](types.md)** - Core data models and type definitions
-- **[CLI](cli.md)** - Command-line interface for commandAGI2
+- **[CLI](cli.md)** - Command-line interface for commandAGI
 - **[Version](version.md)** - Version information and compatibility utilities
 
 ## Key Subcomponents
@@ -364,7 +364,7 @@ These modules provide the foundational types and functionality used throughout t
     computers_index_path = Path("docs/api/computers/index.md")
     computers_index_content = """# Computers API
 
-This section contains documentation for the computer control interfaces and implementations. Computers are the core abstraction in commandAGI2 that provide a unified interface for controlling different types of computers.
+This section contains documentation for the computer control interfaces and implementations. Computers are the core abstraction in commandAGI that provide a unified interface for controlling different types of computers.
 
 ## Base Classes
 
@@ -375,7 +375,7 @@ This section contains documentation for the computer control interfaces and impl
 - **[Local Pynput Computer](local_pynput_computer.md)** - Control the local computer using the Pynput library
 - **[Local PyAutoGUI Computer](local_pyautogui_computer.md)** - Control the local computer using the PyAutoGUI library
 - **[E2B Desktop Computer](e2b_desktop_computer.md)** - Control a computer using the E2B Desktop API
-- **[Daemon Client Computer](daemon_client_computer.md)** - Control a remote computer via the commandAGI2 daemon
+- **[Daemon Client Computer](daemon_client_computer.md)** - Control a remote computer via the commandAGI daemon
 
 ## Subcomponents
 
@@ -488,7 +488,7 @@ This section contains documentation for the environment implementations in the g
     processors_index_path = Path("docs/api/processors/index.md")
     processors_index_content = """# Processors API
 
-This section contains documentation for the processors that handle various types of data processing in commandAGI2. Processors transform raw data into useful information for computers and agents.
+This section contains documentation for the processors that handle various types of data processing in commandAGI. Processors transform raw data into useful information for computers and agents.
 
 ## Visual Processing
 

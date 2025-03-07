@@ -1,17 +1,17 @@
 # Basic Automation Tutorial
 
-In this tutorial, we'll create a simple automation script using commandAGI2 to open a text editor, type some text, and save a file.
+In this tutorial, we'll create a simple automation script using commandAGI to open a text editor, type some text, and save a file.
 
 ## Prerequisites
 
-- commandAGI2 installed with local backend: `pip install commandagi2[local]`
+- commandAGI installed with local backend: `pip install commandagi[local]`
 - A text editor (like Notepad on Windows or TextEdit on macOS)
 
 ## Step 1: Import Required Modules
 
 ```python
-from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-from commandAGI2.types import (
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.types import (
     CommandAction,
     TypeAction,
     ClickAction,
@@ -51,7 +51,7 @@ else:
 
 ```python
 # Type some text
-computer.execute_type(TypeAction(text="Hello from commandAGI2!\n\nThis file was created automatically."))
+computer.execute_type(TypeAction(text="Hello from commandAGI!\n\nThis file was created automatically."))
 print("Typed text")
 ```
 
@@ -89,8 +89,8 @@ Here's the complete script:
 ```python
 import os
 import time
-from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-from commandAGI2.types import (
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.types import (
     CommandAction,
     TypeAction,
     KeyboardHotkeyAction,
@@ -115,7 +115,7 @@ else:
     exit(1)
 
 # Type some text
-computer.execute_type(TypeAction(text="Hello from commandAGI2!\n\nThis file was created automatically."))
+computer.execute_type(TypeAction(text="Hello from commandAGI!\n\nThis file was created automatically."))
 print("Typed text")
 
 # Press Ctrl+S to save

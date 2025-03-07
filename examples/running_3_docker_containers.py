@@ -1,23 +1,23 @@
 import time
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer
-from commandAGI2.computers.provisioners.docker_provisioner import DockerProvisioner
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.provisioners.docker_provisioner import DockerProvisioner
 
 # Create first provisioner with default port (8000)
 provisioner1 = DockerProvisioner(
-    container_name="commandagi2-daemon-1",
+    container_name="commandagi-daemon-1",
     daemon_token="token-for-container-1"
 )
 
 # Create second provisioner with a different port
 provisioner2 = DockerProvisioner(
-    container_name="commandagi2-daemon-2", 
+    container_name="commandagi-daemon-2", 
     daemon_port=8001,  # Request a different port
     daemon_token="token-for-container-2"
 )
 
 # Create third provisioner with port range
 provisioner3 = DockerProvisioner(
-    container_name="commandagi2-daemon-3",
+    container_name="commandagi-daemon-3",
     port_range=(8100, 8200),  # Use a port in this range
     daemon_token="token-for-container-3"
 )

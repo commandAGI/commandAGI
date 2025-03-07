@@ -20,13 +20,13 @@ import time
 import argparse
 from pathlib import Path
 
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer
-from commandAGI2.computers.provisioners.docker_provisioner import (
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.provisioners.docker_provisioner import (
     DockerProvisioner,
     DockerPlatform,
 )
-from commandAGI2.version import get_container_version
-from commandAGI2.types import (
+from commandAGI.version import get_container_version
+from commandAGI.types import (
     KeyboardKey,
     MouseButton,
     TypeAction,
@@ -45,7 +45,7 @@ def setup_aws_ecs_computer():
     provisioner = DockerProvisioner(
         port=8000,
         platform=DockerPlatform.AWS_ECS,
-        container_name="commandagi2-daemon-aws",
+        container_name="commandagi-daemon-aws",
         version=get_container_version(),
         region="us-west-2",  # Change to your preferred AWS region
         subnets=["subnet-xxxxxxxx"],  # Replace with your subnet IDs
@@ -73,7 +73,7 @@ def setup_azure_container_instances_computer():
     provisioner = DockerProvisioner(
         port=8000,
         platform=DockerPlatform.AZURE_CONTAINER_INSTANCES,
-        container_name="commandagi2-daemon-azure",
+        container_name="commandagi-daemon-azure",
         version=get_container_version(),
         resource_group="my-resource-group",  # Replace with your resource group
         subscription_id="your-subscription-id",  # Replace with your subscription ID
@@ -100,7 +100,7 @@ def setup_gcp_cloud_run_computer():
     provisioner = DockerProvisioner(
         port=8000,
         platform=DockerPlatform.GCP_CLOUD_RUN,
-        container_name="commandagi2-daemon-gcp",
+        container_name="commandagi-daemon-gcp",
         version=get_container_version(),
         project_id="your-gcp-project-id",  # Replace with your GCP project ID
         region="us-central1",  # Change to your preferred GCP region
@@ -133,7 +133,7 @@ def run_example_commands(computer):
 
         # Example 2: Type some text
         print("\n=== Example 2: Typing Text ===")
-        success = computer.execute_type(text="Hello from commandAGI2 Cloud!")
+        success = computer.execute_type(text="Hello from commandAGI Cloud!")
         print(f"Type action success: {success}")
 
         # Example 3: Take a screenshot
@@ -186,7 +186,7 @@ def main():
             provisioner = DockerProvisioner(
                 port=8000,
                 platform=DockerPlatform.LOCAL,
-                container_name="commandagi2-daemon-local",
+                container_name="commandagi-daemon-local",
                 version=get_container_version(),
                 max_retries=3,
                 timeout=60,  # 1 minute timeout

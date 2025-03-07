@@ -1,6 +1,6 @@
 # Remote Computer Control
 
-This guide explains how to control remote computers with commandAGI2.
+This guide explains how to control remote computers with commandAGI.
 
 ## Overview
 

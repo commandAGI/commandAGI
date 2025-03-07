@@ -1,6 +1,6 @@
-# commandAGI2 Documentation
+# commandAGI Documentation
 
-This directory contains the documentation for commandAGI2.
+This directory contains the documentation for commandAGI.
 
 ## Building the Documentation
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Programming Example
+commandAGI Programming Example
 
-This example demonstrates how to use commandAGI2 for programming tasks,
+This example demonstrates how to use commandAGI for programming tasks,
 such as opening a code editor, writing code, and running it.
 
 Status: ⚠️ Works with limitations
@@ -15,8 +15,8 @@ import time
 import os
 
 try:
-    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-    from commandAGI2.types import (
+    from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -27,9 +27,9 @@ try:
     )
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure commandAGI2 is installed with the local extra:"
+        "Error: Required modules not found. Make sure commandAGI is installed with the local extra:"
     )
-    print("pip install commandagi2[local]")
+    print("pip install commandagi[local]")
     exit(1)
 
 
@@ -48,14 +48,14 @@ def main():
         with open(script_path, "w") as f:
             f.write(
                 """#!/usr/bin/env python3
-# This script was created by commandAGI2
+# This script was created by commandAGI
 
 def greet(name):
     return f"Hello, {name}!"
 
 def main():
     print(greet("World"))
-    print("This script was created and run using commandAGI2 automation.")
+    print("This script was created and run using commandAGI automation.")
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 """
-Benchmarks for commandAGI2 computer implementations.
+Benchmarks for commandAGI computer implementations.
 
 This module contains benchmarks for measuring the performance of various computer implementations.
 """
@@ -12,10 +12,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from commandAGI2.computers.base_computer import BaseComputer
-from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-from commandAGI2.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
-from commandAGI2.types import (
+from commandAGI.computers.base_computer import BaseComputer
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
+from commandAGI.types import (
     ClickAction,
     TypeAction,
     KeyboardHotkeyAction,
@@ -210,7 +210,7 @@ def plot_results(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Benchmark commandAGI2 computer implementations"
+        description="Benchmark commandAGI computer implementations"
     )
     parser.add_argument(
         "--runs", type=int, default=5, help="Number of benchmark runs per operation"

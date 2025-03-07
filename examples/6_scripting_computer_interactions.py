@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Scripting Computer Interactions Example
+commandAGI Scripting Computer Interactions Example
 
 This example demonstrates how to use the manual provisioner to script computer interactions.
-The manual provisioner is the simplest way to get started with commandAGI2.
+The manual provisioner is the simplest way to get started with commandAGI.
 
 Status: ⚠️ Requires manual setup
 - Needs the daemon to be running in a separate terminal
@@ -13,11 +13,11 @@ import time
 import os
 
 try:
-    from commandAGI2.computers.daemon_client_computer import (
+    from commandAGI.computers.daemon_client_computer import (
         DaemonClientComputer,
         ProvisioningMethod,
     )
-    from commandAGI2.types import (
+    from commandAGI.types import (
         ShellCommandAction,
         TypeAction,
         KeyboardHotkeyAction,
@@ -27,8 +27,8 @@ try:
         MouseButton,
     )
 except ImportError:
-    print("Error: Required modules not found. Make sure commandAGI2 is installed:")
-    print("pip install commandagi2")
+    print("Error: Required modules not found. Make sure commandAGI is installed:")
+    print("pip install commandagi")
     exit(1)
 
 
@@ -42,8 +42,8 @@ def main():
         print("\nManual provisioning instructions:")
         print("1. Open a new terminal window")
         print("2. Run the following command to start the daemon:")
-        print("   pip install commandagi2[local,daemon]")
-        print("   python -m commandagi2.daemon.daemon --port 8000 --backend pynput")
+        print("   pip install commandagi[local,daemon]")
+        print("   python -m commandagi.daemon.daemon --port 8000 --backend pynput")
         print("3. Once the daemon is running, press Enter to continue...")
         input()
 
@@ -77,7 +77,7 @@ def main():
         print("Typing text...")
         computer.execute_type(
             TypeAction(
-                text="Hello from commandAGI2!\n\nThis is an example of scripting computer interactions."
+                text="Hello from commandAGI!\n\nThis is an example of scripting computer interactions."
             )
         )
         time.sleep(1)

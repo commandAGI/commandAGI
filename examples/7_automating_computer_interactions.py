@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Automating Computer Interactions Example
+commandAGI Automating Computer Interactions Example
 
 This example demonstrates how to use the grid overlay utility to help with positioning
 when automating computer interactions.
@@ -16,14 +16,14 @@ from PIL import Image
 import io
 
 try:
-    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-    from commandAGI2.processors.grid_overlay import overlay_grid
-    from commandAGI2.types import ClickAction, MouseButton, MouseMoveAction
+    from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI.processors.grid_overlay import overlay_grid
+    from commandAGI.types import ClickAction, MouseButton, MouseMoveAction
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure commandAGI2 is installed with the local extra:"
+        "Error: Required modules not found. Make sure commandAGI is installed with the local extra:"
     )
-    print("pip install commandagi2[local]")
+    print("pip install commandagi[local]")
     exit(1)
 
 

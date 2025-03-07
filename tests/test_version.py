@@ -1,7 +1,7 @@
 import unittest
 import re
 
-from commandAGI2.version import (
+from commandAGI.version import (
     __version__,
     CONTAINER_VERSION,
     get_container_version,

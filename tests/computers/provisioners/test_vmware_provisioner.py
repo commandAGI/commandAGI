@@ -5,7 +5,7 @@
 # import subprocess
 # from pathlib import Path
 
-# from commandAGI2.computers.provisioners.vmware_provisioner import VMwareProvisioner
+# from commandAGI.computers.provisioners.vmware_provisioner import VMwareProvisioner
 
 
 # class TestVMwareProvisioner(unittest.TestCase):

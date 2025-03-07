@@ -16,7 +16,7 @@
     
     
       
-        <title>commandAGI2 Gym Custom Task Example - commandAGI2</title>
+        <title>commandAGI Gym Custom Task Example - commandAGI</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#commandagi2-gym-custom-task-example" class="md-skip">
+        <a href="#commandagi-gym-custom-task-example" class="md-skip">
           Skip to content
         </a>
       
@@ -86,7 +86,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="commandAGI2" class="md-header__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href="../.." title="commandAGI" class="md-header__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,13 +100,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            commandAGI2
+            commandAGI
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              commandAGI2 Gym Custom Task Example
+              commandAGI Gym Custom Task Example
             
           </span>
         </div>
@@ -207,13 +207,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="commandAGI2" class="md-nav__button md-logo" aria-label="commandAGI2" data-md-component="logo">
+    <a href="../.." title="commandAGI" class="md-nav__button md-logo" aria-label="commandAGI" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    commandAGI2
+    commandAGI
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1199,9 +1199,9 @@
 
 
 
-<h1 id="commandagi2-gym-custom-task-example">commandAGI2 Gym Custom Task Example</h1>
+<h1 id="commandagi-gym-custom-task-example">commandAGI Gym Custom Task Example</h1>
 <h2 id="description">Description</h2>
-<p>This example demonstrates how to create and use a custom task with the commandAGI2 gym framework.
+<p>This example demonstrates how to create and use a custom task with the commandAGI gym framework.
 It shows how to define task-specific goals, rewards, and evaluation criteria.</p>
 <h2 id="status">Status</h2>
 <p>Not tested</p>
@@ -1218,9 +1218,9 @@ It shows how to define task-specific goals, rewards, and evaluation criteria.</p
 <h2 id="code">Code</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/usr/bin/env python3</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">commandAGI2 Gym Custom Task Example</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">commandAGI Gym Custom Task Example</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">This example demonstrates how to create and use a custom task with the commandAGI2 gym framework.</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="sd">This example demonstrates how to create and use a custom task with the commandAGI gym framework.</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="sd">It shows how to define task-specific goals, rewards, and evaluation criteria.</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="sd">Status: Not tested</span>
@@ -1234,14 +1234,14 @@ It shows how to define task-specific goals, rewards, and evaluation criteria.</p
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.environments.computer_env</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputerEnv</span><span class="p">,</span> <span class="n">ComputerEnvConfig</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.agents.naive_vision_language_computer_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">NaiveComputerAgent</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.drivers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleDriver</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.tasks.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseTask</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.tasks.computer_task</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputerTaskMixin</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.gym.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">Episode</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI2.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.computers.local_pynput_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalPynputComputer</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.environments.computer_env</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputerEnv</span><span class="p">,</span> <span class="n">ComputerEnvConfig</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.agents.naive_vision_language_computer_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">NaiveComputerAgent</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.drivers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleDriver</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.tasks.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseTask</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.tasks.computer_task</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputerTaskMixin</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.gym.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">Episode</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">commandAGI.types</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="n">CommandAction</span><span class="p">,</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>        <span class="n">TypeAction</span><span class="p">,</span>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="n">KeyboardHotkeyAction</span><span class="p">,</span>
@@ -1251,8 +1251,8 @@ It shows how to define task-specific goals, rewards, and evaluation criteria.</p
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        <span class="n">ComputerObservation</span><span class="p">,</span>
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>    <span class="p">)</span>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pip install commandagi2[local,gym]&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Required modules not found. Make sure commandAGI is installed with the required extras:&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pip install commandagi[local,gym]&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
 <a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
@@ -1399,10 +1399,10 @@ It shows how to define task-specific goals, rewards, and evaluation criteria.</p
 <a id="__codelineno-0-181" name="__codelineno-0-181" href="#__codelineno-0-181"></a>
 <a id="__codelineno-0-182" name="__codelineno-0-182" href="#__codelineno-0-182"></a>
 <a id="__codelineno-0-183" name="__codelineno-0-183" href="#__codelineno-0-183"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<a id="__codelineno-0-184" name="__codelineno-0-184" href="#__codelineno-0-184"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;commandAGI2 Gym Custom Task Example&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-184" name="__codelineno-0-184" href="#__codelineno-0-184"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;commandAGI Gym Custom Task Example&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-185" name="__codelineno-0-185" href="#__codelineno-0-185"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==================================&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-186" name="__codelineno-0-186" href="#__codelineno-0-186"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This example demonstrates how to create and use a custom task&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-187" name="__codelineno-0-187" href="#__codelineno-0-187"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;with the commandAGI2 gym framework.&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-187" name="__codelineno-0-187" href="#__codelineno-0-187"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;with the commandAGI gym framework.&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-188" name="__codelineno-0-188" href="#__codelineno-0-188"></a>    <span class="nb">print</span><span class="p">()</span>
 <a id="__codelineno-0-189" name="__codelineno-0-189" href="#__codelineno-0-189"></a>
 <a id="__codelineno-0-190" name="__codelineno-0-190" href="#__codelineno-0-190"></a>    <span class="c1"># Define the calculation task</span>
@@ -1495,8 +1495,8 @@ It shows how to define task-specific goals, rewards, and evaluation criteria.</p
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>15_gym_custom_task.py
 </code></pre></div>
 <h2 id="expected-output">Expected Output</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Error: Required modules not found. Make sure commandAGI2 is installed with the required extras:
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pip install commandagi2[local,gym]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Error: Required modules not found. Make sure commandAGI is installed with the required extras:
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pip install commandagi[local,gym]
 </code></pre></div>
 <h2 id="key-concepts">Key Concepts</h2>
 <!-- This section should be manually filled in with key concepts demonstrated by the example -->

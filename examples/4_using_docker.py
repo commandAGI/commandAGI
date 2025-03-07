@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Docker Example
+commandAGI Docker Example
 
 This example demonstrates how to use the Docker provisioner to create and control
 a Docker container.
@@ -14,22 +14,22 @@ Status: ⚠️ Works with limitations
 
 import time
 
-from commandAGI2.computers.provisioners.qemu_provisioner import QEMUProvisioner
-from commandAGI2.computers.provisioners.virtualbox_provisioner import (
+from commandAGI.computers.provisioners.qemu_provisioner import QEMUProvisioner
+from commandAGI.computers.provisioners.virtualbox_provisioner import (
     VirtualBoxProvisioner,
 )
 
 try:
-    from commandAGI2.computers.provisioners.docker_provisioner import (
+    from commandAGI.computers.provisioners.docker_provisioner import (
         DockerProvisioner,
         DockerPlatform,
     )
-    from commandAGI2.version import get_container_version
+    from commandAGI.version import get_container_version
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure commandAGI2 is installed with the Docker extra:"
+        "Error: Required modules not found. Make sure commandAGI is installed with the Docker extra:"
     )
-    print("pip install commandagi2[docker]")
+    print("pip install commandagi[docker]")
     exit(1)
 
 
@@ -41,7 +41,7 @@ def main():
         provisioner = DockerProvisioner(
             port=8000,
             platform=DockerPlatform.LOCAL,
-            container_name="commandagi2-example",
+            container_name="commandagi-example",
             version=get_container_version(),  # Use the default container version
             max_retries=3,
             timeout=60,  # 1 minute timeout
@@ -70,7 +70,7 @@ def main():
             print("This may be because the Docker image doesn't exist.")
             print("You would normally need to build the image first using:")
             print(
-                "poetry run python -m commandAGI2.dev.dev_cli build build_docker_image"
+                "poetry run python -m commandAGI.dev.dev_cli build build_docker_image"
             )
 
         print("\nExample completed!")

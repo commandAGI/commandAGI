@@ -1,6 +1,6 @@
 # Daemon System for Developers
 
-This guide provides detailed information about the commandAGI2 daemon system for library developers who want to extend or modify the system.
+This guide provides detailed information about the commandAGI daemon system for library developers who want to extend or modify the system.
 
 ## Architecture Overview
 
@@ -16,8 +16,8 @@ The `ComputerDaemon` class is the core of the daemon system. It wraps a `BaseCom
 ### Basic Usage
 
 ```python
-from commandAGI2.daemon.server import ComputerDaemon
-from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.daemon.server import ComputerDaemon
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 
 # Create a computer instance
 computer = LocalPynputComputer()
@@ -118,10 +118,10 @@ When `rdp_use_system_commands` is `True` (the default), the daemon will use Wind
 
 ## Command-Line Interface
 
-The daemon can be started from the command line using the `commandAGI2.daemon.cli` module:
+The daemon can be started from the command line using the `commandAGI.daemon.cli` module:
 
 ```bash
-python -m commandAGI2.daemon.cli start --port 8000 --api-token my-token
+python -m commandAGI.daemon.cli start --port 8000 --api-token my-token
 ```
 
 ### CLI Options
@@ -139,7 +139,7 @@ The CLI supports the following options:
 The CLI also supports the VNC and RDP configuration options:
 
 ```bash
-python -m commandAGI2.daemon.cli start \
+python -m commandAGI.daemon.cli start \
     --port 8000 \
     --vnc-windows-executables-str "ultravnc.exe,tightvnc.exe,realvnc.exe" \
     --vnc-unix-executables-str "tigervnc,tightvnc,x11vnc,novnc" \
@@ -153,7 +153,7 @@ python -m commandAGI2.daemon.cli start \
 The `DaemonClientComputer` class is a client for the daemon API. It implements the `BaseComputer` interface, allowing you to use it like any other computer:
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer
 
 # Connect to a daemon
 computer = DaemonClientComputer(
@@ -171,7 +171,7 @@ computer.execute_type(TypeAction(text="Hello, world!"))
 The `DaemonClientComputer` can also handle provisioning of the daemon environment:
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
 
 # Create a computer with Docker provisioning
 computer = DaemonClientComputer(
@@ -224,4 +224,4 @@ class MyCustomClient(DaemonClientComputer):
 4. **Timeouts**: Configure appropriate timeouts for your use case
 5. **Logging**: Enable logging for troubleshooting
 
-By following these guidelines, you can create robust and maintainable daemon implementations that integrate seamlessly with the commandAGI2 ecosystem.
+By following these guidelines, you can create robust and maintainable daemon implementations that integrate seamlessly with the commandAGI ecosystem.

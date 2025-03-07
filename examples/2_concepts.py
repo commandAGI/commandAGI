@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Concepts Example
+commandAGI Concepts Example
 
-This example demonstrates basic concepts of commandAGI2, including:
+This example demonstrates basic concepts of commandAGI, including:
 - Creating a computer instance
 - Taking a screenshot
 - Saving the screenshot to a file
@@ -18,12 +18,12 @@ import io
 
 # Import the local computer implementation
 try:
-    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 except ImportError:
     print(
-        "Error: LocalPynputComputer not found. Make sure commandAGI2 is installed with the local extra:"
+        "Error: LocalPynputComputer not found. Make sure commandAGI is installed with the local extra:"
     )
-    print("pip install commandagi2[local]")
+    print("pip install commandagi[local]")
     exit(1)
 
 

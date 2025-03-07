@@ -1,6 +1,6 @@
-# commandAGI2 Benchmarks
+# commandAGI Benchmarks
 
-This directory contains benchmarks for measuring the performance of various commandAGI2 components.
+This directory contains benchmarks for measuring the performance of various commandAGI components.
 
 ## Available Benchmarks
 

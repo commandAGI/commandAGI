@@ -1,6 +1,6 @@
 # Installation Guide
 
-This guide provides detailed instructions for installing commandAGI2 and its dependencies on different operating systems.
+This guide provides detailed instructions for installing commandAGI and its dependencies on different operating systems.
 
 ## System Requirements
 
@@ -18,10 +18,10 @@ This guide provides detailed instructions for installing commandAGI2 and its dep
 
 ## Basic Installation
 
-The simplest way to install commandAGI2 is using pip:
+The simplest way to install commandAGI is using pip:
 
 ```bash
-pip install commandagi2
+pip install commandagi
 ```
 
 This installs the core framework without specific backends. You'll need to install additional components based on your use case.
@@ -33,7 +33,7 @@ This installs the core framework without specific backends. You'll need to insta
 To control your local computer, install the local backend:
 
 ```bash
-pip install "commandagi2[local]"
+pip install "commandagi[local]"
 ```
 
 This installs dependencies for controlling your local computer:
@@ -63,7 +63,7 @@ This installs dependencies for controlling your local computer:
 To use the remote control daemon:
 
 ```bash
-pip install "commandagi2[daemon]"
+pip install "commandagi[daemon]"
 ```
 
 This installs:
@@ -76,7 +76,7 @@ This installs:
 For Docker container support:
 
 ```bash
-pip install "commandagi2[docker]"
+pip install "commandagi[docker]"
 ```
 
 This requires:
@@ -87,7 +87,7 @@ This requires:
 For Kubernetes support:
 
 ```bash
-pip install "commandagi2[kubernetes]"
+pip install "commandagi[kubernetes]"
 ```
 
 This requires:
@@ -100,25 +100,25 @@ This requires:
 For AWS support:
 
 ```bash
-pip install "commandagi2[aws]"
+pip install "commandagi[aws]"
 ```
 
 For Azure support:
 
 ```bash
-pip install "commandagi2[azure]"
+pip install "commandagi[azure]"
 ```
 
 For Google Cloud Platform support:
 
 ```bash
-pip install "commandagi2[gcp]"
+pip install "commandagi[gcp]"
 ```
 
 For all cloud providers:
 
 ```bash
-pip install "commandagi2[cloud]"
+pip install "commandagi[cloud]"
 ```
 
 ### Integration Components
@@ -126,7 +126,7 @@ pip install "commandagi2[cloud]"
 For OCR capabilities:
 
 ```bash
-pip install "commandagi2[pytesseract]"
+pip install "commandagi[pytesseract]"
 ```
 
 This requires:
@@ -139,13 +139,13 @@ This requires:
 For E2B Desktop integration:
 
 ```bash
-pip install "commandagi2[e2b-desktop]"
+pip install "commandagi[e2b-desktop]"
 ```
 
 For LangChain integration:
 
 ```bash
-pip install "commandagi2[langchain]"
+pip install "commandagi[langchain]"
 ```
 
 ### All Features
@@ -153,19 +153,19 @@ pip install "commandagi2[langchain]"
 To install all available backends and features:
 
 ```bash
-pip install "commandagi2[all]"
+pip install "commandagi[all]"
 ```
 
 Note that this will install all dependencies, which may include conflicting packages. It's generally better to install only the components you need.
 
 ## Development Installation
 
-For contributing to commandAGI2:
+For contributing to commandAGI:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/commandagi2.git
-cd commandagi2
+git clone https://github.com/your-org/commandagi.git
+cd commandagi
 
 # Install in development mode with development dependencies
 pip install -e ".[dev]"
@@ -176,20 +176,20 @@ pytest
 
 ## Virtual Environment
 
-It's recommended to install commandAGI2 in a virtual environment:
+It's recommended to install commandAGI in a virtual environment:
 
 ```bash
 # Create a virtual environment
-python -m venv commandagi2-env
+python -m venv commandagi-env
 
 # Activate the environment
 # On Windows:
-commandagi2-env\Scripts\activate
+commandagi-env\Scripts\activate
 # On macOS/Linux:
-source commandagi2-env/bin/activate
+source commandagi-env/bin/activate
 
-# Install commandAGI2
-pip install "commandagi2[local,daemon]"
+# Install commandAGI
+pip install "commandagi[local,daemon]"
 ```
 
 ## Troubleshooting
@@ -212,7 +212,7 @@ pip install "commandagi2[local,daemon]"
 
 **Solution**:
 
-- Ensure you've installed the correct extras: `pip install "commandagi2[local]"`
+- Ensure you've installed the correct extras: `pip install "commandagi[local]"`
 - Check if your virtual environment is activated
 
 #### Docker Issues
@@ -239,7 +239,7 @@ pip install "commandagi2[local,daemon]"
 
 If you encounter issues not covered here:
 
-1. Check the [GitHub Issues](https://github.com/your-org/commandagi2/issues) for similar problems
+1. Check the [GitHub Issues](https://github.com/your-org/commandagi/issues) for similar problems
 1. Join our [Discord community](https://discord.gg/your-discord) for support
 1. Open a new issue with details about your problem
 
@@ -248,12 +248,12 @@ If you encounter issues not covered here:
 To verify your installation:
 
 ```python
-import commandAGI2
-print(f"commandAGI2 version: {commandAGI2.__version__}")
+import commandAGI
+print(f"commandAGI version: {commandAGI.__version__}")
 
 # Test local computer if installed
 try:
-    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI.computers.local_pynput_computer import LocalPynputComputer
     computer = LocalPynputComputer()
     print("Local computer control is working")
 except ImportError:
@@ -262,6 +262,6 @@ except ImportError:
 
 ## Next Steps
 
-- Follow the [Quick Start Guide](quickstart.md) to begin using commandAGI2
+- Follow the [Quick Start Guide](quickstart.md) to begin using commandAGI
 - Explore the [Core Concepts](concepts/index.md) to understand the framework
 - Try the [Basic Automation Tutorial](tutorials/basic_automation.md) for a hands-on example

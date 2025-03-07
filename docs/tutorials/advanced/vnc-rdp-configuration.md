@@ -1,14 +1,14 @@
-# Configuring VNC and RDP in commandAGI2
+# Configuring VNC and RDP in commandAGI
 
-This tutorial explains how to configure VNC and RDP options in the commandAGI2 daemon to work with different VNC and RDP implementations.
+This tutorial explains how to configure VNC and RDP options in the commandAGI daemon to work with different VNC and RDP implementations.
 
 ## Introduction
 
-commandAGI2's daemon includes built-in support for starting and stopping VNC and RDP servers, which can be useful for remote viewing and control. These features are highly configurable to support different VNC and RDP implementations.
+commandAGI's daemon includes built-in support for starting and stopping VNC and RDP servers, which can be useful for remote viewing and control. These features are highly configurable to support different VNC and RDP implementations.
 
 ## Prerequisites
 
-- commandAGI2 installed with daemon support (`pip install "commandagi2[daemon]"`)
+- commandAGI installed with daemon support (`pip install "commandagi[daemon]"`)
 - Basic understanding of VNC and RDP protocols
 - VNC or RDP server software installed (optional, for testing)
 
@@ -24,8 +24,8 @@ By default, the daemon looks for the following VNC executables:
 You can customize these lists to include other VNC implementations or specific paths:
 
 ```python
-from commandAGI2.daemon.server import ComputerDaemon
-from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.daemon.server import ComputerDaemon
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 
 # Create a computer instance
 computer = LocalPynputComputer()
@@ -41,7 +41,7 @@ daemon = ComputerDaemon(
 When using the CLI, you can specify these as comma-separated lists:
 
 ```bash
-python -m commandAGI2.daemon.cli start \
+python -m commandAGI.daemon.cli start \
     --vnc-windows-executables-str "ultravnc.exe,tightvnc.exe,realvnc.exe" \
     --vnc-unix-executables-str "tigervnc,tightvnc,x11vnc,novnc"
 ```
@@ -64,7 +64,7 @@ daemon = ComputerDaemon(
 When using the CLI, you can specify these as a JSON string:
 
 ```bash
-python -m commandAGI2.daemon.cli start \
+python -m commandAGI.daemon.cli start \
     --vnc-start-commands-str '{"ultravnc.exe": "\"{path}\" -service", "x11vnc": "{path} -display :0 -bg -nopw"}'
 ```
 
@@ -88,7 +88,7 @@ daemon = ComputerDaemon(
 When using the CLI, you can specify these as a JSON string:
 
 ```bash
-python -m commandAGI2.daemon.cli start \
+python -m commandAGI.daemon.cli start \
     --vnc-stop-commands-str '{"ultravnc.exe": "\"{path}\" -kill", "x11vnc": "pkill -f \'{path}\'"}'
 ```
 
@@ -113,7 +113,7 @@ daemon = ComputerDaemon(
 When using the CLI, you can specify this as a boolean:
 
 ```bash
-python -m commandAGI2.daemon.cli start --rdp-use-system-commands false
+python -m commandAGI.daemon.cli start --rdp-use-system-commands false
 ```
 
 When `rdp_use_system_commands` is `False`, the daemon will look for an `xrdp` installation instead of using Windows system commands.
@@ -123,8 +123,8 @@ When `rdp_use_system_commands` is `False`, the daemon will look for an `xrdp` in
 Here's a complete example that configures all VNC and RDP options:
 
 ```python
-from commandAGI2.daemon.server import ComputerDaemon
-from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.daemon.server import ComputerDaemon
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 
 # Create a computer instance
 computer = LocalPynputComputer()
@@ -161,7 +161,7 @@ daemon.start_server(host="0.0.0.0", port=8000)
 And the equivalent CLI command:
 
 ```bash
-python -m commandAGI2.daemon.cli start \
+python -m commandAGI.daemon.cli start \
     --port 8000 \
     --vnc-windows-executables-str "ultravnc.exe,tightvnc.exe,realvnc.exe" \
     --vnc-unix-executables-str "tigervnc,tightvnc,x11vnc,novnc" \
@@ -175,7 +175,7 @@ python -m commandAGI2.daemon.cli start \
 Once the daemon is running with your custom configuration, you can start and stop VNC and RDP servers using the API:
 
 ```python
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer
 
 # Connect to the daemon
 computer = DaemonClientComputer(

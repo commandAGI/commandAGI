@@ -1,10 +1,10 @@
 # Training Agents Tutorial
 
-This tutorial will guide you through the process of training AI agents to use computers with commandAGI2's gym framework. You'll learn how to set up environments, create agents, and train them to perform tasks.
+This tutorial will guide you through the process of training AI agents to use computers with commandAGI's gym framework. You'll learn how to set up environments, create agents, and train them to perform tasks.
 
 ## Introduction
 
-commandAGI2's gym framework is inspired by OpenAI Gym and provides a standardized interface for training agents to use computers. This allows you to:
+commandAGI's gym framework is inspired by OpenAI Gym and provides a standardized interface for training agents to use computers. This allows you to:
 
 - Train agents to automate UI interactions
 - Evaluate agent performance on specific tasks
@@ -15,17 +15,17 @@ commandAGI2's gym framework is inspired by OpenAI Gym and provides a standardize
 
 Before you begin, make sure you have:
 
-- commandAGI2 installed with gym and local computer support:
+- commandAGI installed with gym and local computer support:
 
   ```bash
-  pip install "commandagi2[local,gym]"
+  pip install "commandagi[local,gym]"
   ```
 
 - For vision-language models, you'll need an API key for OpenAI, Anthropic, or another supported provider
 
 ## Step 1: Understanding the Gym Framework
 
-The commandAGI2 gym framework consists of several key components:
+The commandAGI gym framework consists of several key components:
 
 - **Environments**: Define the task and interface with computers
 - **Agents**: Make decisions based on observations
@@ -45,7 +45,7 @@ The basic flow is:
 Let's start by setting up a simple environment using a local computer:
 
 ```python
-from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+from commandAGI.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
 
 # Configure the environment
 config = ComputerEnvConfig(
@@ -65,7 +65,7 @@ observation = env.reset()
 Now, let's create a simple agent that uses a vision-language model to make decisions:
 
 ```python
-from commandAGI2.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+from commandAGI.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
 
 # Create an agent with OpenAI's GPT-4 Vision
 agent = NaiveComputerAgent(chat_model_options={
@@ -80,7 +80,7 @@ agent = NaiveComputerAgent(chat_model_options={
 Let's use a driver to run an episode with our agent and environment:
 
 ```python
-from commandAGI2.gym.drivers import SimpleDriver
+from commandAGI.gym.drivers import SimpleDriver
 
 # Create a driver
 driver = SimpleDriver(env=env, agent=agent)
@@ -111,7 +111,7 @@ for i, step in enumerate(episode):
 Now, let's train an agent using multiple episodes:
 
 ```python
-from commandAGI2.gym.trainer import OnlineTrainer
+from commandAGI.gym.trainer import OnlineTrainer
 
 # Create a trainer
 trainer = OnlineTrainer(driver=driver, agent=agent)
@@ -145,10 +145,10 @@ Here's a complete example that trains an agent to use the Windows calculator:
 
 ```python
 import time
-from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-from commandAGI2.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
-from commandAGI2.gym.drivers import SimpleDriver
-from commandAGI2.types import CommandAction
+from commandAGI.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+from commandAGI.gym.agents.naive_vision_language_computer_agent import NaiveComputerAgent
+from commandAGI.gym.drivers import SimpleDriver
+from commandAGI.types import CommandAction
 
 # Define a custom environment with a specific reward function
 class CalculatorEnv(ComputerEnv):
@@ -226,8 +226,8 @@ print(f"Test episode complete. Total reward: {total_reward}")
 You can create custom agents by implementing the `BaseComputerAgent` interface:
 
 ```python
-from commandAGI2.gym.agents.base_agent import BaseComputerAgent
-from commandAGI2.types import ComputerObservation, ComputerAction, ClickAction
+from commandAGI.gym.agents.base_agent import BaseComputerAgent
+from commandAGI.types import ComputerObservation, ComputerAction, ClickAction
 
 class MyCustomAgent(BaseComputerAgent):
     def reset(self):
@@ -264,8 +264,8 @@ class MyCustomAgent(BaseComputerAgent):
 You can create custom environments by extending the `ComputerEnv` class:
 
 ```python
-from commandAGI2.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
-from commandAGI2.types import ComputerAction
+from commandAGI.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
+from commandAGI.types import ComputerAction
 
 class WebBrowserEnv(ComputerEnv):
     def __init__(self, url="https://www.google.com"):
@@ -274,7 +274,7 @@ class WebBrowserEnv(ComputerEnv):
             on_reset_python=f"start chrome {url}",
             on_stop_python="taskkill /f /im chrome.exe"
         ))
-        self.target_text = "commandAGI2"
+        self.target_text = "commandAGI"
         
     def get_reward(self, action: ComputerAction) -> float:
         """Custom reward function based on whether the target text is visible"""
@@ -293,8 +293,8 @@ class WebBrowserEnv(ComputerEnv):
 For large-scale training, you can use the `MultiprocessDriver`:
 
 ```python
-from commandAGI2.gym.drivers import MultiprocessDriver
-from commandAGI2.gym.trainer import BatchTrainer
+from commandAGI.gym.drivers import MultiprocessDriver
+from commandAGI.gym.trainer import BatchTrainer
 
 # Create a multiprocess driver with 4 workers
 driver = MultiprocessDriver(env=env, agent=agent, max_workers=4)

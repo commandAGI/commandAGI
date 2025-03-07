@@ -9,8 +9,8 @@ import socket
 import os
 import signal
 
-from commandAGI2.computers.provisioners.docker_provisioner import DockerProvisioner
-from commandAGI2._utils.network import find_free_port, _is_port_available
+from commandAGI.computers.provisioners.docker_provisioner import DockerProvisioner
+from commandAGI._utils.network import find_free_port, _is_port_available
 
 # Create a simple FastAPI app for testing
 app = FastAPI()

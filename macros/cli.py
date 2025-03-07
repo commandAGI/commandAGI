@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Command-line interface for commandAGI2 documentation macros.
+Command-line interface for commandAGI documentation macros.
 """
 import sys
 from pathlib import Path
@@ -14,7 +14,7 @@ def main():
     """
     Build all documentation using the macros.
     """
-    print("Building commandAGI2 documentation...")
+    print("Building commandAGI documentation...")
 
     # # Build the documentation using the macros
     # print("\nGenerating documentation...")

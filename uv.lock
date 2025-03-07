@@ -488,7 +488,7 @@ wheels = [
 ]
 
 [[package]]
-name = "commandagi2"
+name = "commandagi"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
@@ -697,14 +697,14 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = "~=25.1" },
     { name = "boto3", specifier = "~=1.37" },
     { name = "boto3", marker = "extra == 'daemon-client-aws'", specifier = "~=1.37" },
-    { name = "commandagi2", extras = ["daemon-client-aws", "daemon-client-azure", "daemon-client-gcp", "daemon-client-docker", "daemon-client-kubernetes"], marker = "extra == 'daemon-client-all'" },
-    { name = "commandagi2", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-aws'" },
-    { name = "commandagi2", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-azure'" },
-    { name = "commandagi2", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-docker'" },
-    { name = "commandagi2", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-gcp'" },
-    { name = "commandagi2", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-kubernetes'" },
-    { name = "commandagi2", extras = ["local"], marker = "extra == 'daemon-host'" },
-    { name = "commandagi2", extras = ["local", "vnc", "docker", "kubernetes", "scrapybara", "langchain", "pig", "pytesseract", "gymnasium", "jupyter", "daemon-client-all", "daemon-host", "dev", "docs"], marker = "extra == 'all'" },
+    { name = "commandagi", extras = ["daemon-client-aws", "daemon-client-azure", "daemon-client-gcp", "daemon-client-docker", "daemon-client-kubernetes"], marker = "extra == 'daemon-client-all'" },
+    { name = "commandagi", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-aws'" },
+    { name = "commandagi", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-azure'" },
+    { name = "commandagi", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-docker'" },
+    { name = "commandagi", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-gcp'" },
+    { name = "commandagi", extras = ["daemon-client-base"], marker = "extra == 'daemon-client-kubernetes'" },
+    { name = "commandagi", extras = ["local"], marker = "extra == 'daemon-host'" },
+    { name = "commandagi", extras = ["local", "vnc", "docker", "kubernetes", "scrapybara", "langchain", "pig", "pytesseract", "gymnasium", "jupyter", "daemon-client-all", "daemon-host", "dev", "docs"], marker = "extra == 'all'" },
     { name = "docker", specifier = "~=7.1" },
     { name = "docker", marker = "extra == 'daemon-client-docker'", specifier = "~=7.1" },
     { name = "docker", marker = "extra == 'docker'", specifier = "~=7.1" },

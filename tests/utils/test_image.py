@@ -3,7 +3,7 @@ import io
 import unittest
 from PIL import Image
 
-from commandAGI2.utils.image import b64ToImage, imageToB64, imageToBytes, bytesToImage
+from commandAGI.utils.image import b64ToImage, imageToB64, imageToBytes, bytesToImage
 
 
 class TestImageUtils(unittest.TestCase):

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Kubernetes Example
+commandAGI Kubernetes Example
 
 This example demonstrates how to use the Kubernetes provisioner to create and control
-a Kubernetes pod running the commandAGI2 daemon.
+a Kubernetes pod running the commandAGI daemon.
 
 Status: ❌ Not implemented yet
 - This is a placeholder for future implementation

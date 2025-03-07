@@ -1,6 +1,6 @@
 import time
-from commandAGI2.computers.daemon_client_computer import DaemonClientComputer
-from commandAGI2.computers.provisioners.docker_provisioner import DockerProvisioner
+from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.provisioners.docker_provisioner import DockerProvisioner
 
 # Number of containers to create
 num_containers = 10
@@ -10,7 +10,7 @@ computers = []
 for i in range(num_containers):
     # Create provisioner with a unique name and token
     provisioner = DockerProvisioner(
-        container_name=f"commandagi2-daemon-{i}",
+        container_name=f"commandagi-daemon-{i}",
         port_range=(8000, 9000),  # Use a port in this range
         daemon_token=f"token-for-container-{i}",
     )

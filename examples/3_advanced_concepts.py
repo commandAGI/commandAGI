@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-commandAGI2 Advanced Concepts Example
+commandAGI Advanced Concepts Example
 
-This example demonstrates advanced concepts of commandAGI2, including:
+This example demonstrates advanced concepts of commandAGI, including:
 - Mouse movement and clicking
 - Keyboard typing
 - Keyboard hotkeys
@@ -16,8 +16,8 @@ import time
 
 # Import the local computer implementation
 try:
-    from commandAGI2.computers.local_pynput_computer import LocalPynputComputer
-    from commandAGI2.types import (
+    from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+    from commandAGI.types import (
         MouseButton,
         KeyboardKey,
         ClickAction,
@@ -27,9 +27,9 @@ try:
     )
 except ImportError:
     print(
-        "Error: Required modules not found. Make sure commandAGI2 is installed with the local extra:"
+        "Error: Required modules not found. Make sure commandAGI is installed with the local extra:"
     )
-    print("pip install commandagi2[local]")
+    print("pip install commandagi[local]")
     exit(1)
 
 
@@ -73,7 +73,7 @@ def main():
         print("Typing text...")
         computer.execute_type(
             TypeAction(
-                text="Hello from commandAGI2!\n\nThis text was typed automatically."
+                text="Hello from commandAGI!\n\nThis text was typed automatically."
             )
         )
         time.sleep(1)
