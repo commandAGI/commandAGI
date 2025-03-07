@@ -14,7 +14,7 @@ import re
 from commandAGI._utils.command import run_command
 from commandAGI._utils.config import PROJ_DIR
 from commandAGI._utils.network import find_free_port
-from .base_provisioner import BaseComputerProvisioner, ProvisionerStatus
+from commandAGI.computers.backend.base_provisioner import BaseComputerProvisioner, ProvisionerStatus
 from commandAGI.version import get_container_version, get_package_version
 
 

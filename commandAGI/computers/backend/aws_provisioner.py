@@ -3,7 +3,7 @@ import time
 import logging
 from typing import List, Optional
 import secrets
-from .base_provisioner import BaseComputerProvisioner, ProvisionerStatus
+from commandAGI.computers.backend.base_provisioner import BaseComputerProvisioner, ProvisionerStatus
 
 logger = logging.getLogger(__name__)
 
