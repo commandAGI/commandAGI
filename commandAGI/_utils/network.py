@@ -44,7 +44,8 @@ def find_free_port(
 
         raise RuntimeError(f"No available ports found in range {min_port}-{max_port}")
 
-    # If no range specified or preferred port is unavailable, find any free port
+    # If no range specified or preferred port is unavailable, find any free
+    # port
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("", 0))
         return s.getsockname()[1]

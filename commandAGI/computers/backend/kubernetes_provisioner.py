@@ -176,7 +176,8 @@ class KubernetesProvisioner(BaseComputerProvisioner):
 
         except Exception as e:
             logger.error(f"Error finding next available {resource_type} name: {e}")
-            # In case of error, generate a name with a timestamp to avoid conflicts
+            # In case of error, generate a name with a timestamp to avoid
+            # conflicts
             import datetime
 
             timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -191,9 +192,15 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         # Use default port 8000 if not specified
         if self.daemon_port is None:
             self.daemon_port = 8000
-            logger.info(f"Using default port {self.daemon_port} for daemon service")
+            logger.info(
+                f"Using default port {
+                    self.daemon_port} for daemon service"
+            )
         else:
-            logger.info(f"Using specified port {self.daemon_port} for daemon service")
+            logger.info(
+                f"Using specified port {
+                    self.daemon_port} for daemon service"
+            )
 
         # If deployment_name is not provided, find the next available name
         if self.deployment_name is None:
@@ -212,7 +219,9 @@ class KubernetesProvisioner(BaseComputerProvisioner):
         while retry_count < self.max_retries:
             try:
                 logger.info(
-                    f"Creating Kubernetes deployment {self.deployment_name} in namespace {self.namespace}"
+                    f"Creating Kubernetes deployment {
+                        self.deployment_name} in namespace {
+                        self.namespace}"
                 )
 
                 # Create deployment
@@ -302,25 +311,30 @@ class KubernetesProvisioner(BaseComputerProvisioner):
 
                 # Wait for deployment to be available
                 logger.info(
-                    f"Waiting for deployment {self.deployment_name} to be available"
+                    f"Waiting for deployment {
+                        self.deployment_name} to be available"
                 )
                 start_time = time.time()
                 while time.time() - start_time < self.timeout:
                     if self.is_running():
                         self._status = "running"
                         logger.info(
-                            f"Deployment {self.deployment_name} is now available"
+                            f"Deployment {
+                                self.deployment_name} is now available"
                         )
                         return
                     time.sleep(5)
 
-                # If we get here, the deployment didn't become available in time
+                # If we get here, the deployment didn't become available in
+                # time
                 self._status = "error"
                 logger.error(
-                    f"Timeout waiting for deployment {self.deployment_name} to be available"
+                    f"Timeout waiting for deployment {
+                        self.deployment_name} to be available"
                 )
                 raise TimeoutError(
-                    f"Timeout waiting for deployment {self.deployment_name} to be available"
+                    f"Timeout waiting for deployment {
+                        self.deployment_name} to be available"
                 )
 
             except Exception as e:
@@ -328,7 +342,8 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                 if retry_count >= self.max_retries:
                     self._status = "error"
                     logger.error(
-                        f"Failed to create Kubernetes resources after {self.max_retries} attempts: {e}"
+                        f"Failed to create Kubernetes resources after {
+                            self.max_retries} attempts: {e}"
                     )
                     # Attempt cleanup if partial creation occurred
                     if self.resources_created:
@@ -353,9 +368,15 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                 self.apps_v1.delete_namespaced_deployment(
                     name=self.deployment_name, namespace=self.namespace
                 )
-                logger.info(f"Deployment {self.deployment_name} deleted successfully")
+                logger.info(
+                    f"Deployment {
+                        self.deployment_name} deleted successfully"
+                )
             except Exception as e:
-                logger.error(f"Error deleting deployment {self.deployment_name}: {e}")
+                logger.error(
+                    f"Error deleting deployment {
+                        self.deployment_name}: {e}"
+                )
 
             # Delete service
             logger.info(f"Deleting service {self.service_name}")
@@ -363,9 +384,15 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                 self.core_v1.delete_namespaced_service(
                     name=self.service_name, namespace=self.namespace
                 )
-                logger.info(f"Service {self.service_name} deleted successfully")
+                logger.info(
+                    f"Service {
+                        self.service_name} deleted successfully"
+                )
             except Exception as e:
-                logger.error(f"Error deleting service {self.service_name}: {e}")
+                logger.error(
+                    f"Error deleting service {
+                        self.service_name}: {e}"
+                )
 
             # Wait for resources to be deleted
             start_time = time.time()
@@ -414,7 +441,8 @@ class KubernetesProvisioner(BaseComputerProvisioner):
                 and deployment.status.available_replicas > 0
             )
             logger.debug(
-                f"Deployment {self.deployment_name} running status: {is_running}"
+                f"Deployment {
+                    self.deployment_name} running status: {is_running}"
             )
             return is_running
         except Exception as e:

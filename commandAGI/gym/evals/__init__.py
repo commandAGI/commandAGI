@@ -25,7 +25,7 @@ def evaluate_episode(self, episode: BaseEpisode, mandate: Mandate) -> str:
     # Build the trajectory description as a series of steps
     trajectory_lines: List[str] = []
     for i, (obs, action) in enumerate(zip(episode.observations, episode.actions)):
-        trajectory_lines.append(f"Step {i+1}:")
+        trajectory_lines.append(f"Step {i + 1}:")
         trajectory_lines.append(f"Observation: {obs}")
         trajectory_lines.append(f"Action: {action}")
         trajectory_lines.append("")

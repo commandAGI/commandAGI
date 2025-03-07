@@ -53,7 +53,7 @@ def process_screenshot(
                 try:
                     base64.b64decode(screenshot_data)
                     input_format = "base64"
-                except:
+                except BaseException:
                     # Default to path if we can't determine
                     input_format = "path"
         else:
@@ -78,7 +78,8 @@ def process_screenshot(
                 temp_file = os.path.join(
                     APPDIR,
                     "temp",
-                    f"{computer_name}_temp_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.png",
+                    f"{computer_name}_temp_{
+                        datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.png",
                 )
                 os.makedirs(os.path.dirname(temp_file), exist_ok=True)
                 with open(temp_file, "wb") as f:
@@ -128,7 +129,8 @@ def process_screenshot(
                 temp_file = os.path.join(
                     APPDIR,
                     "temp",
-                    f"{computer_name}_temp_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.png",
+                    f"{computer_name}_temp_{
+                        datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.png",
                 )
                 os.makedirs(os.path.dirname(temp_file), exist_ok=True)
                 with open(temp_file, "wb") as f:
@@ -154,7 +156,7 @@ def process_screenshot(
                 if cleanup_temp_file and input_format == "path":
                     try:
                         os.remove(temp_file)
-                    except:
+                    except BaseException:
                         pass
 
                 return ScreenshotObservation(screenshot=b64_screenshot)
@@ -170,7 +172,7 @@ def process_screenshot(
                 if cleanup_temp_file and input_format == "path":
                     try:
                         os.remove(temp_file)
-                    except:
+                    except BaseException:
                         pass
 
                 return ScreenshotObservation(screenshot=img)
@@ -193,7 +195,8 @@ def process_screenshot(
             elif temp_file is not None:
                 # Move/copy the file to the screenshots directory
                 if Image is not None:
-                    # Use PIL to read and save (handles format conversion if needed)
+                    # Use PIL to read and save (handles format conversion if
+                    # needed)
                     img = Image.open(temp_file)
                     img.save(filepath)
                 else:
@@ -205,7 +208,7 @@ def process_screenshot(
                 if cleanup_temp_file and input_format == "path":
                     try:
                         os.remove(temp_file)
-                    except:
+                    except BaseException:
                         pass
 
                 return ScreenshotObservation(screenshot=filepath)

@@ -79,7 +79,10 @@ class AzureProvisioner(BaseComputerProvisioner):
             self.vm_name = self._generate_vm_name()
 
         print(
-            f"Creating Azure VM {self.vm_name} in resource group {self.resource_group}, location {self.location}"
+            f"Creating Azure VM {
+                self.vm_name} in resource group {
+                self.resource_group}, location {
+                self.location}"
         )
 
         # Define VM parameters
@@ -123,7 +126,10 @@ class AzureProvisioner(BaseComputerProvisioner):
         )
 
         # Wait for the operation to complete with timeout
-        print(f"Waiting for VM creation to complete (timeout: {self.timeout}s)")
+        print(
+            f"Waiting for VM creation to complete (timeout: {
+                self.timeout}s)"
+        )
         start_time = time.time()
         while not poller.done() and time.time() - start_time < self.timeout:
             # Print progress every 10 seconds
@@ -157,7 +163,11 @@ class AzureProvisioner(BaseComputerProvisioner):
             print("No VM name found, nothing to delete")
             return
 
-        print(f"Deleting VM {self.vm_name} from resource group {self.resource_group}")
+        print(
+            f"Deleting VM {
+                self.vm_name} from resource group {
+                self.resource_group}"
+        )
 
         try:
             poller = self.compute_client.virtual_machines.begin_delete(
@@ -165,7 +175,10 @@ class AzureProvisioner(BaseComputerProvisioner):
             )
 
             # Wait for the operation to complete with timeout
-            print(f"Waiting for VM deletion to complete (timeout: {self.timeout}s)")
+            print(
+                f"Waiting for VM deletion to complete (timeout: {
+                    self.timeout}s)"
+            )
             start_time = time.time()
             while not poller.done() and time.time() - start_time < self.timeout:
                 # Print progress every 10 seconds
@@ -218,7 +231,8 @@ class AzureProvisioner(BaseComputerProvisioner):
             )
 
             print(
-                f"VM {self.vm_name} power state: {power_state}, running: {is_running}"
+                f"VM {
+                    self.vm_name} power state: {power_state}, running: {is_running}"
             )
             return is_running
         except Exception as e:

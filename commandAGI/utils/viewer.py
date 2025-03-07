@@ -142,12 +142,14 @@ class ComputerViewer:
 
         # Update screenshot image
         if observation and observation.screenshot:
-            # Assuming the screenshot observation has an attribute 'screenshot' that is the file path
+            # Assuming the screenshot observation has an attribute 'screenshot'
+            # that is the file path
             image_path = observation.screenshot.screenshot
             if os.path.exists(image_path):
                 try:
                     image = Image.open(image_path)
-                    # Resize image based on label dimensions (fallback to 800x600)
+                    # Resize image based on label dimensions (fallback to
+                    # 800x600)
                     width = self.image_label.winfo_width() or 800
                     height = self.image_label.winfo_height() or 600
                     image = image.resize((width, height), Image.ANTIALIAS)
@@ -164,7 +166,9 @@ class ComputerViewer:
         # Update mouse state information if enabled
         if self.show_mouse:
             if observation and observation.mouse_state:
-                mouse_text = f"Mouse Pos: {observation.mouse_state.position}, Buttons: {observation.mouse_state.buttons}"
+                mouse_text = f"Mouse Pos: {
+                    observation.mouse_state.position}, Buttons: {
+                    observation.mouse_state.buttons}"
                 self.mouse_state_label.configure(text=mouse_text)
             else:
                 self.mouse_state_label.configure(text="Mouse State: N/A")
@@ -199,7 +203,8 @@ if __name__ == "__main__":
 
     class DummyEnv:
         def _get_observation(self):
-            # For testing, assume there is a valid image file named 'sample.jpg' in the current directory.
+            # For testing, assume there is a valid image file named
+            # 'sample.jpg' in the current directory.
             screenshot = ScreenshotObservation(screenshot="sample.jpg")
             mouse_state = MouseStateObservation(
                 buttons={MouseButton.LEFT: random.choice([True, False])},

@@ -378,7 +378,8 @@ class ComputerDaemon:
                     "computer_responsive": computer_responsive,
                 }
             except Exception as e:
-                # If there's an error, we're still "healthy" but we report the error
+                # If there's an error, we're still "healthy" but we report the
+                # error
                 return {"healthy": True, "error": str(e), "timestamp": time.time()}
 
         @app.post("/file/copy_to_computer", response_model=SuccessResponse)
@@ -595,7 +596,8 @@ class ComputerDaemon:
                 if not vnc_found:
                     return (
                         False,
-                        f"No VNC server found. Please install one of: {', '.join(vnc_executables)}",
+                        f"No VNC server found. Please install one of: {
+                            ', '.join(vnc_executables)}",
                     )
 
                 # Start the VNC server using the found executable
@@ -628,7 +630,8 @@ class ComputerDaemon:
                 if not vnc_found:
                     return (
                         False,
-                        f"No VNC server found. Please install one of: {', '.join(vnc_executables)}",
+                        f"No VNC server found. Please install one of: {
+                            ', '.join(vnc_executables)}",
                     )
 
                 # Get the executable name
@@ -673,7 +676,8 @@ class ComputerDaemon:
                 if not vnc_found:
                     return (
                         False,
-                        f"No VNC server found. Please install one of: {', '.join(vnc_executables)}",
+                        f"No VNC server found. Please install one of: {
+                            ', '.join(vnc_executables)}",
                     )
 
                 # Get the executable name
@@ -769,7 +773,8 @@ class ComputerDaemon:
                 xrdp_path = shutil.which("xrdp")
 
                 if not xrdp_path:
-                    # Check the package manager to give appropriate installation instructions
+                    # Check the package manager to give appropriate
+                    # installation instructions
                     apt_path = shutil.which("apt")
                     dnf_path = shutil.which("dnf")
                     yum_path = shutil.which("yum")
@@ -1324,7 +1329,8 @@ class ComputerDaemon:
             return False, "MCP server is already running"
 
         # Create and start the MCP server in a new thread; we assume that FastMCP.run() is blocking.
-        # Optionally, you can pass parameters like port if FastMCP.run accepts them.
+        # Optionally, you can pass parameters like port if FastMCP.run accepts
+        # them.
         self._mcp_server_thread = threading.Thread(
             target=self._mcp_server.run, kwargs={}, daemon=True
         )

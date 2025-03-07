@@ -90,19 +90,24 @@ class BaseComputerProvisioner(ABC):
                 if provision_attempt >= self.max_provisioning_retries:
                     self._set_status(ProvisionerStatus.SETUP_ERROR)
                     print(
-                        f"Failed to setup resource after {self.max_provisioning_retries} attempts: {str(e)}"
+                        f"Failed to setup resource after {
+                            self.max_provisioning_retries} attempts: {
+                            str(e)}"
                     )
                     raise
                 backoff_seconds = 2**provision_attempt
                 print(
-                    f"Error setting up resource, retrying in {backoff_seconds}s ({provision_attempt}/{self.max_provisioning_retries}): {str(e)}"
+                    f"Error setting up resource, retrying in {backoff_seconds}s ({provision_attempt}/{
+                        self.max_provisioning_retries}): {
+                        str(e)}"
                 )
                 time.sleep(backoff_seconds)  # Exponential backoff
 
         # Second loop: Health checking with its own timeout and retry count
         self._set_status(ProvisionerStatus.HEALTH_CHECKING)
         print(
-            f"Waiting for resource and daemon to be running (timeout: {self.health_check_timeout}s)"
+            f"Waiting for resource and daemon to be running (timeout: {
+                self.health_check_timeout}s)"
         )
 
         health_check_attempt = 0
@@ -128,7 +133,10 @@ class BaseComputerProvisioner(ABC):
                 print("Resource is running and daemon is responsive")
                 self._set_status(ProvisionerStatus.RUNNING)
                 print(
-                    f"Resource and daemon are now running after {int(time.time() - health_check_start_time)}s"
+                    f"Resource and daemon are now running after {
+                        int(
+                            time.time() -
+                            health_check_start_time)}s"
                 )
                 return
 
@@ -150,10 +158,14 @@ class BaseComputerProvisioner(ABC):
                 if health_check_attempt >= self.max_health_retries:
                     self._set_status(ProvisionerStatus.HEALTH_CHECK_ERROR)
                     print(
-                        f"Failed health check after {self.max_health_retries} attempts: {str(e)}"
+                        f"Failed health check after {
+                            self.max_health_retries} attempts: {
+                            str(e)}"
                     )
                     raise RuntimeError(
-                        f"Failed health check after {self.max_health_retries} attempts: {str(e)}"
+                        f"Failed health check after {
+                            self.max_health_retries} attempts: {
+                            str(e)}"
                     )
 
                 # Wait before retrying
@@ -162,7 +174,9 @@ class BaseComputerProvisioner(ABC):
                 )  # Don't wait longer than remaining timeout
                 if retry_wait_seconds > 0:
                     print(
-                        f"Health check failed ({health_check_attempt}/{self.max_health_retries}): {str(e)}. Retrying in {retry_wait_seconds}s"
+                        f"Health check failed ({health_check_attempt}/{
+                            self.max_health_retries}): {
+                            str(e)}. Retrying in {retry_wait_seconds}s"
                     )
                     time.sleep(retry_wait_seconds)
 
@@ -237,7 +251,8 @@ class BaseComputerProvisioner(ABC):
                     return True
                 else:
                     print(
-                        f"Health check failed: daemon returned status {response.status_code}"
+                        f"Health check failed: daemon returned status {
+                            response.status_code}"
                     )
                     return False
             except (ConnectionError, Timeout) as e:

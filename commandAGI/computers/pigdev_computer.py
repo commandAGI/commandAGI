@@ -154,7 +154,10 @@ class PigDevComputer(BaseComputer):
 
         # Get the machine (either local or remote)
         if self.machine_id:
-            self.logger.info(f"Connecting to remote machine with ID: {self.machine_id}")
+            self.logger.info(
+                f"Connecting to remote machine with ID: {
+                    self.machine_id}"
+            )
             self.machine = self.client.machines.get(self.machine_id)
         else:
             self.logger.info("Connecting to local machine")
@@ -239,7 +242,10 @@ class PigDevComputer(BaseComputer):
         try:
             # Convert to PigDev key format
             key = keyboard_key_to_pigdev(action.key)
-            self.logger.debug(f"Pressing key down: {action.key} (PigDev key: {key})")
+            self.logger.debug(
+                f"Pressing key down: {
+                    action.key} (PigDev key: {key})"
+            )
 
             # Use the existing connection
             self.connection.key_down(key)
@@ -252,7 +258,10 @@ class PigDevComputer(BaseComputer):
         try:
             # Convert to PigDev key format
             key = keyboard_key_to_pigdev(action.key)
-            self.logger.debug(f"Releasing key: {action.key} (PigDev key: {key})")
+            self.logger.debug(
+                f"Releasing key: {
+                    action.key} (PigDev key: {key})"
+            )
 
             # Use the existing connection
             self.connection.key_up(key)
@@ -290,7 +299,8 @@ class PigDevComputer(BaseComputer):
         """Press mouse button down using PigDev."""
         button = mouse_button_to_pigdev(action.button)
         self.logger.debug(
-            f"Pressing mouse button down: {action.button} (PigDev button: {button})"
+            f"Pressing mouse button down: {
+                action.button} (PigDev button: {button})"
         )
 
         # Use the existing connection
@@ -300,7 +310,8 @@ class PigDevComputer(BaseComputer):
         """Release mouse button using PigDev."""
         button = mouse_button_to_pigdev(action.button)
         self.logger.debug(
-            f"Releasing mouse button: {action.button} (PigDev button: {button})"
+            f"Releasing mouse button: {
+                action.button} (PigDev button: {button})"
         )
 
         # Use the existing connection
@@ -309,7 +320,10 @@ class PigDevComputer(BaseComputer):
     def _execute_click(self, action: ClickAction):
         """Execute a click action at the given coordinates using PigDev's click method."""
         self.logger.debug(
-            f"Clicking at: ({action.x}, {action.y}) with button: {action.button}"
+            f"Clicking at: ({
+                action.x}, {
+                action.y}) with button: {
+                action.button}"
         )
         # Use the existing connection
         # Move to position first
@@ -332,7 +346,11 @@ class PigDevComputer(BaseComputer):
     def _execute_drag(self, action: DragAction):
         """Execute a drag action using PigDev's left_click_drag method."""
         self.logger.debug(
-            f"Dragging from: ({action.start_x}, {action.start_y}) to: ({action.end_x}, {action.end_y})"
+            f"Dragging from: ({
+                action.start_x}, {
+                action.start_y}) to: ({
+                action.end_x}, {
+                    action.end_y})"
         )
         # Use the existing connection
         # First move to the start position
@@ -431,7 +449,9 @@ class PigDevComputer(BaseComputer):
             bool: True if the process was executed successfully
         """
         self.logger.info(
-            f"Running process via PigDev: {action.command} with args: {action.args}"
+            f"Running process via PigDev: {
+                action.command} with args: {
+                action.args}"
         )
         return self._default_run_process(action=action)
 

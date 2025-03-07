@@ -129,12 +129,12 @@ class FilesystemSavedEpisode(Episode[ObsType, ActionType]):
     def iter_steps(self) -> Iterator[Step[ObsType, ActionType]]:
         """Iterate over the steps of the episode."""
         for i in range(len(self.steps)):
-            step_path = os.path.join(self.save_dir, f"step_{i+1}{self.extension}")
+            step_path = os.path.join(self.save_dir, f"step_{i + 1}{self.extension}")
             yield self.get(i)
 
     def get(self, index: int) -> Step[ObsType, ActionType]:
         """Get a step from the episode at a specific index."""
-        step_path = os.path.join(self.save_dir, f"step_{index+1}{self.extension}")
+        step_path = os.path.join(self.save_dir, f"step_{index + 1}{self.extension}")
         match self.mode:
             case "json":
                 with open(step_path, "r") as f:
@@ -153,7 +153,7 @@ class FilesystemSavedEpisode(Episode[ObsType, ActionType]):
         self.steps.insert(index, step)
         # Rename and resave all subsequent steps
         for i in range(index, len(self.steps)):
-            step_path = os.path.join(self.save_dir, f"step_{i+1}{self.extension}")
+            step_path = os.path.join(self.save_dir, f"step_{i + 1}{self.extension}")
             match self.mode:
                 case "json":
                     with open(step_path, "w") as f:
@@ -170,7 +170,7 @@ class FilesystemSavedEpisode(Episode[ObsType, ActionType]):
         step = self.steps.pop()
         # Remove last step file
         step_path = os.path.join(
-            self.save_dir, f"step_{len(self.steps)+1}{self.extension}"
+            self.save_dir, f"step_{len(self.steps) + 1}{self.extension}"
         )
         if os.path.exists(step_path):
             os.remove(step_path)

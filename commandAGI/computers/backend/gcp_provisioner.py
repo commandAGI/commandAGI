@@ -3,7 +3,10 @@ import time
 import logging
 from typing import Optional
 import secrets
-from commandAGI.computers.backend.base_provisioner import BaseComputerProvisioner, ProvisionerStatus
+from commandAGI.computers.backend.base_provisioner import (
+    BaseComputerProvisioner,
+    ProvisionerStatus,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +73,10 @@ class GCPProvisioner(BaseComputerProvisioner):
             self.instance_name = self._generate_instance_name()
 
         print(
-            f"Creating GCP VM {self.instance_name} in project {self.project}, zone {self.zone}"
+            f"Creating GCP VM {
+                self.instance_name} in project {
+                self.project}, zone {
+                self.zone}"
         )
 
         instance = compute_v1.Instance()
@@ -119,7 +125,10 @@ class GCPProvisioner(BaseComputerProvisioner):
         )
 
         # Wait for the operation to complete with timeout
-        print(f"Waiting for VM creation to complete (timeout: {self.timeout}s)")
+        print(
+            f"Waiting for VM creation to complete (timeout: {
+                self.timeout}s)"
+        )
         start_time = time.time()
         while not operation.done() and time.time() - start_time < self.timeout:
             operation = self.zone_operations_client.get(
@@ -145,7 +154,10 @@ class GCPProvisioner(BaseComputerProvisioner):
         # Check if the operation was successful
         if operation.error:
             print(f"Error creating VM: {operation.error.errors}")
-            raise RuntimeError(f"Failed to create VM: {operation.error.errors}")
+            raise RuntimeError(
+                f"Failed to create VM: {
+                    operation.error.errors}"
+            )
 
         print(f"VM {self.instance_name} created successfully")
 
@@ -160,7 +172,10 @@ class GCPProvisioner(BaseComputerProvisioner):
             return
 
         print(
-            f"Deleting VM {self.instance_name} from project {self.project}, zone {self.zone}"
+            f"Deleting VM {
+                self.instance_name} from project {
+                self.project}, zone {
+                self.zone}"
         )
 
         try:
@@ -169,7 +184,10 @@ class GCPProvisioner(BaseComputerProvisioner):
             )
 
             # Wait for the operation to complete with timeout
-            print(f"Waiting for VM deletion to complete (timeout: {self.timeout}s)")
+            print(
+                f"Waiting for VM deletion to complete (timeout: {
+                    self.timeout}s)"
+            )
             start_time = time.time()
             while not operation.done() and time.time() - start_time < self.timeout:
                 operation = self.zone_operations_client.get(
@@ -216,7 +234,9 @@ class GCPProvisioner(BaseComputerProvisioner):
             )
             is_running = instance.status == "RUNNING"
             print(
-                f"VM {self.instance_name} status: {instance.status}, running: {is_running}"
+                f"VM {
+                    self.instance_name} status: {
+                    instance.status}, running: {is_running}"
             )
             return is_running
         except Exception as e:

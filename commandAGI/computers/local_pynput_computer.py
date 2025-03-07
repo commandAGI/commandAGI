@@ -222,7 +222,8 @@ class LocalPynputComputer(LocalComputer):
 
     def _start(self):
         """Start the local computer environment with pynput listeners."""
-        # Call parent _start method to initialize screen capture and temp directory
+        # Call parent _start method to initialize screen capture and temp
+        # directory
         super()._start()
 
         # Start the keyboard listener if not already running
@@ -261,7 +262,8 @@ class LocalPynputComputer(LocalComputer):
             self._mouse_listener.stop()
             self._mouse_listener = None
 
-        # Call parent _stop method to clean up screen capture and temp directory
+        # Call parent _stop method to clean up screen capture and temp
+        # directory
         super()._stop()
         return True
 
@@ -311,7 +313,9 @@ class LocalPynputComputer(LocalComputer):
     def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from pynput listener."""
         self.logger.debug(
-            f"Getting mouse state: position={self._mouse_pos}, buttons={self._mouse_buttons}"
+            f"Getting mouse state: position={
+                self._mouse_pos}, buttons={
+                self._mouse_buttons}"
         )
         return MouseStateObservation(
             buttons=self._mouse_buttons.copy(), position=self._mouse_pos
@@ -344,13 +348,19 @@ class LocalPynputComputer(LocalComputer):
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key."""
         pynput_key = keyboard_key_to_pynput(action.key)
-        self.logger.debug(f"Pressing key down: {action.key} (Pynput key: {pynput_key})")
+        self.logger.debug(
+            f"Pressing key down: {
+                action.key} (Pynput key: {pynput_key})"
+        )
         self._keyboard_controller.press(pynput_key)
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         """Execute key release for a keyboard key."""
         pynput_key = keyboard_key_to_pynput(action.key)
-        self.logger.debug(f"Releasing key: {action.key} (Pynput key: {pynput_key})")
+        self.logger.debug(
+            f"Releasing key: {
+                action.key} (Pynput key: {pynput_key})"
+        )
         self._keyboard_controller.release(pynput_key)
 
     def _execute_type(self, action: TypeAction):
@@ -361,13 +371,15 @@ class LocalPynputComputer(LocalComputer):
     def _execute_mouse_move(self, action: MouseMoveAction):
         """Move mouse to specified coordinates using pynput."""
         self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
-        # pynput doesn't have a direct move duration parameter, so we simulate it
+        # pynput doesn't have a direct move duration parameter, so we simulate
+        # it
         if action.move_duration > 0:
             # Get current position
             current_x, current_y = self._mouse_controller.position
 
             # Calculate number of steps based on duration
-            steps = max(int(action.move_duration * 60), 1)  # 60 steps per second
+            # 60 steps per second
+            steps = max(int(action.move_duration * 60), 1)
 
             # Calculate step size
             step_x = (action.x - current_x) / steps
@@ -396,7 +408,8 @@ class LocalPynputComputer(LocalComputer):
         """Press mouse button down using pynput."""
         pynput_button = mouse_button_to_pynput(action.button)
         self.logger.debug(
-            f"Pressing mouse button down: {action.button} (Pynput button: {pynput_button})"
+            f"Pressing mouse button down: {
+                action.button} (Pynput button: {pynput_button})"
         )
         self._mouse_controller.press(pynput_button)
 
@@ -404,7 +417,8 @@ class LocalPynputComputer(LocalComputer):
         """Release mouse button using pynput."""
         pynput_button = mouse_button_to_pynput(action.button)
         self.logger.debug(
-            f"Releasing mouse button: {action.button} (Pynput button: {pynput_button})"
+            f"Releasing mouse button: {
+                action.button} (Pynput button: {pynput_button})"
         )
         self._mouse_controller.release(pynput_button)
 

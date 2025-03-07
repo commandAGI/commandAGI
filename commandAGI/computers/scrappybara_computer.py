@@ -211,7 +211,8 @@ class ScrapybaraComputer(BaseComputer):
         # Scrapybara doesn't have separate key down/up methods
         # We'll use the key method with a press and hold approach
         key = keyboard_key_to_scrapybara(action.key)
-        # Note: This is a limitation as Scrapybara doesn't support key down without release
+        # Note: This is a limitation as Scrapybara doesn't support key down
+        # without release
         self.client.computer(action="key", text=key)
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
@@ -230,7 +231,8 @@ class ScrapybaraComputer(BaseComputer):
     def _execute_mouse_scroll(self, action: MouseScrollAction):
         """Scroll mouse using Scrapybara."""
         # Scrapybara scroll takes [x, y] coordinates for horizontal and vertical scrolling
-        # Convert our amount to a vertical scroll (positive = down, negative = up)
+        # Convert our amount to a vertical scroll (positive = down, negative =
+        # up)
         x_scroll = 0
         y_scroll = int(action.amount)
 
@@ -380,7 +382,9 @@ class ScrapybaraComputer(BaseComputer):
             bool: True if the process was executed successfully
         """
         self.logger.info(
-            f"Running process via Scrapybara: {action.command} with args: {action.args}"
+            f"Running process via Scrapybara: {
+                action.command} with args: {
+                action.args}"
         )
         return self._default_run_process(action=action)
 

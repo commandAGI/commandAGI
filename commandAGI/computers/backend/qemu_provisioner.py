@@ -80,7 +80,9 @@ class QEMUProvisioner(BaseComputerProvisioner):
                 "-p",
                 str(self.daemon_port),
                 "user@localhost",
-                f"pip install commandagi[local,daemon-server] && python -m commandagi.daemon.daemon --port {self.daemon_port} --token {self.daemon_token} --backend pynput",
+                f"pip install commandagi[local,daemon-server] && python -m commandagi.daemon.daemon --port {
+                    self.daemon_port} --token {
+                    self.daemon_token} --backend pynput",
             ],
             check=True,
         )

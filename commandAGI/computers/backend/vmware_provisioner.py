@@ -94,7 +94,8 @@ class VMwareProvisioner(BaseComputerProvisioner):
                                 "-gp",
                                 "vagrant",
                                 "/bin/bash",
-                                f"pip install commandagi[local,daemon] && python -m commandagi.daemon.daemon --port {self.port} --backend pynput",
+                                f"pip install commandagi[local,daemon] && python -m commandagi.daemon.daemon --port {
+                                    self.port} --backend pynput",
                             ]
                         )
 
@@ -104,14 +105,18 @@ class VMwareProvisioner(BaseComputerProvisioner):
                 # If we get here, the VM didn't start in time
                 self._status = "error"
                 logger.error(f"Timeout waiting for VM {self.vm_name} to start")
-                raise TimeoutError(f"Timeout waiting for VM {self.vm_name} to start")
+                raise TimeoutError(
+                    f"Timeout waiting for VM {
+                        self.vm_name} to start"
+                )
 
             except Exception as e:
                 retry_count += 1
                 if retry_count >= self.max_retries:
                     self._status = "error"
                     logger.error(
-                        f"Failed to start VM after {self.max_retries} attempts: {e}"
+                        f"Failed to start VM after {
+                            self.max_retries} attempts: {e}"
                     )
                     raise
                 logger.warning(

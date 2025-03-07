@@ -28,7 +28,9 @@ class ManualProvisioner(BaseComputerProvisioner):
         print(f"If you haven't already, please start the daemon manually using:")
         print(f"pip install commandagi[local,daemon]")
         print(
-            f"python -m commandagi.daemon.daemon --port {self.daemon_port} --token {self.daemon_token} --backend pynput"
+            f"python -m commandagi.daemon.daemon --port {
+                self.daemon_port} --token {
+                self.daemon_token} --backend pynput"
         )
 
     def _deprovision_resource(self) -> None:

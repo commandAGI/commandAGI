@@ -14,7 +14,10 @@ import re
 from commandAGI._utils.command import run_command
 from commandAGI._utils.config import PROJ_DIR
 from commandAGI._utils.network import find_free_port
-from commandAGI.computers.backend.base_provisioner import BaseComputerProvisioner, ProvisionerStatus
+from commandAGI.computers.backend.base_provisioner import (
+    BaseComputerProvisioner,
+    ProvisionerStatus,
+)
 from commandAGI.version import get_container_version, get_package_version
 
 
@@ -198,7 +201,8 @@ class DockerProvisioner(BaseComputerProvisioner):
 
         except subprocess.CalledProcessError as e:
             print(f"Error listing Docker containers: {e}")
-            # In case of error, generate a name with a timestamp to avoid conflicts
+            # In case of error, generate a name with a timestamp to avoid
+            # conflicts
             import datetime
 
             timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -249,9 +253,11 @@ class DockerProvisioner(BaseComputerProvisioner):
         # 2. System processes using the same ports
         # 3. Other commandAGI daemon instances
         # This is why we implement port scanning and fallback logic for local containers.
-        # Cloud provisioners don't need this as they can specify exact ports during VM/container creation.
+        # Cloud provisioners don't need this as they can specify exact ports
+        # during VM/container creation.
         if self.daemon_port is None:
-            # No port specified, find one in the given range or any available port
+            # No port specified, find one in the given range or any available
+            # port
             original_port_range = self.port_range
             try:
                 self.daemon_port = find_free_port(port_range=self.port_range)
@@ -264,35 +270,50 @@ class DockerProvisioner(BaseComputerProvisioner):
                     )
                 )
             except RuntimeError as e:
-                # Handle the case where no ports are available in the specified range
+                # Handle the case where no ports are available in the specified
+                # range
                 print(f"Warning: {str(e)}. Trying to find any available port.")
                 self.daemon_port = find_free_port()
-                print(f"Selected port {self.daemon_port} outside of requested range")
+                print(
+                    f"Selected port {
+                        self.daemon_port} outside of requested range"
+                )
         elif not find_free_port(preferred_port=self.daemon_port):
             # Specified port is not available, find an alternative
-            # This is important for local development where ports might be used by other processes
+            # This is important for local development where ports might be used
+            # by other processes
             print(f"Requested port {self.daemon_port} is not available")
             original_port = self.daemon_port
             try:
                 self.daemon_port = find_free_port(port_range=self.port_range)
                 print(
-                    f"Using alternative port {self.daemon_port} instead of {original_port}"
+                    f"Using alternative port {
+                        self.daemon_port} instead of {original_port}"
                 )
             except RuntimeError as e:
-                # Handle the case where no ports are available in the specified range
+                # Handle the case where no ports are available in the specified
+                # range
                 print(f"Warning: {str(e)}. Trying to find any available port.")
                 self.daemon_port = find_free_port()
-                print(f"Selected port {self.daemon_port} outside of requested range")
+                print(
+                    f"Selected port {
+                        self.daemon_port} outside of requested range"
+                )
         else:
             # Specified port is available, use it
-            print(f"Using requested port {self.daemon_port} for daemon service")
+            print(
+                f"Using requested port {
+                    self.daemon_port} for daemon service"
+            )
 
-        # If container_name is not provided, find the next available name for local setup
+        # If container_name is not provided, find the next available name for
+        # local setup
         if self.container_name is None:
             self.container_name = self._find_next_available_container_name()
             print(f"Using container name: {self.container_name}")
 
-        # Run the container using Docker CLI with output streaming in a separate thread
+        # Run the container using Docker CLI with output streaming in a
+        # separate thread
         run_cmd = [
             "docker",
             "run",
@@ -390,14 +411,16 @@ class DockerProvisioner(BaseComputerProvisioner):
     def _setup_azure_container_instances(self):
         """Setup Azure Container Instances"""
         print(
-            f"Starting Azure Container Instance in resource group {self.resource_group}"
+            f"Starting Azure Container Instance in resource group {
+                self.resource_group}"
         )
 
         # For cloud platforms, use fixed port 8000 if not specified
         if self.daemon_port is None:
             self.daemon_port = 8000
             print(
-                f"Using default port {self.daemon_port} for Azure Container Instances"
+                f"Using default port {
+                    self.daemon_port} for Azure Container Instances"
             )
 
         # Use simple naming for cloud platforms
@@ -500,12 +523,14 @@ class DockerProvisioner(BaseComputerProvisioner):
             subprocess.run(rm_cmd, check=True, capture_output=True, text=True)
 
             print(
-                f"Docker container {self.container_name} stopped and removed successfully"
+                f"Docker container {
+                    self.container_name} stopped and removed successfully"
             )
         except subprocess.CalledProcessError as e:
             print(f"Error stopping/removing Docker container: {e}")
             print(f"Error output: {e.stderr}")
-            # Don't raise here to allow cleanup to continue even if there are errors
+            # Don't raise here to allow cleanup to continue even if there are
+            # errors
 
     def _teardown_aws_ecs(self):
         """Teardown AWS ECS task"""
@@ -527,7 +552,10 @@ class DockerProvisioner(BaseComputerProvisioner):
                             break
                         status = response["tasks"][0]["lastStatus"]
                         if status == "STOPPED":
-                            print(f"ECS task {self._task_arn} stopped successfully")
+                            print(
+                                f"ECS task {
+                                    self._task_arn} stopped successfully"
+                            )
                             break
                         print(f"ECS task status: {status}")
                         time.sleep(5)
@@ -552,7 +580,8 @@ class DockerProvisioner(BaseComputerProvisioner):
 
             if poller.done():
                 print(
-                    f"Azure Container Instance {self.container_name} deleted successfully"
+                    f"Azure Container Instance {
+                        self.container_name} deleted successfully"
                 )
             else:
                 print(f"Timeout waiting for Azure Container Instance deletion")
@@ -572,7 +601,10 @@ class DockerProvisioner(BaseComputerProvisioner):
                 time.sleep(5)
 
             if operation.done():
-                print(f"Cloud Run service {self.container_name} deleted successfully")
+                print(
+                    f"Cloud Run service {
+                        self.container_name} deleted successfully"
+                )
             else:
                 print(f"Timeout waiting for Cloud Run service deletion")
         except Exception as e:
@@ -629,7 +661,8 @@ class DockerProvisioner(BaseComputerProvisioner):
 
             is_running = result.stdout.strip().strip("\"'").lower() == "true"
             print(
-                f"Docker container {self.container_name} running status: {is_running}"
+                f"Docker container {
+                    self.container_name} running status: {is_running}"
             )
             return is_running
         except subprocess.CalledProcessError as e:
@@ -674,7 +707,8 @@ class DockerProvisioner(BaseComputerProvisioner):
                 == "Running"
             )
             print(
-                f"Azure Container Instance {self.container_name} running status: {is_running}"
+                f"Azure Container Instance {
+                    self.container_name} running status: {is_running}"
             )
             return is_running
         except Exception as e:
@@ -686,9 +720,10 @@ class DockerProvisioner(BaseComputerProvisioner):
         try:
             name = f"projects/{self.project_id}/locations/{self.region}/services/{self.container_name}"
             service = self.cloud_run_client.get_service(name=name)
-            is_running = service.status.conditions[0].status == True
+            is_running = service.status.conditions[0].status
             print(
-                f"Cloud Run service {self.container_name} running status: {is_running}"
+                f"Cloud Run service {
+                    self.container_name} running status: {is_running}"
             )
             return is_running
         except Exception as e:

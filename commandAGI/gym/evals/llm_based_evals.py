@@ -84,7 +84,8 @@ class ObjectiveSeekingEvaluator(BaseEvaluator[ObsType, ActionType]):
             message.append(
                 {
                     "type": "text",
-                    "text": f"Step {i * self.step_sample_modulus}: {step.observation}",
+                    "text": f"Step {i *
+                                                            self.step_sample_modulus}: {step.observation}",
                 }
             )
 

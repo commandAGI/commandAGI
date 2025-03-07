@@ -56,7 +56,9 @@ class ReactComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
         for action_fn in self.action_fns:
             self.agent.register_tool(
                 name=action_fn.__name__,
-                description=action_fn.__doc__ or f"Execute {action_fn.__name__} action",
+                description=action_fn.__doc__
+                or f"Execute {
+                    action_fn.__name__} action",
                 fn=action_fn,
             )
 

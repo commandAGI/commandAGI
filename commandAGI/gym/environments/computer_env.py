@@ -135,7 +135,8 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
                 raise ImportError(
                     "TkRender is required for human rendering but is not installed."
                 )
-            # Instantiate the TkRender with the current environment instance (self)
+            # Instantiate the TkRender with the current environment instance
+            # (self)
             self._env_viewer = EnvironmentViewer(
                 self
             )  # This will open the window and block as mainloop runs

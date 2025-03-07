@@ -4,12 +4,12 @@ Computer implementations for commandAGI.
 This package contains various computer implementations that can be used with commandAGI.
 """
 
+from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 import logging
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
-from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 
 try:
     from commandAGI.computers.local_computer import LocalComputer

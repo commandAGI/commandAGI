@@ -457,10 +457,16 @@ class BaseComputer(BaseModel):
             bool: True if the computer was successfully paused, False otherwise.
         """
         if self._state != "started":
-            self.logger.warning(f"Cannot pause computer in {self._state} state")
+            self.logger.warning(
+                f"Cannot pause computer in {
+                    self._state} state"
+            )
             return False
 
-        self.logger.info(f"Attempting to pause {self.__class__.__name__} computer")
+        self.logger.info(
+            f"Attempting to pause {
+                self.__class__.__name__} computer"
+        )
         for attempt in range(self.num_retries):
             try:
                 self._pause()
@@ -471,7 +477,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error pausing computer (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error pausing computer (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -497,7 +503,10 @@ class BaseComputer(BaseModel):
             bool: True if the computer was successfully resumed, False otherwise.
         """
         if self._state != "paused":
-            self.logger.warning(f"Cannot resume computer in {self._state} state")
+            self.logger.warning(
+                f"Cannot resume computer in {
+                    self._state} state"
+            )
             return False
 
         self.logger.info(
@@ -514,7 +523,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error resuming computer (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error resuming computer (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -878,7 +887,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error running process (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error running process (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -902,7 +911,9 @@ class BaseComputer(BaseModel):
             bool: True if the process was executed successfully
         """
         self.logger.info(
-            f"Running process via shell: {action.command} with args: {action.args}"
+            f"Running process via shell: {
+                action.command} with args: {
+                action.args}"
         )
 
         # Change to the specified directory if provided
@@ -974,7 +985,7 @@ class BaseComputer(BaseModel):
                 if DEV_MODE:
                     raise e
                 self.logger.error(
-                    f"Error executing command (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing command (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1001,7 +1012,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing keyboard keys press (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing keyboard keys press (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1027,7 +1038,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing keyboard keys down (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing keyboard keys down (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1053,7 +1064,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing keyboard keys release (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing keyboard keys release (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1081,7 +1092,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing keyboard key press (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing keyboard key press (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1108,7 +1119,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing keyboard key down (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing keyboard key down (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1135,7 +1146,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing keyboard key release (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing keyboard key release (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1162,7 +1173,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing keyboard hotkey (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing keyboard hotkey (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1190,7 +1201,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing type (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing type (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1216,7 +1227,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing mouse move (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing mouse move (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1241,7 +1252,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing mouse scroll (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing mouse scroll (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1266,7 +1277,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing mouse button down (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing mouse button down (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1293,7 +1304,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing mouse button up (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing mouse button up (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1333,7 +1344,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing click (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing click (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1383,7 +1394,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing double click (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing double click (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1441,7 +1452,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error executing drag (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error executing drag (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1525,7 +1536,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error copying to computer (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error copying to computer (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False
@@ -1586,7 +1597,7 @@ class BaseComputer(BaseModel):
                 return True
             except Exception as e:
                 self.logger.error(
-                    f"Error copying from computer (attempt {attempt+1}/{self.num_retries}): {e}"
+                    f"Error copying from computer (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
                     return False

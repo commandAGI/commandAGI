@@ -185,7 +185,8 @@ class UIElementCommonProperties(TypedDict, total=False):
     """Common properties of a UI element across all platforms."""
 
     name: Optional[str]  # Name/label of the element
-    role: Optional[str]  # Role/type of the element (normalized across platforms)
+    # Role/type of the element (normalized across platforms)
+    role: Optional[str]
     value: Optional[Any]  # Current value of the element
     description: Optional[str]  # Description of the element
 
@@ -305,7 +306,8 @@ class ComputerObservation(TypedDict):
     processes: Optional[ProcessesObservation] = None
     windows: Optional[WindowsObservation] = None
     displays: Optional[DisplaysObservation] = None
-    # TODO: also add keyboard_events and mouse_events where you store the events that were collected since last observation
+    # TODO: also add keyboard_events and mouse_events where you store the
+    # events that were collected since last observation
 
 
 class ComputerActionType(str, Enum):

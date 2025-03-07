@@ -59,7 +59,8 @@ def mouse_button_to_e2b(button: Union[MouseButton, str]) -> str:
         MouseButton.RIGHT: "right",
     }
 
-    return e2b_button_mapping.get(button, "left")  # Default to left button if not found
+    # Default to left button if not found
+    return e2b_button_mapping.get(button, "left")
 
 
 def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
@@ -369,7 +370,9 @@ class E2BDesktopComputer(BaseComputer):
             bool: True if the process was executed successfully
         """
         self.logger.info(
-            f"Running process in E2B Desktop: {action.command} with args: {action.args}"
+            f"Running process in E2B Desktop: {
+                action.command} with args: {
+                action.args}"
         )
         return self._default_run_process(action=action)
 

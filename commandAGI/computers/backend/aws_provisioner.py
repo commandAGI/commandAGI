@@ -3,7 +3,10 @@ import time
 import logging
 from typing import List, Optional
 import secrets
-from commandAGI.computers.backend.base_provisioner import BaseComputerProvisioner, ProvisionerStatus
+from commandAGI.computers.backend.base_provisioner import (
+    BaseComputerProvisioner,
+    ProvisionerStatus,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -85,11 +88,16 @@ class AWSProvisioner(BaseComputerProvisioner):
         )
         self.instance_id = response["Instances"][0]["InstanceId"]
         print(
-            f"Successfully launched instance {self.instance_id} with name {self.instance_name}"
+            f"Successfully launched instance {
+                self.instance_id} with name {
+                self.instance_name}"
         )
 
         # Wait for the instance to reach running state
-        print(f"Waiting for instance {self.instance_id} to reach running state")
+        print(
+            f"Waiting for instance {
+                self.instance_id} to reach running state"
+        )
         waiter = self.ec2.get_waiter("instance_running")
         try:
             waiter.wait(
@@ -111,7 +119,11 @@ class AWSProvisioner(BaseComputerProvisioner):
             print("No instance ID found, nothing to terminate")
             return
 
-        print(f"Terminating instance {self.instance_id} ({self.instance_name})")
+        print(
+            f"Terminating instance {
+                self.instance_id} ({
+                self.instance_name})"
+        )
         self.ec2.terminate_instances(InstanceIds=[self.instance_id])
 
         # Wait for termination with timeout
@@ -128,7 +140,10 @@ class AWSProvisioner(BaseComputerProvisioner):
 
                 state = response["Reservations"][0]["Instances"][0]["State"]["Name"]
                 if state == "terminated":
-                    print(f"Instance {self.instance_id} successfully terminated")
+                    print(
+                        f"Instance {
+                            self.instance_id} successfully terminated"
+                    )
                     break
 
                 print(f"Instance {self.instance_id} state: {state}")
@@ -139,7 +154,10 @@ class AWSProvisioner(BaseComputerProvisioner):
                 break
 
         if time.time() - start_time >= self.timeout:
-            print(f"Timeout waiting for instance {self.instance_id} to terminate")
+            print(
+                f"Timeout waiting for instance {
+                    self.instance_id} to terminate"
+            )
 
     def is_running(self) -> bool:
         """Check if the EC2 instance is running"""
@@ -159,7 +177,10 @@ class AWSProvisioner(BaseComputerProvisioner):
 
             state = response["Reservations"][0]["Instances"][0]["State"]["Name"]
             is_running = state == "running"
-            print(f"Instance {self.instance_id} state: {state}, running: {is_running}")
+            print(
+                f"Instance {
+                    self.instance_id} state: {state}, running: {is_running}"
+            )
             return is_running
         except Exception as e:
             print(f"Error checking instance status: {e}")

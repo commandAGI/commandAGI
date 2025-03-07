@@ -1,3 +1,33 @@
+from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
+from commandAGI._utils.image import process_screenshot
+from commandAGI._utils.config import APPDIR
+from commandAGI.types import (
+    ShellCommandAction,
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyReleaseAction,
+    KeyboardStateObservation,
+    MouseButton,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
+    ScreenshotObservation,
+    TypeAction,
+    RunProcessAction,
+    LayoutTreeObservation,
+    ProcessesObservation,
+    WindowsObservation,
+    DisplaysObservation,
+    Platform,
+)
+from commandAGI.computers.base_computer import (
+    BaseComputer,
+    BaseJupyterNotebook,
+    BaseShell,
+    BaseComputerFile,
+)
 import base64
 import io
 import os
@@ -81,37 +111,6 @@ try:
 except ImportError:
     pyatspi = None
 
-from commandAGI.computers.base_computer import (
-    BaseComputer,
-    BaseJupyterNotebook,
-    BaseShell,
-    BaseComputerFile,
-)
-from commandAGI.types import (
-    ShellCommandAction,
-    KeyboardKey,
-    KeyboardKeyDownAction,
-    KeyboardKeyReleaseAction,
-    KeyboardStateObservation,
-    MouseButton,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseStateObservation,
-    ScreenshotObservation,
-    TypeAction,
-    RunProcessAction,
-    LayoutTreeObservation,
-    ProcessesObservation,
-    WindowsObservation,
-    DisplaysObservation,
-    Platform,
-)
-from commandAGI._utils.config import APPDIR
-from commandAGI._utils.image import process_screenshot
-from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
-
 
 class NbFormatJupyterNotebook(BaseJupyterNotebook):
     """Implementation of BaseJupyterNotebook using nbformat and nbclient libraries.
@@ -191,7 +190,7 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
             notebook.cells[index]["source"] = source
         else:
             raise IndexError(
-                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+                f"Cell index {index} out of range (0-{len(notebook.cells) - 1})"
             )
         return notebook
 
@@ -201,7 +200,7 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
             notebook.cells.pop(index)
         else:
             raise IndexError(
-                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+                f"Cell index {index} out of range (0-{len(notebook.cells) - 1})"
             )
         return notebook
 
@@ -253,7 +252,7 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
             return notebook
         else:
             raise IndexError(
-                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+                f"Cell index {index} out of range (0-{len(notebook.cells) - 1})"
             )
 
     def get_cell_output(
@@ -268,7 +267,7 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
                 return []
         else:
             raise IndexError(
-                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+                f"Cell index {index} out of range (0-{len(notebook.cells) - 1})"
             )
 
     def clear_cell_output(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
@@ -280,7 +279,7 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
                 cell["execution_count"] = None
         else:
             raise IndexError(
-                f"Cell index {index} out of range (0-{len(notebook.cells)-1})"
+                f"Cell index {index} out of range (0-{len(notebook.cells) - 1})"
             )
         return notebook
 
@@ -340,7 +339,10 @@ class LocalShell(BaseShell):
             return True
 
         try:
-            self._logger.info(f"Starting shell with executable: {self.executable}")
+            self._logger.info(
+                f"Starting shell with executable: {
+                    self.executable}"
+            )
 
             # Set up environment
             env = os.environ.copy()
@@ -350,7 +352,8 @@ class LocalShell(BaseShell):
             if platform.system() == "Windows":
                 # Windows implementation using subprocess with pipes
                 self._process = subprocess.Popen(
-                    ["cmd.exe", "/c", self.executable],  # Use cmd.exe as the shell
+                    # Use cmd.exe as the shell
+                    ["cmd.exe", "/c", self.executable],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
@@ -656,7 +659,8 @@ class LocalShell(BaseShell):
 
         if result["returncode"] == 0 and result["stdout"].strip():
             value = result["stdout"].strip()
-            # If the variable doesn't exist, Windows will return the original string
+            # If the variable doesn't exist, Windows will return the original
+            # string
             if platform.system() == "Windows" and value == f"%{name}%":
                 return None
             return value
@@ -768,7 +772,8 @@ class ThreadedHTTPServer(HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, computer=None):
         self.computer = computer
 
-        # Create a request handler class that includes a reference to the computer
+        # Create a request handler class that includes a reference to the
+        # computer
         class Handler(RequestHandlerClass):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, computer=computer, **kwargs)
@@ -818,7 +823,8 @@ class LocalComputerFile(BaseComputerFile):
         if buffering != -1:
             kwargs["buffering"] = buffering
 
-        # Just open the file directly - let the built-in open() handle all errors
+        # Just open the file directly - let the built-in open() handle all
+        # errors
         self._file = open(path, mode, **kwargs)
         self._closed = False
 
@@ -948,7 +954,8 @@ class LocalComputer(BaseComputer):
         """
         # Capture screenshot using mss
         self.logger.debug(f"Capturing screenshot of display {display_id}")
-        monitor = self._sct.monitors[display_id + 1]  # mss uses 1-based indexing
+        # mss uses 1-based indexing
+        monitor = self._sct.monitors[display_id + 1]
         screenshot = self._sct.grab(monitor)
 
         # Use the utility function to process the screenshot
@@ -1246,7 +1253,11 @@ class LocalComputer(BaseComputer):
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(f"Running process: {action.command} with args: {action.args}")
+        self.logger.info(
+            f"Running process: {
+                action.command} with args: {
+                action.args}"
+        )
 
         # Prepare environment variables
         env = os.environ.copy()
@@ -1344,7 +1355,8 @@ class LocalComputer(BaseComputer):
 
             self._jupyter_server_pid = process.pid
             self.logger.info(
-                f"Jupyter notebook server started with PID {self._jupyter_server_pid}"
+                f"Jupyter notebook server started with PID {
+                    self._jupyter_server_pid}"
             )
 
             # Wait a moment for the server to start
@@ -1422,7 +1434,10 @@ class LocalComputer(BaseComputer):
 
         # Start the shell
         if shell.start():
-            self.logger.info(f"Shell started successfully with PID: {shell.pid}")
+            self.logger.info(
+                f"Shell started successfully with PID: {
+                    shell.pid}"
+            )
             return shell
         else:
             self.logger.error("Failed to start shell")
@@ -1575,7 +1590,8 @@ class LocalComputer(BaseComputer):
         # Copy file or directory
         if source_path.is_dir():
             if destination_path.exists() and destination_path.is_dir():
-                # If destination exists and is a directory, copy contents into it
+                # If destination exists and is a directory, copy contents into
+                # it
                 for item in source_path.iterdir():
                     if item.is_dir():
                         shutil.copytree(
@@ -1664,7 +1680,8 @@ class LocalComputer(BaseComputer):
 
     def _get_windows_windows(self) -> WindowsObservation:
         """Get information about open windows on Windows."""
-        # Lazy import UIAutomation to avoid dependency issues on non-Windows platforms
+        # Lazy import UIAutomation to avoid dependency issues on non-Windows
+        # platforms
         if self._ui_automation is None:
             try:
                 import uiautomation as auto

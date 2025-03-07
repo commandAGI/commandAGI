@@ -167,7 +167,10 @@ class LocalPyAutoGUIComputer(LocalComputer):
     def _execute_mouse_move(self, action: MouseMoveAction):
         """Move mouse to specified coordinates using PyAutoGUI."""
         self.logger.debug(
-            f"Moving mouse to: ({action.x}, {action.y}) with duration {action.move_duration}"
+            f"Moving mouse to: ({
+                action.x}, {
+                action.y}) with duration {
+                action.move_duration}"
         )
         pyautogui.moveTo(action.x, action.y, duration=action.move_duration)
 
@@ -180,7 +183,8 @@ class LocalPyAutoGUIComputer(LocalComputer):
         """Press mouse button down using PyAutoGUI."""
         pyautogui_button = mouse_button_to_pyautogui(action.button)
         self.logger.debug(
-            f"Pressing mouse button down: {action.button} (PyAutoGUI button: {pyautogui_button})"
+            f"Pressing mouse button down: {
+                action.button} (PyAutoGUI button: {pyautogui_button})"
         )
         pyautogui.mouseDown(button=pyautogui_button)
 
@@ -188,6 +192,7 @@ class LocalPyAutoGUIComputer(LocalComputer):
         """Release mouse button using PyAutoGUI."""
         pyautogui_button = mouse_button_to_pyautogui(action.button)
         self.logger.debug(
-            f"Releasing mouse button: {action.button} (PyAutoGUI button: {pyautogui_button})"
+            f"Releasing mouse button: {
+                action.button} (PyAutoGUI button: {pyautogui_button})"
         )
         pyautogui.mouseUp(button=pyautogui_button)

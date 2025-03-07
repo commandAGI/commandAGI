@@ -357,7 +357,7 @@ def run_gym(
         # Print the actions taken
         typer.echo("\nActions taken:")
         for i, step in enumerate(episode):
-            typer.echo(f"Step {i+1}: {step.action}")
+            typer.echo(f"Step {i + 1}: {step.action}")
             typer.echo(f"  Reward: {step.reward}")
 
     except KeyboardInterrupt:
@@ -395,7 +395,7 @@ def list_examples():
                     description = match.group(1).strip().split("\n")[0]
                 else:
                     description = "No description available"
-        except:
+        except BaseException:
             description = "Could not read file"
 
         typer.echo(f"  {example}: {description}")

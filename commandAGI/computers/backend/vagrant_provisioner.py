@@ -60,7 +60,8 @@ class VagrantProvisioner(BaseComputerProvisioner):
                 if retry_count >= self.max_retries:
                     self._status = "error"
                     logger.error(
-                        f"Failed to start Vagrant VM after {self.max_retries} attempts: {e}"
+                        f"Failed to start Vagrant VM after {
+                            self.max_retries} attempts: {e}"
                     )
                     raise
                 logger.warning(
@@ -146,7 +147,7 @@ class VagrantProvisioner(BaseComputerProvisioner):
 Vagrant.configure("2") do |config|
   config.vm.box = "{self.box_name}"
   config.vm.network "forwarded_port", guest: {self.port}, host: {self.port}
-  
+
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
     apt-get install -y python3-pip

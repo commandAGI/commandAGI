@@ -64,7 +64,8 @@ def mouse_button_to_vnc(button: Union[MouseButton, str]) -> int:
         MouseButton.RIGHT: 3,
     }
 
-    return vnc_button_mapping.get(button, 1)  # Default to left button if not found
+    # Default to left button if not found
+    return vnc_button_mapping.get(button, 1)
 
 
 def keyboard_key_to_vnc(key: Union[KeyboardKey, str]) -> str:
@@ -267,7 +268,10 @@ class VNCComputer(BaseComputer):
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         """Execute key down for a keyboard key using VNC."""
         vnc_key = keyboard_key_to_vnc(action.key)
-        self.logger.debug(f"Pressing key down: {action.key} (VNC key: {vnc_key})")
+        self.logger.debug(
+            f"Pressing key down: {
+                action.key} (VNC key: {vnc_key})"
+        )
         self.client.keyDown(vnc_key)
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
@@ -303,7 +307,8 @@ class VNCComputer(BaseComputer):
         """Press mouse button down using VNC."""
         vnc_button = mouse_button_to_vnc(action.button)
         self.logger.debug(
-            f"Pressing mouse button down: {action.button} (VNC button: {vnc_button})"
+            f"Pressing mouse button down: {
+                action.button} (VNC button: {vnc_button})"
         )
         self.client.mouseDown(vnc_button)
 
@@ -311,7 +316,8 @@ class VNCComputer(BaseComputer):
         """Release mouse button using VNC."""
         vnc_button = mouse_button_to_vnc(action.button)
         self.logger.debug(
-            f"Releasing mouse button: {action.button} (VNC button: {vnc_button})"
+            f"Releasing mouse button: {
+                action.button} (VNC button: {vnc_button})"
         )
         self.client.mouseUp(vnc_button)
 
@@ -386,7 +392,9 @@ class VNCComputer(BaseComputer):
             bool: True if the process was executed successfully
         """
         self.logger.info(
-            f"Running process via VNC shell: {action.command} with args: {action.args}"
+            f"Running process via VNC shell: {
+                action.command} with args: {
+                action.args}"
         )
         return self._default_run_process(action=action)
 
@@ -438,7 +446,10 @@ class VNCComputer(BaseComputer):
         try:
             # Connect to SSH server
             self.logger.debug(
-                f"Connecting to SSH server {self.ssh_host}:{self.ssh_port} as {self.ssh_username}"
+                f"Connecting to SSH server {
+                    self.ssh_host}:{
+                    self.ssh_port} as {
+                    self.ssh_username}"
             )
             if self.ssh_key_path:
                 ssh.connect(
@@ -547,7 +558,10 @@ class VNCComputer(BaseComputer):
         try:
             # Connect to SSH server
             self.logger.debug(
-                f"Connecting to SSH server {self.ssh_host}:{self.ssh_port} as {self.ssh_username}"
+                f"Connecting to SSH server {
+                    self.ssh_host}:{
+                    self.ssh_port} as {
+                    self.ssh_username}"
             )
             if self.ssh_key_path:
                 ssh.connect(
