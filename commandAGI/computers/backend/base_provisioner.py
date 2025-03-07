@@ -1,10 +1,11 @@
+import secrets
+import time
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Optional
-import secrets
-import time
+
 import requests
-from requests.exceptions import RequestException, ConnectionError, Timeout
+from requests.exceptions import ConnectionError, RequestException, Timeout
 
 
 class ProvisionerStatus(str, Enum):

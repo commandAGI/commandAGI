@@ -1,7 +1,8 @@
-from PIL import Image, ImageDraw
-import io
 import base64
+import io
 from typing import Optional
+
+from PIL import Image, ImageDraw
 
 
 def overlay_grid(img: Image.Image, grid_px_size: int = 100) -> Image.Image:

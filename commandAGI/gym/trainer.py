@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, Dict, Any
+from typing import Any, Dict, Generic, List, Optional
+
 import numpy as np
 
 from commandAGI.gym.agents.base_agent import BaseAgent
-from commandAGI.gym.schema import Episode, ObsType, ActionType
 from commandAGI.gym.drivers import BaseDriver
+from commandAGI.gym.schema import ActionType, Episode, ObsType
 
 
 class BaseTrainer(Generic[ObsType, ActionType], ABC):

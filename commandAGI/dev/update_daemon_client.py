@@ -1,10 +1,11 @@
 import os
 import shutil
+import subprocess
 import sys
 import time
-import subprocess
-import requests
 from pathlib import Path
+
+import requests
 
 from commandAGI.daemon.server import ComputerDaemon
 

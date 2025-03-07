@@ -1,65 +1,66 @@
-import platform
-import shutil
-import threading
-import typer
-import uvicorn
-import secrets
-import subprocess
 import os
+import platform
+import platform as sys_platform
+import secrets
+import shutil
+import subprocess
 import sys
 import tempfile
+import threading
 import time
-import platform as sys_platform
+from typing import Any, Dict, List, Literal, Optional, Tuple
+
 import psutil
-from typing import Optional, Dict, Any, List, Tuple, Literal
-from fastapi import FastAPI, HTTPException, Depends, Security
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import typer
+import uvicorn
+from fastapi import Depends, FastAPI, HTTPException, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
+
 from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
-from commandAGI.types import (
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.types import (  # Observation types for return type annotations
     ClickAction,
-    ShellCommandAction,
+    ComputerPauseAction,
+    ComputerResumeAction,
+    ComputerStartAction,
+    ComputerStopAction,
+    DisplaysObservation,
     DoubleClickAction,
     DragAction,
+    FileCopyFromComputerAction,
+    FileCopyToComputerAction,
+    JupyterStartServerAction,
+    JupyterStopServerAction,
     KeyboardHotkeyAction,
     KeyboardKeyDownAction,
     KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
-    KeyboardKeysPressAction,
-    RunProcessAction,
-    TypeAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
     KeyboardKeysDownAction,
+    KeyboardKeysPressAction,
     KeyboardKeysReleaseAction,
-    FileCopyToComputerAction,
-    FileCopyFromComputerAction,
-    JupyterStartServerAction,
-    JupyterStopServerAction,
-    VideoStartStreamAction,
-    VideoStopStreamAction,
-    ComputerStartAction,
-    ComputerStopAction,
-    ComputerPauseAction,
-    ComputerResumeAction,
-    VncStartServerAction,
-    VncStopServerAction,
-    RdpStartServerAction,
-    RdpStopServerAction,
-    McpStartServerAction,
-    McpStopServerAction,
-    # Observation types for return type annotations
-    ScreenshotObservation,
-    MouseStateObservation,
     KeyboardStateObservation,
     LayoutTreeObservation,
+    McpStartServerAction,
+    McpStopServerAction,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    MouseStateObservation,
     ProcessesObservation,
+    RdpStartServerAction,
+    RdpStopServerAction,
+    RunProcessAction,
+    ScreenshotObservation,
+    ShellCommandAction,
+    TypeAction,
+    VideoStartStreamAction,
+    VideoStopStreamAction,
+    VncStartServerAction,
+    VncStopServerAction,
     WindowsObservation,
-    DisplaysObservation,
 )
 
 
@@ -910,8 +911,8 @@ class ComputerDaemon:
         Returns:
             FastMCP: The MCP server instance
         """
-        from mcp.server.fastmcp import FastMCP
         import requests
+        from mcp.server.fastmcp import FastMCP
 
         # Create the MCP server instance
         mcp = FastMCP(self._mcp_server_name)

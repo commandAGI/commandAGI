@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Generic
-from pydantic import BaseModel, Field
 
 from langchain.output_parsers.boolean import BooleanOutputParser
+from pydantic import BaseModel, Field
 
-from commandAGI.gym.environments.base_env import BaseEnv
-from commandAGI.gym.drivers import ObsType, ActionType, Step, Episode
-from commandAGI.gym.tasks.base import BaseTask
 from commandAGI.gym._utils.llms import get_chat_model
+from commandAGI.gym.drivers import ActionType, Episode, ObsType, Step
+from commandAGI.gym.environments.base_env import BaseEnv
+from commandAGI.gym.tasks.base import BaseTask
 
 
 class BaseEvaluator(Generic[ObsType, ActionType], BaseModel, ABC):

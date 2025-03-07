@@ -1,9 +1,10 @@
+import logging
 import os
 import subprocess
 import time
-import logging
-from typing import Optional
 from pathlib import Path
+from typing import Optional
+
 from .base_provisioner import BaseComputerProvisioner
 
 logger = logging.getLogger(__name__)

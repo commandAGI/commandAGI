@@ -1,34 +1,35 @@
-from typing import Dict, Any, Tuple, Optional
-import gymnasium as gym
-from gymnasium import spaces
-import numpy as np
-from PIL import Image
 import base64
 import io
+from typing import Any, Dict, Optional, Tuple
+
+import gymnasium as gym
+import numpy as np
+from gymnasium import spaces
+from PIL import Image
 
 from commandAGI.gym.environments.computer_env import ComputerEnv
 from commandAGI.types import (
-    ComputerAction,
-    ComputerObservation,
-    MouseButton,
-    KeyboardKey,
-    ComputerActionType,
-    ShellCommandAction,
-    KeyboardKeyPressAction,
-    KeyboardKeysPressAction,
-    KeyboardKeyDownAction,
-    KeyboardKeysDownAction,
-    KeyboardKeyReleaseAction,
-    KeyboardKeysReleaseAction,
-    KeyboardHotkeyAction,
-    TypeAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
     ClickAction,
+    ComputerAction,
+    ComputerActionType,
+    ComputerObservation,
     DoubleClickAction,
     DragAction,
+    KeyboardHotkeyAction,
+    KeyboardKey,
+    KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
+    KeyboardKeyReleaseAction,
+    KeyboardKeysDownAction,
+    KeyboardKeysPressAction,
+    KeyboardKeysReleaseAction,
+    MouseButton,
+    MouseButtonDownAction,
+    MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
+    ShellCommandAction,
+    TypeAction,
 )
 
 

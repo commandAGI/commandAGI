@@ -1,9 +1,10 @@
 """Utility functions for building commandAGI daemon images."""
 
-import os
 import logging
+import os
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
+
 from rich.console import Console
 from rich.status import Status
 

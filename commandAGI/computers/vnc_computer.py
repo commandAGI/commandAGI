@@ -1,10 +1,10 @@
 import base64
+import datetime
 import io
 import os
-import datetime
-from pathlib import Path
-from typing import Optional, Union, Literal, List, Dict, Any, AnyStr
 import tempfile
+from pathlib import Path
+from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 
 try:
     import vncdotool.api as vnc
@@ -22,9 +22,10 @@ except ImportError:
         "The VNC dependencies are not installed. Please install commandAGI with the vnc extra:\n\npip install commandAGI[vnc]"
     )
 
+from commandAGI._utils.config import APPDIR
+from commandAGI._utils.image import process_screenshot
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
-    ShellCommandAction,
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -35,12 +36,11 @@ from commandAGI.types import (
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
-    ScreenshotObservation,
-    TypeAction,
     RunProcessAction,
+    ScreenshotObservation,
+    ShellCommandAction,
+    TypeAction,
 )
-from commandAGI._utils.config import APPDIR
-from commandAGI._utils.image import process_screenshot
 
 
 # VNC-specific mappings

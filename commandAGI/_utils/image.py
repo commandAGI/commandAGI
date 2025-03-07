@@ -1,8 +1,8 @@
-import os
 import base64
-import io
 import datetime
-from typing import Union, Literal, Optional, Any
+import io
+import os
+from typing import Any, Literal, Optional, Union
 
 try:
     from PIL import Image

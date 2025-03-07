@@ -1,18 +1,19 @@
-from typing import Optional, Callable
 import base64
 import io
+from typing import Callable, Optional
+
 from PIL import Image
 
 from commandAGI.gym.environments.computer_env import ComputerEnv
 from commandAGI.processors.grid_overlay import overlay_grid
-from commandAGI.types import ComputerObservation, ComputerAction
-from commandAGI.processors.screen_parser.types import ParsedScreenshot
 from commandAGI.processors.screen_parser.pytesseract_screen_parser import (
     parse_screenshot as parse_with_tesseract,
 )
 from commandAGI.processors.screen_parser.screenparse_ai_screen_parser import (
     parse_screenshot as parse_with_screenparse_ai,
 )
+from commandAGI.processors.screen_parser.types import ParsedScreenshot
+from commandAGI.types import ComputerAction, ComputerObservation
 
 
 class GridOverlayWrapper(ComputerEnv):

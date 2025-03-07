@@ -1,15 +1,15 @@
+import re
+import subprocess
+import threading
+import time
 from enum import Enum
 from pathlib import Path
-import subprocess
-import time
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
+
 import boto3
-from azure.mgmt.containerinstance import ContainerInstanceManagementClient
 from azure.identity import DefaultAzureCredential
-from google.cloud import container_v1
-from google.cloud import run_v2
-import threading
-import re
+from azure.mgmt.containerinstance import ContainerInstanceManagementClient
+from google.cloud import container_v1, run_v2
 
 from commandAGI._utils.command import run_command
 from commandAGI._utils.config import PROJ_DIR

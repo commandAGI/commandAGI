@@ -1,11 +1,11 @@
 import base64
+import datetime
 import io
 import os
-import datetime
 import subprocess
 import tempfile
 import time
-from typing import Union, Optional, Literal
+from typing import Literal, Optional, Union
 
 try:
     import mss
@@ -16,9 +16,10 @@ except ImportError:
         "The local dependencies are not installed. Please install commandAGI with the local extra:\n\npip install commandAGI[local]"
     )
 
+from commandAGI._utils.config import APPDIR
+from commandAGI._utils.image import process_screenshot
 from commandAGI.computers.local_computer import LocalComputer
 from commandAGI.types import (
-    ShellCommandAction,
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -30,10 +31,9 @@ from commandAGI.types import (
     MouseScrollAction,
     MouseStateObservation,
     ScreenshotObservation,
+    ShellCommandAction,
     TypeAction,
 )
-from commandAGI._utils.config import APPDIR
-from commandAGI._utils.image import process_screenshot
 
 
 # PyAutoGUI-specific mappings

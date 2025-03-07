@@ -1,8 +1,9 @@
 """Utility functions for running commands with real-time output."""
 
-import subprocess
 import logging
+import subprocess
 from typing import List
+
 from rich.console import Console
 from rich.status import Status
 

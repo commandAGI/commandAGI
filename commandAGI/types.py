@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 from enum import Enum
-from typing import Annotated, Dict, List, Literal, Optional, TypedDict, Union, Any
+from typing import Annotated, Any, Dict, List, Literal, Optional, TypedDict, Union
 
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 

@@ -3,7 +3,6 @@ from typing import Any, Dict, Generic, Iterator, Tuple, TypeVar
 
 from pydantic import BaseModel
 
-
 ObsType = TypeVar("ObsType")
 ActionType = TypeVar("ActType")
 

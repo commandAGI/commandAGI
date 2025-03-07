@@ -4,8 +4,9 @@ Computer implementations for commandAGI.
 This package contains various computer implementations that can be used with commandAGI.
 """
 
-from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 import logging
+
+from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -60,9 +61,9 @@ except ImportError:
 
 try:
     from commandAGI.computers.scrappybara_computer import (
+        BrowserScrapybaraComputer,
         ScrapybaraComputer,
         UbuntuScrapybaraComputer,
-        BrowserScrapybaraComputer,
         WindowsScrapybaraComputer,
     )
 except ImportError:

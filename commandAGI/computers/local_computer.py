@@ -1,60 +1,62 @@
-from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
-from commandAGI._utils.image import process_screenshot
+import base64
+import datetime
+import io
+import logging
+import os
+import platform
+import shlex
+import shutil
+import socket
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
+from textwrap import dedent
+from typing import IO, Any, AnyStr, Dict, List, Literal, Optional, Union
+
+import psutil
+
 from commandAGI._utils.config import APPDIR
+from commandAGI._utils.image import process_screenshot
+from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
+from commandAGI.computers.base_computer import (
+    BaseComputer,
+    BaseComputerFile,
+    BaseJupyterNotebook,
+    BaseShell,
+)
 from commandAGI.types import (
-    ShellCommandAction,
+    DisplaysObservation,
     KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
     KeyboardStateObservation,
+    LayoutTreeObservation,
     MouseButton,
     MouseButtonDownAction,
     MouseButtonUpAction,
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
-    ScreenshotObservation,
-    TypeAction,
-    RunProcessAction,
-    LayoutTreeObservation,
-    ProcessesObservation,
-    WindowsObservation,
-    DisplaysObservation,
     Platform,
+    ProcessesObservation,
+    RunProcessAction,
+    ScreenshotObservation,
+    ShellCommandAction,
+    TypeAction,
+    WindowsObservation,
 )
-from commandAGI.computers.base_computer import (
-    BaseComputer,
-    BaseJupyterNotebook,
-    BaseShell,
-    BaseComputerFile,
-)
-import base64
-import io
-import os
-import datetime
-import subprocess
-import tempfile
-from textwrap import dedent
-import time
-import threading
-import socket
-import platform
-import sys
-import psutil
-import shutil
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from typing import Union, Optional, Literal, List, Dict, Any, IO, AnyStr
-import logging
-from pathlib import Path
-import shlex
 
 # Make Unix-specific imports conditional
 if platform.system() != "Windows":
+    import fcntl
     import pty
     import select
-    import fcntl
-    import termios
     import signal
+    import termios
 else:
     # For Windows, we need msvcrt for console I/O
     import msvcrt

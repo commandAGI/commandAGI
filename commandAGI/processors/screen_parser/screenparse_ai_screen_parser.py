@@ -1,5 +1,6 @@
 import requests
-from commandAGI.processors.screen_parser.types import ParsedScreenshot, ParsedElement
+
+from commandAGI.processors.screen_parser.types import ParsedElement, ParsedScreenshot
 
 
 def parse_screenshot(

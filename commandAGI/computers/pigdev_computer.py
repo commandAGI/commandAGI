@@ -1,10 +1,10 @@
 import base64
+import datetime
 import io
 import os
-import datetime
-from pathlib import Path
 import tempfile
-from typing import Dict, Any, Optional, Union, Literal, List, AnyStr
+from pathlib import Path
+from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 
 try:
     from pig import Client
@@ -14,11 +14,17 @@ except ImportError:
         "The PigDev dependencies are not installed. Please install commandAGI with the pigdev extra:\n\npip install commandAGI[pigdev]"
     )
 
+from commandAGI._utils.config import APPDIR
+from commandAGI._utils.image import process_screenshot
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
-    ShellCommandAction,
+    ClickAction,
+    DoubleClickAction,
+    DragAction,
+    KeyboardHotkeyAction,
     KeyboardKey,
     KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
     KeyboardStateObservation,
     MouseButton,
@@ -27,17 +33,11 @@ from commandAGI.types import (
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
-    ScreenshotObservation,
-    TypeAction,
-    ClickAction,
-    DoubleClickAction,
-    DragAction,
-    KeyboardKeyPressAction,
-    KeyboardHotkeyAction,
     RunProcessAction,
+    ScreenshotObservation,
+    ShellCommandAction,
+    TypeAction,
 )
-from commandAGI._utils.config import APPDIR
-from commandAGI._utils.image import process_screenshot
 
 
 # PigDev-specific mappings

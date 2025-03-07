@@ -1,11 +1,10 @@
 import base64
+import datetime
 import io
 import os
-import datetime
-from pathlib import Path
 import tempfile
-from typing import Union, Optional, Literal, List, AnyStr
-
+from pathlib import Path
+from typing import AnyStr, List, Literal, Optional, Union
 
 try:
     from e2b_desktop import Sandbox
@@ -15,15 +14,16 @@ except ImportError:
         "The E2B Desktop dependencies are not installed. Please install commandAGI with the e2b_desktop extra:\n\npip install commandAGI[e2b_desktop]"
     )
 
+from commandAGI._utils.config import APPDIR
+from commandAGI._utils.image import process_screenshot
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
     ClickAction,
-    KeyboardHotkeyAction,
-    ShellCommandAction,
     DoubleClickAction,
+    KeyboardHotkeyAction,
     KeyboardKey,
-    KeyboardKeyPressAction,
     KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
     KeyboardStateObservation,
     MouseButton,
@@ -32,12 +32,11 @@ from commandAGI.types import (
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
-    ScreenshotObservation,
-    TypeAction,
     RunProcessAction,
+    ScreenshotObservation,
+    ShellCommandAction,
+    TypeAction,
 )
-from commandAGI._utils.config import APPDIR
-from commandAGI._utils.image import process_screenshot
 
 
 # E2B Desktop-specific mappings

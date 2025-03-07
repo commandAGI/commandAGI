@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
-from typing import Generic, Optional, List
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import multiprocessing as mp
+from abc import ABC, abstractmethod
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from typing import Generic, List, Optional
 
-from commandAGI.gym.environments.base_env import BaseEnv
 from commandAGI.gym.agents.base_agent import BaseAgent
-from commandAGI.gym.schema import Episode, Step, ObsType, ActionType, InMemoryEpisode
+from commandAGI.gym.environments.base_env import BaseEnv
+from commandAGI.gym.schema import ActionType, Episode, InMemoryEpisode, ObsType, Step
 
 
 class BaseDriver(Generic[ObsType, ActionType], ABC):

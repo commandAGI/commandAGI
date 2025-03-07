@@ -1,6 +1,7 @@
 from typing import List
 
 import openai
+
 from commandAGI.utils.gym2.base_env import Mandate
 from commandAGI.utils.gym2.base_episode import BaseEpisode
 

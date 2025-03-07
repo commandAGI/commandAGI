@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 import platformdirs
 
 PROJ_DIR = Path(__file__).parent.parent.parent

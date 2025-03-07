@@ -6,18 +6,21 @@ the actual dependencies to be installed, which is helpful for development enviro
 and static type checking.
 """
 
-from typing import Dict, List, Optional, Tuple, Union, Any, Literal, IO, AnyStr
 import logging
 from pathlib import Path
+from typing import IO, Any, AnyStr, Dict, List, Literal, Optional, Tuple, Union
 
 from commandAGI.computers.base_computer import (
     BaseComputer,
+    BaseComputerFile,
     BaseJupyterNotebook,
     BaseShell,
-    BaseComputerFile,
 )
 from commandAGI.types import (
-    ShellCommandAction,
+    ClickAction,
+    DisplaysObservation,
+    DoubleClickAction,
+    DragAction,
     KeyboardHotkeyAction,
     KeyboardKey,
     KeyboardKeyDownAction,
@@ -27,22 +30,19 @@ from commandAGI.types import (
     KeyboardKeysPressAction,
     KeyboardKeysReleaseAction,
     KeyboardStateObservation,
+    LayoutTreeObservation,
     MouseButton,
     MouseButtonDownAction,
     MouseButtonUpAction,
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
-    ScreenshotObservation,
-    TypeAction,
-    ClickAction,
-    DoubleClickAction,
-    DragAction,
-    LayoutTreeObservation,
     ProcessesObservation,
-    WindowsObservation,
-    DisplaysObservation,
     RunProcessAction,
+    ScreenshotObservation,
+    ShellCommandAction,
+    TypeAction,
+    WindowsObservation,
 )
 
 class LocalComputerFile(BaseComputerFile):

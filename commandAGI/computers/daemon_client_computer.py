@@ -1,37 +1,37 @@
+import base64
+import datetime
+import io
+import logging
 import os
 import platform
 import subprocess
-import logging
-import base64
-import io
-import datetime
 import tempfile
 from enum import Enum
-from typing import Optional, Dict, Any, Union, Literal, List, AnyStr
 from pathlib import Path
+from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 
+from commandAGI._utils.config import APPDIR
+from commandAGI._utils.image import base64_to_image, process_screenshot
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
+from commandAGI.computers.provisioners.base_provisioner import BaseComputerProvisioner
 from commandAGI.types import (
-    ShellCommandAction,
     KeyboardHotkeyAction,
+    KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
-    TypeAction,
-    MouseMoveAction,
-    MouseScrollAction,
+    KeyboardStateObservation,
+    MouseButton,
     MouseButtonDownAction,
     MouseButtonUpAction,
+    MouseMoveAction,
+    MouseScrollAction,
     MouseStateObservation,
-    KeyboardStateObservation,
-    ScreenshotObservation,
-    KeyboardKey,
-    MouseButton,
     RunProcessAction,
+    ScreenshotObservation,
+    ShellCommandAction,
+    TypeAction,
 )
-from commandAGI.computers.provisioners.base_provisioner import BaseComputerProvisioner
-from commandAGI._utils.config import APPDIR
-from commandAGI._utils.image import process_screenshot, base64_to_image
 
 # Import the proper client classes
 try:
@@ -39,26 +39,17 @@ try:
     from commandAGI.daemon.client.api.default.execute_command_execute_command_post import (
         sync as execute_command_sync,
     )
+    from commandAGI.daemon.client.api.default.execute_keyboard_hotkey_execute_keyboard_hotkey_post import (
+        sync as execute_keyboard_hotkey_sync,
+    )
     from commandAGI.daemon.client.api.default.execute_keyboard_key_down_execute_keyboard_key_down_post import (
         sync as execute_keyboard_key_down_sync,
-    )
-    from commandAGI.daemon.client.api.default.execute_keyboard_key_release_execute_keyboard_key_release_post import (
-        sync as execute_keyboard_key_release_sync,
     )
     from commandAGI.daemon.client.api.default.execute_keyboard_key_press_execute_keyboard_key_press_post import (
         sync as execute_keyboard_key_press_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_keyboard_hotkey_execute_keyboard_hotkey_post import (
-        sync as execute_keyboard_hotkey_sync,
-    )
-    from commandAGI.daemon.client.api.default.execute_type_execute_type_post import (
-        sync as execute_type_sync,
-    )
-    from commandAGI.daemon.client.api.default.execute_mouse_move_execute_mouse_move_post import (
-        sync as execute_mouse_move_sync,
-    )
-    from commandAGI.daemon.client.api.default.execute_mouse_scroll_execute_mouse_scroll_post import (
-        sync as execute_mouse_scroll_sync,
+    from commandAGI.daemon.client.api.default.execute_keyboard_key_release_execute_keyboard_key_release_post import (
+        sync as execute_keyboard_key_release_sync,
     )
     from commandAGI.daemon.client.api.default.execute_mouse_button_down_execute_mouse_button_down_post import (
         sync as execute_mouse_button_down_sync,
@@ -66,49 +57,76 @@ try:
     from commandAGI.daemon.client.api.default.execute_mouse_button_up_execute_mouse_button_up_post import (
         sync as execute_mouse_button_up_sync,
     )
+    from commandAGI.daemon.client.api.default.execute_mouse_move_execute_mouse_move_post import (
+        sync as execute_mouse_move_sync,
+    )
+    from commandAGI.daemon.client.api.default.execute_mouse_scroll_execute_mouse_scroll_post import (
+        sync as execute_mouse_scroll_sync,
+    )
+    from commandAGI.daemon.client.api.default.execute_run_process_execute_run_process_post import (
+        sync as run_process_sync,
+    )
+    from commandAGI.daemon.client.api.default.execute_type_execute_type_post import (
+        sync as execute_type_sync,
+    )
+    from commandAGI.daemon.client.api.default.get_keyboard_state_observation_keyboard_state_get import (
+        sync as get_keyboard_state_sync,
+    )
+    from commandAGI.daemon.client.api.default.get_mouse_state_observation_mouse_state_get import (
+        sync as get_mouse_state_sync,
+    )
     from commandAGI.daemon.client.api.default.get_observation_observation_get import (
         sync as get_observation_sync,
     )
     from commandAGI.daemon.client.api.default.get_screenshot_observation_screenshot_get import (
         sync as get_screenshot_sync,
     )
-    from commandAGI.daemon.client.api.default.get_mouse_state_observation_mouse_state_get import (
-        sync as get_mouse_state_sync,
-    )
-    from commandAGI.daemon.client.api.default.get_keyboard_state_observation_keyboard_state_get import (
-        sync as get_keyboard_state_sync,
-    )
-    from commandAGI.daemon.client.api.default.reset_reset_post import (
-        sync as reset_sync,
-    )
     from commandAGI.daemon.client.api.default.get_video_stream_url_video_stream_url_get import (
         sync as get_video_stream_url_sync,
     )
+    from commandAGI.daemon.client.api.default.reset_reset_post import sync as reset_sync
     from commandAGI.daemon.client.api.default.start_video_stream_video_start_stream_post import (
         sync as start_video_stream_sync,
     )
     from commandAGI.daemon.client.api.default.stop_video_stream_video_stop_stream_post import (
         sync as stop_video_stream_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_run_process_execute_run_process_post import (
-        sync as run_process_sync,
+    from commandAGI.daemon.client.models import (
+        KeyboardHotkeyAction as ClientKeyboardHotkeyAction,
+    )
+    from commandAGI.daemon.client.models import KeyboardKey as ClientKeyboardKey
+    from commandAGI.daemon.client.models import (
+        KeyboardKeyDownAction as ClientKeyboardKeyDownAction,
+    )
+    from commandAGI.daemon.client.models import (
+        KeyboardKeyPressAction as ClientKeyboardKeyPressAction,
+    )
+    from commandAGI.daemon.client.models import (
+        KeyboardKeyReleaseAction as ClientKeyboardKeyReleaseAction,
+    )
+    from commandAGI.daemon.client.models import MouseButton as ClientMouseButton
+    from commandAGI.daemon.client.models import (
+        MouseButtonDownAction as ClientMouseButtonDownAction,
+    )
+    from commandAGI.daemon.client.models import (
+        MouseButtonUpAction as ClientMouseButtonUpAction,
+    )
+    from commandAGI.daemon.client.models import MouseMoveAction as ClientMouseMoveAction
+    from commandAGI.daemon.client.models import (
+        MouseScrollAction as ClientMouseScrollAction,
+    )
+    from commandAGI.daemon.client.models import (
+        RunProcessAction as ClientRunProcessAction,
     )
     from commandAGI.daemon.client.models import (
         ShellCommandAction as ClientShellCommandAction,
-        KeyboardKeyDownAction as ClientKeyboardKeyDownAction,
-        KeyboardKeyReleaseAction as ClientKeyboardKeyReleaseAction,
-        KeyboardKeyPressAction as ClientKeyboardKeyPressAction,
-        KeyboardHotkeyAction as ClientKeyboardHotkeyAction,
-        TypeAction as ClientTypeAction,
-        MouseMoveAction as ClientMouseMoveAction,
-        MouseScrollAction as ClientMouseScrollAction,
-        MouseButtonDownAction as ClientMouseButtonDownAction,
-        MouseButtonUpAction as ClientMouseButtonUpAction,
-        KeyboardKey as ClientKeyboardKey,
-        MouseButton as ClientMouseButton,
+    )
+    from commandAGI.daemon.client.models import TypeAction as ClientTypeAction
+    from commandAGI.daemon.client.models import (
         VideoStartStreamAction as ClientVideoStartStreamAction,
+    )
+    from commandAGI.daemon.client.models import (
         VideoStopStreamAction as ClientVideoStopStreamAction,
-        RunProcessAction as ClientRunProcessAction,
     )
 except ImportError:
     raise ImportError(

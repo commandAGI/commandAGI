@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import ttk
+
 from PIL import Image, ImageTk
 
 from commandAGI.computers.base_computer import BaseComputer

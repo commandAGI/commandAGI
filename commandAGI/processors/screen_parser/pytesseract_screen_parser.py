@@ -5,8 +5,8 @@ except ImportError:
         "pytesseract is not installed. Please install commandAGI with the pytesseract extra:\n\npip install commandAGI[pytesseract]"
     )
 
+from commandAGI.processors.screen_parser.types import ParsedElement, ParsedScreenshot
 from commandAGI.utils.image import b64ToImage
-from commandAGI.processors.screen_parser.types import ParsedScreenshot, ParsedElement
 
 
 def parse_screenshot(screenshot_b64: str) -> ParsedScreenshot:

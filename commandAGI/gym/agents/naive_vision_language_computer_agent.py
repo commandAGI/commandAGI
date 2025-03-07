@@ -1,16 +1,20 @@
-from collections.abc import Callable
 import inspect
 import re
+from collections.abc import Callable
 from textwrap import dedent
 from typing import List, Optional
 
+from langchain.schema import ChatMessage
+from langchain_core.output_parsers.string import StrOutputParser
 from pydantic import Field
+from rich.console import Console
+from rich.panel import Panel
 
+from commandAGI.gym._utils.llms import get_chat_model
 from commandAGI.gym.agents.base_agent import BaseAgent
 from commandAGI.gym.schema import Episode
 from commandAGI.types import (
     ClickAction,
-    ShellCommandAction,
     ComputerAction,
     ComputerObservation,
     DoubleClickAction,
@@ -28,13 +32,9 @@ from commandAGI.types import (
     MouseButtonUpAction,
     MouseMoveAction,
     MouseScrollAction,
+    ShellCommandAction,
     TypeAction,
 )
-from commandAGI.gym._utils.llms import get_chat_model
-from langchain.schema import ChatMessage
-from langchain_core.output_parsers.string import StrOutputParser
-from rich.console import Console
-from rich.panel import Panel
 from commandAGI.utils.image import imageToB64
 
 console = Console()

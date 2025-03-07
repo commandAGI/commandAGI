@@ -1,8 +1,9 @@
 from typing import Generic
+
 from pydantic import BaseModel
 
+from commandAGI.gym.drivers import ActionType, Episode, ObsType, Step
 from commandAGI.gym.environments.base_env import BaseEnv
-from commandAGI.gym.drivers import ObsType, ActionType, Step, Episode
 
 
 class BaseTask(Generic[ObsType, ActionType], BaseModel):

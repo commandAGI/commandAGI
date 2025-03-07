@@ -4,20 +4,21 @@ Gym framework for commandAGI.
 This package contains the gym framework for training and evaluating agents that control computers.
 """
 
-# Import core components
-from commandAGI.gym.environments.base_env import BaseEnv
 from commandAGI.gym.agents.base_agent import BaseAgent
 from commandAGI.gym.drivers import (
     BaseDriver,
+    MultiprocessDriver,
     SimpleDriver,
     ThreadedDriver,
-    MultiprocessDriver,
 )
+
+# Import core components
+from commandAGI.gym.environments.base_env import BaseEnv
 from commandAGI.gym.trainer import (
     BaseTrainer,
-    OnlineTrainer,
-    OfflineTrainer,
     BatchTrainer,
+    OfflineTrainer,
+    OnlineTrainer,
 )
 
 __all__ = [

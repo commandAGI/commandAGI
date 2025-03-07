@@ -1,21 +1,24 @@
+import logging
+import os
+import time
+from abc import ABC, abstractmethod
 from datetime import datetime
 from io import FileIO
 from pathlib import Path
-import time
-import logging
-import os
-from abc import abstractmethod, ABC
-from typing import ClassVar, Literal, List, Optional, Dict, Any, Union, IO, AnyStr
+from typing import IO, Any, AnyStr, ClassVar, Dict, List, Literal, Optional, Union
+
+from pydantic import BaseModel, Field
+
 from commandAGI._utils.config import APPDIR, DEV_MODE
 from commandAGI._utils.counter import next_for_cls
-
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.types import (
     ClickAction,
-    ShellCommandAction,
+    DisplaysObservation,
     DoubleClickAction,
     DragAction,
     KeyboardHotkeyAction,
+    KeyboardKey,
     KeyboardKeyDownAction,
     KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
@@ -23,22 +26,20 @@ from commandAGI.types import (
     KeyboardKeysPressAction,
     KeyboardKeysReleaseAction,
     KeyboardStateObservation,
+    LayoutTreeObservation,
+    MouseButton,
     MouseButtonDownAction,
     MouseButtonUpAction,
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
-    ScreenshotObservation,
-    TypeAction,
-    LayoutTreeObservation,
     ProcessesObservation,
-    WindowsObservation,
-    DisplaysObservation,
     RunProcessAction,
-    KeyboardKey,
-    MouseButton,
+    ScreenshotObservation,
+    ShellCommandAction,
+    TypeAction,
+    WindowsObservation,
 )
-from pydantic import BaseModel, Field
 
 
 class BaseJupyterNotebook(BaseModel):

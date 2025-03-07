@@ -1,13 +1,13 @@
-from typing import ClassVar, Dict, Callable, Any, TypeVar, Generic, Optional
+from typing import Any, Callable, ClassVar, Dict, Generic, Optional, TypeVar
 
 from pydantic import BaseModel, Field
+from rich.console import Console
 
 from commandAGI.computers.base_computer import BaseComputer
 from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 from commandAGI.gym.environments.base_env import BaseEnv
 from commandAGI.gym.environments.multimodal_env import MultiModalEnv
-from commandAGI.types import ShellCommandAction, ComputerAction, ComputerObservation
-from rich.console import Console
+from commandAGI.types import ComputerAction, ComputerObservation, ShellCommandAction
 
 
 class ComputerEnvConfig(BaseModel):
@@ -145,9 +145,10 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
             if not obs or not obs.screenshot:
                 return None
 
-            import numpy as np
             import base64
             import io
+
+            import numpy as np
             from PIL import Image
 
             # Decode base64 string to bytes

@@ -17,20 +17,20 @@ Subcommands:
 import os
 import sys
 import time
-from typing import Optional, List
-import typer
 from enum import Enum
+from typing import List, Optional
 
-from commandAGI.version import __version__, get_package_version, get_container_version
+import typer
 
 # Import available computers
 from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.computers.local_pynput_computer import LocalPynputComputer
-from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandAGI.computers.daemon_client_computer import (
     DaemonClientComputer,
     ProvisioningMethod,
 )
+from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
+from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.version import __version__, get_container_version, get_package_version
 
 try:
     from commandAGI.computers.e2b_desktop_computer import E2BDesktopComputer
@@ -41,7 +41,6 @@ except ImportError:
 
 # Import gym components if available
 try:
-    from commandAGI.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
     from commandAGI.gym.agents.naive_vision_language_computer_agent import (
         NaiveComputerAgent,
     )
@@ -49,6 +48,7 @@ try:
         ReactComputerAgent,
     )
     from commandAGI.gym.drivers import SimpleDriver
+    from commandAGI.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
 
     gym_available = True
 except ImportError:
@@ -67,12 +67,12 @@ except ImportError:
 
 # Import types
 from commandAGI.types import (
-    ShellCommandAction,
-    TypeAction,
+    ClickAction,
     KeyboardHotkeyAction,
     KeyboardKey,
-    ClickAction,
     MouseButton,
+    ShellCommandAction,
+    TypeAction,
 )
 
 # Create the CLI app
@@ -119,8 +119,9 @@ def screenshot(
 ):
     """Take a screenshot using the specified computer."""
     import base64
-    from PIL import Image
     import io
+
+    from PIL import Image
 
     typer.echo(f"Taking screenshot in {delay} seconds...")
     time.sleep(delay)
@@ -216,6 +217,7 @@ def ocr(
 
     try:
         import base64
+
         from PIL import Image
 
         # Set default output file if not provided

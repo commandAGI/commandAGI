@@ -1,5 +1,6 @@
-from .base_provisioner import BaseComputerProvisioner, ProvisionerStatus
 from typing import Optional
+
+from .base_provisioner import BaseComputerProvisioner, ProvisionerStatus
 
 
 class ManualProvisioner(BaseComputerProvisioner):

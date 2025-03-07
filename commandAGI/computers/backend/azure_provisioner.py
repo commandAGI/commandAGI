@@ -1,11 +1,13 @@
-from azure.mgmt.compute import ComputeManagementClient
-from azure.identity import DefaultAzureCredential
-from .base_provisioner import BaseComputerProvisioner, ProvisionerStatus
-import os
-import time
 import logging
-from typing import Optional
+import os
 import secrets
+import time
+from typing import Optional
+
+from azure.identity import DefaultAzureCredential
+from azure.mgmt.compute import ComputeManagementClient
+
+from .base_provisioner import BaseComputerProvisioner, ProvisionerStatus
 
 logger = logging.getLogger(__name__)
 
