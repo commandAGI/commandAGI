@@ -1,39 +1,54 @@
 from email.message import Message
-from typing import Union
+from typing import Callable, Literal, TypedDict, Union
 
 from pydantic import BaseModel
+from langchain.schema import AnyContent
+
+class BaseContent(TypedDict, total=False):
+    type: str
+class TextContent(BaseContent, TypedDict):
+    type: Literal["text"]
+    text: str
+class ImageContent(BaseContent, TypedDict):
+    type: Literal["image"]
+    image: str
+class VideoContent(BaseContent, TypedDict):
+    type: Literal["video"]
+    video: str
+class AudioContent(BaseContent, TypedDict):
+    type: Literal["audio"]
+    audio: str
+AnyContent = Union[TextContent, ImageContent, VideoContent, AudioContent]
+
+
 
 from commandAGI.computers.base_computer import BaseComputer
 
-###### DATABASE
-
-# THE SERVER HAS THE SAME INTERFACE AS THE DAEMON DOES PLUS AUTHENTICATION PARAMS
-
-###### THIS LIBRARY
 
 class SLOPServer(BaseModel):
     url: str
 
-
-class BaseMCPServer(BaseModel):
-    pass
-
-
-class StdIOMCPServer(BaseMCPServer):
+class StdIOMCPServerTransport(BaseModel):
     cwd: str
     command: str
     args: list[str] | None = None
     environment: dict[str, str] | None = None
     encoding: str = "utf-8"
 
-
-class RemoteMCPServer(BaseMCPServer):
+class RemoteMCPTransport(BaseModel):
     url: str
 
-MCPServer = Union[StdIOMCPServer, RemoteMCPServer]
+MCPServerTransport = Union[StdIOMCPServerTransport, RemoteMCPTransport]
+
+class MCPServer(BaseModel):
+    transport: MCPServerTransport
 
 class BaseResource(BaseModel):
-    pass
+    def relevant_text(self, context: Context) -> str:
+        pass
+    @property
+    def relevant(self) -> list[AnyContent]:
+        pass
 
 class LiteralResource(BaseResource):
     text: str
@@ -77,18 +92,25 @@ class Context(BaseModel):
     mcp_servers: list[MCPServer]
     slop_servers: list[SLOPServer]
 
-### Runtiem
-
 from langchain.core.tools import tool
-from langchain.core
 
-class Rule(BaseModel):
-    condition: str
-    prompt: str
-
-class Condition(BaseModel):
+class BaseCondition(BaseModel):
     def is_satisfied(self, context: Context) -> bool:
         pass
+class EmbeddingSimilarityCondition(BaseCondition):
+    content: list[AnyContent]
+    def is_satisfied(self, context: Context) -> bool:
+        pass
+class LLMEvaluationCondition(BaseCondition):
+    prompt: str
+    def is_satisfied(self, context: Context) -> bool:
+        pass
+Condition = Union[EmbeddingSimilarityCondition, LLMEvaluationCondition]
+
+class Rule(BaseModel):
+    condition: Condition
+    prompt: str
+
 
 class Task(BaseModel):
     objective: str
@@ -101,14 +123,27 @@ class SimpleTask(BaseModel):
     starting_conditions: str
     ending_conditions: str
 
+from commandAGI.types import ComputerAction
 
-class BaseAgent(BaseModel):
+class Agent(BaseModel):
+    default_context: Context
+    def command(self, task: Task, computer: Computer, on_step: Callable[[str], None] = None, on_finish: Callable[[str], None] = None):
+        pass
+
+class AgentSession(BaseModel):
+    # it should be as simple as possible but not any simpler
     rules: list[Rule]
     tools: list[Tool]
 
-    def command(self, task: Task, computer: BaseComputer):
+    def command(self, task: Task, computer: Computer, on_step: Callable[[str], None] = None, on_finish: Callable[[str], None] = None):
         pass
 
+    def suggested_actions(self) -> list[ComputerAction]:
+        pass
+    def suggested_tasks(self) -> list[Task]:
+        pass
+    def stream_thoughts(self, thought: str):
+        pass
 
 ####### DAEMON + THIS LIBRARY
 

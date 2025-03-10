@@ -13,7 +13,7 @@ from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 from commandAGI._utils.config import APPDIR
 from commandAGI._utils.image import base64_to_image, process_screenshot
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
-from commandAGI.computers.provisioners.base_provisioner import BaseComputerProvisioner
+from commandAGI.computers.computer_clients.base_computer_client import BaseComputerComputerClient
 from commandAGI.types import (
     KeyboardHotkeyAction,
     KeyboardKey,
@@ -193,7 +193,7 @@ class DaemonClientComputerFile(BaseComputerFile):
 
 
 class DaemonClientComputer(BaseComputer):
-    provisioner: Optional[BaseComputerProvisioner] = None
+    computer_client: Optional[BaseComputerComputerClient] = None
     client: Optional[AuthenticatedClient] = None
     logger: Optional[logging.Logger] = None
     daemon_token: str = ""
@@ -202,7 +202,7 @@ class DaemonClientComputer(BaseComputer):
 
     def __init__(
         self,
-        provisioner: BaseComputerProvisioner,
+        computer_client: BaseComputerComputerClient,
         daemon_token: Optional[str] = None,
     ):
         # First call super().__init__() to initialize the Pydantic model
@@ -211,27 +211,27 @@ class DaemonClientComputer(BaseComputer):
         # Now it's safe to set attributes
         self.logger = logging.getLogger(__name__)
 
-        # Store the provisioner
-        self.provisioner = provisioner
+        # Store the computer_client
+        self.computer_client = computer_client
 
-        # Use the provided token or get it from the provisioner
-        self.daemon_token = daemon_token or self.provisioner.daemon_token
+        # Use the provided token or get it from the computer_client
+        self.daemon_token = daemon_token or self.computer_client.daemon_token
 
-        # Setup the provisioner
+        # Setup the computer_client
         self.logger.info(
             f"Starting daemon services at {
-                self.provisioner.daemon_url}"
+                self.computer_client.daemon_url}"
         )
-        self.provisioner.setup()
+        self.computer_client.setup()
 
         # Create the authenticated client
         self.client = AuthenticatedClient(
-            base_url=self.provisioner.daemon_url,
+            base_url=self.computer_client.daemon_url,
             token=self.daemon_token,
         )
         self.logger.info(
             f"Successfully connected to daemon services at {
-                self.provisioner.daemon_url}"
+                self.computer_client.daemon_url}"
         )
 
     def _start(self):
@@ -239,18 +239,18 @@ class DaemonClientComputer(BaseComputer):
         if not self.client:
             self.logger.info(
                 f"Starting daemon at {
-                    self.provisioner.daemon_url}"
+                    self.computer_client.daemon_url}"
             )
-            self.provisioner.setup()
+            self.computer_client.setup()
 
             # Create the authenticated client
             self.client = AuthenticatedClient(
-                base_url=self.provisioner.daemon_url,
+                base_url=self.computer_client.daemon_url,
                 token=self.daemon_token,
             )
             self.logger.info(
                 f"Successfully connected to daemon services at {
-                    self.provisioner.daemon_url}"
+                    self.computer_client.daemon_url}"
             )
         return True
 
@@ -258,7 +258,7 @@ class DaemonClientComputer(BaseComputer):
         """Stop the daemon services"""
         if self.client:
             self.logger.info("Shutting down daemon services")
-            self.provisioner.teardown()
+            self.computer_client.teardown()
             self.client = None
             self.logger.info("Daemon services successfully stopped")
         return True
