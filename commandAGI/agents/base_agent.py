@@ -1,5 +1,5 @@
 from email.message import Message
-from typing import Callable, Literal, TypedDict, Union
+from typing import AsyncGenerator, Callable, Literal, TypedDict, Union
 
 from pydantic import BaseModel
 from langchain.schema import AnyContent
@@ -155,9 +155,7 @@ class Rule(BaseModel):
 
 
 class Task(BaseModel):
-    objective: str
-    starting_conditions: str
-    ending_conditions: str
+    pass
 
 
 class SimpleTask(BaseModel):
@@ -165,20 +163,36 @@ class SimpleTask(BaseModel):
     starting_conditions: str
     ending_conditions: str
 
+class CompositeTask(BaseModel):
+    tasks: dict[str, Task]
+    task_dependencies: list[tuple[str, str]]
+
 
 from commandAGI.types import ComputerAction
 
+
+# i think i can do it with just responses api
+class AgentEvent(BaseModel):
+    type: Literal["thought", "action", "task", "resource"]
+    content: str
 
 class Agent(BaseModel):
     default_context: Context
     rules: list[Rule]
     tools: list[Tool]
 
+    # also kind of make it a subclass of scrappybara's agent where you 
+    # TODO: look at how openai swarms are managing this and try ot make my agent a superset of that (ie, just additional optional parameters)
     def run(
         self,
-        task: Task,
+        task: str|Task,
         computer: BaseComputer,
         on_step: Callable[[str], None] = None,
+        on_message_start: Callable[[str], None] = None,
+        on_message_chunk: Callable[[str], None] = None,
+        on_message_complete: Callable[[str], None] = None,
+        on_tool_call: Callable[[str], None] = None,
+        on_tool_result: Callable[[str], None] = None,
         on_finish: Callable[[str], None] = None,
     ):
         pass
@@ -189,8 +203,20 @@ class Agent(BaseModel):
     def suggested_tasks(self) -> list[Task]:
         pass
 
-    def stream_thoughts(self, thought: str):
+    def input(self, message: ChatMessage):
         pass
 
+    def stream_events(self) -> AsyncGenerator[AgentEvent, None, None]:
+        pass
 
-####### DAEMON + THIS LIBRARY
+    def pause(self):
+        pass
+
+    def resume(self):
+        pass
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
