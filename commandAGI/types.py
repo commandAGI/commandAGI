@@ -313,6 +313,9 @@ class ComputerObservation(TypedDict):
 
 class ComputerActionType(str, Enum):
     COMMAND = "command"
+    KEYBOARD_KEYS_PRESS = "keyboard_keys_press"
+    KEYBOARD_KEYS_DOWN = "keyboard_keys_down"
+    KEYBOARD_KEYS_RELEASE = "keyboard_keys_release"
     KEYBOARD_KEY_PRESS = "keyboard_key_press"
     KEYBOARD_KEY_DOWN = "keyboard_key_down"
     KEYBOARD_KEY_RELEASE = "keyboard_key_release"
