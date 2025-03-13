@@ -9,7 +9,7 @@ try:
 except ImportError:
     Image = None  # PIL is optional
 
-from commandAGI._utils.config import APPDIR
+from commandAGI._internal.config import APPDIR
 from commandAGI.types import ScreenshotObservation
 
 

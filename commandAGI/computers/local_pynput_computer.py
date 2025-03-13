@@ -19,7 +19,7 @@ except ImportError:
         "The local dependencies are not installed. Please install commandAGI with the local extra:\n\npip install commandAGI[local]"
     )
 
-from commandAGI._utils.config import APPDIR
+from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
 from commandAGI.computers.local_computer import LocalComputer
 from commandAGI.types import (

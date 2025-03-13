@@ -14,7 +14,7 @@ except ImportError:
         "The PigDev dependencies are not installed. Please install commandAGI with the pigdev extra:\n\npip install commandAGI[pigdev]"
     )
 
-from commandAGI._utils.config import APPDIR
+from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (

@@ -9,7 +9,7 @@ from typing import IO, Any, AnyStr, ClassVar, Dict, List, Literal, Optional, Uni
 
 from pydantic import BaseModel, Field
 
-from commandAGI._utils.config import APPDIR, DEV_MODE
+from commandAGI._internal.config import APPDIR, DEV_MODE
 from commandAGI._utils.counter import next_for_cls
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.types import (

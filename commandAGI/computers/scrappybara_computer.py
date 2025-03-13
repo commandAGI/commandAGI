@@ -14,7 +14,7 @@ except ImportError:
         "The Scrapybara dependencies are not installed. Please install commandAGI with the scrapybara extra:\n\npip install commandAGI[scrapybara]"
     )
 
-from commandAGI._utils.config import APPDIR
+from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (

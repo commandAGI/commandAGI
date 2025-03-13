@@ -19,7 +19,7 @@ from typing import IO, Any, AnyStr, Dict, List, Literal, Optional, Union
 
 import psutil
 
-from commandAGI._utils.config import APPDIR
+from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.computers.base_computer import (
