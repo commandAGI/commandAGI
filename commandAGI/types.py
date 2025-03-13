@@ -312,7 +312,7 @@ class ComputerObservation(TypedDict):
 
 
 class ComputerActionType(str, Enum):
-    COMMAND = "command"
+    SHELL = "shell"
     KEYBOARD_KEYS_PRESS = "keyboard_keys_press"
     KEYBOARD_KEYS_DOWN = "keyboard_keys_down"
     KEYBOARD_KEYS_RELEASE = "keyboard_keys_release"
@@ -352,7 +352,7 @@ class BaseComputerAction(BaseModel):
 
 
 class ShellCommandAction(BaseComputerAction):
-    action_type: Literal["command"] = ComputerActionType.COMMAND.value
+    action_type: Literal["command"] = ComputerActionType.SHELL.value
     command: Annotated[str, StringConstraints(min_length=1)]
     timeout: float | None = (
         None  # important: None means the command will run indefinitely until it finishes

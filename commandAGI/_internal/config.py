@@ -12,14 +12,14 @@ class UserProfile(BaseModel):
 
     name: str = Field(default="default")
     email: str = Field(default="default")
-    token: str = Field(default="")
+    api_key: str = Field(default="")
 
 
 class AuthState(BaseModel):
     """Schema for persistent auth state"""
 
-    profiles: Dict[EmailStr, UserProfile] = Field(default_factory=dict)
-    active_profile_email: Optional[EmailStr] = Field(default=None)
+    profiles: Dict[str, UserProfile] = Field(default_factory=dict)
+    active_api_key: Optional[str] = Field(default=None)
 
     def to_json(self) -> str:
         return self.model_dump_json(indent=2)
@@ -44,35 +44,44 @@ class Config(BaseSettings):
     )
 
     DEV_MODE: bool = Field(default=False, env="COMMANDAGI_DEV_MODE")
-    COMMANDAGI_HUB_URL: str = Field(
-        default="https://api.commandagi.com", env="COMMANDAGI_HUB_URL"
+    api_base_url: str = Field(
+        default="https://api.commandagi.com", env="COMMANDAGI_BASE_URL"
     )
 
     # Auth state
     auth_state: AuthState = Field(default_factory=AuthState)
 
     @property
+    def active_api_key(self) -> Optional[str]:
+        """Get the active API key from environment or saved state"""
+        # First check environment variable
+        env_key = os.getenv("COMMANDAGI_API_KEY")
+        if env_key:
+            return env_key
+        # Fall back to saved state
+        return self.auth_state.active_api_key
+
+    @active_api_key.setter
+    def active_api_key(self, value: Optional[str]):
+        self.auth_state.active_api_key = value
+        self.save_auth_state()
+
+    @active_api_key.deleter
+    def active_api_key(self):
+        self.auth_state.active_api_key = None
+        self.save_auth_state()
+
+    @property
+    def current_profile(self) -> Optional[UserProfile]:
+        """Get the current active profile"""
+        key = self.active_api_key
+        if not key:
+            return None
+        return self.profiles.get(key)
+
+    @property
     def profiles(self) -> Dict[str, UserProfile]:
         return self.auth_state.profiles
-
-    @property
-    def active_profile_email(self) -> Optional[EmailStr]:
-        return self.auth_state.active_profile_email
-
-    @active_profile_email.setter
-    def active_profile_email(self, value: Optional[EmailStr]):
-        self.auth_state.active_profile_email = value
-
-    @property
-    def current_token(self) -> Optional[str]:
-        """Get the current active token"""
-        if not self.active_profile_email:
-            return None
-
-        if self.active_profile_email not in self.profiles:
-            raise ValueError(f"Profile {self.active_profile_email} not found")
-
-        return self.profiles[self.active_profile_email].token
 
     class Config:
         env_file = ".env"

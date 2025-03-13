@@ -12,6 +12,7 @@ Subcommands:
   grid-overlay    Create a grid overlay on a screenshot to help with positioning
   ocr             Extract text from a screenshot using OCR
   version         Display version information
+  hub             Manage agents on the CommandAGI Hub
 """
 
 import os
@@ -31,6 +32,9 @@ from commandAGI.computers.daemon_client_computer import (
 from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 from commandAGI.version import __version__, get_container_version, get_package_version
+
+# Import hub CLI
+from commandAGI.agents.hub_cli import app as hub_cli
 
 try:
     from commandAGI.computers.e2b_desktop_computer import E2BDesktopComputer
@@ -78,6 +82,8 @@ from commandAGI.types import (
 # Create the CLI app
 cli = typer.Typer(help="commandAGI CLI")
 
+# Add hub CLI as a subcommand
+cli.add_typer(hub_cli, name="hub", help="Manage agents on the CommandAGI Hub")
 
 # Define enums for CLI options
 class ComputerType(str, Enum):

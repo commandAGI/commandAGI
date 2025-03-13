@@ -156,7 +156,7 @@ class OpenRLComputerEnv(gym.Env):
         # Create appropriate action based on action_type
         computer_action = ComputerAction()
 
-        if action_type == ComputerActionType.COMMAND:
+        if action_type == ComputerActionType.SHELL:
             computer_action["command"] = ShellCommandAction(
                 command=params["command"], timeout=params["timeout"]
             )
