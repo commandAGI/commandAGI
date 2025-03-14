@@ -4,15 +4,20 @@ import asyncio
 from contextlib import contextmanager
 from dataclasses import Field
 from enum import Enum
-from typing import AsyncGenerator, Optional, TypeVar, Union, List, Callable
+from typing import AsyncGenerator, Literal, Optional, TypeVar, Union, List, Callable
 import uuid
 from pydantic import BaseModel
 from commandAGI._utils.mcp_schema import MCPServerTransport, mcp_server_connections
+from commandAGI._utils.rfc6902 import JsonPatchOperation
 from commandAGI.agents.base_agent import (
     BaseAgent,
     BaseAgentRunSession,
     BaseAgentHooks,
     TSchema,
+)
+from commandAGI.agents.clients import _chat_completion
+from commandAGI.agents.simple_agent import (
+    _replace_computer_tools_with_agent_provider_specific_tools,
 )
 from langchain.tools import BaseTool
 
@@ -24,19 +29,102 @@ from commandAGI.computers.base_computer import BaseComputer
 AgentProviderClient = Union[
     CommandAGIClient, OpenAIClient, AnthropicClient, ScrappybaraClient, GeminiClient
 ]
+from typing import Protocol
+
+
+class OnStepDraftHook(Protocol):
+    def __call__(self, response: ChatMessage) -> None: ...
+
+
+@dataclass
+class RuleState:
+    rule: str
+    rule_id: str
+    status: Literal["indeterminate", "passed", "feedback", "fail"]
+    feedback: Optional[str] = None
+
+
+class OnRuleCheckHook(Protocol):
+    def __call__(self, rule_states: list[RuleState]) -> None: ...
+
+
+class OnStepHook(Protocol):
+    def __call__(self, response: ChatMessage) -> None: ...
+
+
+class OnMessageInsertHook(Protocol):
+    def __call__(self, message_index: int, message: ChatMessage) -> None: ...
+
+
+class OnMessageDeleteHook(Protocol):
+    def __call__(self, message_index: int) -> None: ...
+
+
+class OnMessageStartUpdateHook(Protocol):
+    def __call__(self, message_index: int) -> None: ...
+
+
+class OnMessageUpdateOperationHook(Protocol):
+    def __call__(self, message_index: int, operation: JsonPatchOperation) -> None: ...
+
+
+class OnMessageEndUpdateHook(Protocol):
+    def __call__(self, message_index: int) -> None: ...
+
+
+class OnToolExecutionStartHook(Protocol):
+    def __call__(self, message_index: int, tool_call_index: int) -> None: ...
+
+
+class OnToolExecutionEndHook(Protocol):
+    def __call__(self, message_index: int, tool_call_index: int) -> None: ...
+
+
+class OnToolExecutionErrorHook(Protocol):
+    def __call__(
+        self, message_index: int, tool_call_index: int, error: Exception
+    ) -> None: ...
+
+
+class OnFinishHook(Protocol):
+    def __call__(
+        self,
+        finish_message_index: int,
+        reason: Literal["max_steps", "is_complete", "manual"],
+    ) -> None: ...
+
+
+class OnErrorHook(Protocol):
+    def __call__(self, error: Exception) -> None: ...
 
 
 class AgentHooks(BaseAgentHooks):
-    on_step_draft_hooks: list[Callable[["AgentRunSession"], None]] = Field(default_factory=list)
-    on_rule_check_hooks: list[Callable[["AgentRunSession", str], None]] = Field(default_factory=list)
-    on_message_insert_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
-    on_message_delete_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
-    on_message_start_update_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
-    on_message_update_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
-    on_message_end_update_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
-    on_tool_execution_start_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
-    on_tool_execution_end_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
-    on_tool_execution_error_hooks: list[Callable[["AgentRunSession", int, Exception], None]] = Field(default_factory=list)
+    on_step_draft_hooks: list[OnStepDraftHook] = Field(default_factory=list)
+    on_rule_check_hooks: list[OnRuleCheckHook] = Field(default_factory=list)
+    on_step_hooks: list[OnStepHook] = Field(default_factory=list)
+    on_message_insert_hooks: list[OnMessageInsertHook] = Field(default_factory=list)
+    on_message_delete_hooks: list[OnMessageDeleteHook] = Field(default_factory=list)
+    on_message_start_update_hooks: list[OnMessageStartUpdateHook] = Field(
+        default_factory=list
+    )
+    on_message_update_operation_hooks: list[OnMessageUpdateOperationHook] = Field(
+        default_factory=list
+    )
+    on_message_end_update_hooks: list[OnMessageEndUpdateHook] = Field(
+        default_factory=list
+    )
+    on_tool_execution_start_hooks: list[OnToolExecutionStartHook] = Field(
+        default_factory=list
+    )
+    on_tool_execution_end_hooks: list[OnToolExecutionEndHook] = Field(
+        default_factory=list
+    )
+    on_tool_execution_error_hooks: list[OnToolExecutionErrorHook] = Field(
+        default_factory=list
+    )
+    on_finish_hooks: list[OnFinishHook] = Field(default_factory=list)
+    on_error_hooks: list[OnErrorHook] = Field(default_factory=list)
+
 
 class AgentRunSession(BaseAgentRunSession):
     agent: Agent
@@ -53,14 +141,44 @@ class AgentRunSession(BaseAgentRunSession):
 
     _hooks: AgentHooks = Field(default_factory=AgentHooks)
 
-    def on_step(self, func: Callable[["AgentRunSession"], None]):
+    def on_step_draft(self, func: OnStepDraftHook):
+        self._hooks.on_step_draft_hooks.append(func)
+
+    def on_rule_check(self, func: OnRuleCheckHook):
+        self._hooks.on_rule_check_hooks.append(func)
+
+    def on_step(self, func: OnStepHook):
         self._hooks.on_step_hooks.append(func)
 
-    def on_tool_call(self, func: Callable[["AgentRunSession"], None]):
-        self._hooks.on_tool_call_hooks.append(func)
+    def on_message_insert(self, func: OnMessageInsertHook):
+        self._hooks.on_message_insert_hooks.append(func)
 
-    def on_tool_result(self, func: Callable[["AgentRunSession"], None]):
-        self._hooks.on_tool_result_hooks.append(func)
+    def on_message_delete(self, func: OnMessageDeleteHook):
+        self._hooks.on_message_delete_hooks.append(func)
+
+    def on_message_start_update(self, func: OnMessageStartUpdateHook):
+        self._hooks.on_message_start_update_hooks.append(func)
+
+    def on_message_update_operation(self, func: OnMessageUpdateOperationHook):
+        self._hooks.on_message_update_operation_hooks.append(func)
+
+    def on_message_end_update(self, func: OnMessageEndUpdateHook):
+        self._hooks.on_message_end_update_hooks.append(func)
+
+    def on_tool_execution_start(self, func: OnToolExecutionStartHook):
+        self._hooks.on_tool_execution_start_hooks.append(func)
+
+    def on_tool_execution_end(self, func: OnToolExecutionEndHook):
+        self._hooks.on_tool_execution_end_hooks.append(func)
+
+    def on_tool_execution_error(self, func: OnToolExecutionErrorHook):
+        self._hooks.on_tool_execution_error_hooks.append(func)
+
+    def on_finish(self, func: OnFinishHook):
+        self._hooks.on_finish_hooks.append(func)
+
+    def on_error(self, func: OnErrorHook):
+        self._hooks.on_error_hooks.append(func)
 
 
 class Agent(BaseAgent):
@@ -96,7 +214,7 @@ class Agent(BaseAgent):
         self.max_steps = max_steps
         self.rules = rules
         self.max_retries = max_retries
-        
+
         self.tools = _replace_computer_tools_with_agent_provider_specific_tools(
             tools, client
         )
@@ -122,16 +240,6 @@ class Agent(BaseAgent):
 
     async def _enforce_rules(self, history: list[ChatMessage]) -> None:
         """Enforce all rules in a single chat completion."""
-        from dataclasses import dataclass
-        from typing import Literal, Optional
-
-        @dataclass
-        class RuleState:
-            rule: str
-            rule_id: str
-            status: Literal["indeterminate", "passed", "feedback", "fail"]
-            feedback: Optional[str] = None
-
         response_index = len(history) - 1
         original_response = history[response_index]
 
@@ -227,6 +335,10 @@ class Agent(BaseAgent):
                 tool = next(t for t in rule_tools if t.name == tool_call.function.name)
                 tool.run(tool_call.function.arguments)
 
+            # Call hooks again after rules are updated
+            for hook in self._hooks.on_rule_check_hooks:
+                hook(rule_states)
+
             # Check if any rule failed
             failed_rule = next((rs for rs in rule_states if rs.status == "fail"), None)
             if failed_rule:
@@ -285,138 +397,78 @@ class Agent(BaseAgent):
             yield state
 
     async def _run(self, state: AgentRunSession) -> TSchema | None:
-        while True:
-            # Generate action based on history
-            response = _chat_completion(
-                state.events, client=self.client, tools=state.tools
-            )
-            state.events.append(response)
+        try:
 
-            # Enforce rules before executing tool calls
-            if self.rules:
-                await self._enforce_rules(state.events)
-
-            state.step_count += 1
-
-            # Execute any tool calls
-            if response.tool_calls:
-                for tool_call in response.tool_calls:
-                    tool = next(
-                        t for t in state.tools if t.name == tool_call.function.name
-                    )
-                    result = tool.run(tool_call.function.arguments)
-                    state.events.append(
-                        {
-                            "role": "tool",
-                            "tool_call_id": tool_call.id,
-                            "name": tool_call.function.name,
-                            "content": str(result),
-                        }
-                    )
-
-            # If we've hit max_steps, finish
-            if self.max_steps is not None and state.step_count >= self.max_steps:
-                return self._format_output(state.events, output_schema)
-
-            # Only check completion if we're past min_steps
-            if self.min_steps is None or state.step_count >= self.min_steps:
-                is_complete = _chat_completion(
-                    state.events
-                    + [{"role": "user", "content": self.is_complete_prompt}],
-                    client=self.client,
-                    output_schema=bool,
+            while True:
+                # Generate action based on history
+                response = _chat_completion(
+                    state.events, client=self.client, tools=state.tools
                 )
+                for hook in state._hooks.on_step_draft_hooks:
+                    hook(response)
+                state.events.append(response)
+                for hook in state._hooks.on_message_insert_hooks:
+                    hook(len(state.events) - 1, response)
 
-                if is_complete:
+                # Enforce rules before executing tool calls
+                if self.rules:
+                    await self._enforce_rules(state.events)
+
+                state.step_count += 1
+                for hook in state._hooks.on_step_hooks:
+                    hook(response)
+
+                # Execute any tool calls
+                if response.tool_calls:
+                    for tool_call_index, tool_call in enumerate(response.tool_calls):
+                        try:
+                            for hook in state._hooks.on_tool_execution_start_hooks:
+                                hook(len(state.events) - 1, tool_call_index)
+
+                            tool = next(
+                                t
+                                for t in state.tools
+                                if t.name == tool_call.function.name
+                            )
+                            result = tool.run(tool_call.function.arguments)
+                            tool_response = {
+                                "role": "tool",
+                                "tool_call_id": tool_call.id,
+                                "name": tool_call.function.name,
+                                "content": str(result),
+                            }
+                            state.events.append(tool_response)
+                            for hook in state._hooks.on_message_insert_hooks:
+                                hook(len(state.events) - 1, tool_response)
+
+                            for hook in state._hooks.on_tool_execution_end_hooks:
+                                hook(len(state.events) - 1, tool_call_index)
+                        except Exception as e:
+                            for hook in state._hooks.on_tool_execution_error_hooks:
+                                hook(len(state.events) - 1, tool_call_index, e)
+                            raise
+
+                # If we've hit max_steps, finish
+                if self.max_steps is not None and state.step_count >= self.max_steps:
+                    for hook in state._hooks.on_finish_hooks:
+                        hook(len(state.events) - 1, "max_steps")
                     return self._format_output(state.events, output_schema)
 
+                # Only check completion if we're past min_steps
+                if self.min_steps is None or state.step_count >= self.min_steps:
+                    is_complete = _chat_completion(
+                        state.events
+                        + [{"role": "user", "content": self.is_complete_prompt}],
+                        client=self.client,
+                        output_schema=bool,
+                    )
 
-def _replace_computer_tools_with_agent_provider_specific_tools(
-    cls, tools: list[BaseTool], client: AgentProviderClient
-) -> list[BaseTool]:
-    def _replace_tool_if_needed(tool: BaseTool) -> BaseTool:
-        match type(client):
-            case CommandAGIClient:
-                match tool._metadata.get("commandagi_tool_type"):
-                    case "computer_use":
-                        return OpenAIComputerUseTool(client)
-                    case _:
-                        return tool
+                    if is_complete:
+                        for hook in state._hooks.on_finish_hooks:
+                            hook(len(state.events) - 1, "is_complete")
+                        return self._format_output(state.events, output_schema)
 
-                # TODO: in additionn to converting commandagi tools, you should also detect anthropic, openai, and scrappybara tools and convert them to the correct tool
-            case OpenAIClient:
-                match tool._metadata.get("commandagi_tool_type"):
-                    case "computer_use":
-                        return OpenAIComputerUseTool(client)
-                    case _:
-                        return tool
-                # TODO: in additionn to converting commandagi tools, you should also detect anthropic, openai, and scrappybara tools and convert them to the correct tool
-            case AnthropicClient:
-                match tool._metadata.get("commandagi_tool_type"):
-                    case "computer_use":
-                        return AnthropicComputerUseTool(client)
-                    case _:
-                        return tool
-
-                # TODO: in additionn to converting commandagi tools, you should also detect anthropic, openai, and scrappybara tools and convert them to the correct tool
-            case ScrappybaraClient:
-                match tool._metadata.get("commandagi_tool_type"):
-                    case "computer_use":
-                        return OpenAIComputerUseTool(client)
-                    case _:
-                        return tool
-
-                # TODO: in additionn to converting commandagi tools, you should also detect anthropic, openai, and scrappybara tools and convert them to the correct tool
-            case GeminiClient:
-                match tool._metadata.get("commandagi_tool_type"):
-                    case "computer_use":
-                        return GeminiComputerUseTool(client)
-                    case _:
-                        return tool
-
-                # TODO: in additionn to converting commandagi tools, you should also detect anthropic, openai, and scrappybara tools and convert them to the correct tool
-            case _:
-                return tool
-
-    return [_replace_tool_if_needed(tool) for tool in tools]
-
-
-def _chat_completion(
-    messages: list[AnyChatMessage],
-    client: AgentProviderClient,
-    output_schema: Optional[type[TSchema]] = None,
-    tools: Optional[list[BaseTool]] = None,
-) -> AnyChatMessage:
-    match type(client):
-        case CommandAGIClient:
-            return client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages,
-                tools=tools,
-            )
-        case OpenAIClient:
-            return client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages,
-                tools=tools,
-            )
-        case AnthropicClient:
-            return client.messages.create(
-                model="claude-3-5-sonnet-20240620",
-                messages=messages,
-                tools=tools,
-            )
-        case ScrappybaraClient:
-            return client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages,
-                tools=tools,
-            )
-        case GeminiClient:
-            return client.generate_content(
-                model="gemini-pro",
-                messages=messages,
-                tools=tools,
-            )
-        case _:
-            raise ValueError(f"Unsupported client type: {type(client)}")
+        except Exception as e:
+            for hook in state._hooks.on_error_hooks:
+                hook(e)
+            raise
