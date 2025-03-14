@@ -19,7 +19,7 @@ from commandAGI.agents.base_agent import (
     AgentResponseEvent,
     UserInputEvent,
 )
-from commandAGI.agents.clients import _chat_completion_from_events, _replace_computer_tools_with_agent_provider_specific_tools
+from commandAGI.agents._api_provider_utils import _chat_completion_from_events, _replace_computer_tools_with_agent_provider_specific_tools
 from langchain.tools import BaseTool
 
 from commandAGI.computers.base_computer import BaseComputer
