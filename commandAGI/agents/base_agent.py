@@ -61,6 +61,17 @@ class SystemInputEvent(AgentEvent):
     content: str
     type: str = "instruction"  # Could be 'instruction', 'warning', 'error', etc.
 
+class ResourceCalloutEvent(AgentEvent):
+    """Represents a request to query a specific resource before the next agent step"""
+    resource_id: str
+    query: str
+
+class ResourceRetrievalEvent(AgentEvent):
+    """Represents the results from querying a resource"""
+    resource_id: str
+    query: str
+    results: List[ChatMessage]
+
 class ErrorEvent(AgentEvent):
     """Represents an error that occurred during agent execution"""
     error_type: str
@@ -124,6 +135,14 @@ class BaseAgentRunSession(BaseModel):
     def add_error(self, error_type: str, message: str, traceback: Optional[str] = None):
         """Add an error event"""
         self.add_event(ErrorEvent(error_type=error_type, message=message, traceback=traceback))
+
+    def add_resource_callout(self, resource_id: str, query: str):
+        """Add a resource callout event"""
+        self.add_event(ResourceCalloutEvent(resource_id=resource_id, query=query))
+
+    def add_resource_retrieval(self, resource_id: str, query: str, results: List[ChatMessage]):
+        """Add a resource retrieval event"""
+        self.add_event(ResourceRetrievalEvent(resource_id=resource_id, query=query, results=results))
 
     def on_step(self, func: Callable[["BaseAgentRunSession"], None]):
         self._hooks.on_step_hooks.append(func)

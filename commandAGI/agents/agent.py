@@ -19,7 +19,7 @@ from commandAGI.agents.base_agent import (
     AgentResponseEvent,
     UserInputEvent,
 )
-from commandAGI.agents.clients import _chat_completion, _replace_computer_tools_with_agent_provider_specific_tools
+from commandAGI.agents.clients import _chat_completion_from_events, _replace_computer_tools_with_agent_provider_specific_tools
 from langchain.tools import BaseTool
 
 from commandAGI.computers.base_computer import BaseComputer
@@ -127,6 +127,7 @@ class AgentHooks(BaseAgentHooks):
 class AgentRunSession(BaseAgentRunSession):
     agent: Agent
     mcp_server_connections: list[MCPServerTransport] = []
+    resources: list[BaseResource] = Field(default_factory=list)
 
     @property
     def tools(self) -> list[BaseTool]:
@@ -223,7 +224,7 @@ class Agent(BaseAgent):
         output_schema: Optional[type[TSchema]] = None,
     ) -> TSchema | None:
         if output_schema:
-            return _chat_completion(
+            return _chat_completion_from_events(
                 history
                 + [
                     {
@@ -319,7 +320,7 @@ class Agent(BaseAgent):
                 "\nCheck all rules and respond with appropriate tool calls."
             )
 
-            result = await _chat_completion(
+            result = await _chat_completion_from_events(
                 history + [{"role": "user", "content": prompt}],
                 client=self.client,
                 tools=rule_tools,
@@ -361,7 +362,7 @@ class Agent(BaseAgent):
                         "content": f"Previous response violated rules. Please revise based on the following feedback:\n{feedback_message}",
                     }
                 )
-                new_response = await _chat_completion(history, client=self.client)
+                new_response = await _chat_completion_from_events(history, client=self.client)
                 history[response_index] = new_response
 
                 # Reset feedback states to indeterminate
@@ -397,8 +398,34 @@ class Agent(BaseAgent):
     async def _run(self, state: AgentRunSession) -> TSchema | None:
         try:
             while True:
+                # Process any resource callouts since last agent response
+                last_agent_response_idx = next(
+                    (i for i in range(len(state.events)-1, -1, -1) 
+                    if isinstance(state.events[i], AgentResponseEvent)),
+                    -1
+                )
+                
+                resource_callouts = [
+                    event for event in state.events[last_agent_response_idx+1:]
+                    if isinstance(event, ResourceCalloutEvent)
+                ]
+                
+                for callout in resource_callouts:
+                    resource = next(
+                        (r for r in state.resources if r.resource_id == callout.resource_id),
+                        None
+                    )
+                    if resource:
+                        relevant_items = resource.get_relevant_items(callout.query)
+                        # Add the retrieval event
+                        state.add_resource_retrieval(
+                            resource_id=callout.resource_id,
+                            query=callout.query,
+                            results=relevant_items
+                        )
+                
                 # Generate action based on history
-                response = _chat_completion(
+                response = _chat_completion_from_events(
                     state.events, client=self.client, tools=state.tools
                 )
                 
@@ -473,7 +500,7 @@ class Agent(BaseAgent):
                 # Only check completion if we're past min_steps
                 if self.min_steps is None or state.step_count >= self.min_steps:
                     state.add_system_message(content=self.is_complete_prompt)
-                    is_complete = _chat_completion(
+                    is_complete = _chat_completion_from_events(
                         state.events,
                         client=self.client,
                         output_schema=bool,
