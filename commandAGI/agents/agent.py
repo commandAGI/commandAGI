@@ -22,6 +22,7 @@ from commandAGI.agents.base_agent import (
 from commandAGI.agents._api_provider_utils import generate_response, _format_tools_for_api_provider
 from langchain.tools import BaseTool
 
+from commandAGI.agents.events import ResourceCalloutEvent
 from commandAGI.computers.base_computer import BaseComputer
 
 
