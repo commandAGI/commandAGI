@@ -4,11 +4,16 @@ import asyncio
 from contextlib import contextmanager
 from dataclasses import Field
 from enum import Enum
-from typing import AsyncGenerator, Optional, TypeVar, Union, List
+from typing import AsyncGenerator, Optional, TypeVar, Union, List, Callable
 import uuid
 from pydantic import BaseModel
 from commandAGI._utils.mcp_schema import MCPServerTransport, mcp_server_connections
-from commandAGI.agents.base_agent import BaseAgent, TSchema
+from commandAGI.agents.base_agent import (
+    BaseAgent,
+    BaseAgentRunSession,
+    BaseAgentHooks,
+    TSchema,
+)
 from langchain.tools import BaseTool
 
 from agents import Agent, Runner
@@ -21,24 +26,54 @@ AgentProviderClient = Union[
 ]
 
 
-class SimpleAgentRun(BaseModel):
-    """Schema for managing state during agent run."""
-    run_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    agent: "BaseAgent"
-    step_count: int = 0
-    history: List[dict] = []
-    mcp_server_connections: List[MCPServerTransport] = []
-    tools: List[BaseTool] = []
+class AgentHooks(BaseAgentHooks):
+    on_step_draft_hooks: list[Callable[["AgentRunSession"], None]] = Field(default_factory=list)
+    on_rule_check_hooks: list[Callable[["AgentRunSession", str], None]] = Field(default_factory=list)
+    on_message_insert_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
+    on_message_delete_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
+    on_message_start_update_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
+    on_message_update_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
+    on_message_end_update_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
+    on_tool_execution_start_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
+    on_tool_execution_end_hooks: list[Callable[["AgentRunSession", int], None]] = Field(default_factory=list)
+    on_tool_execution_error_hooks: list[Callable[["AgentRunSession", int, Exception], None]] = Field(default_factory=list)
 
-    _
+class AgentRunSession(BaseAgentRunSession):
+    agent: Agent
+    mcp_server_connections: list[MCPServerTransport] = []
 
-class BaseAgent(BaseAgent):
+    @property
+    def tools(self) -> list[BaseTool]:
+        return self.directly_supplied_tools + [
+            *[
+                mcp_server_connection.get_tool()
+                for mcp_server_connection in self.mcp_server_connections
+            ]
+        ]
+
+    _hooks: AgentHooks = Field(default_factory=AgentHooks)
+
+    def on_step(self, func: Callable[["AgentRunSession"], None]):
+        self._hooks.on_step_hooks.append(func)
+
+    def on_tool_call(self, func: Callable[["AgentRunSession"], None]):
+        self._hooks.on_tool_call_hooks.append(func)
+
+    def on_tool_result(self, func: Callable[["AgentRunSession"], None]):
+        self._hooks.on_tool_result_hooks.append(func)
+
+
+class Agent(BaseAgent):
     client: AgentProviderClient
     is_complete_prompt: str
     min_steps: Optional[int]
     max_steps: Optional[int]
     rules: list[str]
     max_retries: int = 3
+    mcp_servers: list[MCPServerTransport] = []
+    """
+    config info for conecting to mcp servers
+    """
 
     def __init__(
         self,
@@ -54,17 +89,17 @@ class BaseAgent(BaseAgent):
         if min_steps is not None and max_steps is not None and min_steps > max_steps:
             raise ValueError("min_steps cannot be greater than max_steps")
 
-        super().__init__(
-            system_prompt=system_prompt, tools=tools, mcp_servers=mcp_servers
-        )
+        super().__init__(system_prompt=system_prompt, tools=tools)
         self.client = client
+        self.mcp_servers = mcp_servers
         self.min_steps = min_steps
         self.max_steps = max_steps
+        self.rules = rules
+        self.max_retries = max_retries
+        
         self.tools = _replace_computer_tools_with_agent_provider_specific_tools(
             tools, client
         )
-        self.rules = rules
-        self.max_retries = max_retries
 
     def _format_output(
         self,
@@ -235,70 +270,65 @@ class BaseAgent(BaseAgent):
         raise ValueError("Max retries exceeded while trying to enforce rules")
 
     @contextmanager
-    async def session(self, prompt: str, *, output_schema: Optional[type[TSchema]] = None) -> AsyncGenerator["SimpleAgentRun", None]:
+    async def session(
+        self, prompt: str, *, output_schema: Optional[type[TSchema]] = None
+    ) -> AsyncGenerator["AgentRunSession", None]:
         with mcp_server_connections(self.mcp_servers) as mcp_server_connections:
-            state = SimpleAgentRun(
+            state = AgentRunSession(
                 agent=self,
                 step_count=0,
-                history=[{"role": "user", "content": prompt}],
+                events=[{"role": "user", "content": prompt}],
                 mcp_server_connections=mcp_server_connections,
-                tools=self.tools + [
-                    *[
-                        mcp_server_connection.get_tool()
-                        for mcp_server_connection in mcp_server_connections
-                    ]
-                ]
+                directly_supplied_tools=self.tools,
             )
 
             yield state
 
-    async def run(
-        self, prompt: str, *, output_schema: Optional[type[TSchema]] = None
-    ) -> TSchema | None:
-        async with self.session(prompt, output_schema=output_schema) as state:
+    async def _run(self, state: AgentRunSession) -> TSchema | None:
+        while True:
+            # Generate action based on history
+            response = _chat_completion(
+                state.events, client=self.client, tools=state.tools
+            )
+            state.events.append(response)
 
-            while True:
-                # Generate action based on history
-                response = _chat_completion(state.history, client=self.client, tools=state.tools)
-                state.history.append(response)
+            # Enforce rules before executing tool calls
+            if self.rules:
+                await self._enforce_rules(state.events)
 
-                # Enforce rules before executing tool calls
-                if self.rules:
-                    await self._enforce_rules(state.history)
+            state.step_count += 1
 
-                state.step_count += 1
-
-                # Execute any tool calls
-                if response.tool_calls:
-                    for tool_call in response.tool_calls:
-                        tool = next(
-                            t for t in state.tools if t.name == tool_call.function.name
-                        )
-                        result = tool.run(tool_call.function.arguments)
-                        state.history.append(
-                            {
-                                "role": "tool",
-                                "tool_call_id": tool_call.id,
-                                "name": tool_call.function.name,
-                                "content": str(result),
-                            }
-                        )
-
-                # If we've hit max_steps, finish
-                if self.max_steps is not None and state.step_count >= self.max_steps:
-                    return self._format_output(state.history, output_schema)
-
-                # Only check completion if we're past min_steps
-                if self.min_steps is None or state.step_count >= self.min_steps:
-                    is_complete = _chat_completion(
-                        state.history
-                        + [{"role": "user", "content": self.is_complete_prompt}],
-                        client=self.client,
-                        output_schema=bool,
+            # Execute any tool calls
+            if response.tool_calls:
+                for tool_call in response.tool_calls:
+                    tool = next(
+                        t for t in state.tools if t.name == tool_call.function.name
+                    )
+                    result = tool.run(tool_call.function.arguments)
+                    state.events.append(
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "name": tool_call.function.name,
+                            "content": str(result),
+                        }
                     )
 
-                    if is_complete:
-                        return self._format_output(state.history, output_schema)
+            # If we've hit max_steps, finish
+            if self.max_steps is not None and state.step_count >= self.max_steps:
+                return self._format_output(state.events, output_schema)
+
+            # Only check completion if we're past min_steps
+            if self.min_steps is None or state.step_count >= self.min_steps:
+                is_complete = _chat_completion(
+                    state.events
+                    + [{"role": "user", "content": self.is_complete_prompt}],
+                    client=self.client,
+                    output_schema=bool,
+                )
+
+                if is_complete:
+                    return self._format_output(state.events, output_schema)
 
 
 def _replace_computer_tools_with_agent_provider_specific_tools(
