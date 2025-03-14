@@ -5,33 +5,6 @@ from pydantic import BaseModel
 from langchain.schema import AnyContent
 
 
-class BaseContent(TypedDict, total=False):
-    type: str
-
-
-class TextContent(BaseContent, TypedDict):
-    type: Literal["text"]
-    text: str
-
-
-class ImageContent(BaseContent, TypedDict):
-    type: Literal["image"]
-    image: str
-
-
-class VideoContent(BaseContent, TypedDict):
-    type: Literal["video"]
-    video: str
-
-
-class AudioContent(BaseContent, TypedDict):
-    type: Literal["audio"]
-    audio: str
-
-
-AnyContent = Union[TextContent, ImageContent, VideoContent, AudioContent]
-
-
 from commandAGI.computers.base_computer import BaseComputer
 
 
@@ -39,19 +12,6 @@ class SLOPServer(BaseModel):
     url: str
 
 
-class StdIOMCPServerTransport(BaseModel):
-    cwd: str
-    command: str
-    args: list[str] | None = None
-    environment: dict[str, str] | None = None
-    encoding: str = "utf-8"
-
-
-class RemoteMCPTransport(BaseModel):
-    url: str
-
-
-MCPServerTransport = Union[StdIOMCPServerTransport, RemoteMCPTransport]
 
 
 class MCPServer(BaseModel):
