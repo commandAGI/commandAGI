@@ -6,6 +6,7 @@ from dataclasses import Field
 from enum import Enum
 from typing import AsyncGenerator, Literal, Optional, TypeVar, Union, List, Callable
 import uuid
+import traceback
 from pydantic import BaseModel
 from commandAGI._utils.mcp_schema import MCPServerTransport, mcp_server_connections
 from commandAGI._utils.rfc6902 import JsonPatchOperation
@@ -13,15 +14,13 @@ from commandAGI.agents.base_agent import (
     BaseAgent,
     BaseAgentRunSession,
     BaseAgentHooks,
+    SystemInputEvent,
     TSchema,
+    AgentResponseEvent,
+    UserInputEvent,
 )
-from commandAGI.agents.clients import _chat_completion
-from commandAGI.agents.simple_agent import (
-    _replace_computer_tools_with_agent_provider_specific_tools,
-)
+from commandAGI.agents.clients import _chat_completion, _replace_computer_tools_with_agent_provider_specific_tools
 from langchain.tools import BaseTool
-
-from agents import Agent, Runner
 
 from commandAGI.computers.base_computer import BaseComputer
 
@@ -33,11 +32,10 @@ from typing import Protocol
 
 
 class OnStepDraftHook(Protocol):
-    def __call__(self, response: ChatMessage) -> None: ...
+    def __call__(self, response: AgentResponseEvent) -> None: ...
 
 
-@dataclass
-class RuleState:
+class RuleState(BaseModel):
     rule: str
     rule_id: str
     status: Literal["indeterminate", "passed", "feedback", "fail"]
@@ -49,11 +47,11 @@ class OnRuleCheckHook(Protocol):
 
 
 class OnStepHook(Protocol):
-    def __call__(self, response: ChatMessage) -> None: ...
+    def __call__(self, response: AgentResponseEvent) -> None: ...
 
 
 class OnMessageInsertHook(Protocol):
-    def __call__(self, message_index: int, message: ChatMessage) -> None: ...
+    def __call__(self, message_index: int, message: Union[AgentResponseEvent, UserInputEvent, SystemInputEvent, ThoughtEvent, ToolCallEvent, ToolResultEvent, ErrorEvent]) -> None: ...
 
 
 class OnMessageDeleteHook(Protocol):
@@ -238,7 +236,7 @@ class Agent(BaseAgent):
             )
         return None
 
-    async def _enforce_rules(self, history: list[ChatMessage]) -> None:
+    async def _enforce_rules(self, history: list[AgentResponseEvent]) -> None:
         """Enforce all rules in a single chat completion."""
         response_index = len(history) - 1
         original_response = history[response_index]
@@ -389,30 +387,34 @@ class Agent(BaseAgent):
             state = AgentRunSession(
                 agent=self,
                 step_count=0,
-                events=[{"role": "user", "content": prompt}],
                 mcp_server_connections=mcp_server_connections,
                 directly_supplied_tools=self.tools,
             )
-
+            # Initialize with user input
+            state.add_event(UserInputEvent(content=prompt))
             yield state
 
     async def _run(self, state: AgentRunSession) -> TSchema | None:
         try:
-
             while True:
                 # Generate action based on history
                 response = _chat_completion(
                     state.events, client=self.client, tools=state.tools
                 )
+                
+                # Add the response as an agent response event
+                state.add_agent_response(
+                    role="assistant", 
+                    content=response.content,
+                    tool_calls=response.tool_calls if hasattr(response, 'tool_calls') else None
+                )
+                
                 for hook in state._hooks.on_step_draft_hooks:
                     hook(response)
-                state.events.append(response)
-                for hook in state._hooks.on_message_insert_hooks:
-                    hook(len(state.events) - 1, response)
 
                 # Enforce rules before executing tool calls
                 if self.rules:
-                    await self._enforce_rules(state.events)
+                    await self._enforce_rules(state)
 
                 state.step_count += 1
                 for hook in state._hooks.on_step_hooks:
@@ -426,26 +428,40 @@ class Agent(BaseAgent):
                                 hook(len(state.events) - 1, tool_call_index)
 
                             tool = next(
-                                t
-                                for t in state.tools
+                                t for t in state.tools
                                 if t.name == tool_call.function.name
                             )
-                            result = tool.run(tool_call.function.arguments)
-                            tool_response = {
-                                "role": "tool",
-                                "tool_call_id": tool_call.id,
-                                "name": tool_call.function.name,
-                                "content": str(result),
-                            }
-                            state.events.append(tool_response)
-                            for hook in state._hooks.on_message_insert_hooks:
-                                hook(len(state.events) - 1, tool_response)
+                            
+                            # Add tool call event
+                            call_id = state.add_tool_call(
+                                tool_name=tool_call.function.name,
+                                arguments=tool_call.function.arguments
+                            )
+                            
+                            try:
+                                result = tool.run(tool_call.function.arguments)
+                                # Add successful tool result
+                                state.add_tool_result(call_id=call_id, result=result)
+                            except Exception as e:
+                                # Add failed tool result
+                                state.add_tool_result(
+                                    call_id=call_id,
+                                    result=None,
+                                    error=str(e),
+                                    success=False
+                                )
+                                raise
 
                             for hook in state._hooks.on_tool_execution_end_hooks:
                                 hook(len(state.events) - 1, tool_call_index)
                         except Exception as e:
                             for hook in state._hooks.on_tool_execution_error_hooks:
                                 hook(len(state.events) - 1, tool_call_index, e)
+                            state.add_error(
+                                error_type="tool_execution_error",
+                                message=str(e),
+                                traceback=traceback.format_exc()
+                            )
                             raise
 
                 # If we've hit max_steps, finish
@@ -456,9 +472,9 @@ class Agent(BaseAgent):
 
                 # Only check completion if we're past min_steps
                 if self.min_steps is None or state.step_count >= self.min_steps:
+                    state.add_system_message(content=self.is_complete_prompt)
                     is_complete = _chat_completion(
-                        state.events
-                        + [{"role": "user", "content": self.is_complete_prompt}],
+                        state.events,
                         client=self.client,
                         output_schema=bool,
                     )
@@ -469,6 +485,11 @@ class Agent(BaseAgent):
                         return self._format_output(state.events, output_schema)
 
         except Exception as e:
+            state.add_error(
+                error_type="run_error",
+                message=str(e),
+                traceback=traceback.format_exc()
+            )
             for hook in state._hooks.on_error_hooks:
                 hook(e)
             raise
