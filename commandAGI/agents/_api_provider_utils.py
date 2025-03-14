@@ -97,33 +97,38 @@ def _generate_response_openai(
     **additional_kwargs,
 ) -> List[AgentEvent]:
     if output_schema:
-        # Use instructor to patch OpenAI client for schema validation
         client = instructor.patch(client)
     
     messages = []
-    for event in inputs:
-        if isinstance(event, AgentResponseEvent):
-            message = {"role": event.role, "content": event.content}
-            if event.name:
-                message["name"] = event.name
-            if event.tool_calls:
-                message["tool_calls"] = event.tool_calls
+    for input in inputs:
+        if isinstance(input, ChatMessage):
+            messages.append({
+                "role": input.type if hasattr(input, "type") else input.__class__.__name__.lower().replace("message", ""),
+                "content": input.content,
+                **({"function_call": input.additional_kwargs["function_call"]} if hasattr(input, "additional_kwargs") and "function_call" in input.additional_kwargs else {})
+            })
+        elif isinstance(input, AgentResponseEvent):
+            message = {"role": input.role, "content": input.content}
+            if input.name:
+                message["name"] = input.name
+            if input.tool_calls:
+                message["tool_calls"] = input.tool_calls
             messages.append(message)
-        elif isinstance(event, SystemInputEvent):
-            messages.append({"role": "system", "content": event.content})
-        elif isinstance(event, UserInputEvent):
-            messages.append({"role": "user", "content": event.content})
-        elif isinstance(event, ToolCallEvent):
+        elif isinstance(input, SystemInputEvent):
+            messages.append({"role": "system", "content": input.content})
+        elif isinstance(input, UserInputEvent):
+            messages.append({"role": "user", "content": input.content})
+        elif isinstance(input, ToolCallEvent):
             last_assistant_idx = next(
                 (i for i in range(len(messages) - 1, -1, -1) if messages[i]["role"] == "assistant"),
                 None,
             )
             tool_call = {
-                "id": event.call_id,
+                "id": input.call_id,
                 "type": "function",
                 "function": {
-                    "name": event.tool_name,
-                    "arguments": json.dumps(event.arguments),
+                    "name": input.tool_name,
+                    "arguments": json.dumps(input.arguments),
                 },
             }
             if last_assistant_idx is not None:
@@ -136,11 +141,11 @@ def _generate_response_openai(
                     "content": "",
                     "tool_calls": [tool_call],
                 })
-        elif isinstance(event, ToolResultEvent):
+        elif isinstance(input, ToolResultEvent):
             messages.append({
                 "role": "tool",
-                "tool_call_id": event.call_id,
-                "content": str(event.result) if event.success else str(event.error),
+                "tool_call_id": input.call_id,
+                "content": str(input.result) if input.success else str(input.error),
             })
 
     if output_schema:
@@ -186,31 +191,38 @@ def _generate_response_anthropic(
     **additional_kwargs,
 ) -> List[AgentEvent]:
     if output_schema:
-        # Use instructor to patch Anthropic client for schema validation
         client = instructor.from_anthropic(create=client)
     
     messages = []
-    for event in inputs:
-        if isinstance(event, AgentResponseEvent):
-            message = {"role": event.role, "content": event.content}
-            if event.name:
-                message["name"] = event.name
-            if event.tool_calls:
-                message["tool_calls"] = event.tool_calls
+    for input in inputs:
+        if isinstance(input, ChatMessage):
+            messages.append({
+                "role": input.type if hasattr(input, "type") else input.__class__.__name__.lower().replace("message", ""),
+                "content": input.content,
+                **({"tool_calls": [{"tool": fc["name"], "tool_call_id": str(uuid.uuid4()), "parameters": json.loads(fc["arguments"])}] 
+                   for fc in [input.additional_kwargs["function_call"]] if hasattr(input, "additional_kwargs") and "function_call" in input.additional_kwargs}
+                )
+            })
+        elif isinstance(input, AgentResponseEvent):
+            message = {"role": input.role, "content": input.content}
+            if input.name:
+                message["name"] = input.name
+            if input.tool_calls:
+                message["tool_calls"] = [{"tool": tc["function"]["name"], "tool_call_id": tc["id"], "parameters": json.loads(tc["function"]["arguments"])} for tc in input.tool_calls]
             messages.append(message)
-        elif isinstance(event, SystemInputEvent):
-            messages.append({"role": "system", "content": event.content})
-        elif isinstance(event, UserInputEvent):
-            messages.append({"role": "user", "content": event.content})
-        elif isinstance(event, ToolCallEvent):
+        elif isinstance(input, SystemInputEvent):
+            messages.append({"role": "system", "content": input.content})
+        elif isinstance(input, UserInputEvent):
+            messages.append({"role": "user", "content": input.content})
+        elif isinstance(input, ToolCallEvent):
             last_assistant_idx = next(
                 (i for i in range(len(messages) - 1, -1, -1) if messages[i]["role"] == "assistant"),
                 None,
             )
             tool_call = {
-                "tool": event.tool_name,
-                "tool_call_id": event.call_id,
-                "parameters": event.arguments,
+                "tool": input.tool_name,
+                "tool_call_id": input.call_id,
+                "parameters": input.arguments,
             }
             if last_assistant_idx is not None:
                 if "tool_calls" not in messages[last_assistant_idx]:
@@ -222,11 +234,11 @@ def _generate_response_anthropic(
                     "content": "",
                     "tool_calls": [tool_call],
                 })
-        elif isinstance(event, ToolResultEvent):
+        elif isinstance(input, ToolResultEvent):
             messages.append({
                 "role": "tool",
-                "tool_call_id": event.call_id,
-                "content": str(event.result) if event.success else str(event.error),
+                "tool_call_id": input.call_id,
+                "content": str(input.result) if input.success else str(input.error),
             })
 
     if output_schema:
@@ -271,22 +283,38 @@ def _generate_response_gemini(
     **additional_kwargs,
 ) -> List[AgentEvent]:
     messages = []
-    for event in inputs:
-        if isinstance(event, AgentResponseEvent):
-            message = {"role": event.role, "content": event.content}
-            if event.name:
-                message["name"] = event.name
-            if event.tool_calls:
-                message["tool_calls"] = event.tool_calls
+    for input in inputs:
+        if isinstance(input, ChatMessage):
+            message = {"role": input.type if hasattr(input, "type") else input.__class__.__name__.lower().replace("message", ""),
+                      "content": input.content}
+            if hasattr(input, "additional_kwargs") and "function_call" in input.additional_kwargs:
+                message["tool_calls"] = [{
+                    "function_call": {
+                        "name": input.additional_kwargs["function_call"]["name"],
+                        "args": json.loads(input.additional_kwargs["function_call"]["arguments"])
+                    }
+                }]
             messages.append(message)
-        elif isinstance(event, SystemInputEvent):
-            messages.append({"role": "system", "content": event.content})
-        elif isinstance(event, UserInputEvent):
-            messages.append({"role": "user", "content": event.content})
-        elif isinstance(event, ToolCallEvent):
+        elif isinstance(input, AgentResponseEvent):
+            message = {"role": input.role, "content": input.content}
+            if input.name:
+                message["name"] = input.name
+            if input.tool_calls:
+                message["tool_calls"] = [{
+                    "function_call": {
+                        "name": tc["function"]["name"],
+                        "args": json.loads(tc["function"]["arguments"])
+                    }
+                } for tc in input.tool_calls]
+            messages.append(message)
+        elif isinstance(input, SystemInputEvent):
+            messages.append({"role": "system", "content": input.content})
+        elif isinstance(input, UserInputEvent):
+            messages.append({"role": "user", "content": input.content})
+        elif isinstance(input, ToolCallEvent):
             # Gemini handles tool calls differently - they are processed in the client
             pass
-        elif isinstance(event, ToolResultEvent):
+        elif isinstance(input, ToolResultEvent):
             # Gemini handles tool results differently - they are processed in the client
             pass
 
@@ -336,41 +364,40 @@ def _generate_response_langchain(
     **additional_kwargs,
 ) -> List[AgentEvent]:
     if output_schema:
-        # Use instructor to patch LangChain client for schema validation
         client = instructor.patch(client)
     
     lc_messages = []
-    for event in inputs:
-        if isinstance(event, SystemInputEvent):
-            lc_messages.append(SystemMessage(content=event.content))
-        elif isinstance(event, UserInputEvent):
-            lc_messages.append(HumanMessage(content=event.content))
-        elif isinstance(event, AgentResponseEvent):
-            # Convert tool calls to LangChain format if present
-            if event.tool_calls:
+    for input in inputs:
+        if isinstance(input, ChatMessage):
+            lc_messages.append(input)  # Use ChatMessage directly
+        elif isinstance(input, SystemInputEvent):
+            lc_messages.append(SystemMessage(content=input.content))
+        elif isinstance(input, UserInputEvent):
+            lc_messages.append(HumanMessage(content=input.content))
+        elif isinstance(input, AgentResponseEvent):
+            if input.tool_calls:
                 tool_calls_str = "\n".join([
                     f"Tool Call {tc['id']}: {tc['function']['name']}({tc['function']['arguments']})"
-                    for tc in event.tool_calls
+                    for tc in input.tool_calls
                 ])
-                content = f"{event.content}\n\nTool Calls:\n{tool_calls_str}" if event.content else tool_calls_str
+                content = f"{input.content}\n\nTool Calls:\n{tool_calls_str}" if input.content else tool_calls_str
             else:
-                content = event.content
+                content = input.content
             lc_messages.append(AIMessage(content=content))
-        elif isinstance(event, ToolCallEvent):
-            # Add tool calls as AIMessage with additional_kwargs
+        elif isinstance(input, ToolCallEvent):
             lc_messages.append(AIMessage(
                 content="",
                 additional_kwargs={
                     "function_call": {
-                        "name": event.tool_name,
-                        "arguments": json.dumps(event.arguments)
+                        "name": input.tool_name,
+                        "arguments": json.dumps(input.arguments)
                     }
                 }
             ))
-        elif isinstance(event, ToolResultEvent):
+        elif isinstance(input, ToolResultEvent):
             lc_messages.append(ToolMessage(
-                content=str(event.result) if event.success else str(event.error),
-                tool_call_id=event.call_id
+                content=str(input.result) if input.success else str(input.error),
+                tool_call_id=input.call_id
             ))
     
     # Configure tools if provided
