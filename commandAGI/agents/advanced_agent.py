@@ -2,89 +2,20 @@ from email.message import Message
 from typing import AsyncGenerator, Callable, Literal, TypedDict, Union
 
 from pydantic import BaseModel
+from commandAGI._utils.resource_schema import Resource
+from commandAGI._utils.mcp_schema import MCPServerConnection
 from langchain.schema import AnyContent
-
-
+from langchain.core.tools import tool
 from commandAGI.computers.base_computer import BaseComputer
 
 
-class SLOPServer(BaseModel):
-    url: str
 
-
-
-
-class MCPServer(BaseModel):
-    transport: MCPServerTransport
-
-
-class BaseResource(BaseModel):
-    def relevant_text(self, context: Context) -> str:
-        pass
-
-    @property
-    def relevant(self) -> list[AnyContent]:
-        pass
-
-
-class LiteralResource(BaseResource):
-    text: str
-
-
-class ChatResource(BaseResource):
-    messages: list[Message]
-
-
-class FilesystemResource(BaseResource):
-    path: str
-
-
-class WebResource(BaseResource):
-    url: str
-
-
-class DatabaseResource(BaseResource):
-    connection_string: str
-
-
-class MCPResource(BaseResource):
-    mcp_server: MCPServer
-
-
-class SLOPServerResource(BaseResource):
-    slop_server: SLOPServer
-
-
-Resource = Union[
-    LiteralResource,
-    FilesystemResource,
-    WebResource,
-    DatabaseResource,
-    MCPResource,
-    SLOPServerResource,
-]
-
-
-class ToolParam(BaseModel):
-    name: str
-    description: str
-    required: bool
-
-
-class Tool(BaseModel):
-    name: str
-    description: str
-    parameters: list[ToolParam]
 
 
 class Context(BaseModel):
-    resources: list[BaseResource]
+    resources: list[Resource]
     tools: list[Tool]
-    mcp_servers: list[MCPServer]
-    slop_servers: list[SLOPServer]
-
-
-from langchain.core.tools import tool
+    mcp_server_connections: list[MCPServerConnection]
 
 
 class BaseCondition(BaseModel):
