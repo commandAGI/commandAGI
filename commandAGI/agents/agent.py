@@ -19,10 +19,13 @@ from commandAGI.agents.base_agent import (
     AgentResponseEvent,
     UserInputEvent,
 )
-from commandAGI.agents._api_provider_utils import generate_response, _format_tools_for_api_provider
+from commandAGI.agents._api_provider_utils import (
+    generate_response,
+    _format_tools_for_api_provider,
+)
 from langchain.tools import BaseTool
 
-from commandAGI.agents.events import ResourceCalloutEvent
+from commandAGI.agents.events import ErrorEvent, ResourceCalloutEvent, ThoughtEvent, ToolCallEvent, ToolResultEvent
 from commandAGI.computers.base_computer import BaseComputer
 
 
@@ -32,15 +35,15 @@ AgentProviderClient = Union[
 from typing import Protocol
 
 
-class OnStepDraftHook(Protocol):
-    def __call__(self, response: AgentResponseEvent) -> None: ...
-
-
 class RuleState(BaseModel):
     rule: str
     rule_id: str
     status: Literal["indeterminate", "passed", "feedback", "fail"]
     feedback: Optional[str] = None
+
+
+class OnStepDraftHook(Protocol):
+    def __call__(self, response: AgentResponseEvent) -> None: ...
 
 
 class OnRuleCheckHook(Protocol):
@@ -52,7 +55,19 @@ class OnStepHook(Protocol):
 
 
 class OnMessageInsertHook(Protocol):
-    def __call__(self, message_index: int, message: Union[AgentResponseEvent, UserInputEvent, SystemInputEvent, ThoughtEvent, ToolCallEvent, ToolResultEvent, ErrorEvent]) -> None: ...
+    def __call__(
+        self,
+        message_index: int,
+        message: Union[
+            AgentResponseEvent,
+            UserInputEvent,
+            SystemInputEvent,
+            ThoughtEvent,
+            ToolCallEvent,
+            ToolResultEvent,
+            ErrorEvent,
+        ],
+    ) -> None: ...
 
 
 class OnMessageDeleteHook(Protocol):
@@ -215,9 +230,7 @@ class Agent(BaseAgent):
         self.rules = rules
         self.max_retries = max_retries
 
-        self.tools = _format_tools_for_api_provider(
-            tools, client
-        )
+        self.tools = _format_tools_for_api_provider(tools, client)
 
     def _format_output(
         self,
@@ -401,20 +414,28 @@ class Agent(BaseAgent):
             while True:
                 # Process any resource callouts since last agent response
                 last_agent_response_idx = next(
-                    (i for i in range(len(state.events)-1, -1, -1) 
-                    if isinstance(state.events[i], AgentResponseEvent)),
-                    -1
+                    (
+                        i
+                        for i in range(len(state.events) - 1, -1, -1)
+                        if isinstance(state.events[i], AgentResponseEvent)
+                    ),
+                    -1,
                 )
-                
+
                 resource_callouts = [
-                    event for event in state.events[last_agent_response_idx+1:]
+                    event
+                    for event in state.events[last_agent_response_idx + 1 :]
                     if isinstance(event, ResourceCalloutEvent)
                 ]
-                
+
                 for callout in resource_callouts:
                     resource = next(
-                        (r for r in state.resources if r.resource_id == callout.resource_id),
-                        None
+                        (
+                            r
+                            for r in state.resources
+                            if r.resource_id == callout.resource_id
+                        ),
+                        None,
                     )
                     if resource:
                         relevant_items = resource.get_relevant_items(callout.query)
@@ -422,21 +443,23 @@ class Agent(BaseAgent):
                         state.add_resource_retrieval(
                             resource_id=callout.resource_id,
                             query=callout.query,
-                            results=relevant_items
+                            results=relevant_items,
                         )
-                
+
                 # Generate action based on history
                 response = generate_response(
                     state.events, client=self.client, tools=state.tools
                 )
-                
+
                 # Add the response as an agent response event
                 state.add_agent_response(
-                    role="assistant", 
+                    role="assistant",
                     content=response.content,
-                    tool_calls=response.tool_calls if hasattr(response, 'tool_calls') else None
+                    tool_calls=(
+                        response.tool_calls if hasattr(response, "tool_calls") else None
+                    ),
                 )
-                
+
                 for hook in state._hooks.on_step_draft_hooks:
                     hook(response)
 
@@ -456,16 +479,17 @@ class Agent(BaseAgent):
                                 hook(len(state.events) - 1, tool_call_index)
 
                             tool = next(
-                                t for t in state.tools
+                                t
+                                for t in state.tools
                                 if t.name == tool_call.function.name
                             )
-                            
+
                             # Add tool call event
                             call_id = state.add_tool_call(
                                 tool_name=tool_call.function.name,
-                                arguments=tool_call.function.arguments
+                                arguments=tool_call.function.arguments,
                             )
-                            
+
                             try:
                                 result = tool.run(tool_call.function.arguments)
                                 # Add successful tool result
@@ -476,7 +500,7 @@ class Agent(BaseAgent):
                                     call_id=call_id,
                                     result=None,
                                     error=str(e),
-                                    success=False
+                                    success=False,
                                 )
                                 raise
 
@@ -488,7 +512,7 @@ class Agent(BaseAgent):
                             state.add_error(
                                 error_type="tool_execution_error",
                                 message=str(e),
-                                traceback=traceback.format_exc()
+                                traceback=traceback.format_exc(),
                             )
                             raise
 
@@ -514,9 +538,7 @@ class Agent(BaseAgent):
 
         except Exception as e:
             state.add_error(
-                error_type="run_error",
-                message=str(e),
-                traceback=traceback.format_exc()
+                error_type="run_error", message=str(e), traceback=traceback.format_exc()
             )
             for hook in state._hooks.on_error_hooks:
                 hook(e)
