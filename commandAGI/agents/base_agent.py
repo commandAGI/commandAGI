@@ -27,7 +27,8 @@ class ComputerUseAgent(BaseModel):
     config info for conecting to mcp servers
     """
 
-    def run(
+    @abstractmethod
+    async def run(
         self, prompt: str, *, output_schema: Optional[type[TSchema]] = None
     ) -> TSchema | None:
         pass

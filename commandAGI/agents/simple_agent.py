@@ -2,7 +2,7 @@ from abc import abstractmethod
 import asyncio
 from contextlib import contextmanager
 from enum import Enum
-from typing import AsyncGenerator, Optional, TypeVar, Union
+from typing import AsyncGenerator, Optional, TypeVar, Union, List
 from pydantic import BaseModel
 from commandAGI._utils.mcp_schema import MCPServerTransport, mcp_server_connections
 from commandAGI.agents.base_agent import ComputerUseAgent, TSchema
@@ -16,6 +16,14 @@ from commandAGI.computers.base_computer import BaseComputer
 AgentProviderClient = Union[
     CommandAGIClient, OpenAIClient, AnthropicClient, ScrappybaraClient, GeminiClient
 ]
+
+
+class SimpleAgentRunState(BaseModel):
+    """Schema for managing state during agent run."""
+    step_count: int = 0
+    history: List[dict] = []
+    mcp_server_connections: List[MCPServerTransport] = []
+    tools: List[BaseTool] = []
 
 
 class SimpleComputerUseAgent(ComputerUseAgent):
@@ -220,40 +228,41 @@ class SimpleComputerUseAgent(ComputerUseAgent):
         # If we hit max retries, clean up and raise error
         raise ValueError("Max retries exceeded while trying to enforce rules")
 
-    def run(
+    async def run(
         self, prompt: str, *, output_schema: Optional[type[TSchema]] = None
     ) -> TSchema | None:
         with mcp_server_connections(self.mcp_servers) as mcp_server_connections:
-
-            tools = self.tools + [
-                *[
-                    mcp_server_connection.get_tool()
-                    for mcp_server_connection in mcp_server_connections
+            state = SimpleAgentRunState(
+                step_count=0,
+                history=[{"role": "user", "content": prompt}],
+                mcp_server_connections=mcp_server_connections,
+                tools=self.tools + [
+                    *[
+                        mcp_server_connection.get_tool()
+                        for mcp_server_connection in mcp_server_connections
+                    ]
                 ]
-            ]
-
-            history = [{"role": "user", "content": prompt}]
-            step_count = 0
+            )
 
             while True:
                 # Generate action based on history
-                response = _chat_completion(history, client=self.client, tools=tools)
-                history.append(response)
+                response = _chat_completion(state.history, client=self.client, tools=state.tools)
+                state.history.append(response)
 
                 # Enforce rules before executing tool calls
                 if self.rules:
-                    await self._enforce_rules(history)
+                    await self._enforce_rules(state.history)
 
-                step_count += 1
+                state.step_count += 1
 
                 # Execute any tool calls
                 if response.tool_calls:
                     for tool_call in response.tool_calls:
                         tool = next(
-                            t for t in self.tools if t.name == tool_call.function.name
+                            t for t in state.tools if t.name == tool_call.function.name
                         )
                         result = tool.run(tool_call.function.arguments)
-                        history.append(
+                        state.history.append(
                             {
                                 "role": "tool",
                                 "tool_call_id": tool_call.id,
@@ -263,20 +272,20 @@ class SimpleComputerUseAgent(ComputerUseAgent):
                         )
 
                 # If we've hit max_steps, finish
-                if self.max_steps is not None and step_count >= self.max_steps:
-                    return self._format_output(history, output_schema)
+                if self.max_steps is not None and state.step_count >= self.max_steps:
+                    return self._format_output(state.history, output_schema)
 
                 # Only check completion if we're past min_steps
-                if self.min_steps is None or step_count >= self.min_steps:
+                if self.min_steps is None or state.step_count >= self.min_steps:
                     is_complete = _chat_completion(
-                        history
+                        state.history
                         + [{"role": "user", "content": self.is_complete_prompt}],
                         client=self.client,
                         output_schema=bool,
                     )
 
                     if is_complete:
-                        return self._format_output(history, output_schema)
+                        return self._format_output(state.history, output_schema)
 
 
 def _replace_computer_tools_with_agent_provider_specific_tools(
