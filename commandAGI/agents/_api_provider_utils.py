@@ -15,7 +15,7 @@ from commandAGI.agents.events import (
 )
 from langchain_core.tools import BaseTool
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage, ChatMessage
 
 from openai import Client as OpenAIClient
 from anthropic import Anthropic as AnthropicClient
@@ -75,14 +75,14 @@ def _format_tools_for_api_provider(
 
 def _generate_response_commandagi(
     client: CommandAGIClient,
-    events: list[AgentEvent],
+    inputs: list[Union[ChatMessage, AgentEvent]],
     tools: Optional[list[BaseTool]] = None,
     output_schema: Optional[type[TSchema]] = None,
     **additional_kwargs,
 ) -> List[AgentEvent]:
     return client.chat.completions.create(
         model="gpt-4o-mini",
-        events=events,
+        events=inputs,
         tools=tools,
         output_schema=output_schema,
         **additional_kwargs,
@@ -91,7 +91,7 @@ def _generate_response_commandagi(
 
 def _generate_response_openai(
     client: OpenAIClient,
-    events: list[AgentEvent],
+    inputs: list[Union[ChatMessage, AgentEvent]],
     tools: Optional[list[BaseTool]] = None,
     output_schema: Optional[type[TSchema]] = None,
     **additional_kwargs,
@@ -101,7 +101,7 @@ def _generate_response_openai(
         client = instructor.patch(client)
     
     messages = []
-    for event in events:
+    for event in inputs:
         if isinstance(event, AgentResponseEvent):
             message = {"role": event.role, "content": event.content}
             if event.name:
@@ -180,7 +180,7 @@ def _generate_response_openai(
 
 def _generate_response_anthropic(
     client: AnthropicClient,
-    events: list[AgentEvent],
+    inputs: list[Union[ChatMessage, AgentEvent]],
     tools: Optional[list[BaseTool]] = None,
     output_schema: Optional[type[TSchema]] = None,
     **additional_kwargs,
@@ -190,7 +190,7 @@ def _generate_response_anthropic(
         client = instructor.from_anthropic(create=client)
     
     messages = []
-    for event in events:
+    for event in inputs:
         if isinstance(event, AgentResponseEvent):
             message = {"role": event.role, "content": event.content}
             if event.name:
@@ -265,13 +265,13 @@ def _generate_response_anthropic(
 
 def _generate_response_gemini(
     client: GeminiClient,
-    events: list[AgentEvent],
+    inputs: list[Union[ChatMessage, AgentEvent]],
     tools: Optional[list[BaseTool]] = None,
     output_schema: Optional[type[TSchema]] = None,
     **additional_kwargs,
 ) -> List[AgentEvent]:
     messages = []
-    for event in events:
+    for event in inputs:
         if isinstance(event, AgentResponseEvent):
             message = {"role": event.role, "content": event.content}
             if event.name:
@@ -330,7 +330,7 @@ def _generate_response_gemini(
 
 def _generate_response_langchain(
     client: BaseChatModel,
-    events: list[AgentEvent],
+    inputs: list[Union[ChatMessage, AgentEvent]],
     tools: Optional[list[BaseTool]] = None,
     output_schema: Optional[type[TSchema]] = None,
     **additional_kwargs,
@@ -340,7 +340,7 @@ def _generate_response_langchain(
         client = instructor.patch(client)
     
     lc_messages = []
-    for event in events:
+    for event in inputs:
         if isinstance(event, SystemInputEvent):
             lc_messages.append(SystemMessage(content=event.content))
         elif isinstance(event, UserInputEvent):
@@ -413,7 +413,7 @@ def _generate_response_langchain(
 
 
 def generate_response(
-    events: list[AgentEvent],
+    inputs: list[Union[ChatMessage, AgentEvent]],
     /,
     client: AIClient,
     output_schema: Optional[type[TSchema]] = None,
@@ -426,14 +426,14 @@ def generate_response(
     
     match provider_type:
         case AIClientType.COMMANDAGI:
-            return _generate_response_commandagi(client, events, tools, output_schema, **additional_kwargs)
+            return _generate_response_commandagi(client, inputs, tools, output_schema, **additional_kwargs)
         case AIClientType.OPENAI:
-            return _generate_response_openai(client, events, tools, output_schema, **additional_kwargs)
+            return _generate_response_openai(client, inputs, tools, output_schema, **additional_kwargs)
         case AIClientType.ANTHROPIC:
-            return _generate_response_anthropic(client, events, tools, output_schema, **additional_kwargs)
+            return _generate_response_anthropic(client, inputs, tools, output_schema, **additional_kwargs)
         case AIClientType.GEMINI:
-            return _generate_response_gemini(client, events, tools, output_schema, **additional_kwargs)
+            return _generate_response_gemini(client, inputs, tools, output_schema, **additional_kwargs)
         case AIClientType.LANGCHAIN:
-            return _generate_response_langchain(client, events, tools, output_schema, **additional_kwargs)
+            return _generate_response_langchain(client, inputs, tools, output_schema, **additional_kwargs)
         case _:
             raise ValueError(f"Unsupported client type: {type(client)}")
