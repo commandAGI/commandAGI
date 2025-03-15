@@ -117,6 +117,7 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
     # For letter keys and number keys, use the value directly
     return pyautogui_key_mapping.get(key, key.value)
 
+
 class LocalPyAutoGUIComputer(LocalComputer):
     def __init__(self):
         super().__init__()
@@ -137,27 +138,27 @@ class LocalPyAutoGUIComputer(LocalComputer):
     def _get_mouse_button_states(self) -> dict[str, bool]:
         """Return states of mouse buttons."""
         self.logger.debug("PyAutoGUI does not support getting mouse button states")
-        raise NotImplementedError("PyAutoGUI does not support getting mouse button states")
+        raise NotImplementedError(
+            "PyAutoGUI does not support getting mouse button states"
+        )
 
     def _get_keyboard_key_states(self) -> dict[str, bool]:
         """Return states of keyboard keys."""
-        self.logger.debug("PyAutoGUI does not support getting keyboard key states") 
-        raise NotImplementedError("PyAutoGUI does not support getting keyboard key states")
+        self.logger.debug("PyAutoGUI does not support getting keyboard key states")
+        raise NotImplementedError(
+            "PyAutoGUI does not support getting keyboard key states"
+        )
 
     def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
         pyautogui_key = keyboard_key_to_pyautogui(key)
-        self.logger.debug(
-            f"Pressing key down: {key} (PyAutoGUI key: {pyautogui_key})"
-        )
+        self.logger.debug(f"Pressing key down: {key} (PyAutoGUI key: {pyautogui_key})")
         pyautogui.keyDown(pyautogui_key)
 
     def _execute_keyboard_key_release(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
         pyautogui_key = keyboard_key_to_pyautogui(key)
-        self.logger.debug(
-            f"Releasing key: {key} (PyAutoGUI key: {pyautogui_key})"
-        )
+        self.logger.debug(f"Releasing key: {key} (PyAutoGUI key: {pyautogui_key})")
         pyautogui.keyUp(pyautogui_key)
 
     def _execute_type(self, text: str):
@@ -167,9 +168,7 @@ class LocalPyAutoGUIComputer(LocalComputer):
 
     def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
         """Move mouse to specified coordinates using PyAutoGUI."""
-        self.logger.debug(
-            f"Moving mouse to: ({x}, {y}) with duration {move_duration}"
-        )
+        self.logger.debug(f"Moving mouse to: ({x}, {y}) with duration {move_duration}")
         pyautogui.moveTo(x, y, duration=move_duration)
 
     def _execute_mouse_scroll(self, amount: float):

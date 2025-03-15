@@ -45,6 +45,7 @@ class Platform(str, Enum):
     LINUX = "linux"
     UNKNOWN = "unknown"
 
+
 class MouseButton(str, Enum):
     LEFT = "left"
     RIGHT = "right"

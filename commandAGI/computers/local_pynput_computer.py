@@ -307,6 +307,7 @@ class LocalPynputComputer(LocalComputer):
         """Callback for mouse scroll events."""
         self.logger.debug(f"Mouse scroll detected: ({x}, {y}), dx={dx}, dy={dy}")
         # We don't track scroll state, just position
+
     def _get_mouse_position(self) -> tuple[int, int]:
         """Return current mouse position."""
         self.logger.debug(f"Getting mouse position: {self._mouse_pos}")
@@ -383,13 +384,17 @@ class LocalPynputComputer(LocalComputer):
     def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using pynput."""
         pynput_button = mouse_button_to_pynput(button)
-        self.logger.debug(f"Pressing mouse button down: {button} (Pynput button: {pynput_button})")
+        self.logger.debug(
+            f"Pressing mouse button down: {button} (Pynput button: {pynput_button})"
+        )
         self._mouse_controller.press(pynput_button)
 
     def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using pynput."""
         pynput_button = mouse_button_to_pynput(button)
-        self.logger.debug(f"Releasing mouse button: {button} (Pynput button: {pynput_button})")
+        self.logger.debug(
+            f"Releasing mouse button: {button} (Pynput button: {pynput_button})"
+        )
         self._mouse_controller.release(pynput_button)
 
     def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):

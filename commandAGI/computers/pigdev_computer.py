@@ -225,7 +225,9 @@ class PigDevComputer(BaseComputer):
         """Return states of keyboard keys."""
         raise NotImplementedError("PigDev does not support getting keyboard key states")
 
-    def _execute_shell_command(self, command: str, timeout: float | None = None, executable: str | None = None):
+    def _execute_shell_command(
+        self, command: str, timeout: float | None = None, executable: str | None = None
+    ):
         """Execute a system command in the PigDev VM."""
         raise NotImplementedError("PigDev does not support direct command execution")
 
@@ -284,7 +286,9 @@ class PigDevComputer(BaseComputer):
     def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using PigDev."""
         pigdev_button = mouse_button_to_pigdev(button)
-        self.logger.debug(f"Pressing mouse button down: {button} (PigDev button: {pigdev_button})")
+        self.logger.debug(
+            f"Pressing mouse button down: {button} (PigDev button: {pigdev_button})"
+        )
 
         # Use the existing connection
         self.connection.mouse_down(pigdev_button)
@@ -292,12 +296,21 @@ class PigDevComputer(BaseComputer):
     def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using PigDev."""
         pigdev_button = mouse_button_to_pigdev(button)
-        self.logger.debug(f"Releasing mouse button: {button} (PigDev button: {pigdev_button})")
+        self.logger.debug(
+            f"Releasing mouse button: {button} (PigDev button: {pigdev_button})"
+        )
 
         # Use the existing connection
         self.connection.mouse_up(pigdev_button)
 
-    def _execute_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT):
+    def _execute_click(
+        self,
+        x: int,
+        y: int,
+        move_duration: float = 0.5,
+        press_duration: float = 0.1,
+        button: MouseButton = MouseButton.LEFT,
+    ):
         """Execute a click action at the given coordinates using PigDev's click method."""
         self.logger.debug(f"Clicking at: ({x}, {y}) with button: {button}")
         # Use the existing connection
@@ -309,7 +322,15 @@ class PigDevComputer(BaseComputer):
         else:
             self.connection.right_click()
 
-    def _execute_double_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT, double_click_interval_seconds: float = 0.1):
+    def _execute_double_click(
+        self,
+        x: int,
+        y: int,
+        move_duration: float = 0.5,
+        press_duration: float = 0.1,
+        button: MouseButton = MouseButton.LEFT,
+        double_click_interval_seconds: float = 0.1,
+    ):
         """Execute a double click action at the given coordinates using PigDev's double_click method."""
         self.logger.debug(f"Double-clicking at: ({x}, {y})")
         # Use the existing connection
@@ -318,9 +339,19 @@ class PigDevComputer(BaseComputer):
         # Then double click (PigDev only supports left double click)
         self.connection.double_click()
 
-    def _execute_drag(self, start_x: int, start_y: int, end_x: int, end_y: int, move_duration: float = 0.5, button: MouseButton = MouseButton.LEFT):
+    def _execute_drag(
+        self,
+        start_x: int,
+        start_y: int,
+        end_x: int,
+        end_y: int,
+        move_duration: float = 0.5,
+        button: MouseButton = MouseButton.LEFT,
+    ):
         """Execute a drag action using PigDev's left_click_drag method."""
-        self.logger.debug(f"Dragging from: ({start_x}, {start_y}) to: ({end_x}, {end_y})")
+        self.logger.debug(
+            f"Dragging from: ({start_x}, {start_y}) to: ({end_x}, {end_y})"
+        )
         # Use the existing connection
         # First move to the start position
         self.connection.mouse_move(x=start_x, y=start_y)
@@ -404,7 +435,14 @@ class PigDevComputer(BaseComputer):
             self.logger.error(f"Error getting PigDev video stream URL: {e}")
             return ""
 
-    def _run_process(self, command: str, args: List[str] = [], cwd: Optional[str] = None, env: Optional[dict] = None, timeout: Optional[float] = None) -> bool:
+    def _run_process(
+        self,
+        command: str,
+        args: List[str] = [],
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None,
+    ) -> bool:
         """Run a process with the specified parameters.
 
         This method attempts to use the PigDev API to run a process, but falls back
@@ -422,7 +460,9 @@ class PigDevComputer(BaseComputer):
             bool: True if the process was executed successfully
         """
         self.logger.info(f"Running process via PigDev: {command} with args: {args}")
-        return self._default_run_process(command=command, args=args, cwd=cwd, env=env, timeout=timeout)
+        return self._default_run_process(
+            command=command, args=args, cwd=cwd, env=env, timeout=timeout
+        )
 
     def _open(
         self,

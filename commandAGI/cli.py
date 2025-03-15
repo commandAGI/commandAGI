@@ -95,8 +95,7 @@ class ComputerType(str, Enum):
 
 
 class AgentType(str, Enum):
-    NAIVE = "naive"
-    REACT = "react"
+    SIMPLE = "simple"
 
 
 class ProvisionerType(str, Enum):

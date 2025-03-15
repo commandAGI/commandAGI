@@ -1226,9 +1226,15 @@ class LocalComputer(BaseComputer):
         except Exception as e:
             self.logger.error(f"Error getting Linux layout tree: {e}")
             return LayoutTreeObservation(tree={"error": str(e)})
-    def _execute_shell_command(self, command: str, timeout: Optional[float] = None, executable: Optional[str] = None):
+
+    def _execute_shell_command(
+        self,
+        command: str,
+        timeout: Optional[float] = None,
+        executable: Optional[str] = None,
+    ):
         """Execute a system command using subprocess.
-        
+
         Args:
             command: The shell command to execute
             timeout: Optional timeout in seconds. Defaults to 10 if not specified
@@ -1241,7 +1247,7 @@ class LocalComputer(BaseComputer):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=timeout if timeout is not None else 10,
-            executable=executable
+            executable=executable,
         )
         if result.returncode == 0:
             self.logger.info("Command executed successfully")
@@ -1253,8 +1259,14 @@ class LocalComputer(BaseComputer):
                 f"Command returned non-zero exit code: {result.returncode}"
             )
 
-    def _run_process(self, command: str, args: List[str] = [], cwd: Optional[str] = None, 
-                    env: Optional[dict] = None, timeout: Optional[float] = None) -> bool:
+    def _run_process(
+        self,
+        command: str,
+        args: List[str] = [],
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None,
+    ) -> bool:
         """Run a process with the specified parameters.
 
         Args:
@@ -1263,13 +1275,11 @@ class LocalComputer(BaseComputer):
             cwd: Working directory for the process
             env: Environment variables to set
             timeout: Timeout in seconds
-            
+
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(
-            f"Running process: {command} with args: {args}"
-        )
+        self.logger.info(f"Running process: {command} with args: {args}")
 
         # Prepare environment variables
         process_env = os.environ.copy()
@@ -1454,43 +1464,45 @@ class LocalComputer(BaseComputer):
         else:
             self.logger.error("Failed to start shell")
             raise RuntimeError("Failed to start shell")
+
     def _get_sysinfo(self) -> SystemInfo:
         """Get local system information using psutil."""
         try:
             import psutil
             import platform
             import socket
-            
+
             # Get CPU usage
             cpu_usage = psutil.cpu_percent(interval=1)
-            
+
             # Get memory usage
             memory = psutil.virtual_memory()
             memory_usage = memory.percent
-            
+
             # Get disk usage
-            disk = psutil.disk_usage('/')
+            disk = psutil.disk_usage("/")
             disk_usage = disk.percent
-            
+
             # Get uptime
             uptime = time.time() - psutil.boot_time()
-            
+
             # Get hostname and IP
             hostname = socket.gethostname()
             ip_address = socket.gethostbyname(hostname)
-            
+
             # Get current user
             try:
                 import getpass
+
                 user = getpass.getuser()
             except:
                 user = "unknown"
-            
+
             # Get OS info
             os_name = platform.system()
             os_version = platform.version()
             architecture = platform.machine()
-            
+
             return SystemInfo(
                 cpu_usage=cpu_usage,
                 memory_usage=memory_usage,
@@ -1501,9 +1513,9 @@ class LocalComputer(BaseComputer):
                 user=user,
                 os=os_name,
                 version=os_version,
-                architecture=architecture
+                architecture=architecture,
             )
-            
+
         except ImportError:
             self.logger.warning("psutil not available - limited system info available")
             return SystemInfo(
@@ -1516,7 +1528,7 @@ class LocalComputer(BaseComputer):
                 user="unknown",
                 os=platform.system(),
                 version=platform.version(),
-                architecture=platform.machine()
+                architecture=platform.machine(),
             )
 
     def _find_free_port(self) -> int:

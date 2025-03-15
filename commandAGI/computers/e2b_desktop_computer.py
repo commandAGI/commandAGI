@@ -162,6 +162,7 @@ class E2BDesktopComputer(BaseComputer):
         else:
             self.logger.debug("Desktop not initialized, starting it")
             self._start()
+
     def _get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
     ) -> Union[str, Image.Image, Path]:
@@ -197,12 +198,16 @@ class E2BDesktopComputer(BaseComputer):
     def _get_mouse_button_states(self) -> dict[str, bool]:
         """Return states of mouse buttons."""
         self.logger.debug("E2B Desktop does not support getting mouse button states")
-        raise NotImplementedError("E2B Desktop does not support getting mouse button states")
+        raise NotImplementedError(
+            "E2B Desktop does not support getting mouse button states"
+        )
 
     def _get_keyboard_key_states(self) -> dict[str, bool]:
         """Return states of keyboard keys."""
         self.logger.debug("E2B Desktop does not support getting keyboard key states")
-        raise NotImplementedError("E2B Desktop does not support getting keyboard key states")
+        raise NotImplementedError(
+            "E2B Desktop does not support getting keyboard key states"
+        )
 
     def _execute_shell_command(self, command: str):
         """Execute a system command in the E2B Desktop VM."""
@@ -245,7 +250,14 @@ class E2BDesktopComputer(BaseComputer):
         e2b_button = mouse_button_to_e2b(button)
         self.desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")
 
-    def _execute_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT):
+    def _execute_click(
+        self,
+        x: int,
+        y: int,
+        move_duration: float = 0.5,
+        press_duration: float = 0.1,
+        button: MouseButton = MouseButton.LEFT,
+    ):
         """Execute a click action using E2B Desktop's click methods."""
         # Move to position first
         self.desktop.mouse_move(x, y)
@@ -259,7 +271,15 @@ class E2BDesktopComputer(BaseComputer):
         elif e2b_button == "middle":
             self.desktop.middle_click()
 
-    def _execute_double_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT, double_click_interval_seconds: float = 0.1):
+    def _execute_double_click(
+        self,
+        x: int,
+        y: int,
+        move_duration: float = 0.5,
+        press_duration: float = 0.1,
+        button: MouseButton = MouseButton.LEFT,
+        double_click_interval_seconds: float = 0.1,
+    ):
         """Execute a double click action using E2B Desktop's double_click method."""
         # Move to position first
         self.desktop.mouse_move(x, y)
@@ -360,13 +380,14 @@ class E2BDesktopComputer(BaseComputer):
             str: The URL for the video stream, or an empty string if video streaming is not available.
         """
         return self.get_video_stream_url()
+
     def _run_process(
         self,
         command: str,
         args: List[str] = None,
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> bool:
         """Run a process with the specified parameters.
 
@@ -383,15 +404,9 @@ class E2BDesktopComputer(BaseComputer):
             bool: True if the process was executed successfully
         """
         args = args or []
-        self.logger.info(
-            f"Running process in E2B Desktop: {command} with args: {args}"
-        )
+        self.logger.info(f"Running process in E2B Desktop: {command} with args: {args}")
         return self._default_run_process(
-            command=command,
-            args=args,
-            cwd=cwd,
-            env=env,
-            timeout=timeout
+            command=command, args=args, cwd=cwd, env=env, timeout=timeout
         )
 
     def _open(

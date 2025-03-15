@@ -189,14 +189,20 @@ class ScrapybaraComputer(BaseComputer):
     def _get_mouse_button_states(self) -> dict[str, bool]:
         """Return states of mouse buttons."""
         self.logger.debug("Scrapybara does not support getting mouse button states")
-        raise NotImplementedError("Scrapybara does not support getting mouse button states")
+        raise NotImplementedError(
+            "Scrapybara does not support getting mouse button states"
+        )
 
     def _get_keyboard_key_states(self) -> dict[str, bool]:
         """Return states of keyboard keys."""
         self.logger.debug("Scrapybara does not support getting keyboard key states")
-        raise NotImplementedError("Scrapybara does not support getting keyboard key states")
+        raise NotImplementedError(
+            "Scrapybara does not support getting keyboard key states"
+        )
 
-    def _execute_shell_command(self, command: str, timeout: float | None = None, executable: str | None = None):
+    def _execute_shell_command(
+        self, command: str, timeout: float | None = None, executable: str | None = None
+    ):
         """Execute a system command in the Scrapybara VM."""
         # Use bash command for Ubuntu instances
         response = self.client.bash(command=command)
@@ -245,7 +251,14 @@ class ScrapybaraComputer(BaseComputer):
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError("Scrapybara does not support mouse button up actions")
 
-    def _execute_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT):
+    def _execute_click(
+        self,
+        x: int,
+        y: int,
+        move_duration: float = 0.5,
+        press_duration: float = 0.1,
+        button: MouseButton = MouseButton.LEFT,
+    ):
         """Execute a click action at the given coordinates using Scrapybara's click action."""
         # Scrapybara has a direct click action
         # First move to the position
@@ -267,23 +280,35 @@ class ScrapybaraComputer(BaseComputer):
         hotkey = "+".join([keyboard_key_to_scrapybara(key) for key in keys])
         self.client.computer(action="key", text=hotkey)
 
-    def _execute_double_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT, double_click_interval_seconds: float = 0.1):
+    def _execute_double_click(
+        self,
+        x: int,
+        y: int,
+        move_duration: float = 0.5,
+        press_duration: float = 0.1,
+        button: MouseButton = MouseButton.LEFT,
+        double_click_interval_seconds: float = 0.1,
+    ):
         """Execute a double click action at the given coordinates using Scrapybara's double click action."""
         # Move to position first
         self.client.computer(action="mouse_move", coordinate=[x, y])
         # Then double click
         self.client.computer(action="double_click")
 
-    def _execute_drag(self, start_x: int, start_y: int, end_x: int, end_y: int, move_duration: float = 0.5, button: MouseButton = MouseButton.LEFT):
+    def _execute_drag(
+        self,
+        start_x: int,
+        start_y: int,
+        end_x: int,
+        end_y: int,
+        move_duration: float = 0.5,
+        button: MouseButton = MouseButton.LEFT,
+    ):
         """Execute a drag action using Scrapybara's left_click_drag method."""
         # Move to the start position first
-        self.client.computer(
-            action="mouse_move", coordinate=[start_x, start_y]
-        )
+        self.client.computer(action="mouse_move", coordinate=[start_x, start_y])
         # Then perform the drag to the end position
-        self.client.computer(
-            action="left_click_drag", coordinate=[end_x, end_y]
-        )
+        self.client.computer(action="left_click_drag", coordinate=[end_x, end_y])
 
     def _pause(self):
         """Implementation of pause functionality for Scrapybara."""
@@ -365,7 +390,14 @@ class ScrapybaraComputer(BaseComputer):
             self.logger.error(f"Error stopping Scrapybara video stream: {e}")
             return False
 
-    def _run_process(self, command: str, args: List[str] = [], cwd: Optional[str] = None, env: Optional[dict] = None, timeout: Optional[float] = None) -> bool:
+    def _run_process(
+        self,
+        command: str,
+        args: List[str] = [],
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None,
+    ) -> bool:
         """Run a process with the specified parameters.
 
         This method uses the Scrapybara API to run a process in the VM.
@@ -380,10 +412,10 @@ class ScrapybaraComputer(BaseComputer):
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(
-            f"Running process via Scrapybara: {command} with args: {args}"
+        self.logger.info(f"Running process via Scrapybara: {command} with args: {args}")
+        return self._default_run_process(
+            command=command, args=args, cwd=cwd, env=env, timeout=timeout
         )
-        return self._default_run_process(command=command, args=args, cwd=cwd, env=env, timeout=timeout)
 
     def _open(
         self,
@@ -436,7 +468,12 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
             # Start an Ubuntu instance
             self.client = client.start_ubuntu()
 
-    def _execute_shell_command(self, command: str, timeout: Optional[float] = None, executable: Optional[str] = None):
+    def _execute_shell_command(
+        self,
+        command: str,
+        timeout: Optional[float] = None,
+        executable: Optional[str] = None,
+    ):
         """Execute a bash command in the Ubuntu instance."""
         response = self.client.bash(command=command)
 
@@ -504,7 +541,12 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
         """
         self.client.authenticate(auth_state_id=auth_state_id)
 
-    def _execute_shell_command(self, command: str, timeout: Optional[float] = None, executable: Optional[str] = None):
+    def _execute_shell_command(
+        self,
+        command: str,
+        timeout: Optional[float] = None,
+        executable: Optional[str] = None,
+    ):
         """Execute a command in the browser instance.
 
         Note: Browser instances don't support bash commands directly.
@@ -534,7 +576,12 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
             # Start a Windows instance
             self.client = client.start_windows()
 
-    def _execute_shell_command(self, command: str, timeout: Optional[float] = None, executable: Optional[str] = None):
+    def _execute_shell_command(
+        self,
+        command: str,
+        timeout: Optional[float] = None,
+        executable: Optional[str] = None,
+    ):
         """Execute a command in the Windows instance.
 
         Note: Windows instances don't support bash commands directly.

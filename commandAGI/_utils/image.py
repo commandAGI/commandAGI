@@ -218,6 +218,7 @@ def process_screenshot(
         f"Failed to process screenshot from {input_format} to {output_format}"
     )
 
+
 import base64
 import io
 

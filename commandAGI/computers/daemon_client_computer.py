@@ -350,9 +350,9 @@ class DaemonClientComputer(BaseComputer):
         response = self.client.get_sysinfo()
         if response:
             return SystemInfo(**response)
-        
+
         raise RuntimeError("Failed to get system info from daemon")
-        
+
     def _execute_shell_command(self, command: str, timeout: Optional[float] = None):
         """Execute a shell command on the computer"""
         if not self.client:
@@ -371,7 +371,9 @@ class DaemonClientComputer(BaseComputer):
 
         client_action = ClientKeyboardKeyDownAction(key=keyboard_key_to_daemon(key))
 
-        response = execute_keyboard_key_down_sync(client=self.client, body=client_action)
+        response = execute_keyboard_key_down_sync(
+            client=self.client, body=client_action
+        )
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key down: {key}")
 
@@ -382,7 +384,9 @@ class DaemonClientComputer(BaseComputer):
 
         client_action = ClientKeyboardKeyReleaseAction(key=keyboard_key_to_daemon(key))
 
-        response = execute_keyboard_key_release_sync(client=self.client, body=client_action)
+        response = execute_keyboard_key_release_sync(
+            client=self.client, body=client_action
+        )
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key release: {key}")
 
@@ -392,11 +396,12 @@ class DaemonClientComputer(BaseComputer):
             raise RuntimeError("Client not initialized")
 
         client_action = ClientKeyboardKeyPressAction(
-            key=keyboard_key_to_daemon(key),
-            duration=duration
+            key=keyboard_key_to_daemon(key), duration=duration
         )
 
-        response = execute_keyboard_key_press_sync(client=self.client, body=client_action)
+        response = execute_keyboard_key_press_sync(
+            client=self.client, body=client_action
+        )
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key press: {key}")
 
@@ -429,11 +434,7 @@ class DaemonClientComputer(BaseComputer):
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        client_action = ClientMouseMoveAction(
-            x=x,
-            y=y,
-            move_duration=move_duration
-        )
+        client_action = ClientMouseMoveAction(x=x, y=y, move_duration=move_duration)
 
         response = execute_mouse_move_sync(client=self.client, body=client_action)
         if not response or not response.success:
@@ -459,7 +460,9 @@ class DaemonClientComputer(BaseComputer):
             button=mouse_button_to_daemon(button) if button else None
         )
 
-        response = execute_mouse_button_down_sync(client=self.client, body=client_action)
+        response = execute_mouse_button_down_sync(
+            client=self.client, body=client_action
+        )
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute mouse button down: {button}")
 
@@ -526,13 +529,14 @@ class DaemonClientComputer(BaseComputer):
             client=self.client, body=ClientVideoStopStreamAction()
         )
         return response.success if response else False
+
     def _run_process(
         self,
         command: str,
         args: List[str] = None,
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> str:
         """Run a process with the specified parameters.
 

@@ -246,7 +246,9 @@ class VNCComputer(BaseComputer):
         self.logger.debug("VNC does not support getting keyboard key states")
         raise NotImplementedError("VNC does not support getting keyboard key states")
 
-    def _execute_shell_command(self, command: str, timeout: float | None = None, executable: str | None = None):
+    def _execute_shell_command(
+        self, command: str, timeout: float | None = None, executable: str | None = None
+    ):
         """Execute a system command on the remote system.
 
         Note: This is limited by VNC capabilities and may not work for all commands.
@@ -307,13 +309,17 @@ class VNCComputer(BaseComputer):
     def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using VNC."""
         vnc_button = mouse_button_to_vnc(button)
-        self.logger.debug(f"Pressing mouse button down: {button} (VNC button: {vnc_button})")
+        self.logger.debug(
+            f"Pressing mouse button down: {button} (VNC button: {vnc_button})"
+        )
         self.client.mouseDown(vnc_button)
 
     def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using VNC."""
         vnc_button = mouse_button_to_vnc(button)
-        self.logger.debug(f"Releasing mouse button: {button} (VNC button: {vnc_button})")
+        self.logger.debug(
+            f"Releasing mouse button: {button} (VNC button: {vnc_button})"
+        )
         self.client.mouseUp(vnc_button)
 
     def _pause(self):

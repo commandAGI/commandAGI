@@ -67,7 +67,6 @@ class KeyboardStateObservation(BaseComputerObservation):
         return v
 
 
-
 # Define a Union type for computer observations
 ComputerObservationUnion = Union[
     ScreenshotObservation,
