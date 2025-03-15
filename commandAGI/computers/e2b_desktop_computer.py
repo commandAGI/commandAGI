@@ -301,12 +301,12 @@ class E2BDesktopComputer(BaseComputer):
         # E2B Desktop's hotkey method takes individual arguments, not a list
         self.e2b_desktop.hotkey(*e2b_keys)
 
-    def locate_on_screen(self, text):
+    def locate_text_on_screen(self, text: str, additional_ocr_args: dict = {}) -> tuple[int, int] | None:
         """Find text on screen and return coordinates.
 
         This is a direct wrapper for E2B Desktop's locate_on_screen method.
         """
-        return self.e2b_desktop.locate_on_screen(text)
+        return self.e2b_desktop.locate_on_screen(text, **additional_ocr_args)
 
     def open_file(self, file_path):
         """Open a file with the default application.

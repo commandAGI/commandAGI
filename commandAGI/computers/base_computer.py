@@ -1806,13 +1806,14 @@ class BaseComputer(BaseModel):
             A file-like object for the specified file
         """
         raise NotImplementedError(f"{self.__class__.__name__}._open")
-
-    def locate_on_screen(self, text: str, ocr_engine: str = "pytesseract", additional_ocr_args: dict = {}) -> tuple[int, int] | None:
+    
+    def locate_text_on_screen(self, text: str, ocr_engine: str = "pytesseract", additional_ocr_args: dict = {}) -> tuple[int, int] | None:
         """Find text on screen and return coordinates.
         
         Args:
             text: The text to locate on screen
             ocr_engine: OCR engine to use ("pytesseract" or "screenparse")
+            additional_ocr_args: Additional arguments to pass to the OCR engine
             
         Returns:
             tuple[int, int] | None: (x,y) coordinates of the text if found, None if not found
@@ -1841,6 +1842,82 @@ class BaseComputer(BaseModel):
                 return (center_x, center_y)
                 
         # Text not found
+        return None
+
+    def locate_object_on_screen(
+        self, 
+        template: Union[str, Path, Image.Image], 
+        threshold: float = 0.8,
+        method: str = "cv2.TM_CCOEFF_NORMED",
+        region: Optional[tuple[int, int, int, int]] = None
+    ) -> tuple[int, int] | None:
+        """Find an image/icon on screen and return coordinates.
+        
+        Args:
+            template: Path to template image or PIL Image object to locate
+            threshold: Matching threshold (0-1), higher is more strict
+            method: Template matching method to use:
+                - cv2.TM_CCOEFF_NORMED (default): Normalized correlation coefficient
+                - cv2.TM_SQDIFF_NORMED: Normalized squared difference
+                - cv2.TM_CCORR_NORMED: Normalized cross correlation
+            region: Optional tuple (x, y, width, height) to limit search area
+                
+        Returns:
+            tuple[int, int] | None: (x,y) coordinates of center of best match if found above threshold, None if not found
+        """
+        import cv2
+        import numpy as np
+        from PIL import Image
+        
+        # Get screenshot as PIL Image
+        screenshot = self.get_screenshot(format="PIL")
+        
+        # Convert template path/PIL Image to cv2 format
+        if isinstance(template, (str, Path)):
+            template = Image.open(template)
+        if isinstance(template, Image.Image):
+            template = cv2.cvtColor(np.array(template), cv2.COLOR_RGB2BGR)
+            
+        # Convert screenshot to cv2 format
+        screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        
+        # Crop screenshot to region if specified
+        if region:
+            x, y, w, h = region
+            screenshot = screenshot[y:y+h, x:x+w]
+        
+        # Get template dimensions
+        template_h, template_w = template.shape[:2]
+        
+        # Perform template matching
+        method = getattr(cv2, method.split(".")[-1])
+        result = cv2.matchTemplate(screenshot, template, method)
+        
+        # Get best match location
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+        
+        # Different methods have different optimal values
+        if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+            match_val = 1 - min_val  # Convert to similarity score
+            match_loc = min_loc
+        else:
+            match_val = max_val
+            match_loc = max_loc
+            
+        # Check if match exceeds threshold
+        if match_val >= threshold:
+            # Calculate center point of match
+            center_x = match_loc[0] + template_w // 2
+            center_y = match_loc[1] + template_h // 2
+            
+            # Adjust coordinates if region was specified
+            if region:
+                center_x += region[0]
+                center_y += region[1]
+                
+            return (center_x, center_y)
+            
+        # No match found above threshold
         return None
 
     def execute_mouse_action(
