@@ -6,7 +6,7 @@
 [x] add stubs: `pause`, `resume`, `start_stream`, `stop_stream`, `get_stream_url` stubs to the base computer
 [x] add stubs: `upload` (client -> server), `download` (server -> client), `edit(filepath, contents, mode='create_or_replace', encoding)`
 [x] add `@property sysinfo` and more stubs to the base computer (think of others)
-[ ] rename most of the action methods to somehting more user friendly. click -> click, execute_shell_command to shell
+[x] rename most of the action methods to somehting more user friendly. click -> click, execute_shell_command to shell
 [ ] make the computer.drag start coordinates optional
 [ ] rename daemoncomputer to computer
 [ ] rename the repo to `command_computer`

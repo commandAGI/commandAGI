@@ -103,9 +103,7 @@ class NaiveComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
             return ComputerAction(mouse_scroll=MouseScrollAction(amount=amount))
 
         def mouse_down(button: MouseButton = MouseButton.LEFT):
-            return ComputerAction(
-                mouse_down=MouseButtonDownAction(button=button)
-            )
+            return ComputerAction(mouse_down=MouseButtonDownAction(button=button))
 
         def mouse_button_up(button: MouseButton = MouseButton.LEFT):
             return ComputerAction(mouse_button_up=MouseButtonUpAction(button=button))

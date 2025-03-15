@@ -371,9 +371,7 @@ class DaemonClientComputer(BaseComputer):
 
         client_action = ClientKeyboardKeyDownAction(key=keyboard_key_to_daemon(key))
 
-        response = keydown_sync(
-            client=self.client, body=client_action
-        )
+        response = keydown_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key down: {key}")
 
@@ -384,9 +382,7 @@ class DaemonClientComputer(BaseComputer):
 
         client_action = ClientKeyboardKeyReleaseAction(key=keyboard_key_to_daemon(key))
 
-        response = keyup_sync(
-            client=self.client, body=client_action
-        )
+        response = keyup_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key release: {key}")
 
@@ -399,9 +395,7 @@ class DaemonClientComputer(BaseComputer):
             key=keyboard_key_to_daemon(key), duration=duration
         )
 
-        response = keypress_sync(
-            client=self.client, body=client_action
-        )
+        response = keypress_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key press: {key}")
 
@@ -460,9 +454,7 @@ class DaemonClientComputer(BaseComputer):
             button=mouse_button_to_daemon(button) if button else None
         )
 
-        response = mouse_down_sync(
-            client=self.client, body=client_action
-        )
+        response = mouse_down_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute mouse button down: {button}")
 

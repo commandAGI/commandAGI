@@ -195,11 +195,7 @@ class ComputerDaemon:
         async def keypress(
             action: KeyboardKeyPressAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
-            return {
-                "success": self._computer.keypress(
-                    action.key, action.duration
-                )
-            }
+            return {"success": self._computer.keypress(action.key, action.duration)}
 
         @app.post("/execute/keyboard/keys_press", response_model=SuccessResponse)
         async def execute_keyboard_keys_press(
@@ -242,9 +238,7 @@ class ComputerDaemon:
             action: MouseMoveAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {
-                "success": self._computer.move(
-                    action.x, action.y, action.move_duration
-                )
+                "success": self._computer.move(action.x, action.y, action.move_duration)
             }
 
         @app.post("/execute/mouse/scroll", response_model=SuccessResponse)
@@ -1035,11 +1029,7 @@ class ComputerDaemon:
         def press_key(key: str, duration: float = None) -> dict:
             """Press a keyboard key"""
             action = KeyboardKeyPressAction(key=key, duration=duration)
-            return {
-                "success": self._computer.keypress(
-                    action.key, action.duration
-                )
-            }
+            return {"success": self._computer.keypress(action.key, action.duration)}
 
         @mcp.tool()
         def press_keys(keys: list, duration: float = None) -> dict:
@@ -1062,9 +1052,7 @@ class ComputerDaemon:
             """Move the mouse to specific coordinates"""
             action = MouseMoveAction(x=x, y=y, move_duration=move_duration)
             return {
-                "success": self._computer.move(
-                    action.x, action.y, action.move_duration
-                )
+                "success": self._computer.move(action.x, action.y, action.move_duration)
             }
 
         @mcp.tool()

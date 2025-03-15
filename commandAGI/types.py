@@ -182,9 +182,7 @@ class MouseScrollAction(BaseComputerAction):
 
 
 class MouseButtonDownAction(BaseComputerAction):
-    action_type: Literal["mouse_down"] = (
-        ComputerActionType.mouse_down.value
-    )
+    action_type: Literal["mouse_down"] = ComputerActionType.mouse_down.value
     button: MouseButton = MouseButton.LEFT
 
 

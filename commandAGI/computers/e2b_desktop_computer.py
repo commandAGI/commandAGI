@@ -301,7 +301,9 @@ class E2BDesktopComputer(BaseComputer):
         # E2B Desktop's hotkey method takes individual arguments, not a list
         self.e2b_desktop.hotkey(*e2b_keys)
 
-    def locate_text_on_screen(self, text: str, additional_ocr_args: dict = {}) -> tuple[int, int] | None:
+    def locate_text_on_screen(
+        self, text: str, additional_ocr_args: dict = {}
+    ) -> tuple[int, int] | None:
         """Find text on screen and return coordinates.
 
         This is a direct wrapper for E2B Desktop's locate_on_screen method.

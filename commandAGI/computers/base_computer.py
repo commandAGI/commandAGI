@@ -13,6 +13,7 @@ from typing import (
     List,
     Literal,
     Optional,
+    TypeAlias,
     TypedDict,
     Union,
 )
@@ -34,6 +35,12 @@ from commandAGI.types import (
     ShellCommandAction,
     WindowInfo,
 )
+
+
+class RunningState(Enum, str):
+    RUNNING = "running"
+    PAUSED = "paused"
+    STOPPED = "stopped"
 
 
 # Platform enumeration
@@ -588,9 +595,7 @@ class BaseComputer(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
 
     name: str
-    _state: Literal["stopped", "started", "paused"] = (
-        "stopped"  # Updated to include paused state
-    )
+    _state: RunningState = "stopped"
     logger: Optional[logging.Logger] = None
     _file_handler: Optional[logging.FileHandler] = None
     num_retries: int = 3
@@ -608,7 +613,7 @@ class BaseComputer(BaseModel):
 
     def start(self):
         """Start the computer."""
-        if self._state == "started":
+        if self._state == "running":
             self.logger.warning("Computer is already started")
             return
         elif self._state == "paused":
@@ -631,7 +636,7 @@ class BaseComputer(BaseModel):
 
         self.logger.info(f"Starting {self.__class__.__name__} computer")
         self._start()
-        self._state = "started"
+        self._state = RunningState.RUNNING
         self.logger.info(f"{self.__class__.__name__} computer started successfully")
 
     def _start(self):
@@ -649,7 +654,7 @@ class BaseComputer(BaseModel):
 
         self.logger.info(f"Stopping {self.__class__.__name__} computer")
         self._stop()
-        self._state = "stopped"
+        self._state = RunningState.STOPPED
 
         # Close and remove the file handler
         if self._file_handler:
@@ -670,7 +675,7 @@ class BaseComputer(BaseModel):
         Returns:
             bool: True if the computer was successfully paused, False otherwise.
         """
-        if self._state != "started":
+        if self._state != "running":
             self.logger.warning(f"Cannot pause computer in {self._state} state")
             return False
 
@@ -681,7 +686,7 @@ class BaseComputer(BaseModel):
         for attempt in range(self.num_retries):
             try:
                 self._pause()
-                self._state = "paused"
+                self._state = RunningState.PAUSED
                 self.logger.info(
                     f"{self.__class__.__name__} computer paused successfully"
                 )
@@ -727,7 +732,7 @@ class BaseComputer(BaseModel):
         for attempt in range(self.num_retries):
             try:
                 self._resume(timeout_hours)
-                self._state = "started"
+                self._state = RunningState.RUNNING
                 self.logger.info(
                     f"{self.__class__.__name__} computer resumed successfully"
                 )
@@ -753,9 +758,15 @@ class BaseComputer(BaseModel):
         self.logger.debug("Resume not implemented for this computer type")
         pass
 
-    def ensure_running_state(
-        self, target_state: Literal["running", "paused", "stopped"]
-    ):
+    @property
+    def state(self) -> RunningState:
+        return self._state
+
+    @state.setter
+    def state(self, value: RunningState):
+        self.ensure_running_state(value)
+
+    def ensure_running_state(self, target_state: RunningState):
         """Ensure the computer is in the specified state.
 
         TODO: implement a timeout for the state transition or else raise an exception
@@ -1307,9 +1318,7 @@ class BaseComputer(BaseModel):
             func=self.shell,
         )
 
-    def keypress(
-        self, key: KeyboardKey, duration: float = 0.1
-    ) -> bool:
+    def keypress(self, key: KeyboardKey, duration: float = 0.1) -> bool:
         """Execute pressing a keyboard key with a specified duration."""
         return self._execute_with_retry(
             "keyboard key press",
@@ -1342,9 +1351,7 @@ class BaseComputer(BaseModel):
 
     def _keydown(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.keydown"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__}.keydown")
 
     @property
     def keydown_tool(self) -> BaseTool:
@@ -1364,9 +1371,7 @@ class BaseComputer(BaseModel):
 
     def _keyup(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.keyup"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__}.keyup")
 
     @property
     def keyup_tool(self) -> BaseTool:
@@ -1440,9 +1445,7 @@ class BaseComputer(BaseModel):
 
     def scroll(self, amount: float) -> bool:
         """Execute mouse scroll by a given amount."""
-        return self._execute_with_retry(
-            "mouse scroll", self._scroll, amount
-        )
+        return self._execute_with_retry("mouse scroll", self._scroll, amount)
 
     def _scroll(self, amount: float):
         """Execute mouse scroll by a given amount."""
@@ -1466,9 +1469,7 @@ class BaseComputer(BaseModel):
 
     def _mouse_down(self, button: MouseButton = MouseButton.LEFT):
         """Execute mouse button down action."""
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.mouse_down"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__}.mouse_down")
 
     @property
     def mouse_down_tool(self) -> BaseTool:
@@ -1808,31 +1809,42 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._open")
 
-    def locate_text_on_screen(self, text: str, ocr_engine: Literal["screenparse", "pytesseract"] = "pytesseract", additional_ocr_args: dict = {}) -> tuple[int, int] | None:
+    def locate_text_on_screen(
+        self,
+        text: str,
+        ocr_engine: Literal["screenparse", "pytesseract"] = "pytesseract",
+        additional_ocr_args: dict = {},
+    ) -> tuple[int, int] | None:
         """Find text on screen and return coordinates.
-        
+
         Args:
             text: The text to locate on screen
             ocr_engine: OCR engine to use ("pytesseract" or "screenparse")
             additional_ocr_args: Additional arguments to pass to the OCR engine
-            
+
         Returns:
             tuple[int, int] | None: (x,y) coordinates of the text if found, None if not found
         """
         # Get screenshot in base64 format
         screenshot = self.get_screenshot(format="base64")
-        
+
         # Select OCR engine and parse screenshot
         match ocr_engine.lower():
             case "screenparse":
-                from commandAGI.processors.screen_parser.screenparse_ai_screen_parser import parse_screenshot
+                from commandAGI.processors.screen_parser.screenparse_ai_screen_parser import (
+                    parse_screenshot,
+                )
+
                 # Note: This would require api_key to be passed or configured
-                parsed = parse_screenshot(screenshot, **additional_ocr_args) 
-                
-            case "pytesseract" | _:  # Default to pytesseract
-                from commandAGI.processors.screen_parser.pytesseract_screen_parser import parse_screenshot
                 parsed = parse_screenshot(screenshot, **additional_ocr_args)
-        
+
+            case "pytesseract" | _:  # Default to pytesseract
+                from commandAGI.processors.screen_parser.pytesseract_screen_parser import (
+                    parse_screenshot,
+                )
+
+                parsed = parse_screenshot(screenshot, **additional_ocr_args)
+
         # Search through parsed elements for matching text
         for element in parsed.elements:
             if text.lower() in element.text.lower():
@@ -1841,19 +1853,19 @@ class BaseComputer(BaseModel):
                 center_x = (left + right) // 2
                 center_y = (top + bottom) // 2
                 return (center_x, center_y)
-                
+
         # Text not found
         return None
 
     def locate_object_on_screen(
-        self, 
-        template: Union[str, Path, Image.Image], 
+        self,
+        template: Union[str, Path, Image.Image],
         threshold: float = 0.8,
         method: str = "cv2.TM_CCOEFF_NORMED",
-        region: Optional[tuple[int, int, int, int]] = None
+        region: Optional[tuple[int, int, int, int]] = None,
     ) -> tuple[int, int] | None:
         """Find an image/icon on screen and return coordinates.
-        
+
         Args:
             template: Path to template image or PIL Image object to locate
             threshold: Matching threshold (0-1), higher is more strict
@@ -1862,41 +1874,41 @@ class BaseComputer(BaseModel):
                 - cv2.TM_SQDIFF_NORMED: Normalized squared difference
                 - cv2.TM_CCORR_NORMED: Normalized cross correlation
             region: Optional tuple (x, y, width, height) to limit search area
-                
+
         Returns:
             tuple[int, int] | None: (x,y) coordinates of center of best match if found above threshold, None if not found
         """
         import cv2
         import numpy as np
         from PIL import Image
-        
+
         # Get screenshot as PIL Image
         screenshot = self.get_screenshot(format="PIL")
-        
+
         # Convert template path/PIL Image to cv2 format
         if isinstance(template, (str, Path)):
             template = Image.open(template)
         if isinstance(template, Image.Image):
             template = cv2.cvtColor(np.array(template), cv2.COLOR_RGB2BGR)
-            
+
         # Convert screenshot to cv2 format
         screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-        
+
         # Crop screenshot to region if specified
         if region:
             x, y, w, h = region
-            screenshot = screenshot[y:y+h, x:x+w]
-        
+            screenshot = screenshot[y : y + h, x : x + w]
+
         # Get template dimensions
         template_h, template_w = template.shape[:2]
-        
+
         # Perform template matching
         method = getattr(cv2, method.split(".")[-1])
         result = cv2.matchTemplate(screenshot, template, method)
-        
+
         # Get best match location
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        
+
         # Different methods have different optimal values
         if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
             match_val = 1 - min_val  # Convert to similarity score
@@ -1904,20 +1916,20 @@ class BaseComputer(BaseModel):
         else:
             match_val = max_val
             match_loc = max_loc
-            
+
         # Check if match exceeds threshold
         if match_val >= threshold:
             # Calculate center point of match
             center_x = match_loc[0] + template_w // 2
             center_y = match_loc[1] + template_h // 2
-            
+
             # Adjust coordinates if region was specified
             if region:
                 center_x += region[0]
                 center_y += region[1]
-                
+
             return (center_x, center_y)
-            
+
         # No match found above threshold
         return None
 
@@ -1976,7 +1988,7 @@ class BaseComputer(BaseModel):
             args_schema=MouseActionInput,
             return_direct=True,
         )
-    
+
     @property
     def tools(self):
         return [
