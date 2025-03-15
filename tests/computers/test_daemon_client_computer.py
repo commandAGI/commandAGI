@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from commandAGI.computers.daemon_client_computer import (
-    DaemonClientComputer,
+from commandAGI.computers.computer import (
+    Computer,
     ProvisioningMethod,
 )
 from commandAGI.types import (
@@ -22,7 +22,7 @@ from commandAGI.types import (
 )
 
 
-class TestDaemonClientComputer(unittest.TestCase):
+class TestComputer(unittest.TestCase):
     @patch("commandAGI.computers.daemon_client_computer.requests")
     @patch("commandAGI.computers.provisioners.manual_provisioner.ManualProvisioner")
     def setUp(self, mock_provisioner_cls, mock_requests):
@@ -36,8 +36,8 @@ class TestDaemonClientComputer(unittest.TestCase):
         mock_requests.post.return_value = self.mock_response
         mock_requests.get.return_value = self.mock_response
 
-        # Create a DaemonClientComputer
-        self.computer = DaemonClientComputer(
+        # Create a Computer
+        self.computer = Computer(
             daemon_base_url="http://localhost",
             daemon_port=8000,
             provisioning_method=ProvisioningMethod.MANUAL,
@@ -250,8 +250,8 @@ class TestDaemonClientComputer(unittest.TestCase):
         mock_provisioner_cls.return_value = mock_provisioner
         mock_get_provisioner_cls.return_value = mock_provisioner_cls
 
-        # Create a DaemonClientComputer with a different provisioning method
-        computer = DaemonClientComputer(
+        # Create a Computer with a different provisioning method
+        computer = Computer(
             provisioning_method=ProvisioningMethod.DOCKER, platform="local"
         )
 

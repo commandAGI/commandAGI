@@ -21,11 +21,11 @@ commandAGI includes provisioners for various platforms:
 Run environments in Docker containers on your local machine:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
 # Create a computer with local Docker provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.LOCAL
 )
@@ -42,10 +42,10 @@ computer.close()  # Stops and removes the container
 Run environments in AWS EC2 instances:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer with AWS provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.AWS,
     region="us-west-2",
     instance_type="t2.micro",
@@ -65,10 +65,10 @@ computer.close()  # Terminates the EC2 instance
 Run environments in Azure VMs:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer with Azure provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.AZURE,
     resource_group="my-resource-group",
     location="eastus",
@@ -89,10 +89,10 @@ computer.close()  # Deletes the Azure VM
 Run environments in GCP VMs:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer with GCP provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.GCP,
     project="your-project-id",
     zone="us-central1-a",
@@ -112,11 +112,11 @@ computer.close()  # Deletes the GCP VM
 Run environments in Kubernetes clusters:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
 
 # Create a computer with Kubernetes provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.KUBERNETES,
     platform=KubernetesPlatform.GCP_GKE,  # Or AWS_EKS, AZURE_AKS, LOCAL
     namespace="my-namespace",
@@ -137,11 +137,11 @@ computer.close()  # Deletes the Kubernetes resources
 Run environments in managed container services:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
 # AWS ECS
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.AWS_ECS,
     region="us-west-2",
@@ -150,7 +150,7 @@ computer = DaemonClientComputer(
 )
 
 # Azure Container Instances
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.AZURE_CONTAINER_INSTANCES,
     region="eastus",
@@ -159,7 +159,7 @@ computer = DaemonClientComputer(
 )
 
 # Google Cloud Run
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.GCP_CLOUD_RUN,
     project_id="your-project-id",
@@ -180,9 +180,9 @@ computer.close()
 You can configure timeouts and retry behavior:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.AWS,
     region="us-west-2",
     max_retries=5,  # Default: 3
@@ -195,9 +195,9 @@ computer = DaemonClientComputer(
 You can check the status of a provisioner:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER
 )
 
@@ -219,7 +219,7 @@ Always clean up resources when you're done:
 
 ```python
 try:
-    computer = DaemonClientComputer(provisioning_method=ProvisioningMethod.AWS)
+    computer = Computer(provisioning_method=ProvisioningMethod.AWS)
     # Use the computer
 finally:
     computer.close()  # Ensure resources are cleaned up
@@ -231,7 +231,7 @@ Handle potential errors during provisioning:
 
 ```python
 try:
-    computer = DaemonClientComputer(provisioning_method=ProvisioningMethod.AWS)
+    computer = Computer(provisioning_method=ProvisioningMethod.AWS)
     # Use the computer
 except Exception as e:
     print(f"Error during provisioning: {e}")
@@ -254,7 +254,7 @@ os.environ["AZURE_CLIENT_SECRET"] = "your-client-secret"
 os.environ["AZURE_TENANT_ID"] = "your-tenant-id"
 
 # Create computer without explicitly passing credentials
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.AZURE,
     resource_group="my-resource-group"
 )

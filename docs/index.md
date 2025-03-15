@@ -62,10 +62,10 @@ computer.type(TypeAction(text="Hello, commandAGI!"))
 ## Remote Control Example
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer with Docker provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER
 )
 

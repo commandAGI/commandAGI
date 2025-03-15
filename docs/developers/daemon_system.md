@@ -7,7 +7,7 @@ This guide provides detailed information about the commandAGI daemon system for 
 The daemon system provides a remote control interface for computers, allowing you to control a computer from another machine or process. It follows a client-server architecture with the following components:
 
 1. **ComputerDaemon**: The server component that exposes a REST API for computer control
-2. **DaemonClientComputer**: The client component that connects to a daemon server
+2. **Computer**: The client component that connects to a daemon server
 
 ## ComputerDaemon
 
@@ -148,15 +148,15 @@ python -m commandAGI.daemon.cli start \
     --rdp-use-system-commands false
 ```
 
-## DaemonClientComputer
+## Computer
 
-The `DaemonClientComputer` class is a client for the daemon API. It implements the `BaseComputer` interface, allowing you to use it like any other computer:
+The `Computer` class is a client for the daemon API. It implements the `BaseComputer` interface, allowing you to use it like any other computer:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.daemon_client_computer import Computer
 
 # Connect to a daemon
-computer = DaemonClientComputer(
+computer = Computer(
     daemon_base_url="http://localhost",
     daemon_port=8000,
     daemon_token="my-token"
@@ -168,13 +168,13 @@ computer.type(TypeAction(text="Hello, world!"))
 
 ### Provisioning
 
-The `DaemonClientComputer` can also handle provisioning of the daemon environment:
+The `Computer` can also handle provisioning of the daemon environment:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer with Docker provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER
 )
 
@@ -204,10 +204,10 @@ class MyCustomDaemon(ComputerDaemon):
 
 ### Creating a Custom Client
 
-You can create a custom client by subclassing `DaemonClientComputer`:
+You can create a custom client by subclassing `Computer`:
 
 ```python
-class MyCustomClient(DaemonClientComputer):
+class MyCustomClient(Computer):
     def __init__(self, daemon_base_url="http://localhost", daemon_port=8000, daemon_token=None):
         super().__init__(daemon_base_url, daemon_port, daemon_token)
         

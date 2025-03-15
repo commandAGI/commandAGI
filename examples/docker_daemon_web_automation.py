@@ -20,7 +20,7 @@ import time
 import os
 from pathlib import Path
 
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.computer import Computer
 from commandAGI.computers.provisioners.docker_provisioner import (
     DockerProvisioner,
     DockerPlatform,
@@ -54,8 +54,8 @@ def main():
     # Create a daemon client computer with the Docker provisioner
     computer = None
     try:
-        print("Initializing DaemonClientComputer with Docker provisioner...")
-        computer = DaemonClientComputer(
+        print("Initializing Computer with Docker provisioner...")
+        computer = Computer(
             daemon_base_url="http://localhost",
             daemon_port=8000,
             daemon_token="my-token",  # This should match the token used in the daemon

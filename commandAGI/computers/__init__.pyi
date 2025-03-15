@@ -14,7 +14,7 @@ from commandAGI.computers.base_computer import (
     BaseJupyterNotebook,
     BaseShell,
 )
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.computer import Computer
 from commandAGI.computers.e2b_desktop_computer import E2BDesktopComputer
 from commandAGI.computers.local_computer import (
     LocalComputer,
@@ -45,7 +45,7 @@ __all__ = [
     "LocalPynputComputer",
     "LocalPyAutoGUIComputer",
     "E2BDesktopComputer",
-    "DaemonClientComputer",
+    "Computer",
     "VNCComputer",
     "PigDevComputer",
     "ScrapybaraComputer",

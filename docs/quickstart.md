@@ -100,11 +100,11 @@ The daemon will print an API token that you'll need to connect to it.
 Then, control it from another machine:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.types import TypeAction, ClickAction
 
 # Connect to the daemon manually
-computer = DaemonClientComputer(
+computer = Computer(
     daemon_base_url="http://target-machine-ip",
     daemon_port=8000,
     provisioning_method=ProvisioningMethod.MANUAL
@@ -128,12 +128,12 @@ computer.close()
 commandAGI can automatically provision and manage Docker containers:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.types import CommandAction, TypeAction
 from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
 # Create a computer with Docker provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.LOCAL  # Use local Docker
 )
@@ -155,10 +155,10 @@ commandAGI supports provisioning computers in various cloud environments:
 ### AWS EC2
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer in AWS EC2
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.AWS,
     region="us-west-2",
     instance_type="t2.micro"
@@ -174,10 +174,10 @@ computer.close()
 ### Azure VM
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer in Azure
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.AZURE,
     resource_group="my-resource-group",
     location="eastus"
@@ -193,10 +193,10 @@ computer.close()
 ### Google Cloud Platform
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer in GCP
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.GCP,
     project="my-project-id",
     zone="us-central1-a"

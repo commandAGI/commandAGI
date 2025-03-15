@@ -7,10 +7,10 @@ This guide helps you run commandAGI daemons in various cloud container services 
 ### AWS ECS (Elastic Container Service)
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.AWS_ECS,
     region="us-west-2"
@@ -20,10 +20,10 @@ computer = DaemonClientComputer(
 ### Azure Container Instances
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.AZURE_CONTAINER_INSTANCES,
     resource_group="my-resource-group",
@@ -34,10 +34,10 @@ computer = DaemonClientComputer(
 ### Google Cloud Run
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.GCP_CLOUD_RUN,
     project_id="my-project",
@@ -50,10 +50,10 @@ computer = DaemonClientComputer(
 ### Amazon EKS
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
 
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.KUBERNETES,
     platform=KubernetesPlatform.AWS_EKS,
     cluster_name="my-cluster",
@@ -64,10 +64,10 @@ computer = DaemonClientComputer(
 ### Azure AKS
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
 
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.KUBERNETES,
     platform=KubernetesPlatform.AZURE_AKS,
     cluster_name="my-cluster",
@@ -78,10 +78,10 @@ computer = DaemonClientComputer(
 ### Google GKE
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.kubernetes_provisioner import KubernetesPlatform
 
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.KUBERNETES,
     platform=KubernetesPlatform.GCP_GKE,
     cluster_name="my-cluster",
@@ -129,7 +129,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 # Create computer with debug logging
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.AWS_ECS,
     region="us-west-2"

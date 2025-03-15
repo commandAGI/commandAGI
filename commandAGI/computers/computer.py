@@ -139,7 +139,7 @@ except ImportError:
 try:
     from PIL import Image
 except ImportError:
-    pass  # PIL is optional for DaemonClientComputer
+    pass  # PIL is optional for Computer
 
 
 # Daemon client-specific mappings
@@ -186,7 +186,7 @@ def mouse_button_to_daemon(button: Union[MouseButton, str]) -> ClientMouseButton
         return ClientMouseButton.LEFT  # Use a safe default
 
 
-class DaemonClientComputerFile(BaseComputerFile):
+class ComputerFile(BaseComputerFile):
     """Implementation of BaseComputerFile for Daemon Client computer files.
 
     This class provides a file-like interface for working with files on a remote computer
@@ -195,7 +195,7 @@ class DaemonClientComputerFile(BaseComputerFile):
     """
 
 
-class DaemonClientComputer(BaseComputer):
+class Computer(BaseComputer):
     computer_client: Optional[BaseComputerComputerClient] = None
     client: Optional[AuthenticatedClient] = None
     logger: Optional[logging.Logger] = None
@@ -563,7 +563,7 @@ class DaemonClientComputer(BaseComputer):
         encoding: Optional[str] = None,
         errors: Optional[str] = None,
         buffering: int = -1,
-    ) -> DaemonClientComputerFile:
+    ) -> ComputerFile:
         """Open a file on the remote computer.
 
         This method uses the Daemon Client API to access files on the remote computer.
@@ -577,9 +577,9 @@ class DaemonClientComputer(BaseComputer):
             buffering: Buffering policy (-1 for default)
 
         Returns:
-            A DaemonClientComputerFile instance for the specified file
+            A ComputerFile instance for the specified file
         """
-        return DaemonClientComputerFile(
+        return ComputerFile(
             computer=self,
             path=path,
             mode=mode,

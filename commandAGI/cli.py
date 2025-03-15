@@ -28,8 +28,8 @@ from commandAGI.agents.hub_cli import app as hub_cli
 
 # Import available computers
 from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.computers.daemon_client_computer import (
-    DaemonClientComputer,
+from commandAGI.computers.computer import (
+    Computer,
     ProvisioningMethod,
 )
 from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
@@ -204,7 +204,7 @@ def run_gym(
             computer_cls_name=(
                 f"Local{computer.value.split('-')[1].capitalize()}Computer"
                 if computer.value.startswith("local")
-                else "DaemonClientComputer"
+                else "Computer"
             ),
             computer_cls_kwargs={},
         )

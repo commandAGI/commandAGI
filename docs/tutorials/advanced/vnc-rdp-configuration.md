@@ -175,10 +175,10 @@ python -m commandAGI.daemon.cli start \
 Once the daemon is running with your custom configuration, you can start and stop VNC and RDP servers using the API:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.daemon_client_computer import Computer
 
 # Connect to the daemon
-computer = DaemonClientComputer(
+computer = Computer(
     daemon_base_url="http://localhost",
     daemon_port=8000,
     daemon_token="your-api-token"

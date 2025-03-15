@@ -59,14 +59,14 @@ For more detailed configuration options, see the [VNC/RDP Configuration Tutorial
 
 ## Step 2: Connect to the Daemon from the Controller Machine
 
-Now, on the controller machine, you can connect to the daemon using the `DaemonClientComputer` class:
+Now, on the controller machine, you can connect to the daemon using the `Computer` class:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.types import TypeAction, ClickAction, KeyboardHotkeyAction, KeyboardKey
 
 # Connect to the daemon
-computer = DaemonClientComputer(
+computer = Computer(
     daemon_base_url="http://target-machine-ip",  # Replace with the actual IP address
     daemon_port=8000,
     provisioning_method=ProvisioningMethod.MANUAL
@@ -119,10 +119,10 @@ else:
 In addition to programmatic control, you can use VNC and RDP for remote viewing and interactive control:
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer
+from commandAGI.computers.daemon_client_computer import Computer
 
 # Connect to the daemon
-computer = DaemonClientComputer(
+computer = Computer(
     daemon_base_url="http://target-machine-ip",
     daemon_port=8000,
     daemon_token="your-api-token"
@@ -158,7 +158,7 @@ Here's a complete example that automates opening a browser and performing a web 
 
 ```python
 import time
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.types import (
     CommandAction,
     TypeAction,
@@ -168,7 +168,7 @@ from commandAGI.types import (
 )
 
 # Connect to the daemon
-computer = DaemonClientComputer(
+computer = Computer(
     daemon_base_url="http://target-machine-ip",  # Replace with the actual IP address
     daemon_port=8000,
     provisioning_method=ProvisioningMethod.MANUAL
@@ -222,7 +222,7 @@ python -m commandAGI.daemon.cli start --port 8443 --backend pynput --ssl-cert ce
 Connect using HTTPS:
 
 ```python
-computer = DaemonClientComputer(
+computer = Computer(
     daemon_base_url="https://target-machine-ip",
     daemon_port=8443,
     provisioning_method=ProvisioningMethod.MANUAL
@@ -248,11 +248,11 @@ Instead of manually starting the daemon, you can use provisioners to automatical
 ### Docker Provisioning
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 from commandAGI.computers.provisioners.docker_provisioner import DockerPlatform
 
 # Create a computer with Docker provisioning
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.DOCKER,
     platform=DockerPlatform.LOCAL
 )
@@ -267,10 +267,10 @@ computer.close()
 ### Cloud Provisioning
 
 ```python
-from commandAGI.computers.daemon_client_computer import DaemonClientComputer, ProvisioningMethod
+from commandAGI.computers.daemon_client_computer import Computer, ProvisioningMethod
 
 # Create a computer in AWS EC2
-computer = DaemonClientComputer(
+computer = Computer(
     provisioning_method=ProvisioningMethod.AWS,
     region="us-west-2",
     instance_type="t2.micro"

@@ -13,8 +13,8 @@ import time
 import os
 
 try:
-    from commandAGI.computers.daemon_client_computer import (
-        DaemonClientComputer,
+    from commandAGI.computers.computer import (
+        Computer,
         ProvisioningMethod,
     )
     from commandAGI.types import (
@@ -33,11 +33,11 @@ except ImportError:
 
 
 def main():
-    print("Creating a DaemonClientComputer with Manual provisioning...")
+    print("Creating a Computer with Manual provisioning...")
 
     try:
         # Create a computer with Manual provisioning
-        computer = DaemonClientComputer(provisioning_method=ProvisioningMethod.MANUAL)
+        computer = Computer(provisioning_method=ProvisioningMethod.MANUAL)
 
         print("\nManual provisioning instructions:")
         print("1. Open a new terminal window")

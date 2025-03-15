@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Example of using the DaemonClientComputer with the generated OpenAPI client.
+Example of using the Computer with the generated OpenAPI client.
 """
 
-from commandAGI.computers.daemon_client_computer import (
-    DaemonClientComputer,
+from commandAGI.computers.computer import (
+    Computer,
     ProvisioningMethod,
 )
 from commandAGI.types import (
@@ -23,9 +23,9 @@ def main():
     # This token should match what was used when starting the daemon
     api_token = "your_api_token_here"  # Replace with your actual token
 
-    print("Initializing DaemonClientComputer...")
+    print("Initializing Computer...")
     # Connect to an existing daemon (no provisioning)
-    computer = DaemonClientComputer(
+    computer = Computer(
         daemon_base_url="http://localhost", daemon_port=8000, daemon_token="my-token"
     )
 
@@ -33,13 +33,13 @@ def main():
     from commandAGI.computers.provisioners.manual_provisioner import ManualProvisioner
 
     provisioner = ManualProvisioner(port=8000)
-    computer = DaemonClientComputer(daemon_port=8000, provisioner=provisioner)
+    computer = Computer(daemon_port=8000, provisioner=provisioner)
 
     # Use with Docker provisioning
     from commandAGI.computers.provisioners.docker_provisioner import DockerProvisioner
 
     provisioner = DockerProvisioner(port=8000)
-    computer = DaemonClientComputer(daemon_port=8000, provisioner=provisioner)
+    computer = Computer(daemon_port=8000, provisioner=provisioner)
 
     try:
         # Example 1: Type some text
