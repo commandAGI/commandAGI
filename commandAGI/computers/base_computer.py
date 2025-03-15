@@ -1077,68 +1077,6 @@ class BaseComputer(BaseModel):
             func=self.shell,
         )
 
-    def execute_keyboard_keys_press(
-        self, keys: List[KeyboardKey], duration: float = 0.1
-    ) -> bool:
-        """Execute pressing keyboard keys."""
-        return self._execute_with_retry(
-            "keyboard keys press",
-            self._execute_keyboard_keys_press,
-            KeyboardKeysPressAction(keys=keys, duration=duration),
-        )
-
-    def _execute_keyboard_keys_press(self, action: KeyboardKeysPressAction):
-        self.execute_keyboard_keys_down(action.keys)
-        self.execute_keyboard_keys_release(action.keys)
-
-    @property
-    def keyboard_keys_press_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="keyboard_keys_press",
-            description="Execute pressing keyboard keys",
-            func=self.execute_keyboard_keys_press,
-        )
-
-    def execute_keyboard_keys_down(self, keys: List[KeyboardKey]) -> bool:
-        """Execute key down for each keyboard key."""
-        return self._execute_with_retry(
-            "keyboard keys down",
-            self._execute_keyboard_keys_down,
-            KeyboardKeysDownAction(keys=keys),
-        )
-
-    def _execute_keyboard_keys_down(self, action: KeyboardKeysDownAction):
-        for key in action.keys:
-            self.execute_keyboard_key_down(key)
-
-    @property
-    def keyboard_keys_down_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="keyboard_keys_down",
-            description="Execute key down for each keyboard key",
-            func=self.execute_keyboard_keys_down,
-        )
-
-    def execute_keyboard_keys_release(self, keys: List[KeyboardKey]) -> bool:
-        """Execute key release for each keyboard key."""
-        return self._execute_with_retry(
-            "keyboard keys release",
-            self._execute_keyboard_keys_release,
-            KeyboardKeysReleaseAction(keys=keys),
-        )
-
-    def _execute_keyboard_keys_release(self, action: KeyboardKeysReleaseAction):
-        for key in action.keys:
-            self.execute_keyboard_key_release(key)
-
-    @property
-    def keyboard_keys_release_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="keyboard_keys_release",
-            description="Execute key release for each keyboard key",
-            func=self.execute_keyboard_keys_release,
-        )
-
     def execute_keyboard_key_press(
         self, key: KeyboardKey, duration: float = 0.1
     ) -> bool:

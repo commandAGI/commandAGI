@@ -313,9 +313,6 @@ class ComputerObservation(TypedDict):
 
 class ComputerActionType(str, Enum):
     SHELL = "shell"
-    KEYBOARD_KEYS_PRESS = "keyboard_keys_press"
-    KEYBOARD_KEYS_DOWN = "keyboard_keys_down"
-    KEYBOARD_KEYS_RELEASE = "keyboard_keys_release"
     KEYBOARD_KEY_PRESS = "keyboard_key_press"
     KEYBOARD_KEY_DOWN = "keyboard_key_down"
     KEYBOARD_KEY_RELEASE = "keyboard_key_release"
@@ -360,14 +357,6 @@ class ShellCommandAction(BaseComputerAction):
     executible: Optional[str] = None
 
 
-class KeyboardKeysPressAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_press"] = (
-        ComputerActionType.KEYBOARD_KEY_PRESS.value
-    )
-    keys: List[KeyboardKey]
-    duration: float = 0.1
-
-
 class KeyboardKeyPressAction(BaseComputerAction):
     action_type: Literal["keyboard_key_press"] = (
         ComputerActionType.KEYBOARD_KEY_PRESS.value
@@ -376,25 +365,11 @@ class KeyboardKeyPressAction(BaseComputerAction):
     duration: float = 0.1
 
 
-class KeyboardKeysDownAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_down"] = (
-        ComputerActionType.KEYBOARD_KEY_DOWN.value
-    )
-    keys: List[KeyboardKey]
-
-
 class KeyboardKeyDownAction(BaseComputerAction):
     action_type: Literal["keyboard_key_down"] = (
         ComputerActionType.KEYBOARD_KEY_DOWN.value
     )
     key: KeyboardKey
-
-
-class KeyboardKeysReleaseAction(BaseComputerAction):
-    action_type: Literal["keyboard_key_release"] = (
-        ComputerActionType.KEYBOARD_KEY_RELEASE.value
-    )
-    keys: List[KeyboardKey]
 
 
 class KeyboardKeyReleaseAction(BaseComputerAction):
@@ -562,9 +537,6 @@ class McpStopServerAction(BaseComputerAction):
 # Define a Union type for computer actions
 ComputerActionUnion = Union[
     ShellCommandAction,
-    KeyboardKeysPressAction,
-    KeyboardKeysDownAction,
-    KeyboardKeysReleaseAction,
     KeyboardKeyPressAction,
     KeyboardKeyDownAction,
     KeyboardKeyReleaseAction,
@@ -593,9 +565,6 @@ ComputerActionUnion = Union[
 
 class ComputerAction(TypedDict):
     command: Optional[ShellCommandAction] = None
-    keyboard_keys_press: Optional[KeyboardKeysPressAction] = None
-    keyboard_keys_down: Optional[KeyboardKeysDownAction] = None
-    keyboard_keys_release: Optional[KeyboardKeysReleaseAction] = None
     keyboard_key_press: Optional[KeyboardKeyPressAction] = None
     keyboard_key_down: Optional[KeyboardKeyDownAction] = None
     keyboard_key_release: Optional[KeyboardKeyReleaseAction] = None

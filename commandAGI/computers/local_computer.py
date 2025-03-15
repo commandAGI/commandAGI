@@ -27,6 +27,7 @@ from commandAGI.computers.base_computer import (
     BaseComputerFile,
     BaseJupyterNotebook,
     BaseShell,
+    SystemInfo,
 )
 from commandAGI.types import (
     DisplaysObservation,
@@ -1444,6 +1445,70 @@ class LocalComputer(BaseComputer):
         else:
             self.logger.error("Failed to start shell")
             raise RuntimeError("Failed to start shell")
+    def _get_sysinfo(self) -> SystemInfo:
+        """Get local system information using psutil."""
+        try:
+            import psutil
+            import platform
+            import socket
+            
+            # Get CPU usage
+            cpu_usage = psutil.cpu_percent(interval=1)
+            
+            # Get memory usage
+            memory = psutil.virtual_memory()
+            memory_usage = memory.percent
+            
+            # Get disk usage
+            disk = psutil.disk_usage('/')
+            disk_usage = disk.percent
+            
+            # Get uptime
+            uptime = time.time() - psutil.boot_time()
+            
+            # Get hostname and IP
+            hostname = socket.gethostname()
+            ip_address = socket.gethostbyname(hostname)
+            
+            # Get current user
+            try:
+                import getpass
+                user = getpass.getuser()
+            except:
+                user = "unknown"
+            
+            # Get OS info
+            os_name = platform.system()
+            os_version = platform.version()
+            architecture = platform.machine()
+            
+            return SystemInfo(
+                cpu_usage=cpu_usage,
+                memory_usage=memory_usage,
+                disk_usage=disk_usage,
+                uptime=uptime,
+                hostname=hostname,
+                ip_address=ip_address,
+                user=user,
+                os=os_name,
+                version=os_version,
+                architecture=architecture
+            )
+            
+        except ImportError:
+            self.logger.warning("psutil not available - limited system info available")
+            return SystemInfo(
+                cpu_usage=0.0,
+                memory_usage=0.0,
+                disk_usage=0.0,
+                uptime=0.0,
+                hostname="localhost",
+                ip_address="127.0.0.1",
+                user="unknown",
+                os=platform.system(),
+                version=platform.version(),
+                architecture=platform.machine()
+            )
 
     def _find_free_port(self) -> int:
         """Find a free port to use for the video server."""

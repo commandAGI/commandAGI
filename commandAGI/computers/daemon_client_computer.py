@@ -17,6 +17,7 @@ from commandAGI.computers.computer_clients.base_computer_client import (
     BaseComputerComputerClient,
 )
 from commandAGI.types import (
+    SystemInfo,
     KeyboardHotkeyAction,
     KeyboardKey,
     KeyboardKeyDownAction,
@@ -601,3 +602,12 @@ class DaemonClientComputer(BaseComputer):
             errors=errors,
             buffering=buffering,
         )
+
+    def _get_sysinfo(self) -> SystemInfo:
+        """Get system information from daemon client."""
+        response = self.client.get_sysinfo()
+        if response:
+            return SystemInfo(**response)
+        
+        raise RuntimeError("Failed to get system info from daemon")
+        
