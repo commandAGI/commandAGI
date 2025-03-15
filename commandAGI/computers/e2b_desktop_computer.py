@@ -133,22 +133,22 @@ class E2BDesktopComputer(BaseComputer):
     def __init__(self, video_stream=False):
         super().__init__()
         self.video_stream = video_stream
-        self.desktop = None
+        self.e2b_desktop = None
 
     def _start(self):
         """Start the E2B desktop environment."""
-        if not self.desktop:
+        if not self.e2b_desktop:
             self.logger.info("Initializing E2B Desktop Sandbox")
-            self.desktop = Sandbox(video_stream=self.video_stream)
+            self.e2b_desktop = Sandbox(video_stream=self.video_stream)
             self.logger.info("E2B Desktop Sandbox initialized successfully")
         return True
 
     def _stop(self):
         """Stop the E2B desktop environment."""
-        if self.desktop:
+        if self.e2b_desktop:
             self.logger.info("Closing E2B Desktop Sandbox")
             # E2B sandbox automatically closes when object is destroyed
-            self.desktop = None
+            self.e2b_desktop = None
             self.logger.info("E2B Desktop Sandbox closed successfully")
         return True
 
@@ -156,9 +156,9 @@ class E2BDesktopComputer(BaseComputer):
         """Reset the desktop environment and return initial observation"""
         self.logger.info("Resetting E2B Desktop environment state")
         # Show desktop to reset the environment state
-        if self.desktop:
+        if self.e2b_desktop:
             self.logger.debug("Showing desktop with Win+D hotkey")
-            self.desktop.hotkey("win", "d")
+            self.e2b_desktop.hotkey("win", "d")
         else:
             self.logger.debug("Desktop not initialized, starting it")
             self._start()
@@ -179,7 +179,7 @@ class E2BDesktopComputer(BaseComputer):
         temp_screenshot_path = self._new_screenshot_name
 
         # Take the screenshot using E2B Desktop
-        self.desktop.screenshot(temp_screenshot_path)
+        self.e2b_desktop.screenshot(temp_screenshot_path)
 
         # Use the utility function to process the screenshot
         return process_screenshot(
@@ -211,44 +211,44 @@ class E2BDesktopComputer(BaseComputer):
 
     def _execute_shell_command(self, command: str):
         """Execute a system command in the E2B Desktop VM."""
-        self.desktop.commands.run(command)
+        self.e2b_desktop.commands.run(command)
 
     def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
         # E2B Desktop doesn't have direct key_down method, use PyAutoGUI
         e2b_key = keyboard_key_to_e2b(key)
-        self.desktop.pyautogui(f"pyautogui.keyDown('{e2b_key}')")
+        self.e2b_desktop.pyautogui(f"pyautogui.keyDown('{e2b_key}')")
 
     def _execute_keyboard_key_release(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
         # E2B Desktop doesn't have direct key_up method, use PyAutoGUI
         e2b_key = keyboard_key_to_e2b(key)
-        self.desktop.pyautogui(f"pyautogui.keyUp('{e2b_key}')")
+        self.e2b_desktop.pyautogui(f"pyautogui.keyUp('{e2b_key}')")
 
     def _execute_type(self, text: str):
         """Type text using E2B Desktop."""
-        self.desktop.write(text)
+        self.e2b_desktop.write(text)
 
     def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
         """Move mouse to specified coordinates using E2B Desktop."""
         self.logger.debug(f"Moving mouse to: ({x}, {y})")
         # E2B Desktop doesn't have a direct move duration parameter
-        self.desktop.mouse_move(x, y)
+        self.e2b_desktop.mouse_move(x, y)
 
     def _execute_mouse_scroll(self, amount: float):
         """Scroll mouse using E2B Desktop."""
         # E2B Desktop scroll takes an integer amount
-        self.desktop.scroll(int(amount))
+        self.e2b_desktop.scroll(int(amount))
 
     def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using PyAutoGUI through E2B Desktop."""
         e2b_button = mouse_button_to_e2b(button)
-        self.desktop.pyautogui(f"pyautogui.mouseDown(button='{e2b_button}')")
+        self.e2b_desktop.pyautogui(f"pyautogui.mouseDown(button='{e2b_button}')")
 
     def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using PyAutoGUI through E2B Desktop."""
         e2b_button = mouse_button_to_e2b(button)
-        self.desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")
+        self.e2b_desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")
 
     def _execute_click(
         self,
@@ -260,16 +260,16 @@ class E2BDesktopComputer(BaseComputer):
     ):
         """Execute a click action using E2B Desktop's click methods."""
         # Move to position first
-        self.desktop.mouse_move(x, y)
+        self.e2b_desktop.mouse_move(x, y)
 
         # Then click using the appropriate method
         e2b_button = mouse_button_to_e2b(button)
         if e2b_button == "left":
-            self.desktop.left_click()
+            self.e2b_desktop.left_click()
         elif e2b_button == "right":
-            self.desktop.right_click()
+            self.e2b_desktop.right_click()
         elif e2b_button == "middle":
-            self.desktop.middle_click()
+            self.e2b_desktop.middle_click()
 
     def _execute_double_click(
         self,
@@ -282,16 +282,16 @@ class E2BDesktopComputer(BaseComputer):
     ):
         """Execute a double click action using E2B Desktop's double_click method."""
         # Move to position first
-        self.desktop.mouse_move(x, y)
+        self.e2b_desktop.mouse_move(x, y)
 
         # Then double click (E2B only supports left double click)
-        self.desktop.double_click()
+        self.e2b_desktop.double_click()
 
     def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key."""
         e2b_key = keyboard_key_to_e2b(key)
         # E2B doesn't have a direct press method, use PyAutoGUI
-        self.desktop.pyautogui(f"pyautogui.press('{e2b_key}')")
+        self.e2b_desktop.pyautogui(f"pyautogui.press('{e2b_key}')")
 
     def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using E2B Desktop's hotkey method."""
@@ -299,21 +299,21 @@ class E2BDesktopComputer(BaseComputer):
         e2b_keys = [keyboard_key_to_e2b(key) for key in keys]
 
         # E2B Desktop's hotkey method takes individual arguments, not a list
-        self.desktop.hotkey(*e2b_keys)
+        self.e2b_desktop.hotkey(*e2b_keys)
 
     def locate_on_screen(self, text):
         """Find text on screen and return coordinates.
 
         This is a direct wrapper for E2B Desktop's locate_on_screen method.
         """
-        return self.desktop.locate_on_screen(text)
+        return self.e2b_desktop.locate_on_screen(text)
 
     def open_file(self, file_path):
         """Open a file with the default application.
 
         This is a direct wrapper for E2B Desktop's open method.
         """
-        self.desktop.open(file_path)
+        self.e2b_desktop.open(file_path)
         return True
 
     def get_video_stream_url(self) -> str:
@@ -326,8 +326,8 @@ class E2BDesktopComputer(BaseComputer):
 
         # The method name might be different based on the API
         # Check if the method exists
-        if hasattr(self.desktop, "get_video_stream_url"):
-            return self.desktop.get_video_stream_url()
+        if hasattr(self.e2b_desktop, "get_video_stream_url"):
+            return self.e2b_desktop.get_video_stream_url()
         else:
             self.logger.warning(
                 "Warning: get_video_stream_url method not found in E2B Desktop API"
@@ -339,11 +339,11 @@ class E2BDesktopComputer(BaseComputer):
 
         For E2B Desktop, pausing means putting the sandbox into a paused state.
         """
-        if self.desktop:
+        if self.e2b_desktop:
             self.logger.info("Pausing E2B Desktop sandbox")
             try:
-                if hasattr(self.desktop, "pause"):
-                    self.desktop.pause()
+                if hasattr(self.e2b_desktop, "pause"):
+                    self.e2b_desktop.pause()
                     self.logger.info("E2B Desktop sandbox paused successfully")
                 else:
                     self.logger.warning("Pause method not found in E2B Desktop API")
@@ -360,11 +360,11 @@ class E2BDesktopComputer(BaseComputer):
             timeout_hours: Optional timeout in hours after which the sandbox will automatically pause again.
                           Not used in the current E2B Desktop implementation.
         """
-        if self.desktop:
+        if self.e2b_desktop:
             self.logger.info("Resuming E2B Desktop sandbox")
             try:
-                if hasattr(self.desktop, "resume"):
-                    self.desktop.resume()
+                if hasattr(self.e2b_desktop, "resume"):
+                    self.e2b_desktop.resume()
                     self.logger.info("E2B Desktop sandbox resumed successfully")
                 else:
                     self.logger.warning("Resume method not found in E2B Desktop API")

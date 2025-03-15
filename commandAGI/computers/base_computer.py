@@ -1807,6 +1807,42 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._open")
 
+    def locate_on_screen(self, text: str, ocr_engine: str = "pytesseract", additional_ocr_args: dict = {}) -> tuple[int, int] | None:
+        """Find text on screen and return coordinates.
+        
+        Args:
+            text: The text to locate on screen
+            ocr_engine: OCR engine to use ("pytesseract" or "screenparse")
+            
+        Returns:
+            tuple[int, int] | None: (x,y) coordinates of the text if found, None if not found
+        """
+        # Get screenshot in base64 format
+        screenshot = self.get_screenshot(format="base64")
+        
+        # Select OCR engine and parse screenshot
+        match ocr_engine.lower():
+            case "screenparse":
+                from commandAGI.processors.screen_parser.screenparse_ai_screen_parser import parse_screenshot
+                # Note: This would require api_key to be passed or configured
+                parsed = parse_screenshot(screenshot, **additional_ocr_args) 
+                
+            case "pytesseract" | _:  # Default to pytesseract
+                from commandAGI.processors.screen_parser.pytesseract_screen_parser import parse_screenshot
+                parsed = parse_screenshot(screenshot, **additional_ocr_args)
+        
+        # Search through parsed elements for matching text
+        for element in parsed.elements:
+            if text.lower() in element.text.lower():
+                # Return center point of bounding box
+                left, top, right, bottom = element.bounding_box
+                center_x = (left + right) // 2
+                center_y = (top + bottom) // 2
+                return (center_x, center_y)
+                
+        # Text not found
+        return None
+
     def execute_mouse_action(
         self,
         action: Literal["move", "click", "double_click"],
