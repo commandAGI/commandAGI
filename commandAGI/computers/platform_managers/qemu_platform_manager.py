@@ -5,15 +5,15 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from commandAGI.computers.clients.base_computer_client import (
-    BaseComputerComputerClient,
-    ComputerClientStatus,
+from commandAGI.computers.platform_managers.base_platform_manager import (
+    BaseComputerPlatformManager,
+    PlatformManagerStatus,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class QEMUComputerClient(BaseComputerComputerClient):
+class QEMUPlatformManager(BaseComputerPlatformManager):
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",

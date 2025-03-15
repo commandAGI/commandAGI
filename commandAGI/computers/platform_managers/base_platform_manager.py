@@ -8,8 +8,8 @@ import requests
 from requests.exceptions import ConnectionError, RequestException, Timeout
 
 
-class ComputerClientStatus(str, Enum):
-    """Status states for computer_clients."""
+class PlatformManagerStatus(str, Enum):
+    """Status states for platform_managers."""
 
     NOT_STARTED = "not_started"
     PROVISIONING = "provisioning"
@@ -23,7 +23,7 @@ class ComputerClientStatus(str, Enum):
     TEARDOWN_ERROR = "teardown_error"
 
 
-class BaseComputerClient(ABC):
+class BasePlatformManager(ABC):
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
@@ -34,7 +34,7 @@ class BaseComputerClient(ABC):
         max_health_retries: int = 10,
         health_check_timeout: int = 60,  # 1 minute
     ):
-        """Initialize the base computer_client.
+        """Initialize the base platform_manager.
 
         Args:
             daemon_base_url: Base URL for the daemon service
@@ -52,10 +52,10 @@ class BaseComputerClient(ABC):
         self.timeout = timeout
         self.max_health_retries = max_health_retries
         self.health_check_timeout = health_check_timeout
-        self._status = ComputerClientStatus.NOT_STARTED
+        self._status = PlatformManagerStatus.NOT_STARTED
 
-    def _set_status(self, status: ComputerClientStatus) -> None:
-        """Set the computer_client status with logging.
+    def _set_status(self, status: PlatformManagerStatus) -> None:
+        """Set the platform_manager status with logging.
 
         Args:
             status: The new status to set
@@ -71,7 +71,7 @@ class BaseComputerClient(ABC):
         while delegating the platform-specific provisioning to _provision_resource.
         """
         print(f"Setting up resource")
-        self._set_status(ComputerClientStatus.STARTING)
+        self._set_status(PlatformManagerStatus.STARTING)
         provision_attempt = 0
 
         # First loop: Provisioning with retries
@@ -80,7 +80,7 @@ class BaseComputerClient(ABC):
                 f"Attempt {provision_attempt + 1}/{self.max_provisioning_retries} to setup resource"
             )
             try:
-                self._set_status(ComputerClientStatus.PROVISIONING)
+                self._set_status(PlatformManagerStatus.PROVISIONING)
                 self._provision_resource()
 
                 # If we get here, provisioning was successful
@@ -89,7 +89,7 @@ class BaseComputerClient(ABC):
             except Exception as e:
                 provision_attempt += 1
                 if provision_attempt >= self.max_provisioning_retries:
-                    self._set_status(ComputerClientStatus.SETUP_ERROR)
+                    self._set_status(PlatformManagerStatus.SETUP_ERROR)
                     print(
                         f"Failed to setup resource after {
                             self.max_provisioning_retries} attempts: {
@@ -105,7 +105,7 @@ class BaseComputerClient(ABC):
                 time.sleep(backoff_seconds)  # Exponential backoff
 
         # Second loop: Health checking with its own timeout and retry count
-        self._set_status(ComputerClientStatus.HEALTH_CHECKING)
+        self._set_status(PlatformManagerStatus.HEALTH_CHECKING)
         print(
             f"Waiting for resource and daemon to be running (timeout: {
                 self.health_check_timeout}s)"
@@ -132,7 +132,7 @@ class BaseComputerClient(ABC):
 
                 # Both checks passed
                 print("Resource is running and daemon is responsive")
-                self._set_status(ComputerClientStatus.RUNNING)
+                self._set_status(PlatformManagerStatus.RUNNING)
                 print(
                     f"Resource and daemon are now running after {
                         int(
@@ -147,7 +147,7 @@ class BaseComputerClient(ABC):
 
                 # Check if we've exceeded the timeout
                 if elapsed_seconds > self.health_check_timeout:
-                    self._set_status(ComputerClientStatus.HEALTH_CHECK_ERROR)
+                    self._set_status(PlatformManagerStatus.HEALTH_CHECK_ERROR)
                     print(
                         f"Timeout waiting for resource and daemon to start after {elapsed_seconds}s"
                     )
@@ -157,7 +157,7 @@ class BaseComputerClient(ABC):
 
                 # Check if we've exceeded max retries
                 if health_check_attempt >= self.max_health_retries:
-                    self._set_status(ComputerClientStatus.HEALTH_CHECK_ERROR)
+                    self._set_status(PlatformManagerStatus.HEALTH_CHECK_ERROR)
                     print(
                         f"Failed health check after {
                             self.max_health_retries} attempts: {
@@ -196,13 +196,13 @@ class BaseComputerClient(ABC):
         This method implements the common teardown flow, while delegating
         the platform-specific cleanup to _deprovision_resource.
         """
-        self._set_status(ComputerClientStatus.STOPPING)
+        self._set_status(PlatformManagerStatus.STOPPING)
 
         try:
             self._deprovision_resource()
-            self._set_status(ComputerClientStatus.STOPPED)
+            self._set_status(PlatformManagerStatus.STOPPED)
         except Exception as e:
-            self._set_status(ComputerClientStatus.TEARDOWN_ERROR)
+            self._set_status(PlatformManagerStatus.TEARDOWN_ERROR)
             print(f"Error during teardown: {e}")
 
     @abstractmethod
@@ -271,7 +271,7 @@ class BaseComputerClient(ABC):
             return False
 
     def get_status(self) -> str:
-        """Get the current status of the computer_client."""
+        """Get the current status of the platform_manager."""
         return self._status.value
 
     @property

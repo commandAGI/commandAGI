@@ -1,12 +1,12 @@
 from typing import Optional
 
-from commandAGI.computers.clients.base_computer_client import (
-    BaseComputerComputerClient,
-    ComputerClientStatus,
+from commandAGI.computers.platform_managers.base_platform_manager import (
+    BaseComputerPlatformManager,
+    PlatformManagerStatus,
 )
 
 
-class ManualComputerClient(BaseComputerComputerClient):
+class ManualPlatformManager(BaseComputerPlatformManager):
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",

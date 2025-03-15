@@ -14,9 +14,9 @@ from google.cloud import container_v1, run_v2
 from commandAGI._internal.config import PROJ_DIR
 from commandAGI._utils.command import run_command
 from commandAGI._utils.network import find_free_port
-from commandAGI.computers.backend.base_computer_client import (
-    BaseComputerComputerClient,
-    ComputerClientStatus,
+from commandAGI.computers.platform_managers.base_platform_manager import (
+    BaseComputerPlatformManager,
+    PlatformManagerStatus,
 )
 from commandAGI.version import get_container_version, get_package_version
 
@@ -28,10 +28,10 @@ class DockerPlatform(str, Enum):
     GCP_CLOUD_RUN = "gcp_cloud_run"
 
 
-class DockerComputerClient(BaseComputerComputerClient):
-    """Docker-based computer computer_client.
+class DockerPlatformManager(BaseComputerPlatformManager):
+    """Docker-based computer platform_manager.
 
-    This computer_client creates and manages Docker containers for running the commandAGI daemon.
+    This platform_manager creates and manages Docker containers for running the commandAGI daemon.
     It supports both local Docker and cloud-based container services.
 
     Args:
@@ -40,9 +40,9 @@ class DockerComputerClient(BaseComputerComputerClient):
         port_range: Optional range of ports to try if daemon_port is not available.
                    NOTE: This parameter is only used for LOCAL Docker containers.
                    When running locally, port collisions can occur with existing containers
-                   or other processes. The port_range allows the computer_client to find the
+                   or other processes. The port_range allows the platform_manager to find the
                    next available port within the specified range if the requested port
-                   is unavailable. This is not needed for cloud computer_clients where exact
+                   is unavailable. This is not needed for cloud platform_managers where exact
                    ports can be specified during VM/container creation.
         daemon_token: Optional authentication token for the daemon
         container_name: Optional name for the container. If not provided, a name will be generated
@@ -253,7 +253,7 @@ class DockerComputerClient(BaseComputerComputerClient):
         # 2. System processes using the same ports
         # 3. Other commandAGI daemon instances
         # This is why we implement port scanning and fallback logic for local containers.
-        # Cloud computer_clients don't need this as they can specify exact ports
+        # Cloud platform_managers don't need this as they can specify exact ports
         # during VM/container creation.
         if self.daemon_port is None:
             # No port specified, find one in the given range or any available
@@ -731,5 +731,5 @@ class DockerComputerClient(BaseComputerComputerClient):
             return False
 
     def get_status(self) -> str:
-        """Get the current status of the computer_client."""
+        """Get the current status of the platform_manager."""
         return self._status.value

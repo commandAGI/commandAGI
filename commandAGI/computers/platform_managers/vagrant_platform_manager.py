@@ -5,12 +5,12 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from commandAGI.computers.clients.base_computer_client import BaseComputerComputerClient
+from commandAGI.computers.platform_managers.base_platform_manager import BaseComputerPlatformManager
 
 logger = logging.getLogger(__name__)
 
 
-class VagrantComputerClient(BaseComputerComputerClient):
+class VagrantPlatformManager(BaseComputerPlatformManager):
     def __init__(
         self,
         port: int = 8000,
@@ -162,5 +162,5 @@ end
             f.write(vagrantfile_content)
 
     def get_status(self) -> str:
-        """Get the current status of the computer_client."""
+        """Get the current status of the platform_manager."""
         return self._status

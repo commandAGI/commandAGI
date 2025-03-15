@@ -5,15 +5,15 @@ from typing import Optional
 
 from google.cloud import compute_v1
 
-from commandAGI.computers.backend.base_computer_client import (
-    BaseComputerComputerClient,
-    ComputerClientStatus,
+from commandAGI.computers.platform_managers.base_platform_manager import (
+    BaseComputerPlatformManager,
+    PlatformManagerStatus,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class GCPComputerClient(BaseComputerComputerClient):
+class GCPPlatformManager(BaseComputerPlatformManager):
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
@@ -246,5 +246,5 @@ class GCPComputerClient(BaseComputerComputerClient):
             return False
 
     def get_status(self) -> str:
-        """Get the current status of the computer_client."""
+        """Get the current status of the platform_manager."""
         return self._status.value

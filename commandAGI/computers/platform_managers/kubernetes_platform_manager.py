@@ -6,7 +6,7 @@ from typing import Optional
 
 from kubernetes import client, config
 
-from commandAGI.computers.clients.base_computer_client import BaseComputerComputerClient
+from commandAGI.computers.platform_managers.base_platform_manager import BaseComputerPlatformManager
 from commandAGI.version import get_container_version
 
 logger = logging.getLogger(__name__)
@@ -19,10 +19,10 @@ class KubernetesPlatform(str, Enum):
     GCP_GKE = "gcp_gke"
 
 
-class KubernetesComputerClient(BaseComputerComputerClient):
-    """Kubernetes-based computer computer_client.
+class KubernetesPlatformManager(BaseComputerPlatformManager):
+    """Kubernetes-based computer platform_manager.
 
-    This computer_client creates and manages Kubernetes deployments and services for running the commandAGI daemon.
+    This platform_manager creates and manages Kubernetes deployments and services for running the commandAGI daemon.
     It supports both local Kubernetes clusters and cloud-based Kubernetes services.
 
     Args:
@@ -452,5 +452,5 @@ class KubernetesComputerClient(BaseComputerComputerClient):
             return False
 
     def get_status(self) -> str:
-        """Get the current status of the computer_client."""
+        """Get the current status of the platform_manager."""
         return self._status

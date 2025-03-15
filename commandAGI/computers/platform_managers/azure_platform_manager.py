@@ -7,15 +7,15 @@ from typing import Optional
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.compute import ComputeManagementClient
 
-from commandAGI.computers.clients.base_computer_client import (
-    BaseComputerComputerClient,
-    ComputerClientStatus,
+from commandAGI.computers.platform_managers.base_platform_manager import (
+    BaseComputerPlatformManager,
+    PlatformManagerStatus,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class AzureComputerClient(BaseComputerComputerClient):
+class AzurePlatformManager(BaseComputerPlatformManager):
     def __init__(
         self,
         daemon_base_url: str = "http://localhost",
@@ -245,5 +245,5 @@ class AzureComputerClient(BaseComputerComputerClient):
             return False
 
     def get_status(self) -> str:
-        """Get the current status of the computer_client."""
+        """Get the current status of the platform_manager."""
         return self._status.value
