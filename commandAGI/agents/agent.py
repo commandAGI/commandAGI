@@ -8,7 +8,12 @@ from typing import AsyncGenerator, Literal, Optional, TypeVar, Union, List, Call
 import uuid
 import traceback
 from pydantic import BaseModel
-from commandAGI._utils.mcp_schema import MCPServerTransport, mcp_server_connections
+from commandAGI._utils.mcp_schema import (
+    MCPServerConnection,
+    MCPServerTransport,
+    mcp_server_connections,
+)
+from commandAGI._utils.resource_schema import BaseResource
 from commandAGI._utils.rfc6902 import JsonPatchOperation
 from commandAGI.agents.base_agent import (
     BaseAgent,
@@ -20,18 +25,23 @@ from commandAGI.agents.base_agent import (
     UserInputEvent,
 )
 from commandAGI.agents._api_provider_utils import (
+    AIClient,
     generate_response,
     _format_tools_for_api_provider,
 )
 from langchain.tools import BaseTool
 
-from commandAGI.agents.events import ErrorEvent, ResourceCalloutEvent, ThoughtEvent, ToolCallEvent, ToolResultEvent
+from commandAGI.agents.events import (
+    AgentEvent,
+    ErrorEvent,
+    ResourceCalloutEvent,
+    ThoughtEvent,
+    ToolCallEvent,
+    ToolResultEvent,
+)
 from commandAGI.computers.base_computer import BaseComputer
 
 
-AgentProviderClient = Union[
-    CommandAGIClient, OpenAIClient, AnthropicClient, ScrappybaraClient, GeminiClient
-]
 from typing import Protocol
 
 
@@ -142,19 +152,54 @@ class AgentHooks(BaseAgentHooks):
 
 class AgentRunSession(BaseAgentRunSession):
     agent: Agent
-    mcp_server_connections: list[MCPServerTransport] = []
-    resources: list[BaseResource] = Field(default_factory=list)
+    directly_supplied_tools: list[BaseTool] = []
+    directly_supplied_resources: list[BaseResource] = []
+    mcp_server_connections: list[MCPServerConnection] = []
 
     @property
     def tools(self) -> list[BaseTool]:
-        return self.directly_supplied_tools + [
-            *[
-                mcp_server_connection.get_tool()
-                for mcp_server_connection in self.mcp_server_connections
-            ]
-        ]
+        all_tools = self.directly_supplied_tools.copy()
+        for connection in self.mcp_server_connections:
+            all_tools.extend(connection.tools())
+        return all_tools
+
+    @property
+    def resources(self) -> list[BaseResource]:
+        all_resources = self.directly_supplied_resources.copy()
+        for connection in self.mcp_server_connections:
+            all_resources.extend(connection.resources())
+        return all_resources
 
     _hooks: AgentHooks = Field(default_factory=AgentHooks)
+
+    state: Literal["running", "paused", "stopped"] = "running"
+
+    def __init__(
+        self,
+        objective: str,
+        agent: Agent,
+        events: list[AgentEvent] = [],
+        tools: list[BaseTool] = [],
+        resources: list[BaseResource] = [],
+        mcp_server_connections: list[MCPServerConnection] = [],
+    ):
+        super().__init__(
+            objective=objective,
+            agent=agent,
+            events=events,
+            directly_supplied_tools=tools,
+            directly_supplied_resources=resources,
+            mcp_server_connections=mcp_server_connections,
+        )
+
+    def pause(self):
+        self.state = "paused"
+
+    def resume(self):
+        self.state = "running"
+
+    def stop(self):
+        self.state = "stopped"
 
     def on_step_draft(self, func: OnStepDraftHook):
         self._hooks.on_step_draft_hooks.append(func)
@@ -197,13 +242,20 @@ class AgentRunSession(BaseAgentRunSession):
 
 
 class Agent(BaseAgent):
-    client: AgentProviderClient
+    client: AIClient
     is_complete_prompt: str
     min_steps: Optional[int]
     max_steps: Optional[int]
     rules: list[str]
     max_retries: int = 3
-    mcp_servers: list[MCPServerTransport] = []
+    directly_supplied_tools: list[BaseTool]
+    directly_supplied_resources: List[Resource]
+    """
+    NOTE: tools are not necesarily the tools that the agnet's LLM kernel will have access to for the following reasons:
+    1. the mcp_servers may supply additional tools
+    2. the agent architecture may dynamicly select a subset of tools to offer to the LLM kernel based on the context at hand
+    """
+    mcp_servers: list[MCPServerTransport] = Field(default_factory=list)
     """
     config info for conecting to mcp servers
     """
@@ -212,7 +264,8 @@ class Agent(BaseAgent):
         self,
         system_prompt: str,
         tools: list[BaseTool],
-        client: AgentProviderClient,
+        resources: list[BaseResource],
+        client: AIClient,
         mcp_servers: list[MCPServerTransport] = [],
         min_steps: Optional[int] = None,
         max_steps: Optional[int] = None,
@@ -222,15 +275,15 @@ class Agent(BaseAgent):
         if min_steps is not None and max_steps is not None and min_steps > max_steps:
             raise ValueError("min_steps cannot be greater than max_steps")
 
-        super().__init__(system_prompt=system_prompt, tools=tools)
+        super().__init__(system_prompt=system_prompt)
+        self.directly_supplied_tools = tools
+        self.directly_supplied_resources = resources
         self.client = client
         self.mcp_servers = mcp_servers
         self.min_steps = min_steps
         self.max_steps = max_steps
         self.rules = rules
         self.max_retries = max_retries
-
-        self.tools = _format_tools_for_api_provider(tools, client)
 
     def _format_output(
         self,
@@ -403,15 +456,31 @@ class Agent(BaseAgent):
                 agent=self,
                 step_count=0,
                 mcp_server_connections=mcp_server_connections,
-                directly_supplied_tools=self.tools,
+                directly_supplied_tools=self.directly_supplied_tools,
+                directly_supplied_resources=self.directly_supplied_resources,
+                objective=prompt,
             )
             # Initialize with user input
             state.add_event(UserInputEvent(content=prompt))
             yield state
 
+    async def _check_running_state(self, state: AgentRunSession) -> bool:
+        """Check if agent should continue running. Returns False if stopped, handles pause with sleep loop."""
+        if state.state == "stopped":
+            return False
+        while state.state == "paused":
+            await asyncio.sleep(0.1)
+            if state.state == "stopped":
+                return False
+        return True
+
     async def _run(self, state: AgentRunSession) -> TSchema | None:
         try:
             while True:
+                # Check running state
+                if not await self._check_running_state(state):
+                    return None
+
                 # Process any resource callouts since last agent response
                 last_agent_response_idx = next(
                     (
@@ -422,6 +491,9 @@ class Agent(BaseAgent):
                     -1,
                 )
 
+                if not await self._check_running_state(state):
+                    return None
+
                 resource_callouts = [
                     event
                     for event in state.events[last_agent_response_idx + 1 :]
@@ -429,6 +501,9 @@ class Agent(BaseAgent):
                 ]
 
                 for callout in resource_callouts:
+                    if not await self._check_running_state(state):
+                        return None
+
                     resource = next(
                         (
                             r
@@ -446,10 +521,16 @@ class Agent(BaseAgent):
                             results=relevant_items,
                         )
 
+                if not await self._check_running_state(state):
+                    return None
+
                 # Generate action based on history
                 response = generate_response(
                     state.events, client=self.client, tools=state.tools
                 )
+
+                if not await self._check_running_state(state):
+                    return None
 
                 # Add the response as an agent response event
                 state.add_agent_response(
@@ -463,6 +544,9 @@ class Agent(BaseAgent):
                 for hook in state._hooks.on_step_draft_hooks:
                     hook(response)
 
+                if not await self._check_running_state(state):
+                    return None
+
                 # Enforce rules before executing tool calls
                 if self.rules:
                     await self._enforce_rules(state)
@@ -474,6 +558,9 @@ class Agent(BaseAgent):
                 # Execute any tool calls
                 if response.tool_calls:
                     for tool_call_index, tool_call in enumerate(response.tool_calls):
+                        if not await self._check_running_state(state):
+                            return None
+
                         try:
                             for hook in state._hooks.on_tool_execution_start_hooks:
                                 hook(len(state.events) - 1, tool_call_index)
@@ -516,17 +603,24 @@ class Agent(BaseAgent):
                             )
                             raise
 
+                if not await self._check_running_state(state):
+                    return None
+
                 # If we've hit max_steps, finish
                 if self.max_steps is not None and state.step_count >= self.max_steps:
                     for hook in state._hooks.on_finish_hooks:
                         hook(len(state.events) - 1, "max_steps")
-                    return self._format_output(state.events, output_schema)
+                    return self._format_output(state.events, self.output_schema)
 
                 # Only check completion if we're past min_steps
                 if self.min_steps is None or state.step_count >= self.min_steps:
-                    state.add_system_message(content=self.is_complete_prompt)
+                    # Create a copy of events and add completion check message only to the copy
+                    events_copy = state.events.copy()
+                    events_copy.append(
+                        SystemInputEvent(content=self.is_complete_prompt)
+                    )
                     is_complete = generate_response(
-                        state.events,
+                        events_copy,
                         client=self.client,
                         output_schema=bool,
                     )
@@ -534,7 +628,7 @@ class Agent(BaseAgent):
                     if is_complete:
                         for hook in state._hooks.on_finish_hooks:
                             hook(len(state.events) - 1, "is_complete")
-                        return self._format_output(state.events, output_schema)
+                        return self._format_output(state.events, self.output_schema)
 
         except Exception as e:
             state.add_error(

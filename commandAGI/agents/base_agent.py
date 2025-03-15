@@ -32,21 +32,21 @@ class BaseAgentRunSession(BaseModel):
     """Schema for Fielding state during agent run."""
 
     run_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    objective: str
     agent: "BaseAgent"
-    directly_supplied_tools: list[BaseTool] = []
     events: List[AgentEvent] = Field(default_factory=list)
 
-    @property
-    def tools(self) -> list[BaseTool]:
-        return self.directly_supplied_tools
-
     _hooks: BaseAgentHooks = Field(default_factory=BaseAgentHooks)
+
+    def input(self, input: str):
+        """Add user input to the session"""
+        self.add_user_message(input)
 
     def add_event(self, event: AgentEvent) -> None:
         """Add a new event to the session history"""
         self.events.append(event)
 
-    def input(self, input: str):
+    def add_user_message(self, input: str):
         """Add user input to the session"""
         self.add_event(UserInputEvent(content=input))
 
@@ -96,18 +96,12 @@ class BaseAgentRunSession(BaseModel):
 
 class BaseAgent(BaseModel):
     system_prompt: str
-    tools: list[BaseTool]
-    """
-    NOTE: tools are not necesarily the tools that the agnet's LLM kernel will have access to for the following reasons:
-    1. the mcp_servers may supply additional tools
-    2. the agent architecture may dynamicly select a subset of tools to offer to the LLM kernel based on the context at hand
-    """
 
     @contextmanager
     async def session(
         self, prompt: str, *, output_schema: Optional[type[TSchema]] = None
     ) -> AsyncGenerator["BaseAgentRunSession", None]:
-        state = BaseAgentRunSession(agent=self, directly_supplied_tools=self.tools)
+        state = BaseAgentRunSession(agent=self, objective=prompt)
         yield state
 
     async def run(
