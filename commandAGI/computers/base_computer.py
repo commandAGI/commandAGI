@@ -972,27 +972,11 @@ class BaseComputer(BaseModel):
         timeout: Optional[float] = None,
     ) -> bool:
         """Run a process with the specified parameters and return True if successful."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = RunProcessAction(
-            command=command, args=args, cwd=cwd, env=env, timeout=timeout
+        return self._execute_with_retry(
+            "run_process",
+            self._run_process,
+            RunProcessAction(command=command, args=args, cwd=cwd, env=env, timeout=timeout),
         )
-
-        for attempt in range(self.num_retries):
-            try:
-                self._run_process(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error running process (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
 
     def _run_process(self, action: RunProcessAction) -> bool:
         raise NotImplementedError(f"{self.__class__.__name__}._run_process")
