@@ -17,6 +17,7 @@ from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.types import (
     ClickAction,
     ComputerActionType,
+    DisplayInfo,
     DisplaysObservation,
     DoubleClickAction,
     DragAction,
@@ -36,11 +37,13 @@ from commandAGI.types import (
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
+    ProcessInfo,
     ProcessesObservation,
     RunProcessAction,
     ScreenshotObservation,
     ShellCommandAction,
     TypeAction,
+    WindowInfo,
     WindowsObservation,
     ComputerActionUnion,
 )
@@ -481,9 +484,7 @@ class BaseComputer(BaseModel):
             bool: True if the computer was successfully paused, False otherwise.
         """
         if self._state != "started":
-            self.logger.warning(
-                f"Cannot pause computer in {self._state} state"
-            )
+            self.logger.warning(f"Cannot pause computer in {self._state} state")
             return False
 
         self.logger.info(
@@ -647,10 +648,20 @@ class BaseComputer(BaseModel):
     def _new_screenshot_name(self) -> Path:
         return self.artifact_dir / f"screenshot-{datetime.now():%Y-%m-%d_%H-%M-%S-%f}"
 
+    def wait(self, timeout: float = 5.0) -> bool:
+        """Waits a specified amount of time"""
+        time.sleep(timeout)
+        return True
+
+    @property
+    def screenshot(self) -> Union[str, Image.Image, Path]:
+        """Get a screenshot of the current display."""
+        return self.get_screenshot()
+
     def get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
-    ) -> ScreenshotObservation:
-        """Return a ScreenshotObservation containing the screenshot encoded as a base64 string.
+    ) -> Union[str, Image.Image, Path]:
+        """Return a screenshot in the specified format.
 
         Args:
             display_id: Optional ID of the display to capture. Defaults to 0 (primary display).
@@ -659,19 +670,16 @@ class BaseComputer(BaseModel):
                 - 'PIL': Return the screenshot as a PIL Image object
                 - 'path': Save the screenshot to a file and return the path
         """
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-        try:
-            return self._get_screenshot(display_id=display_id, format=format)
-        except Exception as e:
-            self.logger.error(f"Error getting screenshot: {e}")
-            return ScreenshotObservation()
+        return self._execute_with_retry(
+            "get_screenshot",
+            self._get_screenshot,
+            display_id=display_id,
+            format=format,
+        )
 
     def _get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
-    ) -> ScreenshotObservation:
+    ) -> Union[str, Image.Image, Path]:
         """Get a screenshot of the current state.
 
         Args:
@@ -685,16 +693,24 @@ class BaseComputer(BaseModel):
 
     @property
     def mouse_position(self) -> tuple[int, int]:
-        return self.get_mouse_state().position
+        return self.get_mouse_position()
 
     @mouse_position.setter
     def mouse_position(self, value: tuple[int, int]):
         x, y = value
         self.execute_mouse_move(x=x, y=y, move_duration=0.0)
 
+    def get_mouse_position(self) -> tuple[int, int]:
+        """Get the current mouse position."""
+        return self._execute_with_retry("get_mouse_position", self._get_mouse_position)
+
+    def _get_mouse_position(self) -> tuple[int, int]:
+        """Get the current mouse position."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_mouse_position")
+
     @property
     def mouse_button_states(self) -> dict[str, bool | None]:
-        return self.get_mouse_state().buttons
+        return self.get_mouse_button_states()
 
     @mouse_button_states.setter
     def mouse_button_states(self, value: dict[str, bool | None]):
@@ -704,10 +720,20 @@ class BaseComputer(BaseModel):
             elif button_state is False:
                 self.execute_mouse_button_up(button=MouseButton[button_name.upper()])
 
+    def get_mouse_button_states(self) -> dict[str, bool | None]:
+        """Get the current state of mouse buttons."""
+        return self._execute_with_retry(
+            "get_mouse_button_states", self._get_mouse_button_states
+        )
+
+    def _get_mouse_button_states(self) -> dict[str, bool | None]:
+        """Get the current state of mouse buttons."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_mouse_button_states")
+
     @property
     def keyboard_key_states(self) -> dict[KeyboardKey, bool]:
         """Get the current state of all keyboard keys."""
-        return self.get_keyboard_state().keys
+        return self.get_keyboard_key_states()
 
     @keyboard_key_states.setter
     def keyboard_key_states(self, value: dict[str, bool | None]):
@@ -721,6 +747,24 @@ class BaseComputer(BaseModel):
                 self.execute_keyboard_key_down(key=KeyboardKey[key_name.upper()])
             elif key_state is False:
                 self.execute_keyboard_key_release(key=KeyboardKey[key_name.upper()])
+
+    def get_keyboard_key_states(self) -> dict[KeyboardKey, bool]:
+        """Get the current state of keyboard keys."""
+        return self._execute_with_retry(
+            "get_keyboard_key_states", self._get_keyboard_key_states
+        )
+
+    def _get_keyboard_key_states(self) -> dict[KeyboardKey, bool]:
+        """Get the current state of keyboard keys."""
+        raise NotImplementedError(f"{self.__class__.__name__}.get_keyboard_key_states")
+
+    @property
+    def keyboard_key_states_tool(self) -> BaseTool:
+        return BaseTool.from_function(
+            name="get_keyboard_key_states",
+            description="Get the current keyboard key states",
+            func=self.get_keyboard_key_states,
+        )
 
     @property
     def keys_down(self) -> list[KeyboardKey]:
@@ -783,91 +827,80 @@ class BaseComputer(BaseModel):
             self.execute_keyboard_key_release(key=key)
 
     @property
-    def screenshot(self) -> ScreenshotObservation:
-        """Get a screenshot of the current display."""
-        return self.get_screenshot()
+    def processes(self) -> List[ProcessInfo]:
+        """Get information about running processes."""
+        return self.get_processes()
+
+    def get_processes(self) -> List[ProcessInfo]:
+        """Get information about running processes."""
+        return self._execute_with_retry("get_processes", self._get_processes)
+
+    def _get_processes(self) -> List[ProcessInfo]:
+        """Get information about running processes."""
+        raise NotImplementedError(f"{self.__class__.__name__}._get_processes")
+
+    @property
+    def get_processes_tool(self) -> BaseTool:
+        return BaseTool.from_function(
+            name="get_processes",
+            description="Get information about running processes",
+            func=self.get_processes,
+        )
+
+    @property
+    def windows(self) -> List[WindowInfo]:
+        """Get information about open windows."""
+        return self.get_windows()
+
+    def get_windows(self) -> List[WindowInfo]:
+        """Get information about open windows."""
+        return self._execute_with_retry("get_windows", self._get_windows)
+
+    def _get_windows(self) -> List[WindowInfo]:
+        """Get information about open windows."""
+        raise NotImplementedError(f"{self.__class__.__name__}._get_windows")
+
+    @property
+    def get_windows_tool(self) -> BaseTool:
+        return BaseTool.from_function(
+            name="get_windows",
+            description="Get information about open windows",
+            func=self.get_windows,
+        )
+
+    @property
+    def displays(self) -> List[DisplayInfo]:
+        """Get information about connected displays."""
+        return self.get_displays()
+
+    def get_displays(self) -> List[DisplayInfo]:
+        """Get information about connected displays."""
+        return self._execute_with_retry("get_displays", self._get_displays)
+
+    def _get_displays(self) -> List[DisplayInfo]:
+        """Get information about connected displays."""
+        raise NotImplementedError(f"{self.__class__.__name__}._get_displays")
+
+    @property
+    def get_displays_tool(self) -> BaseTool:
+        return BaseTool.from_function(
+            name="get_displays",
+            description="Get information about connected displays",
+            func=self.get_displays,
+        )
 
     @property
     def layout_tree(self) -> LayoutTreeObservation:
         """Get the current UI layout tree."""
         return self.get_layout_tree()
 
-    @property
-    def processes(self) -> ProcessesObservation:
-        """Get information about running processes."""
-        return self.get_processes()
-
-    @property
-    def windows(self) -> WindowsObservation:
-        """Get information about open windows."""
-        return self.get_windows()
-
-    @property
-    def displays(self) -> DisplaysObservation:
-        """Get information about connected displays."""
-        return self.get_displays()
-
-    @property
-    def sysinfo(self) -> SystemInfo:
-        """Get information about the system."""
-        return self.get_sysinfo()
-
-    def get_mouse_state(self) -> MouseStateObservation:
-        """Return a MouseStateObservation containing the current mouse button states and position."""
-        return self._execute_with_retry(
-            "get_mouse_state",
-            self._get_mouse_state
-        )
-
-    def _get_mouse_state(self) -> MouseStateObservation:
-        """Get the current mouse state.
-        
-        Returns:
-            MouseStateObservation containing button states and position
-        """
-        raise NotImplementedError(f"{self.__class__.__name__}._get_mouse_state")
-
-    @property
-    def mouse_state_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_mouse_state",
-            description="Get the current mouse state",
-            func=self.get_mouse_state,
-        )
-
-    def get_keyboard_state(self) -> KeyboardStateObservation:
-        """Return a KeyboardStateObservation with the current keyboard keys mapped to their states."""
-        return self._execute_with_retry(
-            "get_keyboard_state",
-            self._get_keyboard_state
-        )
-
-    def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Get the current keyboard state.
-        
-        Returns:
-            KeyboardStateObservation containing key states
-        """
-        raise NotImplementedError(f"{self.__class__.__name__}._get_keyboard_state")
-
-    @property
-    def keyboard_state_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_keyboard_state",
-            description="Get the current keyboard state",
-            func=self.get_keyboard_state,
-        )
-
     def get_layout_tree(self) -> LayoutTreeObservation:
         """Return a LayoutTreeObservation containing the accessibility tree of the current UI."""
-        return self._execute_with_retry(
-            "get_layout_tree",
-            self._get_layout_tree
-        )
+        return self._execute_with_retry("get_layout_tree", self._get_layout_tree)
 
     def _get_layout_tree(self) -> LayoutTreeObservation:
         """Get the UI layout tree.
-        
+
         Returns:
             LayoutTreeObservation containing UI component hierarchy
         """
@@ -881,74 +914,10 @@ class BaseComputer(BaseModel):
             func=self.get_layout_tree,
         )
 
-    def get_processes(self) -> ProcessesObservation:
-        """Return a ProcessesObservation containing information about running processes."""
-        return self._execute_with_retry(
-            "get_processes",
-            self._get_processes
-        )
-
-    def _get_processes(self) -> ProcessesObservation:
-        """Get information about running processes.
-        
-        Returns:
-            ProcessesObservation containing process information
-        """
-        raise NotImplementedError(f"{self.__class__.__name__}._get_processes")
-
     @property
-    def get_processes_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_processes",
-            description="Get information about running processes",
-            func=self.get_processes,
-        )
-
-    def get_windows(self) -> WindowsObservation:
-        """Return a WindowsObservation containing information about open windows."""
-        return self._execute_with_retry(
-            "get_windows",
-            self._get_windows
-        )
-
-    def _get_windows(self) -> WindowsObservation:
-        """Get information about open windows.
-        
-        Returns:
-            WindowsObservation containing window information
-        """
-        raise NotImplementedError(f"{self.__class__.__name__}._get_windows")
-
-    @property
-    def get_windows_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_windows",
-            description="Get information about open windows",
-            func=self.get_windows,
-        )
-
-    def get_displays(self) -> DisplaysObservation:
-        """Return a DisplaysObservation containing information about connected displays."""
-        return self._execute_with_retry(
-            "get_displays",
-            self._get_displays
-        )
-
-    def _get_displays(self) -> DisplaysObservation:
-        """Get information about connected displays.
-        
-        Returns:
-            DisplaysObservation containing display information
-        """
-        raise NotImplementedError(f"{self.__class__.__name__}._get_displays")
-
-    @property
-    def get_displays_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_displays",
-            description="Get information about connected displays",
-            func=self.get_displays,
-        )
+    def sysinfo(self) -> SystemInfo:
+        """Get information about the system."""
+        return self.get_sysinfo()
 
     def get_sysinfo(self) -> SystemInfo:
         """Get information about the system."""
@@ -963,7 +932,7 @@ class BaseComputer(BaseModel):
 
     def _get_sysinfo(self) -> SystemInfo:
         """Get system information.
-        
+
         Returns:
             SystemInfo object containing system metrics and details
         """
@@ -1009,7 +978,9 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "run_process",
             self._run_process,
-            RunProcessAction(command=command, args=args, cwd=cwd, env=env, timeout=timeout),
+            RunProcessAction(
+                command=command, args=args, cwd=cwd, env=env, timeout=timeout
+            ),
         )
 
     def _run_process(
@@ -1018,17 +989,17 @@ class BaseComputer(BaseModel):
         args: List[str] = [],
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> bool:
         """Run a process with the specified parameters.
-        
+
         Args:
             command: The command to run
             args: List of command arguments
             cwd: Working directory for the process
             env: Environment variables for the process
             timeout: Optional timeout in seconds
-            
+
         Returns:
             bool: True if process executed successfully
         """
@@ -1048,7 +1019,7 @@ class BaseComputer(BaseModel):
         args: List[str] = [],
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> bool:
         """Default implementation of run_process using shell commands.
 
@@ -1058,7 +1029,7 @@ class BaseComputer(BaseModel):
 
         Args:
             command: The command to run
-            args: List of command arguments 
+            args: List of command arguments
             cwd: Working directory for the process
             env: Environment variables for the process
             timeout: Optional timeout in seconds
@@ -1066,9 +1037,7 @@ class BaseComputer(BaseModel):
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(
-            f"Running process via shell: {command} with args: {args}"
-        )
+        self.logger.info(f"Running process via shell: {command} with args: {args}")
 
         # Change to the specified directory if provided
         if cwd:
@@ -1132,10 +1101,10 @@ class BaseComputer(BaseModel):
         self,
         command: str,
         timeout: Optional[float] = None,
-        executible: Optional[str] = None
+        executible: Optional[str] = None,
     ) -> bool:
         """Execute a shell command.
-        
+
         Args:
             command: The command to execute
             timeout: Optional timeout in seconds
@@ -1186,7 +1155,9 @@ class BaseComputer(BaseModel):
 
     def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
-        raise NotImplementedError(f"{self.__class__.__name__}.execute_keyboard_key_down")
+        raise NotImplementedError(
+            f"{self.__class__.__name__}.execute_keyboard_key_down"
+        )
 
     @property
     def keyboard_key_down_tool(self) -> BaseTool:
@@ -1206,7 +1177,9 @@ class BaseComputer(BaseModel):
 
     def _execute_keyboard_key_release(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
-        raise NotImplementedError(f"{self.__class__.__name__}.execute_keyboard_key_release")
+        raise NotImplementedError(
+            f"{self.__class__.__name__}.execute_keyboard_key_release"
+        )
 
     @property
     def keyboard_key_release_tool(self) -> BaseTool:
@@ -1241,9 +1214,7 @@ class BaseComputer(BaseModel):
 
     def execute_type(self, text: str) -> bool:
         """Execute typing the given text."""
-        return self._execute_with_retry(
-            "type", self._execute_type, text
-        )
+        return self._execute_with_retry("type", self._execute_type, text)
 
     def _execute_type(self, text: str):
         """Execute typing the given text."""
@@ -1308,7 +1279,9 @@ class BaseComputer(BaseModel):
 
     def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Execute mouse button down action."""
-        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_button_down")
+        raise NotImplementedError(
+            f"{self.__class__.__name__}.execute_mouse_button_down"
+        )
 
     @property
     def mouse_button_down_tool(self) -> BaseTool:
@@ -1359,7 +1332,14 @@ class BaseComputer(BaseModel):
             button,
         )
 
-    def _execute_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT):
+    def _execute_click(
+        self,
+        x: int,
+        y: int,
+        move_duration: float = 0.5,
+        press_duration: float = 0.1,
+        button: MouseButton = MouseButton.LEFT,
+    ):
         """Execute a click action at the given coordinates using press and release operations with a duration."""
         self.execute_mouse_move(x=x, y=y, move_duration=move_duration)
         self.execute_mouse_button_down(button=button)
@@ -1397,11 +1377,31 @@ class BaseComputer(BaseModel):
             double_click_interval_seconds,
         )
 
-    def _execute_double_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT, double_click_interval_seconds: float = 0.1):
+    def _execute_double_click(
+        self,
+        x: int,
+        y: int,
+        move_duration: float = 0.5,
+        press_duration: float = 0.1,
+        button: MouseButton = MouseButton.LEFT,
+        double_click_interval_seconds: float = 0.1,
+    ):
         """Execute a double click action at the given coordinates using press and release operations with a duration."""
-        self.execute_click(x=x, y=y, move_duration=move_duration, press_duration=press_duration, button=button)
+        self.execute_click(
+            x=x,
+            y=y,
+            move_duration=move_duration,
+            press_duration=press_duration,
+            button=button,
+        )
         time.sleep(double_click_interval_seconds)
-        self.execute_click(x=x, y=y, move_duration=move_duration, press_duration=press_duration, button=button)
+        self.execute_click(
+            x=x,
+            y=y,
+            move_duration=move_duration,
+            press_duration=press_duration,
+            button=button,
+        )
 
     @property
     def double_click_tool(self) -> BaseTool:
@@ -1432,7 +1432,15 @@ class BaseComputer(BaseModel):
             button,
         )
 
-    def _execute_drag(self, start_x: int, start_y: int, end_x: int, end_y: int, move_duration: float = 0.5, button: MouseButton = MouseButton.LEFT):
+    def _execute_drag(
+        self,
+        start_x: int,
+        start_y: int,
+        end_x: int,
+        end_y: int,
+        move_duration: float = 0.5,
+        button: MouseButton = MouseButton.LEFT,
+    ):
         """Execute a drag action using the primitive mouse operations."""
         # Move to the starting position
         self.execute_mouse_move(x=start_x, y=start_y, move_duration=move_duration)
@@ -1504,7 +1512,7 @@ class BaseComputer(BaseModel):
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
         """Copy a file or directory to the computer.
-        
+
         Args:
             source_path: Path to source file/directory on local machine
             destination_path: Path where to copy on the computer
@@ -1547,7 +1555,7 @@ class BaseComputer(BaseModel):
 
     def _copy_from_computer(self, source_path: Path, destination_path: Path) -> None:
         """Copy a file or directory from the computer to the local machine.
-        
+
         Args:
             source_path: Path to source file/directory on the computer
             destination_path: Path where to copy on local machine
