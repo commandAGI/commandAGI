@@ -482,8 +482,7 @@ class BaseComputer(BaseModel):
         """
         if self._state != "started":
             self.logger.warning(
-                f"Cannot pause computer in {
-                    self._state} state"
+                f"Cannot pause computer in {self._state} state"
             )
             return False
 
@@ -821,7 +820,12 @@ class BaseComputer(BaseModel):
         )
 
     def _get_mouse_state(self) -> MouseStateObservation:
-        raise NotImplementedError(f"{self.__class__.__name__}.get_mouse_state")
+        """Get the current mouse state.
+        
+        Returns:
+            MouseStateObservation containing button states and position
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._get_mouse_state")
 
     @property
     def mouse_state_tool(self) -> BaseTool:
@@ -839,7 +843,12 @@ class BaseComputer(BaseModel):
         )
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
-        raise NotImplementedError(f"{self.__class__.__name__}.get_keyboard_state")
+        """Get the current keyboard state.
+        
+        Returns:
+            KeyboardStateObservation containing key states
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._get_keyboard_state")
 
     @property
     def keyboard_state_tool(self) -> BaseTool:
@@ -857,7 +866,12 @@ class BaseComputer(BaseModel):
         )
 
     def _get_layout_tree(self) -> LayoutTreeObservation:
-        raise NotImplementedError(f"{self.__class__.__name__}.get_layout_tree")
+        """Get the UI layout tree.
+        
+        Returns:
+            LayoutTreeObservation containing UI component hierarchy
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._get_layout_tree")
 
     @property
     def layout_tree_tool(self) -> BaseTool:
@@ -875,7 +889,12 @@ class BaseComputer(BaseModel):
         )
 
     def _get_processes(self) -> ProcessesObservation:
-        raise NotImplementedError(f"{self.__class__.__name__}.get_processes")
+        """Get information about running processes.
+        
+        Returns:
+            ProcessesObservation containing process information
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._get_processes")
 
     @property
     def get_processes_tool(self) -> BaseTool:
@@ -893,7 +912,12 @@ class BaseComputer(BaseModel):
         )
 
     def _get_windows(self) -> WindowsObservation:
-        raise NotImplementedError(f"{self.__class__.__name__}.get_windows")
+        """Get information about open windows.
+        
+        Returns:
+            WindowsObservation containing window information
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._get_windows")
 
     @property
     def get_windows_tool(self) -> BaseTool:
@@ -911,7 +935,12 @@ class BaseComputer(BaseModel):
         )
 
     def _get_displays(self) -> DisplaysObservation:
-        raise NotImplementedError(f"{self.__class__.__name__}.get_displays")
+        """Get information about connected displays.
+        
+        Returns:
+            DisplaysObservation containing display information
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._get_displays")
 
     @property
     def get_displays_tool(self) -> BaseTool:
@@ -933,7 +962,12 @@ class BaseComputer(BaseModel):
             self.logger.error(f"Error getting sysinfo: {e}")
 
     def _get_sysinfo(self) -> SystemInfo:
-        raise NotImplementedError(f"{self.__class__.__name__}.get_sysinfo")
+        """Get system information.
+        
+        Returns:
+            SystemInfo object containing system metrics and details
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._get_sysinfo")
 
     _jupyter_server_pid: int | None = None
 
@@ -978,7 +1012,26 @@ class BaseComputer(BaseModel):
             RunProcessAction(command=command, args=args, cwd=cwd, env=env, timeout=timeout),
         )
 
-    def _run_process(self, action: RunProcessAction) -> bool:
+    def _run_process(
+        self,
+        command: str,
+        args: List[str] = [],
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None
+    ) -> bool:
+        """Run a process with the specified parameters.
+        
+        Args:
+            command: The command to run
+            args: List of command arguments
+            cwd: Working directory for the process
+            env: Environment variables for the process
+            timeout: Optional timeout in seconds
+            
+        Returns:
+            bool: True if process executed successfully
+        """
         raise NotImplementedError(f"{self.__class__.__name__}._run_process")
 
     @property
@@ -989,7 +1042,14 @@ class BaseComputer(BaseModel):
             func=self.run_process,
         )
 
-    def _default_run_process(self, action: RunProcessAction) -> bool:
+    def _default_run_process(
+        self,
+        command: str,
+        args: List[str] = [],
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None
+    ) -> bool:
         """Default implementation of run_process using shell commands.
 
         This method is deliberately not wired up to the base _run_process to make
@@ -997,33 +1057,35 @@ class BaseComputer(BaseModel):
         commands to execute the process.
 
         Args:
-            action: RunProcessAction containing the process parameters
+            command: The command to run
+            args: List of command arguments 
+            cwd: Working directory for the process
+            env: Environment variables for the process
+            timeout: Optional timeout in seconds
 
         Returns:
             bool: True if the process was executed successfully
         """
         self.logger.info(
-            f"Running process via shell: {
-                action.command} with args: {
-                action.args}"
+            f"Running process via shell: {command} with args: {args}"
         )
 
         # Change to the specified directory if provided
-        if action.cwd:
-            self.shell(f"cd {action.cwd}")
+        if cwd:
+            self.shell(f"cd {cwd}")
 
         # Build the command string
-        cmd_parts = [action.command] + action.args
+        cmd_parts = [command] + args
         cmd_shell_format = " ".join(cmd_parts)
 
         # Add environment variables if specified
-        if action.env:
+        if env:
             # For Unix-like shells
-            env_vars = " ".join([f"{k}={v}" for k, v in action.env.items()])
+            env_vars = " ".join([f"{k}={v}" for k, v in env.items()])
             cmd_shell_format = f"{env_vars} {cmd_shell_format}"
 
         # Execute the command with timeout if specified
-        return self.shell(cmd_shell_format, timeout=action.timeout)
+        return self.shell(cmd_shell_format, timeout=timeout)
 
     def create_shell(
         self,
@@ -1066,8 +1128,20 @@ class BaseComputer(BaseModel):
             ShellCommandAction(command=command, timeout=timeout, executible=executible),
         )
 
-    def _execute_shell_command(self, action: ShellCommandAction):
-        raise NotImplementedError(f"{self.__class__.__name__}.execute_command")
+    def _execute_shell_command(
+        self,
+        command: str,
+        timeout: Optional[float] = None,
+        executible: Optional[str] = None
+    ) -> bool:
+        """Execute a shell command.
+        
+        Args:
+            command: The command to execute
+            timeout: Optional timeout in seconds
+            executable: Optional shell executable to use
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_shell_command")
 
     @property
     def shell_tool(self) -> BaseTool:
@@ -1084,13 +1158,15 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "keyboard key press",
             self._execute_keyboard_key_press,
-            KeyboardKeyPressAction(key=key, duration=duration),
+            key,
+            duration,
         )
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
-        self.execute_keyboard_key_down(KeyboardKeyDownAction(key=action.key))
-        time.sleep(action.duration)
-        self.execute_keyboard_key_release(KeyboardKeyReleaseAction(key=action.key))
+    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
+        """Execute pressing a keyboard key with a specified duration."""
+        self.execute_keyboard_key_down(key)
+        time.sleep(duration)
+        self.execute_keyboard_key_release(key)
 
     @property
     def keyboard_key_press_tool(self) -> BaseTool:
@@ -1105,13 +1181,12 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "keyboard key down",
             self._execute_keyboard_key_down,
-            KeyboardKeyDownAction(key=key),
+            key,
         )
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.execute_keyboard_key_down"
-        )
+    def _execute_keyboard_key_down(self, key: KeyboardKey):
+        """Execute key down for a keyboard key."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_keyboard_key_down")
 
     @property
     def keyboard_key_down_tool(self) -> BaseTool:
@@ -1126,13 +1201,12 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "keyboard key release",
             self._execute_keyboard_key_release,
-            KeyboardKeyReleaseAction(key=key),
+            key,
         )
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.execute_keyboard_key_release"
-        )
+    def _execute_keyboard_key_release(self, key: KeyboardKey):
+        """Execute key release for a keyboard key."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_keyboard_key_release")
 
     @property
     def keyboard_key_release_tool(self) -> BaseTool:
@@ -1147,13 +1221,14 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "keyboard hotkey",
             self._execute_keyboard_hotkey,
-            KeyboardHotkeyAction(keys=keys),
+            keys,
         )
 
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
-        for key in action.keys:
+    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
+        """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
+        for key in keys:
             self.execute_keyboard_key_down(key)
-        for key in reversed(action.keys):
+        for key in reversed(keys):
             self.execute_keyboard_key_release(key)
 
     @property
@@ -1167,12 +1242,13 @@ class BaseComputer(BaseModel):
     def execute_type(self, text: str) -> bool:
         """Execute typing the given text."""
         return self._execute_with_retry(
-            "type", self._execute_type, TypeAction(text=text)
+            "type", self._execute_type, text
         )
 
-    def _execute_type(self, action: TypeAction):
-        for char in action.text:
-            self.execute_keyboard_key_press(KeyboardKeyPressAction(key=char))
+    def _execute_type(self, text: str):
+        """Execute typing the given text."""
+        for char in text:
+            self.execute_keyboard_key_press(char)
 
     @property
     def type_tool(self) -> BaseTool:
@@ -1187,10 +1263,13 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "mouse move",
             self._execute_mouse_move,
-            MouseMoveAction(x=x, y=y, move_duration=move_duration),
+            x,
+            y,
+            move_duration,
         )
 
-    def _execute_mouse_move(self, action: MouseMoveAction):
+    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
+        """Execute moving the mouse to (x, y) over the move duration."""
         raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_move")
 
     @property
@@ -1204,10 +1283,11 @@ class BaseComputer(BaseModel):
     def execute_mouse_scroll(self, amount: float) -> bool:
         """Execute mouse scroll by a given amount."""
         return self._execute_with_retry(
-            "mouse scroll", self._execute_mouse_scroll, MouseScrollAction(amount=amount)
+            "mouse scroll", self._execute_mouse_scroll, amount
         )
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction):
+    def _execute_mouse_scroll(self, amount: float):
+        """Execute mouse scroll by a given amount."""
         raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_scroll")
 
     @property
@@ -1223,13 +1303,12 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "mouse button down",
             self._execute_mouse_button_down,
-            MouseButtonDownAction(button=button),
+            button,
         )
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.execute_mouse_button_down"
-        )
+    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+        """Execute mouse button down action."""
+        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_button_down")
 
     @property
     def mouse_button_down_tool(self) -> BaseTool:
@@ -1244,10 +1323,11 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "mouse button up",
             self._execute_mouse_button_up,
-            MouseButtonUpAction(button=button),
+            button,
         )
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
+    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+        """Execute mouse button up action."""
         raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_button_up")
 
     @property
@@ -1272,25 +1352,19 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "click",
             self._execute_click,
-            ClickAction(
-                x=x,
-                y=y,
-                move_duration=move_duration,
-                press_duration=press_duration,
-                button=button,
-            ),
+            x,
+            y,
+            move_duration,
+            press_duration,
+            button,
         )
 
-    def _execute_click(self, action: ClickAction):
-        move_action = MouseMoveAction(
-            x=action.x, y=action.y, move_duration=action.move_duration
-        )
-        self.execute_mouse_move(move_action)
-        down_action = MouseButtonDownAction(button=action.button)
-        self.execute_mouse_button_down(down_action)
-        time.sleep(action.press_duration)
-        up_action = MouseButtonUpAction(button=action.button)
-        self.execute_mouse_button_up(up_action)
+    def _execute_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT):
+        """Execute a click action at the given coordinates using press and release operations with a duration."""
+        self.execute_mouse_move(x=x, y=y, move_duration=move_duration)
+        self.execute_mouse_button_down(button=button)
+        time.sleep(press_duration)
+        self.execute_mouse_button_up(button=button)
 
     @property
     def click_tool(self) -> BaseTool:
@@ -1315,36 +1389,19 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "double click",
             self._execute_double_click,
-            DoubleClickAction(
-                x=x,
-                y=y,
-                move_duration=move_duration,
-                press_duration=press_duration,
-                button=button,
-                double_click_interval_seconds=double_click_interval_seconds,
-            ),
+            x,
+            y,
+            move_duration,
+            press_duration,
+            button,
+            double_click_interval_seconds,
         )
 
-    def _execute_double_click(self, action: DoubleClickAction):
-        self.execute_click(
-            ClickAction(
-                x=action.x,
-                y=action.y,
-                move_duration=action.move_duration,
-                press_duration=action.press_duration,
-                button=action.button,
-            )
-        )
-        time.sleep(action.double_click_interval_seconds)
-        self.execute_click(
-            ClickAction(
-                x=action.x,
-                y=action.y,
-                move_duration=action.move_duration,
-                press_duration=action.press_duration,
-                button=action.button,
-            )
-        )
+    def _execute_double_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT, double_click_interval_seconds: float = 0.1):
+        """Execute a double click action at the given coordinates using press and release operations with a duration."""
+        self.execute_click(x=x, y=y, move_duration=move_duration, press_duration=press_duration, button=button)
+        time.sleep(double_click_interval_seconds)
+        self.execute_click(x=x, y=y, move_duration=move_duration, press_duration=press_duration, button=button)
 
     @property
     def double_click_tool(self) -> BaseTool:
@@ -1367,29 +1424,24 @@ class BaseComputer(BaseModel):
         return self._execute_with_retry(
             "drag",
             self._execute_drag,
-            DragAction(
-                start_x=start_x,
-                start_y=start_y,
-                end_x=end_x,
-                end_y=end_y,
-                move_duration=move_duration,
-                button=button,
-            ),
+            start_x,
+            start_y,
+            end_x,
+            end_y,
+            move_duration,
+            button,
         )
 
-    def _execute_drag(self, action: DragAction):
+    def _execute_drag(self, start_x: int, start_y: int, end_x: int, end_y: int, move_duration: float = 0.5, button: MouseButton = MouseButton.LEFT):
+        """Execute a drag action using the primitive mouse operations."""
         # Move to the starting position
-        self.execute_mouse_move(
-            x=action.start_x, y=action.start_y, move_duration=action.move_duration
-        )
+        self.execute_mouse_move(x=start_x, y=start_y, move_duration=move_duration)
         # Press the mouse button down
-        self.execute_mouse_button_down(button=action.button)
+        self.execute_mouse_button_down(button=button)
         # Move to the ending position while holding down the mouse button
-        self.execute_mouse_move(
-            x=action.end_x, y=action.end_y, move_duration=action.move_duration
-        )
+        self.execute_mouse_move(x=end_x, y=end_y, move_duration=move_duration)
         # Release the mouse button
-        self.execute_mouse_button_up(button=action.button)
+        self.execute_mouse_button_up(button=button)
 
     @property
     def drag_tool(self) -> BaseTool:
@@ -1451,16 +1503,11 @@ class BaseComputer(BaseModel):
         )
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
-        """Implementation of copy_to_computer functionality.
-
-        This method should be overridden by subclasses to implement computer-specific file transfer.
-
+        """Copy a file or directory to the computer.
+        
         Args:
-            source_path: Path to the source file or directory on the local machine
-            destination_path: Path where the file or directory should be copied on the computer
-
-        Raises:
-            NotImplementedError: If the subclass does not implement this method
+            source_path: Path to source file/directory on local machine
+            destination_path: Path where to copy on the computer
         """
         raise NotImplementedError(f"{self.__class__.__name__}._copy_to_computer")
 
@@ -1499,16 +1546,11 @@ class BaseComputer(BaseModel):
         )
 
     def _copy_from_computer(self, source_path: Path, destination_path: Path) -> None:
-        """Implementation of copy_from_computer functionality.
-
-        This method should be overridden by subclasses to implement computer-specific file transfer.
-
+        """Copy a file or directory from the computer to the local machine.
+        
         Args:
-            source_path: Path to the source file or directory on the computer
-            destination_path: Path where the file or directory should be copied on the local machine
-
-        Raises:
-            NotImplementedError: If the subclass does not implement this method
+            source_path: Path to source file/directory on the computer
+            destination_path: Path where to copy on local machine
         """
         raise NotImplementedError(f"{self.__class__.__name__}._copy_from_computer")
 

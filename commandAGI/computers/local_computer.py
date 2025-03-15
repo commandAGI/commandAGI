@@ -1226,16 +1226,22 @@ class LocalComputer(BaseComputer):
         except Exception as e:
             self.logger.error(f"Error getting Linux layout tree: {e}")
             return LayoutTreeObservation(tree={"error": str(e)})
-
-    def _execute_shell_command(self, action: ShellCommandAction):
-        """Execute a system command using subprocess."""
-        self.logger.info(f"Executing command: {action.command}")
+    def _execute_shell_command(self, command: str, timeout: Optional[float] = None, executable: Optional[str] = None):
+        """Execute a system command using subprocess.
+        
+        Args:
+            command: The shell command to execute
+            timeout: Optional timeout in seconds. Defaults to 10 if not specified
+            executable: Optional executable to use for running the command
+        """
+        self.logger.info(f"Executing command: {command}")
         result = subprocess.run(
-            action.command,
+            command,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=action.timeout if action.timeout is not None else 10,
+            timeout=timeout if timeout is not None else 10,
+            executable=executable
         )
         if result.returncode == 0:
             self.logger.info("Command executed successfully")
@@ -1247,34 +1253,37 @@ class LocalComputer(BaseComputer):
                 f"Command returned non-zero exit code: {result.returncode}"
             )
 
-    def _run_process(self, action: RunProcessAction) -> bool:
+    def _run_process(self, command: str, args: List[str] = [], cwd: Optional[str] = None, 
+                    env: Optional[dict] = None, timeout: Optional[float] = None) -> bool:
         """Run a process with the specified parameters.
 
         Args:
-            action: RunProcessAction containing the process parameters
-
+            command: The command/executable to run
+            args: List of command line arguments
+            cwd: Working directory for the process
+            env: Environment variables to set
+            timeout: Timeout in seconds
+            
         Returns:
             bool: True if the process was executed successfully
         """
         self.logger.info(
-            f"Running process: {
-                action.command} with args: {
-                action.args}"
+            f"Running process: {command} with args: {args}"
         )
 
         # Prepare environment variables
-        env = os.environ.copy()
-        if action.env:
-            env.update(action.env)
+        process_env = os.environ.copy()
+        if env:
+            process_env.update(env)
 
         # Run the process
         result = subprocess.run(
-            [action.command] + action.args,
-            cwd=action.cwd,
-            env=env,
+            [command] + args,
+            cwd=cwd,
+            env=process_env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=action.timeout,
+            timeout=timeout,
         )
 
         if result.returncode == 0:

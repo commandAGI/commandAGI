@@ -242,12 +242,12 @@ class VNCComputer(BaseComputer):
         self.logger.debug("VNC does not support getting keyboard state")
         raise NotImplementedError("VNC does not support getting keyboard state")
 
-    def _execute_shell_command(self, action: ShellCommandAction):
+    def _execute_shell_command(self, command: str, timeout: float | None = None, executable: str | None = None):
         """Execute a system command on the remote system.
 
         Note: This is limited by VNC capabilities and may not work for all commands.
         """
-        self.logger.info(f"Executing command via VNC: {action.command}")
+        self.logger.info(f"Executing command via VNC: {command}")
         # For VNC, we can try to execute commands by opening a terminal and typing
         # This is a simplified approach and may not work in all environments
         self.client.keyPress("windown")  # Open start menu or equivalent
@@ -256,69 +256,60 @@ class VNCComputer(BaseComputer):
         self.client.pause(0.5)
         self.client.keyPress("enter")  # Open terminal
         self.client.pause(1.0)
-        self.client.type(action.command)  # Type the command
+        self.client.type(command)  # Type the command
         self.client.keyPress("enter")  # Execute the command
 
         # Wait for command to complete if timeout is specified
-        if action.timeout is not None:
-            self.client.pause(action.timeout)
+        if timeout is not None:
+            self.client.pause(timeout)
 
         self.logger.info(f"Command executed successfully")
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
+    def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key using VNC."""
-        vnc_key = keyboard_key_to_vnc(action.key)
-        self.logger.debug(
-            f"Pressing key down: {
-                action.key} (VNC key: {vnc_key})"
-        )
+        vnc_key = keyboard_key_to_vnc(key)
+        self.logger.debug(f"Pressing key down: {key} (VNC key: {vnc_key})")
         self.client.keyDown(vnc_key)
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
+    def _execute_keyboard_key_release(self, key: KeyboardKey):
         """Execute key release for a keyboard key using VNC."""
-        vnc_key = keyboard_key_to_vnc(action.key)
-        self.logger.debug(f"Releasing key: {action.key} (VNC key: {vnc_key})")
+        vnc_key = keyboard_key_to_vnc(key)
+        self.logger.debug(f"Releasing key: {key} (VNC key: {vnc_key})")
         self.client.keyUp(vnc_key)
 
-    def _execute_type(self, action: TypeAction):
+    def _execute_type(self, text: str):
         """Type text using VNC."""
-        self.logger.debug(f"Typing text: {action.text}")
-        self.client.type(action.text)
+        self.logger.debug(f"Typing text: {text}")
+        self.client.type(text)
 
-    def _execute_mouse_move(self, action: MouseMoveAction):
+    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
         """Move mouse to specified coordinates using VNC."""
-        self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
+        self.logger.debug(f"Moving mouse to: ({x}, {y})")
         # VNC doesn't have a direct move duration parameter, so we just move
-        self.client.mouseMove(action.x, action.y)
+        self.client.mouseMove(x, y)
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction):
+    def _execute_mouse_scroll(self, amount: float):
         """Scroll mouse using VNC."""
-        self.logger.debug(f"Scrolling mouse by: {action.amount}")
+        self.logger.debug(f"Scrolling mouse by: {amount}")
         # VNC scroll is typically done by wheel events
         # Positive values scroll up, negative values scroll down
-        if action.amount > 0:
-            for _ in range(int(abs(action.amount))):
+        if amount > 0:
+            for _ in range(int(abs(amount))):
                 self.client.mouseWheel(1)  # Scroll up
         else:
-            for _ in range(int(abs(action.amount))):
+            for _ in range(int(abs(amount))):
                 self.client.mouseWheel(-1)  # Scroll down
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
+    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using VNC."""
-        vnc_button = mouse_button_to_vnc(action.button)
-        self.logger.debug(
-            f"Pressing mouse button down: {
-                action.button} (VNC button: {vnc_button})"
-        )
+        vnc_button = mouse_button_to_vnc(button)
+        self.logger.debug(f"Pressing mouse button down: {button} (VNC button: {vnc_button})")
         self.client.mouseDown(vnc_button)
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
+    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using VNC."""
-        vnc_button = mouse_button_to_vnc(action.button)
-        self.logger.debug(
-            f"Releasing mouse button: {
-                action.button} (VNC button: {vnc_button})"
-        )
+        vnc_button = mouse_button_to_vnc(button)
+        self.logger.debug(f"Releasing mouse button: {button} (VNC button: {vnc_button})")
         self.client.mouseUp(vnc_button)
 
     def _pause(self):

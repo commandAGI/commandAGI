@@ -322,181 +322,128 @@ class DaemonClientComputer(BaseComputer):
         if response:
             return KeyboardStateObservation(**response)
         raise RuntimeError("Failed to get keyboard state from daemon")
-
-    def _execute_shell_command(self, action: ShellCommandAction):
+    def _execute_shell_command(self, command: str, timeout: Optional[float] = None):
         """Execute a shell command on the computer"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer CommandAction to the client's CommandAction
-        client_action = ClientShellCommandAction(
-            command=action.command, timeout=action.timeout
-        )
+        client_action = ClientShellCommandAction(command=command, timeout=timeout)
 
         response = execute_command_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(f"Failed to execute command: {action.command}")
+            raise RuntimeError(f"Failed to execute command: {command}")
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
+    def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Press down a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer KeyboardKeyDownAction to the client's
-        # KeyboardKeyDownAction
-        client_action = ClientKeyboardKeyDownAction(
-            key=keyboard_key_to_daemon(action.key)
-        )
+        client_action = ClientKeyboardKeyDownAction(key=keyboard_key_to_daemon(key))
 
-        response = execute_keyboard_key_down_sync(
-            client=self.client, body=client_action
-        )
+        response = execute_keyboard_key_down_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(
-                f"Failed to execute keyboard key down: {
-                    action.key}"
-            )
+            raise RuntimeError(f"Failed to execute keyboard key down: {key}")
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
+    def _execute_keyboard_key_release(self, key: KeyboardKey):
         """Release a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer KeyboardKeyReleaseAction to the client's
-        # KeyboardKeyReleaseAction
-        client_action = ClientKeyboardKeyReleaseAction(
-            key=keyboard_key_to_daemon(action.key)
-        )
+        client_action = ClientKeyboardKeyReleaseAction(key=keyboard_key_to_daemon(key))
 
-        response = execute_keyboard_key_release_sync(
-            client=self.client, body=client_action
-        )
+        response = execute_keyboard_key_release_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(
-                f"Failed to execute keyboard key release: {
-                    action.key}"
-            )
+            raise RuntimeError(f"Failed to execute keyboard key release: {key}")
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
+    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
         """Press and release a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer KeyboardKeyPressAction to the client's
-        # KeyboardKeyPressAction
         client_action = ClientKeyboardKeyPressAction(
-            key=keyboard_key_to_daemon(action.key), duration=action.duration
+            key=keyboard_key_to_daemon(key),
+            duration=duration
         )
 
-        response = execute_keyboard_key_press_sync(
-            client=self.client, body=client_action
-        )
+        response = execute_keyboard_key_press_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(
-                f"Failed to execute keyboard key press: {
-                    action.key}"
-            )
+            raise RuntimeError(f"Failed to execute keyboard key press: {key}")
 
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
+    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey (multiple keys pressed simultaneously)"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer KeyboardHotkeyAction to the client's
-        # KeyboardHotkeyAction
         client_action = ClientKeyboardHotkeyAction(
-            keys=[keyboard_key_to_daemon(k) for k in action.keys]
+            keys=[keyboard_key_to_daemon(k) for k in keys]
         )
 
         response = execute_keyboard_hotkey_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(
-                f"Failed to execute keyboard hotkey: {
-                    action.keys}"
-            )
+            raise RuntimeError(f"Failed to execute keyboard hotkey: {keys}")
 
-    def _execute_type(self, action: TypeAction):
+    def _execute_type(self, text: str):
         """Type text on the keyboard"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer TypeAction to the client's TypeAction
-        client_action = ClientTypeAction(text=action.text)
+        client_action = ClientTypeAction(text=text)
 
         response = execute_type_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(f"Failed to execute type: {action.text}")
+            raise RuntimeError(f"Failed to execute type: {text}")
 
-    def _execute_mouse_move(self, action: MouseMoveAction):
+    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
         """Move the mouse to a position"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer MouseMoveAction to the client's
-        # MouseMoveAction
         client_action = ClientMouseMoveAction(
-            x=action.x, y=action.y, move_duration=action.move_duration
+            x=x,
+            y=y,
+            move_duration=move_duration
         )
 
         response = execute_mouse_move_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(
-                f"Failed to execute mouse move to ({action.x}, {action.y})"
-            )
+            raise RuntimeError(f"Failed to execute mouse move to ({x}, {y})")
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction):
+    def _execute_mouse_scroll(self, amount: float):
         """Scroll the mouse wheel"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer MouseScrollAction to the client's
-        # MouseScrollAction
-        client_action = ClientMouseScrollAction(amount=action.amount)
+        client_action = ClientMouseScrollAction(amount=amount)
 
         response = execute_mouse_scroll_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(
-                f"Failed to execute mouse scroll: {
-                    action.amount}"
-            )
+            raise RuntimeError(f"Failed to execute mouse scroll: {amount}")
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
+    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press down a mouse button"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer MouseButtonDownAction to the client's
-        # MouseButtonDownAction
         client_action = ClientMouseButtonDownAction(
-            button=mouse_button_to_daemon(action.button) if action.button else None
+            button=mouse_button_to_daemon(button) if button else None
         )
 
-        response = execute_mouse_button_down_sync(
-            client=self.client, body=client_action
-        )
+        response = execute_mouse_button_down_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(
-                f"Failed to execute mouse button down: {
-                    action.button}"
-            )
+            raise RuntimeError(f"Failed to execute mouse button down: {button}")
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
+    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release a mouse button"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        # Convert the BaseComputer MouseButtonUpAction to the client's
-        # MouseButtonUpAction
         client_action = ClientMouseButtonUpAction(
-            button=mouse_button_to_daemon(action.button) if action.button else None
+            button=mouse_button_to_daemon(button) if button else None
         )
 
         response = execute_mouse_button_up_sync(client=self.client, body=client_action)
         if not response or not response.success:
-            raise RuntimeError(
-                f"Failed to execute mouse button up: {
-                    action.button}"
-            )
+            raise RuntimeError(f"Failed to execute mouse button up: {button}")
 
     def _pause(self):
         """Pause the daemon client computer.
@@ -548,14 +495,24 @@ class DaemonClientComputer(BaseComputer):
             client=self.client, body=ClientVideoStopStreamAction()
         )
         return response.success if response else False
-
-    def _run_process(self, action: RunProcessAction) -> str:
+    def _run_process(
+        self,
+        command: str,
+        args: List[str] = None,
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None
+    ) -> str:
         """Run a process with the specified parameters.
 
         This method uses the daemon client API to execute a process on the remote system.
 
         Args:
-            action: RunProcessAction containing the process parameters
+            command: The command to execute
+            args: List of command arguments
+            cwd: Working directory for the process
+            env: Environment variables for the process
+            timeout: Timeout in seconds
 
         Returns:
             str: The output of the process
@@ -563,9 +520,10 @@ class DaemonClientComputer(BaseComputer):
         if not self.client:
             raise RuntimeError("Client not initialized")
 
+        args = args or []
         response = run_process_sync(
             client=self.client,
-            body=ClientRunProcessAction(command=action.command, args=action.args),
+            body=ClientRunProcessAction(command=command, args=args),
         )
         if not response or not response.output:
             raise RuntimeError("Failed to run process")

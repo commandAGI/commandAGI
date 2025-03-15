@@ -5,7 +5,7 @@ import os
 import subprocess
 import tempfile
 import time
-from typing import Literal, Optional, Union
+from typing import List, Literal, Optional, Union
 
 try:
     import mss
@@ -271,9 +271,7 @@ class LocalPynputComputer(LocalComputer):
         """Reset environment and return initial observation"""
         self.logger.info("Resetting environment state (showing desktop)")
         # Show desktop to reset the environment state
-        self.execute_keyboard_hotkey(
-            KeyboardHotkeyAction(keys=[KeyboardKey.META, KeyboardKey.D])
-        )
+        self._execute_keyboard_hotkey([KeyboardKey.META, KeyboardKey.D])
         time.sleep(1)  # Give windows time to minimize
 
     def _on_keyboard_press(self, key):
@@ -313,9 +311,7 @@ class LocalPynputComputer(LocalComputer):
     def _get_mouse_state(self) -> MouseStateObservation:
         """Return mouse state from pynput listener."""
         self.logger.debug(
-            f"Getting mouse state: position={
-                self._mouse_pos}, buttons={
-                self._mouse_buttons}"
+            f"Getting mouse state: position={self._mouse_pos}, buttons={self._mouse_buttons}"
         )
         return MouseStateObservation(
             buttons=self._mouse_buttons.copy(), position=self._mouse_pos
@@ -345,95 +341,81 @@ class LocalPynputComputer(LocalComputer):
             keyboard_state=keyboard_state,
         )
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
+    def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
-        pynput_key = keyboard_key_to_pynput(action.key)
-        self.logger.debug(
-            f"Pressing key down: {
-                action.key} (Pynput key: {pynput_key})"
-        )
+        pynput_key = keyboard_key_to_pynput(key)
+        self.logger.debug(f"Pressing key down: {key} (Pynput key: {pynput_key})")
         self._keyboard_controller.press(pynput_key)
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
+    def _execute_keyboard_key_release(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
-        pynput_key = keyboard_key_to_pynput(action.key)
-        self.logger.debug(
-            f"Releasing key: {
-                action.key} (Pynput key: {pynput_key})"
-        )
+        pynput_key = keyboard_key_to_pynput(key)
+        self.logger.debug(f"Releasing key: {key} (Pynput key: {pynput_key})")
         self._keyboard_controller.release(pynput_key)
 
-    def _execute_type(self, action: TypeAction):
+    def _execute_type(self, text: str):
         """Type text using pynput."""
-        self.logger.debug(f"Typing text: {action.text}")
-        self._keyboard_controller.type(action.text)
+        self.logger.debug(f"Typing text: {text}")
+        self._keyboard_controller.type(text)
 
-    def _execute_mouse_move(self, action: MouseMoveAction):
+    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
         """Move mouse to specified coordinates using pynput."""
-        self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
+        self.logger.debug(f"Moving mouse to: ({x}, {y})")
         # pynput doesn't have a direct move duration parameter, so we simulate
         # it
-        if action.move_duration > 0:
+        if move_duration > 0:
             # Get current position
             current_x, current_y = self._mouse_controller.position
 
             # Calculate number of steps based on duration
             # 60 steps per second
-            steps = max(int(action.move_duration * 60), 1)
+            steps = max(int(move_duration * 60), 1)
 
             # Calculate step size
-            step_x = (action.x - current_x) / steps
-            step_y = (action.y - current_y) / steps
+            step_x = (x - current_x) / steps
+            step_y = (y - current_y) / steps
 
             # Move in steps
             for i in range(steps):
                 next_x = current_x + step_x * (i + 1)
                 next_y = current_y + step_y * (i + 1)
                 self._mouse_controller.position = (next_x, next_y)
-                time.sleep(action.move_duration / steps)
+                time.sleep(move_duration / steps)
         else:
             # Instant move
-            self._mouse_controller.position = (action.x, action.y)
+            self._mouse_controller.position = (x, y)
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction):
+    def _execute_mouse_scroll(self, amount: float):
         """Scroll mouse using pynput."""
-        self.logger.debug(f"Scrolling mouse by: {action.amount}")
+        self.logger.debug(f"Scrolling mouse by: {amount}")
         # pynput scroll is done with dx, dy values
         # Positive values scroll up, negative values scroll down
-        self._mouse_controller.scroll(
-            0, action.amount / 100
-        )  # Scale to reasonable values
+        self._mouse_controller.scroll(0, amount / 100)  # Scale to reasonable values
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
+    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using pynput."""
-        pynput_button = mouse_button_to_pynput(action.button)
-        self.logger.debug(
-            f"Pressing mouse button down: {
-                action.button} (Pynput button: {pynput_button})"
-        )
+        pynput_button = mouse_button_to_pynput(button)
+        self.logger.debug(f"Pressing mouse button down: {button} (Pynput button: {pynput_button})")
         self._mouse_controller.press(pynput_button)
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
+    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using pynput."""
-        pynput_button = mouse_button_to_pynput(action.button)
-        self.logger.debug(
-            f"Releasing mouse button: {
-                action.button} (Pynput button: {pynput_button})"
-        )
+        pynput_button = mouse_button_to_pynput(button)
+        self.logger.debug(f"Releasing mouse button: {button} (Pynput button: {pynput_button})")
         self._mouse_controller.release(pynput_button)
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
+    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
         """Press and release a keyboard key."""
-        pynput_key = keyboard_key_to_pynput(action.key)
+        pynput_key = keyboard_key_to_pynput(key)
         self._keyboard_controller.press(pynput_key)
-        time.sleep(action.duration)
+        time.sleep(duration)
         self._keyboard_controller.release(pynput_key)
 
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
+    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using pynput's context manager."""
         # Convert all modifier keys except the last key
-        modifier_keys = [keyboard_key_to_pynput(key) for key in action.keys[:-1]]
-        final_key = keyboard_key_to_pynput(action.keys[-1])
+        modifier_keys = [keyboard_key_to_pynput(key) for key in keys[:-1]]
+        final_key = keyboard_key_to_pynput(keys[-1])
 
         # Use pynput's context manager for pressed keys
         for modifier in modifier_keys:

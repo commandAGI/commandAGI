@@ -201,93 +201,93 @@ class ScrapybaraComputer(BaseComputer):
         self.logger.debug("Scrapybara does not support getting keyboard state")
         raise NotImplementedError("Scrapybara does not support getting keyboard state")
 
-    def _execute_shell_command(self, action: ShellCommandAction):
+    def _execute_shell_command(self, command: str, timeout: float | None = None, executable: str | None = None):
         """Execute a system command in the Scrapybara VM."""
         # Use bash command for Ubuntu instances
-        response = self.client.bash(command=action.command)
+        response = self.client.bash(command=command)
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
+    def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key using Scrapybara."""
         # Scrapybara doesn't have separate key down/up methods
         # We'll use the key method with a press and hold approach
-        key = keyboard_key_to_scrapybara(action.key)
+        key_str = keyboard_key_to_scrapybara(key)
         # Note: This is a limitation as Scrapybara doesn't support key down
         # without release
-        self.client.computer(action="key", text=key)
+        self.client.computer(action="key", text=key_str)
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
+    def _execute_keyboard_key_release(self, key: KeyboardKey):
         """Execute key release for a keyboard key using Scrapybara."""
         # Scrapybara doesn't have separate key down/up methods
         raise NotImplementedError("Scrapybara does not support key release actions")
 
-    def _execute_type(self, action: TypeAction):
+    def _execute_type(self, text: str):
         """Type text using Scrapybara."""
-        self.client.computer(action="type", text=action.text)
+        self.client.computer(action="type", text=text)
 
-    def _execute_mouse_move(self, action: MouseMoveAction):
+    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
         """Move mouse to specified coordinates using Scrapybara."""
-        self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
+        self.client.computer(action="mouse_move", coordinate=[x, y])
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction):
+    def _execute_mouse_scroll(self, amount: float):
         """Scroll mouse using Scrapybara."""
         # Scrapybara scroll takes [x, y] coordinates for horizontal and vertical scrolling
         # Convert our amount to a vertical scroll (positive = down, negative =
         # up)
         x_scroll = 0
-        y_scroll = int(action.amount)
+        y_scroll = int(amount)
 
         self.client.computer(action="scroll", coordinate=[x_scroll, y_scroll])
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
+    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError(
             "Scrapybara does not support mouse button down actions"
         )
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
+    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError("Scrapybara does not support mouse button up actions")
 
-    def _execute_click(self, action: ClickAction):
+    def _execute_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT):
         """Execute a click action at the given coordinates using Scrapybara's click action."""
         # Scrapybara has a direct click action
         # First move to the position
-        self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
+        self.client.computer(action="mouse_move", coordinate=[x, y])
 
         # Then perform the appropriate click based on the button
-        click_action = mouse_button_to_scrapybara(action.button)
+        click_action = mouse_button_to_scrapybara(button)
         self.client.computer(action=click_action)
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
+    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key using Scrapybara's key action."""
         # Scrapybara uses the computer action with key
-        scrapybara_key = keyboard_key_to_scrapybara(action.key)
+        scrapybara_key = keyboard_key_to_scrapybara(key)
         self.client.computer(action="key", text=scrapybara_key)
 
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
+    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using Scrapybara's key action with combined keys."""
         # Combine keys with + for Scrapybara hotkey format
-        hotkey = "+".join([keyboard_key_to_scrapybara(key) for key in action.keys])
+        hotkey = "+".join([keyboard_key_to_scrapybara(key) for key in keys])
         self.client.computer(action="key", text=hotkey)
 
-    def _execute_double_click(self, action: DoubleClickAction):
+    def _execute_double_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT, double_click_interval_seconds: float = 0.1):
         """Execute a double click action at the given coordinates using Scrapybara's double click action."""
         # Move to position first
-        self.client.computer(action="mouse_move", coordinate=[action.x, action.y])
+        self.client.computer(action="mouse_move", coordinate=[x, y])
         # Then double click
         self.client.computer(action="double_click")
 
-    def _execute_drag(self, action: DragAction):
+    def _execute_drag(self, start_x: int, start_y: int, end_x: int, end_y: int, move_duration: float = 0.5, button: MouseButton = MouseButton.LEFT):
         """Execute a drag action using Scrapybara's left_click_drag method."""
         # Move to the start position first
         self.client.computer(
-            action="mouse_move", coordinate=[action.start_x, action.start_y]
+            action="mouse_move", coordinate=[start_x, start_y]
         )
         # Then perform the drag to the end position
         self.client.computer(
-            action="left_click_drag", coordinate=[action.end_x, action.end_y]
+            action="left_click_drag", coordinate=[end_x, end_y]
         )
 
     def _pause(self):
@@ -370,23 +370,25 @@ class ScrapybaraComputer(BaseComputer):
             self.logger.error(f"Error stopping Scrapybara video stream: {e}")
             return False
 
-    def _run_process(self, action: RunProcessAction) -> bool:
+    def _run_process(self, command: str, args: List[str] = [], cwd: Optional[str] = None, env: Optional[dict] = None, timeout: Optional[float] = None) -> bool:
         """Run a process with the specified parameters.
 
         This method uses the Scrapybara API to run a process in the VM.
 
         Args:
-            action: RunProcessAction containing the process parameters
+            command: The command to run
+            args: List of command arguments
+            cwd: Working directory for the process
+            env: Environment variables for the process
+            timeout: Timeout in seconds
 
         Returns:
             bool: True if the process was executed successfully
         """
         self.logger.info(
-            f"Running process via Scrapybara: {
-                action.command} with args: {
-                action.args}"
+            f"Running process via Scrapybara: {command} with args: {args}"
         )
-        return self._default_run_process(action=action)
+        return self._default_run_process(command=command, args=args, cwd=cwd, env=env, timeout=timeout)
 
     def _open(
         self,
@@ -439,9 +441,9 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
             # Start an Ubuntu instance
             self.client = client.start_ubuntu()
 
-    def _execute_shell_command(self, action: ShellCommandAction):
+    def _execute_shell_command(self, command: str, timeout: Optional[float] = None, executable: Optional[str] = None):
         """Execute a bash command in the Ubuntu instance."""
-        response = self.client.bash(command=action.command)
+        response = self.client.bash(command=command)
 
     def edit_file(self, path: str, command: str, **kwargs) -> bool:
         """Edit a file on the Ubuntu instance.
@@ -507,7 +509,7 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
         """
         self.client.authenticate(auth_state_id=auth_state_id)
 
-    def _execute_shell_command(self, action: ShellCommandAction):
+    def _execute_shell_command(self, command: str, timeout: Optional[float] = None, executable: Optional[str] = None):
         """Execute a command in the browser instance.
 
         Note: Browser instances don't support bash commands directly.
@@ -537,7 +539,7 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
             # Start a Windows instance
             self.client = client.start_windows()
 
-    def _execute_shell_command(self, action: ShellCommandAction):
+    def _execute_shell_command(self, command: str, timeout: Optional[float] = None, executable: Optional[str] = None):
         """Execute a command in the Windows instance.
 
         Note: Windows instances don't support bash commands directly.
@@ -553,9 +555,9 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
         self.client.computer(action="wait")  # Wait for cmd to open
 
         # Type the command and press Enter
-        self.client.computer(action="type", text=action.command)
+        self.client.computer(action="type", text=command)
         self.client.computer(action="key", text="enter")
 
         # Wait for command to complete if timeout is specified
-        if action.timeout:
+        if timeout:
             self.client.computer(action="wait")

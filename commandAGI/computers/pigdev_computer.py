@@ -231,146 +231,123 @@ class PigDevComputer(BaseComputer):
         # PigDev doesn't provide keyboard state
         raise NotImplementedError("PigDev does not support getting keyboard state")
 
-    def _execute_shell_command(self, action: ShellCommandAction):
+    def _execute_shell_command(self, command: str, timeout: float | None = None, executable: str | None = None):
         """Execute a system command in the PigDev VM."""
         self.logger.debug("PigDev does not support direct command execution")
         # PigDev doesn't have a direct command execution method
         raise NotImplementedError("PigDev does not support direct command execution")
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
+    def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key using PigDev."""
         try:
             # Convert to PigDev key format
-            key = keyboard_key_to_pigdev(action.key)
-            self.logger.debug(
-                f"Pressing key down: {
-                    action.key} (PigDev key: {key})"
-            )
+            pigdev_key = keyboard_key_to_pigdev(key)
+            self.logger.debug(f"Pressing key down: {key} (PigDev key: {pigdev_key})")
 
             # Use the existing connection
-            self.connection.key_down(key)
+            self.connection.key_down(pigdev_key)
         except Exception as e:
             self.logger.error(f"Error executing key down via PigDev: {e}")
             raise
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
+    def _execute_keyboard_key_release(self, key: KeyboardKey):
         """Execute key release for a keyboard key using PigDev."""
         try:
             # Convert to PigDev key format
-            key = keyboard_key_to_pigdev(action.key)
-            self.logger.debug(
-                f"Releasing key: {
-                    action.key} (PigDev key: {key})"
-            )
+            pigdev_key = keyboard_key_to_pigdev(key)
+            self.logger.debug(f"Releasing key: {key} (PigDev key: {pigdev_key})")
 
             # Use the existing connection
-            self.connection.key_up(key)
+            self.connection.key_up(pigdev_key)
         except Exception as e:
             self.logger.error(f"Error executing key release via PigDev: {e}")
             raise
 
-    def _execute_type(self, action: TypeAction):
+    def _execute_type(self, text: str):
         """Type text using PigDev."""
         try:
-            self.logger.debug(f"Typing text: {action.text}")
+            self.logger.debug(f"Typing text: {text}")
             # Use the existing connection
-            self.connection.type(action.text)
+            self.connection.type(text)
         except Exception as e:
             self.logger.error(f"Error typing text via PigDev: {e}")
             raise
 
-    def _execute_mouse_move(self, action: MouseMoveAction):
+    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
         """Move mouse to specified coordinates using PigDev."""
         try:
-            self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
+            self.logger.debug(f"Moving mouse to: ({x}, {y})")
             # Use the existing connection
-            self.connection.mouse_move(x=action.x, y=action.y)
+            self.connection.mouse_move(x=x, y=y)
         except Exception as e:
             self.logger.error(f"Error moving mouse via PigDev: {e}")
             raise
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction):
+    def _execute_mouse_scroll(self, amount: float):
         """Scroll mouse using PigDev."""
         self.logger.debug("PigDev does not support mouse scrolling")
         # PigDev doesn't have a direct scroll method
         raise NotImplementedError("PigDev does not support mouse scrolling")
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
+    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using PigDev."""
-        button = mouse_button_to_pigdev(action.button)
-        self.logger.debug(
-            f"Pressing mouse button down: {
-                action.button} (PigDev button: {button})"
-        )
+        pigdev_button = mouse_button_to_pigdev(button)
+        self.logger.debug(f"Pressing mouse button down: {button} (PigDev button: {pigdev_button})")
 
         # Use the existing connection
-        self.connection.mouse_down(button)
+        self.connection.mouse_down(pigdev_button)
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
+    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using PigDev."""
-        button = mouse_button_to_pigdev(action.button)
-        self.logger.debug(
-            f"Releasing mouse button: {
-                action.button} (PigDev button: {button})"
-        )
+        pigdev_button = mouse_button_to_pigdev(button)
+        self.logger.debug(f"Releasing mouse button: {button} (PigDev button: {pigdev_button})")
 
         # Use the existing connection
-        self.connection.mouse_up(button)
+        self.connection.mouse_up(pigdev_button)
 
-    def _execute_click(self, action: ClickAction):
+    def _execute_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT):
         """Execute a click action at the given coordinates using PigDev's click method."""
-        self.logger.debug(
-            f"Clicking at: ({
-                action.x}, {
-                action.y}) with button: {
-                action.button}"
-        )
+        self.logger.debug(f"Clicking at: ({x}, {y}) with button: {button}")
         # Use the existing connection
         # Move to position first
-        self.connection.mouse_move(x=action.x, y=action.y)
+        self.connection.mouse_move(x=x, y=y)
         # Then click using the appropriate button
-        if action.button == MouseButton.LEFT:
+        if button == MouseButton.LEFT:
             self.connection.left_click()
         else:
             self.connection.right_click()
 
-    def _execute_double_click(self, action: DoubleClickAction):
+    def _execute_double_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT, double_click_interval_seconds: float = 0.1):
         """Execute a double click action at the given coordinates using PigDev's double_click method."""
-        self.logger.debug(f"Double-clicking at: ({action.x}, {action.y})")
+        self.logger.debug(f"Double-clicking at: ({x}, {y})")
         # Use the existing connection
         # Move to position first
-        self.connection.mouse_move(x=action.x, y=action.y)
+        self.connection.mouse_move(x=x, y=y)
         # Then double click (PigDev only supports left double click)
         self.connection.double_click()
 
-    def _execute_drag(self, action: DragAction):
+    def _execute_drag(self, start_x: int, start_y: int, end_x: int, end_y: int, move_duration: float = 0.5, button: MouseButton = MouseButton.LEFT):
         """Execute a drag action using PigDev's left_click_drag method."""
-        self.logger.debug(
-            f"Dragging from: ({
-                action.start_x}, {
-                action.start_y}) to: ({
-                action.end_x}, {
-                    action.end_y})"
-        )
+        self.logger.debug(f"Dragging from: ({start_x}, {start_y}) to: ({end_x}, {end_y})")
         # Use the existing connection
         # First move to the start position
-        self.connection.mouse_move(x=action.start_x, y=action.start_y)
+        self.connection.mouse_move(x=start_x, y=start_y)
         # Then perform the drag to the end position
-        self.connection.left_click_drag(x=action.end_x, y=action.end_y)
+        self.connection.left_click_drag(x=end_x, y=end_y)
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
+    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key using PigDev's key method."""
-        key = keyboard_key_to_pigdev(action.key)
-        self.logger.debug(f"Pressing key: {action.key} (PigDev key: {key})")
+        pigdev_key = keyboard_key_to_pigdev(key)
+        self.logger.debug(f"Pressing key: {key} (PigDev key: {pigdev_key})")
 
         # Use the existing connection
-        self.connection.key(key)
+        self.connection.key(pigdev_key)
 
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
+    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using PigDev's key method with combined keys."""
         # Convert keys to PigDev format
-        keys = [keyboard_key_to_pigdev(key) for key in action.keys]
-        hotkey_str = "+".join(keys)
+        pigdev_keys = [keyboard_key_to_pigdev(key) for key in keys]
+        hotkey_str = "+".join(pigdev_keys)
         self.logger.debug(f"Executing hotkey: {hotkey_str}")
 
         # Use the existing connection
@@ -435,7 +412,7 @@ class PigDevComputer(BaseComputer):
             self.logger.error(f"Error getting PigDev video stream URL: {e}")
             return ""
 
-    def _run_process(self, action: RunProcessAction) -> bool:
+    def _run_process(self, command: str, args: List[str] = [], cwd: Optional[str] = None, env: Optional[dict] = None, timeout: Optional[float] = None) -> bool:
         """Run a process with the specified parameters.
 
         This method attempts to use the PigDev API to run a process, but falls back
@@ -443,17 +420,17 @@ class PigDevComputer(BaseComputer):
         is not supported.
 
         Args:
-            action: RunProcessAction containing the process parameters
+            command: The command to run
+            args: List of command arguments
+            cwd: Working directory for the process
+            env: Environment variables for the process
+            timeout: Timeout in seconds
 
         Returns:
             bool: True if the process was executed successfully
         """
-        self.logger.info(
-            f"Running process via PigDev: {
-                action.command} with args: {
-                action.args}"
-        )
-        return self._default_run_process(action=action)
+        self.logger.info(f"Running process via PigDev: {command} with args: {args}")
+        return self._default_run_process(command=command, args=args, cwd=cwd, env=env, timeout=timeout)
 
     def _open(
         self,

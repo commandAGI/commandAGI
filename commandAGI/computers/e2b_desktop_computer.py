@@ -200,54 +200,54 @@ class E2BDesktopComputer(BaseComputer):
         self.logger.debug("E2B Desktop does not support getting keyboard state")
         raise NotImplementedError("E2B Desktop does not support getting keyboard state")
 
-    def _execute_shell_command(self, action: ShellCommandAction):
+    def _execute_shell_command(self, command: str):
         """Execute a system command in the E2B Desktop VM."""
-        self.desktop.commands.run(action.command)
+        self.desktop.commands.run(command)
 
-    def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
-        """Execute key down for a keyboard key using action signature."""
+    def _execute_keyboard_key_down(self, key: KeyboardKey):
+        """Execute key down for a keyboard key."""
         # E2B Desktop doesn't have direct key_down method, use PyAutoGUI
-        e2b_key = keyboard_key_to_e2b(action.key)
+        e2b_key = keyboard_key_to_e2b(key)
         self.desktop.pyautogui(f"pyautogui.keyDown('{e2b_key}')")
 
-    def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
-        """Execute key release for a keyboard key using action signature."""
+    def _execute_keyboard_key_release(self, key: KeyboardKey):
+        """Execute key release for a keyboard key."""
         # E2B Desktop doesn't have direct key_up method, use PyAutoGUI
-        e2b_key = keyboard_key_to_e2b(action.key)
+        e2b_key = keyboard_key_to_e2b(key)
         self.desktop.pyautogui(f"pyautogui.keyUp('{e2b_key}')")
 
-    def _execute_type(self, action: TypeAction):
+    def _execute_type(self, text: str):
         """Type text using E2B Desktop."""
-        self.desktop.write(action.text)
+        self.desktop.write(text)
 
-    def _execute_mouse_move(self, action: MouseMoveAction):
+    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
         """Move mouse to specified coordinates using E2B Desktop."""
-        self.logger.debug(f"Moving mouse to: ({action.x}, {action.y})")
+        self.logger.debug(f"Moving mouse to: ({x}, {y})")
         # E2B Desktop doesn't have a direct move duration parameter
-        self.desktop.mouse_move(action.x, action.y)
+        self.desktop.mouse_move(x, y)
 
-    def _execute_mouse_scroll(self, action: MouseScrollAction):
+    def _execute_mouse_scroll(self, amount: float):
         """Scroll mouse using E2B Desktop."""
         # E2B Desktop scroll takes an integer amount
-        self.desktop.scroll(int(action.amount))
+        self.desktop.scroll(int(amount))
 
-    def _execute_mouse_button_down(self, action: MouseButtonDownAction):
+    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using PyAutoGUI through E2B Desktop."""
-        e2b_button = mouse_button_to_e2b(action.button)
+        e2b_button = mouse_button_to_e2b(button)
         self.desktop.pyautogui(f"pyautogui.mouseDown(button='{e2b_button}')")
 
-    def _execute_mouse_button_up(self, action: MouseButtonUpAction):
+    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using PyAutoGUI through E2B Desktop."""
-        e2b_button = mouse_button_to_e2b(action.button)
+        e2b_button = mouse_button_to_e2b(button)
         self.desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")
 
-    def _execute_click(self, action: ClickAction):
+    def _execute_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT):
         """Execute a click action using E2B Desktop's click methods."""
         # Move to position first
-        self.desktop.mouse_move(action.x, action.y)
+        self.desktop.mouse_move(x, y)
 
         # Then click using the appropriate method
-        e2b_button = mouse_button_to_e2b(action.button)
+        e2b_button = mouse_button_to_e2b(button)
         if e2b_button == "left":
             self.desktop.left_click()
         elif e2b_button == "right":
@@ -255,24 +255,24 @@ class E2BDesktopComputer(BaseComputer):
         elif e2b_button == "middle":
             self.desktop.middle_click()
 
-    def _execute_double_click(self, action: DoubleClickAction):
+    def _execute_double_click(self, x: int, y: int, move_duration: float = 0.5, press_duration: float = 0.1, button: MouseButton = MouseButton.LEFT, double_click_interval_seconds: float = 0.1):
         """Execute a double click action using E2B Desktop's double_click method."""
         # Move to position first
-        self.desktop.mouse_move(action.x, action.y)
+        self.desktop.mouse_move(x, y)
 
         # Then double click (E2B only supports left double click)
         self.desktop.double_click()
 
-    def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
+    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key."""
-        e2b_key = keyboard_key_to_e2b(action.key)
+        e2b_key = keyboard_key_to_e2b(key)
         # E2B doesn't have a direct press method, use PyAutoGUI
         self.desktop.pyautogui(f"pyautogui.press('{e2b_key}')")
 
-    def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
+    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using E2B Desktop's hotkey method."""
         # Convert keys to E2B format
-        e2b_keys = [keyboard_key_to_e2b(key) for key in action.keys]
+        e2b_keys = [keyboard_key_to_e2b(key) for key in keys]
 
         # E2B Desktop's hotkey method takes individual arguments, not a list
         self.desktop.hotkey(*e2b_keys)
@@ -356,24 +356,39 @@ class E2BDesktopComputer(BaseComputer):
             str: The URL for the video stream, or an empty string if video streaming is not available.
         """
         return self.get_video_stream_url()
-
-    def _run_process(self, action: RunProcessAction) -> bool:
+    def _run_process(
+        self,
+        command: str,
+        args: List[str] = None,
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None
+    ) -> bool:
         """Run a process with the specified parameters.
 
         This method uses the E2B Desktop API to run a process in the sandbox.
 
         Args:
-            action: RunProcessAction containing the process parameters
+            command: The command to execute
+            args: List of command arguments
+            cwd: Working directory for the process
+            env: Environment variables dictionary
+            timeout: Timeout in seconds
 
         Returns:
             bool: True if the process was executed successfully
         """
+        args = args or []
         self.logger.info(
-            f"Running process in E2B Desktop: {
-                action.command} with args: {
-                action.args}"
+            f"Running process in E2B Desktop: {command} with args: {args}"
         )
-        return self._default_run_process(action=action)
+        return self._default_run_process(
+            command=command,
+            args=args,
+            cwd=cwd,
+            env=env,
+            timeout=timeout
+        )
 
     def _open(
         self,
