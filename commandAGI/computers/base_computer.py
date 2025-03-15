@@ -1,5 +1,6 @@
 import logging
 import os
+import tempfile
 import time
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -43,6 +44,25 @@ from commandAGI.types import (
     WindowsObservation,
     ComputerActionUnion,
 )
+
+
+class SystemInfo(BaseModel):
+    """Information about the system."""
+
+    cpu_usage: float = Field(
+        description="CPU usage percentage from system monitoring APIs"
+    )
+    memory_usage: float = Field(
+        description="Memory usage percentage from system monitoring APIs"
+    )
+    disk_usage: float = Field(description="Disk usage percentage from filesystem APIs")
+    uptime: float = Field(description="System uptime in seconds")
+    hostname: str = Field(description="System hostname")
+    ip_address: str = Field(description="Primary IP address from network interfaces")
+    user: str = Field(description="Current username")
+    os: str = Field(description="Operating system name")
+    version: str = Field(description="Operating system version")
+    architecture: str = Field(description="CPU architecture (x86_64, arm64, etc.)")
 
 
 class BaseJupyterNotebook(BaseModel):
@@ -546,6 +566,47 @@ class BaseComputer(BaseModel):
         self.logger.debug("Resume not implemented for this computer type")
         pass
 
+    def ensure_running_state(
+        self, target_state: Literal["running", "paused", "stopped"]
+    ):
+        """Ensure the computer is in the specified state.
+
+        TODO: implement a timeout for the state transition or else raise an exception
+
+        Args:
+            target_state: The desired state ("running", "paused", or "stopped")
+        """
+        match (self._state, target_state):
+
+            # Transitions to running state
+            case ("running", "running"):
+                pass
+            case ("stopped", "running"):
+                self.start()
+            case ("paused", "running"):
+                self.resume()
+
+            # Transitions to paused state
+            case ("running", "paused"):
+                self.pause()
+            case ("paused", "paused"):
+                pass
+            case ("stopped", "paused"):
+                self.start()
+                self.pause()
+
+            # Transitions to stopped state
+            case ("running", "stopped"):
+                self.stop()
+            case ("paused", "stopped"):
+                self.stop()
+            case ("stopped", "stopped"):
+                pass
+
+            # Invalid states/transitions
+            case (current, target):
+                raise ValueError(f"Invalid state transition: {current} -> {target}")
+
     def reset_state(self):
         """Reset the computer state. If you just need ot reset the computer state without a full off-on, use this method. NOTE: in most cases, we just do a full off-on"""
         self.logger.info(f"Resetting {self.__class__.__name__} computer state")
@@ -565,8 +626,6 @@ class BaseComputer(BaseModel):
             Path: The path to the temporary directory
         """
         if not self._temp_dir:
-            import tempfile
-
             self._temp_dir = tempfile.mkdtemp()
         return Path(self._temp_dir)
 
@@ -749,23 +808,23 @@ class BaseComputer(BaseModel):
         """Get information about connected displays."""
         return self.get_displays()
 
+    @property
+    def sysinfo(self) -> SystemInfo:
+        """Get information about the system."""
+        return self.get_sysinfo()
+
     def get_mouse_state(self) -> MouseStateObservation:
         """Return a MouseStateObservation containing the current mouse button states and position."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-        try:
-            return self._get_mouse_state()
-        except Exception as e:
-            self.logger.error(f"Error getting mouse state: {e}")
-            return MouseStateObservation()
+        return self._execute_with_retry(
+            "get_mouse_state",
+            self._get_mouse_state
+        )
 
     def _get_mouse_state(self) -> MouseStateObservation:
         raise NotImplementedError(f"{self.__class__.__name__}.get_mouse_state")
 
     @property
-    def get_mouse_state_tool(self) -> BaseTool:
+    def mouse_state_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="get_mouse_state",
             description="Get the current mouse state",
@@ -774,21 +833,16 @@ class BaseComputer(BaseModel):
 
     def get_keyboard_state(self) -> KeyboardStateObservation:
         """Return a KeyboardStateObservation with the current keyboard keys mapped to their states."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-        try:
-            return self._get_keyboard_state()
-        except Exception as e:
-            self.logger.error(f"Error getting keyboard state: {e}")
-            return KeyboardStateObservation()
+        return self._execute_with_retry(
+            "get_keyboard_state",
+            self._get_keyboard_state
+        )
 
     def _get_keyboard_state(self) -> KeyboardStateObservation:
         raise NotImplementedError(f"{self.__class__.__name__}.get_keyboard_state")
 
     @property
-    def get_keyboard_state_tool(self) -> BaseTool:
+    def keyboard_state_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="get_keyboard_state",
             description="Get the current keyboard state",
@@ -797,21 +851,16 @@ class BaseComputer(BaseModel):
 
     def get_layout_tree(self) -> LayoutTreeObservation:
         """Return a LayoutTreeObservation containing the accessibility tree of the current UI."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-        try:
-            return self._get_layout_tree()
-        except Exception as e:
-            self.logger.error(f"Error getting layout tree: {e}")
-            return LayoutTreeObservation()
+        return self._execute_with_retry(
+            "get_layout_tree",
+            self._get_layout_tree
+        )
 
     def _get_layout_tree(self) -> LayoutTreeObservation:
         raise NotImplementedError(f"{self.__class__.__name__}.get_layout_tree")
 
     @property
-    def get_layout_tree_tool(self) -> BaseTool:
+    def layout_tree_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="get_layout_tree",
             description="Get the current layout tree",
@@ -820,15 +869,10 @@ class BaseComputer(BaseModel):
 
     def get_processes(self) -> ProcessesObservation:
         """Return a ProcessesObservation containing information about running processes."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-        try:
-            return self._get_processes()
-        except Exception as e:
-            self.logger.error(f"Error getting processes: {e}")
-            return ProcessesObservation()
+        return self._execute_with_retry(
+            "get_processes",
+            self._get_processes
+        )
 
     def _get_processes(self) -> ProcessesObservation:
         raise NotImplementedError(f"{self.__class__.__name__}.get_processes")
@@ -843,15 +887,10 @@ class BaseComputer(BaseModel):
 
     def get_windows(self) -> WindowsObservation:
         """Return a WindowsObservation containing information about open windows."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-        try:
-            return self._get_windows()
-        except Exception as e:
-            self.logger.error(f"Error getting windows: {e}")
-            return WindowsObservation()
+        return self._execute_with_retry(
+            "get_windows",
+            self._get_windows
+        )
 
     def _get_windows(self) -> WindowsObservation:
         raise NotImplementedError(f"{self.__class__.__name__}.get_windows")
@@ -866,15 +905,10 @@ class BaseComputer(BaseModel):
 
     def get_displays(self) -> DisplaysObservation:
         """Return a DisplaysObservation containing information about connected displays."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-        try:
-            return self._get_displays()
-        except Exception as e:
-            self.logger.error(f"Error getting displays: {e}")
-            return DisplaysObservation()
+        return self._execute_with_retry(
+            "get_displays",
+            self._get_displays
+        )
 
     def _get_displays(self) -> DisplaysObservation:
         raise NotImplementedError(f"{self.__class__.__name__}.get_displays")
@@ -886,6 +920,20 @@ class BaseComputer(BaseModel):
             description="Get information about connected displays",
             func=self.get_displays,
         )
+
+    def get_sysinfo(self) -> SystemInfo:
+        """Get information about the system."""
+        if self._state == "stopped":
+            self._start()
+        elif self._state == "paused":
+            self.resume()
+        try:
+            return self._get_sysinfo()
+        except Exception as e:
+            self.logger.error(f"Error getting sysinfo: {e}")
+
+    def _get_sysinfo(self) -> SystemInfo:
+        raise NotImplementedError(f"{self.__class__.__name__}.get_sysinfo")
 
     _jupyter_server_pid: int | None = None
 
@@ -1028,29 +1076,11 @@ class BaseComputer(BaseModel):
         The timeout parameter indicates how long (in seconds) to wait before giving up,
         with None meaning no timeout.
         """
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = ShellCommandAction(
-            command=command, timeout=timeout, executible=executible
+        return self._execute_with_retry(
+            "shell command",
+            self._execute_shell_command,
+            ShellCommandAction(command=command, timeout=timeout, executible=executible),
         )
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_shell_command(action)
-                return True
-            except Exception as e:
-                if DEV_MODE:
-                    raise e
-                self.logger.error(
-                    f"Error executing command (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
 
     def _execute_shell_command(self, action: ShellCommandAction):
         raise NotImplementedError(f"{self.__class__.__name__}.execute_command")
@@ -1067,25 +1097,11 @@ class BaseComputer(BaseModel):
         self, keys: List[KeyboardKey], duration: float = 0.1
     ) -> bool:
         """Execute pressing keyboard keys."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = KeyboardKeysPressAction(keys=keys, duration=duration)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_keyboard_keys_press(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing keyboard keys press (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "keyboard keys press",
+            self._execute_keyboard_keys_press,
+            KeyboardKeysPressAction(keys=keys, duration=duration),
+        )
 
     def _execute_keyboard_keys_press(self, action: KeyboardKeysPressAction):
         self.execute_keyboard_keys_down(action.keys)
@@ -1101,25 +1117,11 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_keys_down(self, keys: List[KeyboardKey]) -> bool:
         """Execute key down for each keyboard key."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = KeyboardKeysDownAction(keys=keys)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_keyboard_keys_down(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing keyboard keys down (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "keyboard keys down",
+            self._execute_keyboard_keys_down,
+            KeyboardKeysDownAction(keys=keys),
+        )
 
     def _execute_keyboard_keys_down(self, action: KeyboardKeysDownAction):
         for key in action.keys:
@@ -1135,25 +1137,11 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_keys_release(self, keys: List[KeyboardKey]) -> bool:
         """Execute key release for each keyboard key."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = KeyboardKeysReleaseAction(keys=keys)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_keyboard_keys_release(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing keyboard keys release (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "keyboard keys release",
+            self._execute_keyboard_keys_release,
+            KeyboardKeysReleaseAction(keys=keys),
+        )
 
     def _execute_keyboard_keys_release(self, action: KeyboardKeysReleaseAction):
         for key in action.keys:
@@ -1171,25 +1159,11 @@ class BaseComputer(BaseModel):
         self, key: KeyboardKey, duration: float = 0.1
     ) -> bool:
         """Execute pressing a keyboard key with a specified duration."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = KeyboardKeyPressAction(key=key, duration=duration)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_keyboard_key_press(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing keyboard key press (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "keyboard key press",
+            self._execute_keyboard_key_press,
+            KeyboardKeyPressAction(key=key, duration=duration),
+        )
 
     def _execute_keyboard_key_press(self, action: KeyboardKeyPressAction):
         self.execute_keyboard_key_down(KeyboardKeyDownAction(key=action.key))
@@ -1206,25 +1180,11 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_key_down(self, key: KeyboardKey) -> bool:
         """Execute key down for a keyboard key."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = KeyboardKeyDownAction(key=key)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_keyboard_key_down(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing keyboard key down (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "keyboard key down",
+            self._execute_keyboard_key_down,
+            KeyboardKeyDownAction(key=key),
+        )
 
     def _execute_keyboard_key_down(self, action: KeyboardKeyDownAction):
         raise NotImplementedError(
@@ -1241,25 +1201,11 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_key_release(self, key: KeyboardKey) -> bool:
         """Execute key release for a keyboard key."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = KeyboardKeyReleaseAction(key=key)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_keyboard_key_release(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing keyboard key release (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "keyboard key release",
+            self._execute_keyboard_key_release,
+            KeyboardKeyReleaseAction(key=key),
+        )
 
     def _execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction):
         raise NotImplementedError(
@@ -1276,25 +1222,11 @@ class BaseComputer(BaseModel):
 
     def execute_keyboard_hotkey(self, keys: List[KeyboardKey]) -> bool:
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = KeyboardHotkeyAction(keys=keys)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_keyboard_hotkey(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing keyboard hotkey (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "keyboard hotkey",
+            self._execute_keyboard_hotkey,
+            KeyboardHotkeyAction(keys=keys),
+        )
 
     def _execute_keyboard_hotkey(self, action: KeyboardHotkeyAction):
         for key in action.keys:
@@ -1312,25 +1244,9 @@ class BaseComputer(BaseModel):
 
     def execute_type(self, text: str) -> bool:
         """Execute typing the given text."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = TypeAction(text=text)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_type(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing type (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "type", self._execute_type, TypeAction(text=text)
+        )
 
     def _execute_type(self, action: TypeAction):
         for char in action.text:
@@ -1346,25 +1262,11 @@ class BaseComputer(BaseModel):
 
     def execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5) -> bool:
         """Execute moving the mouse to (x, y) over the move duration."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = MouseMoveAction(x=x, y=y, move_duration=move_duration)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_mouse_move(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing mouse move (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "mouse move",
+            self._execute_mouse_move,
+            MouseMoveAction(x=x, y=y, move_duration=move_duration),
+        )
 
     def _execute_mouse_move(self, action: MouseMoveAction):
         raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_move")
@@ -1379,25 +1281,9 @@ class BaseComputer(BaseModel):
 
     def execute_mouse_scroll(self, amount: float) -> bool:
         """Execute mouse scroll by a given amount."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = MouseScrollAction(amount=amount)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_mouse_scroll(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing mouse scroll (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "mouse scroll", self._execute_mouse_scroll, MouseScrollAction(amount=amount)
+        )
 
     def _execute_mouse_scroll(self, action: MouseScrollAction):
         raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_scroll")
@@ -1412,25 +1298,11 @@ class BaseComputer(BaseModel):
 
     def execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT) -> bool:
         """Execute mouse button down action."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = MouseButtonDownAction(button=button)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_mouse_button_down(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing mouse button down (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "mouse button down",
+            self._execute_mouse_button_down,
+            MouseButtonDownAction(button=button),
+        )
 
     def _execute_mouse_button_down(self, action: MouseButtonDownAction):
         raise NotImplementedError(
@@ -1447,25 +1319,11 @@ class BaseComputer(BaseModel):
 
     def execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT) -> bool:
         """Execute mouse button up action."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = MouseButtonUpAction(button=button)
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_mouse_button_up(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing mouse button up (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+        return self._execute_with_retry(
+            "mouse button up",
+            self._execute_mouse_button_up,
+            MouseButtonUpAction(button=button),
+        )
 
     def _execute_mouse_button_up(self, action: MouseButtonUpAction):
         raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_button_up")
@@ -1489,31 +1347,17 @@ class BaseComputer(BaseModel):
         """Execute a click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = ClickAction(
-            x=x,
-            y=y,
-            move_duration=move_duration,
-            press_duration=press_duration,
-            button=button,
+        return self._execute_with_retry(
+            "click",
+            self._execute_click,
+            ClickAction(
+                x=x,
+                y=y,
+                move_duration=move_duration,
+                press_duration=press_duration,
+                button=button,
+            ),
         )
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_click(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing click (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
 
     def _execute_click(self, action: ClickAction):
         move_action = MouseMoveAction(
@@ -1546,32 +1390,18 @@ class BaseComputer(BaseModel):
         """Execute a double click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = DoubleClickAction(
-            x=x,
-            y=y,
-            move_duration=move_duration,
-            press_duration=press_duration,
-            button=button,
-            double_click_interval_seconds=double_click_interval_seconds,
+        return self._execute_with_retry(
+            "double click",
+            self._execute_double_click,
+            DoubleClickAction(
+                x=x,
+                y=y,
+                move_duration=move_duration,
+                press_duration=press_duration,
+                button=button,
+                double_click_interval_seconds=double_click_interval_seconds,
+            ),
         )
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_double_click(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing double click (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
 
     def _execute_double_click(self, action: DoubleClickAction):
         self.execute_click(
@@ -1612,32 +1442,18 @@ class BaseComputer(BaseModel):
         button: MouseButton = MouseButton.LEFT,
     ) -> bool:
         """Execute a drag action using the primitive mouse operations."""
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        action = DragAction(
-            start_x=start_x,
-            start_y=start_y,
-            end_x=end_x,
-            end_y=end_y,
-            move_duration=move_duration,
-            button=button,
+        return self._execute_with_retry(
+            "drag",
+            self._execute_drag,
+            DragAction(
+                start_x=start_x,
+                start_y=start_y,
+                end_x=end_x,
+                end_y=end_y,
+                move_duration=move_duration,
+                button=button,
+            ),
         )
-
-        for attempt in range(self.num_retries):
-            try:
-                self._execute_drag(action)
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error executing drag (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
 
     def _execute_drag(self, action: DragAction):
         # Move to the starting position
@@ -1701,35 +1517,16 @@ class BaseComputer(BaseModel):
         Returns:
             bool: True if the copy operation was successful, False otherwise.
         """
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        source_path = Path(source_path) if isinstance(source_path, str) else source_path
-        destination_path = (
-            Path(destination_path)
-            if isinstance(destination_path, str)
-            else destination_path
+        return self._execute_with_retry(
+            "copy to computer",
+            self._copy_to_computer,
+            Path(source_path) if isinstance(source_path, str) else source_path,
+            (
+                Path(destination_path)
+                if isinstance(destination_path, str)
+                else destination_path
+            ),
         )
-
-        self.logger.info(f"Copying {source_path} to {destination_path} on the computer")
-
-        for attempt in range(self.num_retries):
-            try:
-                self._copy_to_computer(source_path, destination_path)
-                self.logger.info(
-                    f"Successfully copied {source_path} to {destination_path}"
-                )
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error copying to computer (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_to_computer functionality.
@@ -1768,37 +1565,16 @@ class BaseComputer(BaseModel):
         Returns:
             bool: True if the copy operation was successful, False otherwise
         """
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        source_path = Path(source_path) if isinstance(source_path, str) else source_path
-        destination_path = (
-            Path(destination_path)
-            if isinstance(destination_path, str)
-            else destination_path
+        return self._execute_with_retry(
+            "copy from computer",
+            self._copy_from_computer,
+            Path(source_path) if isinstance(source_path, str) else source_path,
+            (
+                Path(destination_path)
+                if isinstance(destination_path, str)
+                else destination_path
+            ),
         )
-
-        self.logger.info(
-            f"Copying {source_path} from the computer to {destination_path}"
-        )
-
-        for attempt in range(self.num_retries):
-            try:
-                self._copy_from_computer(source_path, destination_path)
-                self.logger.info(
-                    f"Successfully copied {source_path} from the computer to {destination_path}"
-                )
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error copying from computer (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
-
-        return False
 
     def _copy_from_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_from_computer functionality.
@@ -1845,13 +1621,9 @@ class BaseComputer(BaseModel):
         Returns:
             A file-like object for the specified file
         """
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        self.logger.debug(f"Opening file: {path} with mode: {mode}")
-        return self._open(path, mode, encoding, errors, buffering)
+        return self._execute_with_retry(
+            "open", self._open, path, mode, encoding, errors, buffering
+        )
 
     @abstractmethod
     def _open(
@@ -2060,3 +1832,35 @@ class BaseComputer(BaseModel):
             args_schema=ComputerActionUnion,
             return_direct=True,
         )
+
+    def _execute_with_retry(
+        self, operation_name: str, operation: callable, *args, **kwargs
+    ) -> bool:
+        """Execute an operation with retry mechanism.
+
+        Args:
+            operation_name: Name of the operation for logging
+            operation: Callable to execute
+            *args: Positional arguments to pass to operation
+            **kwargs: Keyword arguments to pass to operation
+
+        Returns:
+            bool: True if operation succeeded, False if all retries failed
+        """
+        if not self.ensure_running_state("running"):
+            return False
+
+        for attempt in range(self.num_retries):
+            try:
+                operation(*args, **kwargs)
+                return True
+            except Exception as e:
+                if DEV_MODE and attempt == self.num_retries - 1:
+                    raise e
+                self.logger.error(
+                    f"Error executing {operation_name} (attempt {attempt + 1}/{self.num_retries}): {e}"
+                )
+                if attempt == self.num_retries - 1:
+                    return False
+
+        return False
