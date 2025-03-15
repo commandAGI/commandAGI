@@ -307,18 +307,18 @@ class LocalPynputComputer(LocalComputer):
         """Callback for mouse scroll events."""
         self.logger.debug(f"Mouse scroll detected: ({x}, {y}), dx={dx}, dy={dy}")
         # We don't track scroll state, just position
+    def _get_mouse_position(self) -> tuple[int, int]:
+        """Return current mouse position."""
+        self.logger.debug(f"Getting mouse position: {self._mouse_pos}")
+        return self._mouse_pos
 
-    def _get_mouse_state(self) -> MouseStateObservation:
-        """Return mouse state from pynput listener."""
-        self.logger.debug(
-            f"Getting mouse state: position={self._mouse_pos}, buttons={self._mouse_buttons}"
-        )
-        return MouseStateObservation(
-            buttons=self._mouse_buttons.copy(), position=self._mouse_pos
-        )
+    def _get_mouse_button_states(self) -> dict[str, bool]:
+        """Return states of mouse buttons."""
+        self.logger.debug(f"Getting mouse button states: {self._mouse_buttons}")
+        return self._mouse_buttons.copy()
 
-    def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Return keyboard state from pynput listener."""
+    def _get_keyboard_key_states(self) -> dict[str, bool]:
+        """Return states of keyboard keys."""
         # Convert pynput keys to our KeyboardKey enum
         pressed_keys = {}
         for key in self._pressed_keys:
@@ -326,20 +326,8 @@ class LocalPynputComputer(LocalComputer):
             if kb_key:
                 pressed_keys[kb_key] = True
 
-        self.logger.debug(f"Getting keyboard state: {pressed_keys}")
-        return KeyboardStateObservation(keys=pressed_keys)
-
-    def get_observation(self):
-        """Get the current observation of the computer state."""
-        screenshot = self.get_screenshot()
-        mouse_state = self.get_mouse_state()
-        keyboard_state = self.get_keyboard_state()
-
-        return ComputerObservation(
-            screenshot=screenshot,
-            mouse_state=mouse_state,
-            keyboard_state=keyboard_state,
-        )
+        self.logger.debug(f"Getting keyboard key states: {pressed_keys}")
+        return pressed_keys
 
     def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""

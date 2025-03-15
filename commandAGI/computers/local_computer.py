@@ -945,7 +945,7 @@ class LocalComputer(BaseComputer):
 
     def _get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
-    ) -> ScreenshotObservation:
+    ) -> Union[str, Image.Image, Path]:
         """Return a screenshot of the current state in the specified format.
 
         Args:

@@ -280,7 +280,7 @@ class DaemonClientComputer(BaseComputer):
 
     def _get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
-    ) -> ScreenshotObservation:
+    ) -> Union[str, Image.Image, Path]:
         """Get a screenshot of the computer in the specified format.
 
         Args:
@@ -303,25 +303,56 @@ class DaemonClientComputer(BaseComputer):
             computer_name="daemon",
         )
 
-    def _get_mouse_state(self) -> MouseStateObservation:
-        """Get the current mouse state"""
+    def _get_mouse_position(self) -> tuple[int, int]:
+        """Get the current mouse cursor position.
+
+        Returns:
+            tuple[int, int]: The x,y coordinates of the mouse cursor
+        """
         if not self.client:
             raise RuntimeError("Client not initialized")
 
         response = get_mouse_state_sync(client=self.client)
-        if response:
-            return MouseStateObservation(**response)
-        raise RuntimeError("Failed to get mouse state from daemon")
+        if not response or "position" not in response:
+            raise RuntimeError("Failed to get mouse position from daemon")
+        return (response["position"]["x"], response["position"]["y"])
 
-    def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Get the current keyboard state"""
+    def _get_mouse_button_states(self) -> dict[str, bool]:
+        """Get the current state of mouse buttons.
+
+        Returns:
+            dict[str, bool]: Dictionary mapping button names to pressed state
+        """
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+
+        response = get_mouse_state_sync(client=self.client)
+        if not response or "buttons" not in response:
+            raise RuntimeError("Failed to get mouse button states from daemon")
+        return response["buttons"]
+
+    def _get_keyboard_key_states(self) -> dict[str, bool]:
+        """Get the current state of keyboard keys.
+
+        Returns:
+            dict[str, bool]: Dictionary mapping key names to pressed state
+        """
         if not self.client:
             raise RuntimeError("Client not initialized")
 
         response = get_keyboard_state_sync(client=self.client)
+        if not response or "keys" not in response:
+            raise RuntimeError("Failed to get keyboard key states from daemon")
+        return response["keys"]
+
+    def _get_sysinfo(self) -> SystemInfo:
+        """Get system information from daemon client."""
+        response = self.client.get_sysinfo()
         if response:
-            return KeyboardStateObservation(**response)
-        raise RuntimeError("Failed to get keyboard state from daemon")
+            return SystemInfo(**response)
+        
+        raise RuntimeError("Failed to get system info from daemon")
+        
     def _execute_shell_command(self, command: str, timeout: Optional[float] = None):
         """Execute a shell command on the computer"""
         if not self.client:
@@ -560,12 +591,3 @@ class DaemonClientComputer(BaseComputer):
             errors=errors,
             buffering=buffering,
         )
-
-    def _get_sysinfo(self) -> SystemInfo:
-        """Get system information from daemon client."""
-        response = self.client.get_sysinfo()
-        if response:
-            return SystemInfo(**response)
-        
-        raise RuntimeError("Failed to get system info from daemon")
-        

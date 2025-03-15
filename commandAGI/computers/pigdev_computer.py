@@ -194,7 +194,7 @@ class PigDevComputer(BaseComputer):
 
     def _get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
-    ) -> ScreenshotObservation:
+    ) -> Union[str, Image.Image, Path]:
         """Return a screenshot of the current state in the specified format."""
         # Get the screenshot from PigDev (returns PIL Image)
         self.logger.debug("Capturing screenshot via PigDev")
@@ -208,33 +208,25 @@ class PigDevComputer(BaseComputer):
             computer_name="pigdev",
         )
 
-    def _get_mouse_state(self) -> MouseStateObservation:
-        """Return mouse state from PigDev."""
+    def _get_mouse_position(self) -> tuple[int, int]:
+        """Return current mouse position."""
         self.logger.debug("Getting mouse cursor position")
         # Get cursor position using the existing connection
         x, y = self.connection.cursor_position()
         self.logger.debug(f"Cursor position: ({x}, {y})")
+        return (x, y)
 
-        # PigDev doesn't provide button state, so we return a default state
-        return MouseStateObservation(
-            buttons={
-                MouseButton.LEFT: False,
-                MouseButton.MIDDLE: False,
-                MouseButton.RIGHT: False,
-            },
-            position=(x, y),
-        )
+    def _get_mouse_button_states(self) -> dict[str, bool]:
+        """Return states of mouse buttons."""
+        # PigDev doesn't provide button state information
+        raise NotImplementedError("PigDev does not support getting mouse button states")
 
-    def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Return keyboard state from PigDev."""
-        self.logger.debug("PigDev does not support getting keyboard state")
-        # PigDev doesn't provide keyboard state
-        raise NotImplementedError("PigDev does not support getting keyboard state")
+    def _get_keyboard_key_states(self) -> dict[str, bool]:
+        """Return states of keyboard keys."""
+        raise NotImplementedError("PigDev does not support getting keyboard key states")
 
     def _execute_shell_command(self, command: str, timeout: float | None = None, executable: str | None = None):
         """Execute a system command in the PigDev VM."""
-        self.logger.debug("PigDev does not support direct command execution")
-        # PigDev doesn't have a direct command execution method
         raise NotImplementedError("PigDev does not support direct command execution")
 
     def _execute_keyboard_key_down(self, key: KeyboardKey):

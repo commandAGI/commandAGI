@@ -162,10 +162,9 @@ class E2BDesktopComputer(BaseComputer):
         else:
             self.logger.debug("Desktop not initialized, starting it")
             self._start()
-
     def _get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
-    ) -> ScreenshotObservation:
+    ) -> Union[str, Image.Image, Path]:
         """Return a screenshot of the current state in the specified format.
 
         Args:
@@ -190,15 +189,20 @@ class E2BDesktopComputer(BaseComputer):
             cleanup_temp_file=True,
         )
 
-    def _get_mouse_state(self) -> MouseStateObservation:
-        """Return mouse state from E2B Desktop."""
-        self.logger.debug("E2B Desktop does not support getting mouse state")
-        raise NotImplementedError("E2B Desktop does not support getting mouse state")
+    def _get_mouse_position(self) -> tuple[int, int]:
+        """Return current mouse position."""
+        self.logger.debug("E2B Desktop does not support getting mouse position")
+        raise NotImplementedError("E2B Desktop does not support getting mouse position")
 
-    def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Return keyboard state from E2B Desktop."""
-        self.logger.debug("E2B Desktop does not support getting keyboard state")
-        raise NotImplementedError("E2B Desktop does not support getting keyboard state")
+    def _get_mouse_button_states(self) -> dict[str, bool]:
+        """Return states of mouse buttons."""
+        self.logger.debug("E2B Desktop does not support getting mouse button states")
+        raise NotImplementedError("E2B Desktop does not support getting mouse button states")
+
+    def _get_keyboard_key_states(self) -> dict[str, bool]:
+        """Return states of keyboard keys."""
+        self.logger.debug("E2B Desktop does not support getting keyboard key states")
+        raise NotImplementedError("E2B Desktop does not support getting keyboard key states")
 
     def _execute_shell_command(self, command: str):
         """Execute a system command in the E2B Desktop VM."""

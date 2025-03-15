@@ -209,7 +209,7 @@ class VNCComputer(BaseComputer):
 
     def _get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
-    ) -> ScreenshotObservation:
+    ) -> Union[str, Image.Image, Path]:
         """Return a screenshot of the current state in the specified format.
 
         Args:
@@ -219,7 +219,6 @@ class VNCComputer(BaseComputer):
                 - 'PIL': Return the screenshot as a PIL Image object
                 - 'path': Save the screenshot to a file and return the path
         """
-
         # Capture the screenshot using vncdotool
         self.logger.debug(f"Capturing VNC screenshot")
         png_data = self.client.capture()
@@ -232,15 +231,20 @@ class VNCComputer(BaseComputer):
             computer_name="vnc",
         )
 
-    def _get_mouse_state(self) -> MouseStateObservation:
-        """Return mouse state from VNC."""
-        self.logger.debug("VNC does not support getting mouse state")
-        raise NotImplementedError("VNC does not support getting mouse state")
+    def _get_mouse_position(self) -> tuple[int, int]:
+        """Return current mouse position."""
+        self.logger.debug("VNC does not support getting mouse position")
+        raise NotImplementedError("VNC does not support getting mouse position")
 
-    def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Return keyboard state from VNC."""
-        self.logger.debug("VNC does not support getting keyboard state")
-        raise NotImplementedError("VNC does not support getting keyboard state")
+    def _get_mouse_button_states(self) -> dict[str, bool]:
+        """Return states of mouse buttons."""
+        self.logger.debug("VNC does not support getting mouse button states")
+        raise NotImplementedError("VNC does not support getting mouse button states")
+
+    def _get_keyboard_key_states(self) -> dict[str, bool]:
+        """Return states of keyboard keys."""
+        self.logger.debug("VNC does not support getting keyboard key states")
+        raise NotImplementedError("VNC does not support getting keyboard key states")
 
     def _execute_shell_command(self, command: str, timeout: float | None = None, executable: str | None = None):
         """Execute a system command on the remote system.

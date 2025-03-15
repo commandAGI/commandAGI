@@ -128,19 +128,21 @@ class LocalPyAutoGUIComputer(LocalComputer):
         pyautogui.hotkey("win", "d")
         time.sleep(1)  # Give windows time to minimize
 
-    def _get_mouse_state(self) -> MouseStateObservation:
-        """Return dummy mouse state using pyautogui (pyautogui doesn't provide state, so we return a default value)."""
-        self.logger.debug("PyAutoGUI does not support getting mouse state")
-        raise NotImplementedError(
-            "LocalComputeEnv does not support mouse state observation"
-        )
+    def _get_mouse_position(self) -> tuple[int, int]:
+        """Return current mouse position."""
+        x, y = pyautogui.position()
+        self.logger.debug(f"Getting mouse position: ({x}, {y})")
+        return (x, y)
 
-    def _get_keyboard_state(self) -> KeyboardStateObservation:
-        """Return dummy keyboard state as pyautogui doesn't track key states."""
-        self.logger.debug("PyAutoGUI does not support getting keyboard state")
-        raise NotImplementedError(
-            "LocalComputeEnv does not support keyboard state observation"
-        )
+    def _get_mouse_button_states(self) -> dict[str, bool]:
+        """Return states of mouse buttons."""
+        self.logger.debug("PyAutoGUI does not support getting mouse button states")
+        raise NotImplementedError("PyAutoGUI does not support getting mouse button states")
+
+    def _get_keyboard_key_states(self) -> dict[str, bool]:
+        """Return states of keyboard keys."""
+        self.logger.debug("PyAutoGUI does not support getting keyboard key states") 
+        raise NotImplementedError("PyAutoGUI does not support getting keyboard key states")
 
     def _execute_keyboard_key_down(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
