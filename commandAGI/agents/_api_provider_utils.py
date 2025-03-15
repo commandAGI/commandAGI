@@ -1,31 +1,31 @@
-from enum import Enum
-from typing import Dict, Type, Optional, List, TypeVar, Union, Any, cast
 import json
 import uuid
-import instructor
+from enum import Enum
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
 
+import instructor
+from anthropic import Anthropic as AnthropicClient
+from google.genai import Client as GeminiClient
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import (
+    AIMessage,
+    ChatMessage,
+    HumanMessage,
+    SystemMessage,
+    ToolMessage,
+)
+from langchain_core.tools import BaseTool
+from openai import Client as OpenAIClient
 from pydantic import BaseModel
+
 from commandAGI.agents.base_agent import AgentEvent
 from commandAGI.agents.events import (
     AgentResponseEvent,
     SystemInputEvent,
-    UserInputEvent,
     ToolCallEvent,
     ToolResultEvent,
+    UserInputEvent,
 )
-from langchain_core.tools import BaseTool
-from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import (
-    SystemMessage,
-    HumanMessage,
-    AIMessage,
-    ToolMessage,
-    ChatMessage,
-)
-
-from openai import Client as OpenAIClient
-from anthropic import Anthropic as AnthropicClient
-from google.genai import Client as GeminiClient
 from commandAGI.client import Client as CommandAGIClient
 
 TSchema = TypeVar("TSchema", bound=BaseModel)

@@ -1,10 +1,10 @@
+import json
 import os
 from pathlib import Path
 from typing import Dict, Optional
 
 import platformdirs
-from pydantic import BaseSettings, EmailStr, Field, root_validator, BaseModel
-import json
+from pydantic import BaseModel, BaseSettings, EmailStr, Field, root_validator
 
 
 class UserProfile(BaseModel):

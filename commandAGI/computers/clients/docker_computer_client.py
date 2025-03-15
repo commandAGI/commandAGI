@@ -11,8 +11,8 @@ from azure.identity import DefaultAzureCredential
 from azure.mgmt.containerinstance import ContainerInstanceManagementClient
 from google.cloud import container_v1, run_v2
 
-from commandAGI._utils.command import run_command
 from commandAGI._internal.config import PROJ_DIR
+from commandAGI._utils.command import run_command
 from commandAGI._utils.network import find_free_port
 from commandAGI.computers.backend.base_computer_client import (
     BaseComputerComputerClient,

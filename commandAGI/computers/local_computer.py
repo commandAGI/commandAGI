@@ -1468,9 +1468,10 @@ class LocalComputer(BaseComputer):
     def _get_sysinfo(self) -> SystemInfo:
         """Get local system information using psutil."""
         try:
-            import psutil
             import platform
             import socket
+
+            import psutil
 
             # Get CPU usage
             cpu_usage = psutil.cpu_percent(interval=1)

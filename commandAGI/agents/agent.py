@@ -1,13 +1,26 @@
 from __future__ import annotations
-from abc import abstractmethod
+
 import asyncio
+import traceback
+import uuid
+from abc import abstractmethod
 from contextlib import contextmanager
 from dataclasses import Field
 from enum import Enum
-from typing import AsyncGenerator, Literal, Optional, TypeVar, Union, List, Callable
-import uuid
-import traceback
+from typing import (
+    AsyncGenerator,
+    Callable,
+    List,
+    Literal,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+)
+
+from langchain.tools import BaseTool
 from pydantic import BaseModel
+
 from commandAGI._utils.mcp_schema import (
     MCPServerConnection,
     MCPServerTransport,
@@ -15,22 +28,20 @@ from commandAGI._utils.mcp_schema import (
 )
 from commandAGI._utils.resource_schema import BaseResource
 from commandAGI._utils.rfc6902 import JsonPatchOperation
-from commandAGI.agents.base_agent import (
-    BaseAgent,
-    BaseAgentRunSession,
-    BaseAgentHooks,
-    SystemInputEvent,
-    TSchema,
-    AgentResponseEvent,
-    UserInputEvent,
-)
 from commandAGI.agents._api_provider_utils import (
     AIClient,
-    generate_response,
     _format_tools_for_api_provider,
+    generate_response,
 )
-from langchain.tools import BaseTool
-
+from commandAGI.agents.base_agent import (
+    AgentResponseEvent,
+    BaseAgent,
+    BaseAgentHooks,
+    BaseAgentRunSession,
+    SystemInputEvent,
+    TSchema,
+    UserInputEvent,
+)
 from commandAGI.agents.events import (
     AgentEvent,
     ErrorEvent,
@@ -40,9 +51,6 @@ from commandAGI.agents.events import (
     ToolResultEvent,
 )
 from commandAGI.computers.base_computer import BaseComputer
-
-
-from typing import Protocol
 
 
 class RuleState(BaseModel):

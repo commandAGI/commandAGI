@@ -2,11 +2,11 @@
 Utility functions for working with agents
 """
 
+import json
 import os
 import pickle
-import json
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from commandAGI.agents.advanced_agent import Agent
 from commandAGI.agents.hub import AgentMetadata

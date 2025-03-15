@@ -1,10 +1,10 @@
-from enum import Enum
 import logging
 import os
 import tempfile
 import time
 from abc import ABC, abstractmethod
 from datetime import datetime
+from enum import Enum
 from io import FileIO
 from pathlib import Path
 from typing import (
@@ -17,14 +17,15 @@ from typing import (
     Union,
 )
 
-from pydantic import BaseModel, Field
 from langchain.tools import BaseTool
+from pydantic import BaseModel, Field
 
 from commandAGI._internal.config import APPDIR, DEV_MODE
 from commandAGI._utils.counter import next_for_cls
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.types import (
     ComputerActionType,
+    ComputerActionUnion,
     DisplayInfo,
     KeyboardKey,
     MouseButton,
@@ -32,7 +33,6 @@ from commandAGI.types import (
     RunProcessAction,
     ShellCommandAction,
     WindowInfo,
-    ComputerActionUnion,
 )
 
 

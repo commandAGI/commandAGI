@@ -23,6 +23,9 @@ from typing import List, Optional
 
 import typer
 
+# Import hub CLI
+from commandAGI.agents.hub_cli import app as hub_cli
+
 # Import available computers
 from commandAGI.computers.base_computer import BaseComputer
 from commandAGI.computers.daemon_client_computer import (
@@ -32,9 +35,6 @@ from commandAGI.computers.daemon_client_computer import (
 from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 from commandAGI.version import __version__, get_container_version, get_package_version
-
-# Import hub CLI
-from commandAGI.agents.hub_cli import app as hub_cli
 
 try:
     from commandAGI.computers.e2b_desktop_computer import E2BDesktopComputer

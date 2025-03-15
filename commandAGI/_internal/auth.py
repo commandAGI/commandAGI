@@ -1,12 +1,14 @@
 import json
-from pathlib import Path
-from typing import Optional, Dict
-import typer
-import httpx
-from datetime import datetime
 import webbrowser
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Optional
+
+import httpx
+import typer
 from rich.console import Console
 from rich.theme import Theme
+
 from ._internal.config import config
 from ._internal.models import UserProfile
 

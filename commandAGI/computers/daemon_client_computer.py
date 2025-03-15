@@ -17,7 +17,6 @@ from commandAGI.computers.computer_clients.base_computer_client import (
     BaseComputerComputerClient,
 )
 from commandAGI.types import (
-    SystemInfo,
     KeyboardHotkeyAction,
     KeyboardKey,
     KeyboardKeyDownAction,
@@ -33,6 +32,7 @@ from commandAGI.types import (
     RunProcessAction,
     ScreenshotObservation,
     ShellCommandAction,
+    SystemInfo,
     TypeAction,
 )
 

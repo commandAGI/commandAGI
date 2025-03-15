@@ -1,30 +1,30 @@
 from __future__ import annotations
 
+import time
+import uuid
 from abc import abstractmethod
 from contextlib import contextmanager
 from dataclasses import Field
-import time
-from typing import AsyncGenerator, Optional, TypeVar, Union, Callable, Dict, Any, List
-import uuid
-from pydantic import BaseModel, HttpUrl
-from commandAGI._utils.mcp_schema import MCPServerTransport
-from langchain.tools import BaseTool
+from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, TypeVar, Union
 
 from agents import Agent, Runner
+from langchain.tools import BaseTool
+from pydantic import BaseModel, HttpUrl
 
-from commandAGI.computers.base_computer import BaseComputer
+from commandAGI._utils.mcp_schema import MCPServerTransport
 from commandAGI.agents.events import (
     AgentEvent,
-    UserInputEvent,
-    SystemInputEvent,
     AgentResponseEvent,
-    ToolCallEvent,
-    ToolResultEvent,
     ErrorEvent,
     ResourceCalloutEvent,
     ResourceRetrievalEvent,
+    SystemInputEvent,
     ThoughtEvent,
+    ToolCallEvent,
+    ToolResultEvent,
+    UserInputEvent,
 )
+from commandAGI.computers.base_computer import BaseComputer
 
 TSchema = TypeVar("TSchema", bound=BaseModel)
 

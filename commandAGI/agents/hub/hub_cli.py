@@ -1,30 +1,31 @@
-import os
-import sys
-import pickle
 import json
+import os
+import pickle
+import sys
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
+
 import typer
 from rich.console import Console
-from rich.table import Table
 from rich.progress import Progress
+from rich.table import Table
 from rich.theme import Theme
 
+from commandAGI._internal.auth import AuthError
 from commandAGI.agents.advanced_agent import Agent
 from commandAGI.agents.hub import (
     AgentMetadata,
-    upload_agent_sync,
+    delete_agent_sync,
     download_agent_sync,
     list_agents_sync,
-    delete_agent_sync,
+    upload_agent_sync,
 )
 from commandAGI.agents.utils import (
-    save_agent,
-    load_agent,
     collect_source_files,
+    load_agent,
+    save_agent,
     save_source_files,
 )
-from commandAGI._internal.auth import AuthError
 
 console = Console(theme=Theme({"info": "cyan", "success": "green", "error": "red"}))
 app = typer.Typer(help="Manage agents on the CommandAGI Hub")
