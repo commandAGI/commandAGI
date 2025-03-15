@@ -1,6 +1,9 @@
 from typing import Optional
 
-from commandAGI.computers.clients.base_computer_client import BaseComputerComputerClient, ComputerClientStatus
+from commandAGI.computers.clients.base_computer_client import (
+    BaseComputerComputerClient,
+    ComputerClientStatus,
+)
 
 
 class ManualComputerClient(BaseComputerComputerClient):

@@ -15,6 +15,7 @@ class BaseResource(BaseModel):
     def get_relevant_items(self, query: str) -> list[ChatMessage]:
         pass
 
+
 class ChatResource(BaseResource):
     messages: list[ChatMessage]
 
@@ -53,7 +54,6 @@ class MCPResource(BaseResource):
     def get_relevant_items(self, query: str) -> list[ChatMessage]:
         # Mock implementation - return empty list
         return []
-
 
 
 Resource = Union[

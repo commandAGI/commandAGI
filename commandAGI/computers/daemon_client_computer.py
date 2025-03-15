@@ -13,7 +13,9 @@ from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import base64_to_image, process_screenshot
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
-from commandAGI.computers.computer_clients.base_computer_client import BaseComputerComputerClient
+from commandAGI.computers.computer_clients.base_computer_client import (
+    BaseComputerComputerClient,
+)
 from commandAGI.types import (
     KeyboardHotkeyAction,
     KeyboardKey,

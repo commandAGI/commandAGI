@@ -7,7 +7,10 @@ from typing import Optional
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.compute import ComputeManagementClient
 
-from commandAGI.computers.clients.base_computer_client import BaseComputerComputerClient, ComputerClientStatus
+from commandAGI.computers.clients.base_computer_client import (
+    BaseComputerComputerClient,
+    ComputerClientStatus,
+)
 
 logger = logging.getLogger(__name__)
 

@@ -16,13 +16,13 @@ from commandAGI.agents.hub import (
     upload_agent_sync,
     download_agent_sync,
     list_agents_sync,
-    delete_agent_sync
+    delete_agent_sync,
 )
 from commandAGI.agents.utils import (
     save_agent,
     load_agent,
     collect_source_files,
-    save_source_files
+    save_source_files,
 )
 from commandAGI._internal.auth import AuthError
 
@@ -34,40 +34,54 @@ app = typer.Typer(help="Manage agents on the CommandAGI Hub")
 def upload(
     agent_path: str = typer.Argument(..., help="Path to the pickled agent file"),
     name: str = typer.Option(..., "--name", "-n", help="Name of the agent"),
-    description: str = typer.Option(..., "--description", "-d", help="Description of the agent"),
-    version: str = typer.Option("1.0.0", "--version", "-v", help="Version of the agent"),
-    tags: List[str] = typer.Option([], "--tag", "-t", help="Tags for the agent (can be specified multiple times)"),
-    public: bool = typer.Option(False, "--public", help="Make the agent publicly available"),
-    source_dir: Optional[str] = typer.Option(None, "--source-dir", "-s", help="Directory containing source files to include")
+    description: str = typer.Option(
+        ..., "--description", "-d", help="Description of the agent"
+    ),
+    version: str = typer.Option(
+        "1.0.0", "--version", "-v", help="Version of the agent"
+    ),
+    tags: List[str] = typer.Option(
+        [], "--tag", "-t", help="Tags for the agent (can be specified multiple times)"
+    ),
+    public: bool = typer.Option(
+        False, "--public", help="Make the agent publicly available"
+    ),
+    source_dir: Optional[str] = typer.Option(
+        None, "--source-dir", "-s", help="Directory containing source files to include"
+    ),
 ):
     """Upload an agent to the CommandAGI Hub"""
     try:
         # Load the agent
         console.print(f"🔄 Loading agent from {agent_path}...", style="info")
         agent, existing_metadata = load_agent(agent_path)
-        
+
         # Create metadata
         metadata = AgentMetadata(
             name=name,
             description=description,
             version=version,
             tags=tags,
-            is_public=public
+            is_public=public,
         )
-        
+
         # Collect source files if specified
         source_files = {}
         if source_dir:
-            console.print(f"🔄 Collecting source files from {source_dir}...", style="info")
+            console.print(
+                f"🔄 Collecting source files from {source_dir}...", style="info"
+            )
             source_files = collect_source_files(source_dir)
             console.print(f"📁 Found {len(source_files)} source files", style="info")
-        
+
         # Upload the agent
         console.print("🔄 Uploading agent to hub...", style="info")
         agent_id = upload_agent_sync(agent, metadata, source_files)
-        
-        console.print(f"✅ Agent uploaded successfully with ID: {agent_id}", style="success")
-        
+
+        console.print(
+            f"✅ Agent uploaded successfully with ID: {agent_id}", style="success"
+        )
+
     except AuthError as e:
         console.print(f"❌ Authentication error: {str(e)}", style="error")
         console.print("Please login first using 'commandagi auth login'", style="info")
@@ -80,29 +94,49 @@ def upload(
 @app.command()
 def download(
     agent_id: str = typer.Argument(..., help="ID of the agent to download"),
-    output_path: str = typer.Option("./downloaded_agent.pkl", "--output", "-o", help="Path to save the downloaded agent"),
-    save_source: bool = typer.Option(True, "--save-source/--no-save-source", help="Whether to save source files"),
-    source_dir: Optional[str] = typer.Option(None, "--source-dir", "-s", help="Directory to save source files (defaults to ./agent_source)")
+    output_path: str = typer.Option(
+        "./downloaded_agent.pkl",
+        "--output",
+        "-o",
+        help="Path to save the downloaded agent",
+    ),
+    save_source: bool = typer.Option(
+        True, "--save-source/--no-save-source", help="Whether to save source files"
+    ),
+    source_dir: Optional[str] = typer.Option(
+        None,
+        "--source-dir",
+        "-s",
+        help="Directory to save source files (defaults to ./agent_source)",
+    ),
 ):
     """Download an agent from the CommandAGI Hub"""
     try:
         console.print(f"🔄 Downloading agent {agent_id}...", style="info")
         agent, metadata, source_files = download_agent_sync(agent_id)
-        
+
         # Save the agent
-        agent_path, metadata_path = save_agent(agent, output_path, save_metadata=True, metadata=metadata)
+        agent_path, metadata_path = save_agent(
+            agent, output_path, save_metadata=True, metadata=metadata
+        )
         console.print(f"✅ Agent saved to {agent_path}", style="success")
         console.print(f"📄 Metadata saved to {metadata_path}", style="info")
-        
+
         # Save source files if requested
         if save_source and source_files:
             if source_dir is None:
                 source_dir = "./agent_source"
-            
-            console.print(f"🔄 Saving {len(source_files)} source files to {source_dir}...", style="info")
+
+            console.print(
+                f"🔄 Saving {len(source_files)} source files to {source_dir}...",
+                style="info",
+            )
             saved_files = save_source_files(source_files, source_dir)
-            console.print(f"✅ {len(saved_files)} source files saved to {source_dir}", style="success")
-        
+            console.print(
+                f"✅ {len(saved_files)} source files saved to {source_dir}",
+                style="success",
+            )
+
     except AuthError as e:
         console.print(f"❌ Authentication error: {str(e)}", style="error")
         console.print("Please login first using 'commandagi auth login'", style="info")
@@ -114,21 +148,29 @@ def download(
 
 @app.command()
 def list(
-    limit: int = typer.Option(20, "--limit", "-l", help="Maximum number of agents to list"),
+    limit: int = typer.Option(
+        20, "--limit", "-l", help="Maximum number of agents to list"
+    ),
     offset: int = typer.Option(0, "--offset", "-o", help="Offset for pagination"),
-    tags: List[str] = typer.Option([], "--tag", "-t", help="Filter by tags (can be specified multiple times)"),
-    author: Optional[str] = typer.Option(None, "--author", "-a", help="Filter by author"),
-    public_only: bool = typer.Option(False, "--public-only", help="Show only public agents")
+    tags: List[str] = typer.Option(
+        [], "--tag", "-t", help="Filter by tags (can be specified multiple times)"
+    ),
+    author: Optional[str] = typer.Option(
+        None, "--author", "-a", help="Filter by author"
+    ),
+    public_only: bool = typer.Option(
+        False, "--public-only", help="Show only public agents"
+    ),
 ):
     """List agents available on the CommandAGI Hub"""
     try:
         console.print("🔄 Fetching agents from hub...", style="info")
         agents = list_agents_sync(tags, author, public_only, limit, offset)
-        
+
         if not agents:
             console.print("No agents found matching the criteria", style="info")
             return
-        
+
         table = Table(title="Available Agents")
         table.add_column("ID", style="dim")
         table.add_column("Name", style="cyan")
@@ -137,7 +179,7 @@ def list(
         table.add_column("Public", style="magenta")
         table.add_column("Downloads", style="blue")
         table.add_column("Tags", style="cyan")
-        
+
         for agent in agents:
             table.add_row(
                 agent.id or "",
@@ -146,11 +188,11 @@ def list(
                 agent.author or "Unknown",
                 "✓" if agent.is_public else "✗",
                 str(agent.downloads),
-                ", ".join(agent.tags)
+                ", ".join(agent.tags),
             )
-        
+
         console.print(table)
-        
+
     except AuthError as e:
         console.print(f"❌ Authentication error: {str(e)}", style="error")
         console.print("Please login first using 'commandagi auth login'", style="info")
@@ -163,24 +205,28 @@ def list(
 @app.command()
 def delete(
     agent_id: str = typer.Argument(..., help="ID of the agent to delete"),
-    force: bool = typer.Option(False, "--force", "-f", help="Force deletion without confirmation")
+    force: bool = typer.Option(
+        False, "--force", "-f", help="Force deletion without confirmation"
+    ),
 ):
     """Delete an agent from the CommandAGI Hub"""
     try:
         if not force:
-            confirm = typer.confirm(f"Are you sure you want to delete agent {agent_id}?")
+            confirm = typer.confirm(
+                f"Are you sure you want to delete agent {agent_id}?"
+            )
             if not confirm:
                 console.print("Operation cancelled", style="info")
                 return
-        
+
         console.print(f"🔄 Deleting agent {agent_id}...", style="info")
         success = delete_agent_sync(agent_id)
-        
+
         if success:
             console.print(f"✅ Agent {agent_id} deleted successfully", style="success")
         else:
             console.print(f"❌ Failed to delete agent {agent_id}", style="error")
-        
+
     except AuthError as e:
         console.print(f"❌ Authentication error: {str(e)}", style="error")
         console.print("Please login first using 'commandagi auth login'", style="info")
@@ -191,4 +237,4 @@ def delete(
 
 
 if __name__ == "__main__":
-    app() 
+    app()

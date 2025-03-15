@@ -12,15 +12,18 @@ from ._internal.models import UserProfile
 
 console = Console(theme=Theme({"info": "cyan", "success": "green", "error": "red"}))
 
+
 class AuthError(Exception):
     pass
 
+
 app = typer.Typer(help="Manage authentication and profiles")
+
 
 async def register(
     email: str = typer.Option(..., prompt=True),
     password: str = typer.Option(..., prompt=True, hide_input=True),
-    name: str = typer.Option(..., prompt=True)
+    name: str = typer.Option(..., prompt=True),
 ):
     """Register a new account"""
     try:
@@ -28,32 +31,32 @@ async def register(
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{config.COMMANDAGI_HUB_URL}/auth/register",
-                json={"email": email, "password": password, "name": name}
+                json={"email": email, "password": password, "name": name},
             )
-            
+
             if response.status_code != 200:
                 raise AuthError(response.json().get("detail", "Registration failed"))
-            
+
             data = response.json()
             # Create new UserProfile
-            profile = UserProfile(
-                name=name,
-                email=email,
-                api_key=data["api_key"]
-            )
+            profile = UserProfile(name=name, email=email, api_key=data["api_key"])
             config.profiles[email] = profile
             config.active_profile_email = email
             config.save_auth_state()
-            
-        console.print("✨ Registration successful! Please check your email to verify your account.", style="success")
+
+        console.print(
+            "✨ Registration successful! Please check your email to verify your account.",
+            style="success",
+        )
         console.print(f"👤 Logged in as: {email}", style="success")
     except AuthError as e:
         console.print(f"❌ Registration failed: {str(e)}", style="error")
 
+
 @app.command()
 async def login(
     email: str = typer.Option(..., prompt=True),
-    password: str = typer.Option(..., prompt=True, hide_input=True)
+    password: str = typer.Option(..., prompt=True, hide_input=True),
 ):
     """Login with email and password"""
     try:
@@ -62,18 +65,18 @@ async def login(
             # First get the bearer token
             response = await client.post(
                 f"{config.COMMANDAGI_HUB_URL}/auth/login",
-                json={"email": email, "password": password}
+                json={"email": email, "password": password},
             )
-            
+
             if response.status_code != 200:
                 raise AuthError(response.json().get("detail", "Login failed"))
-            
+
             bearer_token = response.json()["access_token"]
 
             # Use bearer token to get API key
             response = await client.post(
                 f"{config.COMMANDAGI_HUB_URL}/api/auth/get-api-key",
-                headers={"Authorization": f"Bearer {bearer_token}"}
+                headers={"Authorization": f"Bearer {bearer_token}"},
             )
 
             if response.status_code != 200:
@@ -81,19 +84,17 @@ async def login(
 
             data = response.json()
             api_key = data["api_key"]
-            
+
             # Create new UserProfile
-            profile = UserProfile(
-                email=email,
-                api_key=api_key
-            )
+            profile = UserProfile(email=email, api_key=api_key)
             config.profiles[api_key] = profile  # Now indexed by API key
             config.active_api_key = api_key
             config.save_auth_state()
-            
+
         console.print(f"✅ Logged in successfully as: {email}", style="success")
     except AuthError as e:
         console.print(f"❌ Login failed: {str(e)}", style="error")
+
 
 @app.command()
 async def status():
@@ -107,16 +108,18 @@ async def status():
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{config.COMMANDAGI_HUB_URL}/auth/me",
-                headers={"X-API-Key": config.active_api_key}
+                headers={"X-API-Key": config.active_api_key},
             )
-            
+
             if response.status_code != 200:
-                raise AuthError(response.json().get("detail", "Failed to get user info"))
+                raise AuthError(
+                    response.json().get("detail", "Failed to get user info")
+                )
 
         current_profile = config.current_profile
         if current_profile:
             console.print(f"👤 Logged in as: {current_profile.email}", style="success")
-        
+
         console.print("\n📋 Available profiles:", style="info")
         for api_key, profile in config.profiles.items():
             active = "🟢" if api_key == config.active_api_key else "⚪"
@@ -124,9 +127,14 @@ async def status():
     except AuthError as e:
         console.print(f"❌ Error getting status: {str(e)}", style="error")
 
+
 @app.command()
 def switch(
-    api_key: Optional[str] = typer.Argument(None, help="API key to switch to (cycles to next profile if not specified)", envvar="COMMANDAGI_API_KEY")
+    api_key: Optional[str] = typer.Argument(
+        None,
+        help="API key to switch to (cycles to next profile if not specified)",
+        envvar="COMMANDAGI_API_KEY",
+    )
 ):
     """Switch to a different profile"""
     try:
@@ -136,23 +144,35 @@ def switch(
         if api_key is None:
             # Get list of API keys and find current index
             keys = list(config.profiles.keys())
-            current_idx = keys.index(config.active_api_key) if config.active_api_key in keys else -1
+            current_idx = (
+                keys.index(config.active_api_key)
+                if config.active_api_key in keys
+                else -1
+            )
             # Get next key (wrap around to start if at end)
             next_idx = (current_idx + 1) % len(keys)
             api_key = keys[next_idx]
 
         if api_key not in config.profiles:
             raise AuthError(f"Profile with API key '{api_key}' not found")
-            
+
         config.active_api_key = api_key
         config.save_auth_state()
-        console.print(f"🔄 Switched to profile: {config.current_profile.email}", style="success")
+        console.print(
+            f"🔄 Switched to profile: {config.current_profile.email}", style="success"
+        )
     except AuthError as e:
         console.print(str(e), style="error")
 
+
 @app.command()
 def logout(
-    api_key: Optional[str] = typer.Option(None, "--api-key", "-k", help="API key to logout from (defaults to active profile)")
+    api_key: Optional[str] = typer.Option(
+        None,
+        "--api-key",
+        "-k",
+        help="API key to logout from (defaults to active profile)",
+    )
 ):
     """Logout from a profile"""
     try:
@@ -163,13 +183,18 @@ def logout(
             email = config.profiles[api_key].email
             del config.profiles[api_key]
             if config.active_api_key == api_key:
-                config.active_api_key = next(iter(config.profiles.keys())) if config.profiles else None
+                config.active_api_key = (
+                    next(iter(config.profiles.keys())) if config.profiles else None
+                )
             config.save_auth_state()
-            console.print(f"👋 Logged out successfully from profile: {email}", style="success")
+            console.print(
+                f"👋 Logged out successfully from profile: {email}", style="success"
+            )
         else:
             raise AuthError(f"Profile with API key '{api_key}' not found")
     except AuthError as e:
         console.print(str(e), style="error")
+
 
 if __name__ == "__main__":
     app()

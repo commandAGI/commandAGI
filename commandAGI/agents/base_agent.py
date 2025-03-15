@@ -13,13 +13,26 @@ from langchain.tools import BaseTool
 from agents import Agent, Runner
 
 from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.agents.events import AgentEvent, UserInputEvent, SystemInputEvent, AgentResponseEvent, ToolCallEvent, ToolResultEvent, ErrorEvent, ResourceCalloutEvent, ResourceRetrievalEvent, ThoughtEvent
+from commandAGI.agents.events import (
+    AgentEvent,
+    UserInputEvent,
+    SystemInputEvent,
+    AgentResponseEvent,
+    ToolCallEvent,
+    ToolResultEvent,
+    ErrorEvent,
+    ResourceCalloutEvent,
+    ResourceRetrievalEvent,
+    ThoughtEvent,
+)
 
 TSchema = TypeVar("TSchema", bound=BaseModel)
 
 
 class BaseAgentHooks(BaseModel):
-    on_step_hooks: list[Callable[["BaseAgentRunSession"], None]] = Field(default_factory=list)
+    on_step_hooks: list[Callable[["BaseAgentRunSession"], None]] = Field(
+        default_factory=list
+    )
     on_error_hooks: list[Callable[["BaseAgentRunSession", Exception], None]] = Field(
         default_factory=list
     )
@@ -58,9 +71,19 @@ class BaseAgentRunSession(BaseModel):
         """Add an agent thought to the session"""
         self.add_event(ThoughtEvent(thought=thought, reasoning=reasoning))
 
-    def add_agent_response(self, role: str, content: str, name: Optional[str] = None, tool_calls: Optional[List[Dict[str, Any]]] = None):
+    def add_agent_response(
+        self,
+        role: str,
+        content: str,
+        name: Optional[str] = None,
+        tool_calls: Optional[List[Dict[str, Any]]] = None,
+    ):
         """Add an agent response to the session"""
-        self.add_event(AgentResponseEvent(role=role, content=content, name=name, tool_calls=tool_calls))
+        self.add_event(
+            AgentResponseEvent(
+                role=role, content=content, name=name, tool_calls=tool_calls
+            )
+        )
 
     def add_tool_call(self, tool_name: str, arguments: Dict[str, Any]) -> str:
         """Add a tool call event and return the call_id"""
@@ -68,21 +91,39 @@ class BaseAgentRunSession(BaseModel):
         self.add_event(event)
         return event.call_id
 
-    def add_tool_result(self, call_id: str, result: Any, error: Optional[str] = None, success: bool = True):
+    def add_tool_result(
+        self,
+        call_id: str,
+        result: Any,
+        error: Optional[str] = None,
+        success: bool = True,
+    ):
         """Add a tool result event"""
-        self.add_event(ToolResultEvent(call_id=call_id, result=result, error=error, success=success))
+        self.add_event(
+            ToolResultEvent(
+                call_id=call_id, result=result, error=error, success=success
+            )
+        )
 
     def add_error(self, error_type: str, message: str, traceback: Optional[str] = None):
         """Add an error event"""
-        self.add_event(ErrorEvent(error_type=error_type, message=message, traceback=traceback))
+        self.add_event(
+            ErrorEvent(error_type=error_type, message=message, traceback=traceback)
+        )
 
     def add_resource_callout(self, resource_id: str, query: str):
         """Add a resource callout event"""
         self.add_event(ResourceCalloutEvent(resource_id=resource_id, query=query))
 
-    def add_resource_retrieval(self, resource_id: str, query: str, results: List[ChatMessage]):
+    def add_resource_retrieval(
+        self, resource_id: str, query: str, results: List[ChatMessage]
+    ):
         """Add a resource retrieval event"""
-        self.add_event(ResourceRetrievalEvent(resource_id=resource_id, query=query, results=results))
+        self.add_event(
+            ResourceRetrievalEvent(
+                resource_id=resource_id, query=query, results=results
+            )
+        )
 
     def on_step(self, func: Callable[["BaseAgentRunSession"], None]):
         self._hooks.on_step_hooks.append(func)

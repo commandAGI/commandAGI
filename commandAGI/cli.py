@@ -85,6 +85,7 @@ cli = typer.Typer(help="commandAGI CLI")
 # Add hub CLI as a subcommand
 cli.add_typer(hub_cli, name="hub", help="Manage agents on the CommandAGI Hub")
 
+
 # Define enums for CLI options
 class ComputerType(str, Enum):
     LOCAL_PYNPUT = "local-pynput"
@@ -120,9 +121,7 @@ def start_computer(
     computer_type: ComputerType = typer.Option(
         ComputerType.LOCAL_PYNPUT, help="Type of computer to use"
     ),
-    computer_args: list[str] = typer.Option(
-        [], help="Arguments for the computer"
-    ),
+    computer_args: list[str] = typer.Option([], help="Arguments for the computer"),
 ):
     """Start a daemon server for remote control."""
     pass
@@ -130,32 +129,31 @@ def start_computer(
 
 @cli.command()
 def start_agent(
-    agent_type: AgentType = typer.Option(
-        AgentType.NAIVE, help="Type of agent to use"
-    ),
-    agent_args: list[str] = typer.Option(
-        [], help="Arguments for the agent"
-    ),
+    agent_type: AgentType = typer.Option(AgentType.NAIVE, help="Type of agent to use"),
+    agent_args: list[str] = typer.Option([], help="Arguments for the agent"),
 ):
     """Start an agent for remote control."""
     pass
 
+
 @cli.coommand()
-def run_example(example_name: str = typer.Option(..., help="Name of the example to run")):
+def run_example(
+    example_name: str = typer.Option(..., help="Name of the example to run")
+):
     """Run an example script."""
     # this is good for testing
     pass
 
+
 computer_subcli = typer.Typer(help="commandAGI CLI")
+
 
 @computer_subcli.command()
 def start(
     computer_type: ComputerType = typer.Option(
         ComputerType.LOCAL_PYNPUT, help="Type of computer to use"
     ),
-    computer_args: list[str] = typer.Option(
-        [], help="Arguments for the computer"
-    ),
+    computer_args: list[str] = typer.Option([], help="Arguments for the computer"),
     daemon: bool = typer.Option(False, help="Start a daemon server for remote control"),
 ):
     """Start a daemon server for remote control."""
@@ -165,14 +163,14 @@ def start(
     else:
         ...
 
+
 agent_subcli = typer.Typer(help="commandAGI CLI")
+
 
 @agent_subcli.command()
 def start(
     agent_type: AgentType = typer.Option(AgentType.NAIVE, help="Type of agent to use"),
-    agent_args: list[str] = typer.Option(
-        [], help="Arguments for the agent"
-    ),
+    agent_args: list[str] = typer.Option([], help="Arguments for the agent"),
 ):
     """Start an agent for remote control."""
     pass

@@ -5,7 +5,10 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from commandAGI.computers.clients.base_computer_client import BaseComputerComputerClient, ComputerClientStatus
+from commandAGI.computers.clients.base_computer_client import (
+    BaseComputerComputerClient,
+    ComputerClientStatus,
+)
 
 logger = logging.getLogger(__name__)
 
