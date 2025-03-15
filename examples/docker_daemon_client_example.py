@@ -105,7 +105,7 @@ def main():
 
         # Example 2: Type some text
         logger.info("\n=== Example 2: Typing Text ===")
-        success = computer.execute_type(text="Hello from commandAGI Docker!")
+        success = computer.type(text="Hello from commandAGI Docker!")
         logger.info(f"Type action success: {success}")
 
         # Example 3: Move the mouse
@@ -119,7 +119,7 @@ def main():
 
             # Move to a random position within the display
             x, y = random.randint(0, width - 1), random.randint(0, height - 1)
-            success = computer.execute_mouse_move(x=x, y=y, move_duration=0.5)
+            success = computer.move(x=x, y=y, duration=0.5)
             logger.info(f"Mouse moved to ({x}, {y}), success: {success}")
         else:
             logger.info("No display information available")
@@ -135,11 +135,11 @@ def main():
         # Example 5: Press keyboard keys
         logger.info("\n=== Example 5: Keyboard Actions ===")
         # Press a single key
-        success = computer.execute_keyboard_key_press(key=KeyboardKey.A)
+        success = computer.keypress(key=KeyboardKey.A)
         logger.info(f"Key press (A) success: {success}")
 
         # Press a hotkey combination (Ctrl+C)
-        success = computer.execute_keyboard_hotkey(
+        success = computer.hotkey(
             keys=[KeyboardKey.CTRL, KeyboardKey.C]
         )
         logger.info(f"Hotkey (Ctrl+C) success: {success}")
@@ -149,14 +149,14 @@ def main():
         if displays and displays.displays:
             # Click at a position
             x, y = random.randint(0, width - 1), random.randint(0, height - 1)
-            success = computer.execute_click(
+            success = computer.click(
                 x=x, y=y, move_duration=0.3, press_duration=0.1, button=MouseButton.LEFT
             )
             logger.info(f"Click at ({x}, {y}) success: {success}")
 
             # Double click
             x, y = random.randint(0, width - 1), random.randint(0, height - 1)
-            success = computer.execute_double_click(
+            success = computer.double_click(
                 x=x, y=y, move_duration=0.3, button=MouseButton.LEFT
             )
             logger.info(f"Double click at ({x}, {y}) success: {success}")
@@ -166,7 +166,7 @@ def main():
                 0, height - 1
             )
             end_x, end_y = random.randint(0, width - 1), random.randint(0, height - 1)
-            success = computer.execute_drag(
+            success = computer.drag(
                 start_x=start_x,
                 start_y=start_y,
                 end_x=end_x,

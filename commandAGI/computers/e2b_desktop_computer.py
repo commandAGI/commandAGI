@@ -209,48 +209,48 @@ class E2BDesktopComputer(BaseComputer):
             "E2B Desktop does not support getting keyboard key states"
         )
 
-    def _execute_shell_command(self, command: str):
+    def _shell(self, command: str):
         """Execute a system command in the E2B Desktop VM."""
         self.e2b_desktop.commands.run(command)
 
-    def _execute_keyboard_key_down(self, key: KeyboardKey):
+    def _keydown(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
         # E2B Desktop doesn't have direct key_down method, use PyAutoGUI
         e2b_key = keyboard_key_to_e2b(key)
         self.e2b_desktop.pyautogui(f"pyautogui.keyDown('{e2b_key}')")
 
-    def _execute_keyboard_key_release(self, key: KeyboardKey):
+    def _keyup(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
         # E2B Desktop doesn't have direct key_up method, use PyAutoGUI
         e2b_key = keyboard_key_to_e2b(key)
         self.e2b_desktop.pyautogui(f"pyautogui.keyUp('{e2b_key}')")
 
-    def _execute_type(self, text: str):
+    def _type(self, text: str):
         """Type text using E2B Desktop."""
         self.e2b_desktop.write(text)
 
-    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
+    def _move(self, x: int, y: int, duration: float = 0.5):
         """Move mouse to specified coordinates using E2B Desktop."""
         self.logger.debug(f"Moving mouse to: ({x}, {y})")
         # E2B Desktop doesn't have a direct move duration parameter
         self.e2b_desktop.mouse_move(x, y)
 
-    def _execute_mouse_scroll(self, amount: float):
+    def _scroll(self, amount: float):
         """Scroll mouse using E2B Desktop."""
         # E2B Desktop scroll takes an integer amount
         self.e2b_desktop.scroll(int(amount))
 
-    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using PyAutoGUI through E2B Desktop."""
         e2b_button = mouse_button_to_e2b(button)
         self.e2b_desktop.pyautogui(f"pyautogui.mouseDown(button='{e2b_button}')")
 
-    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using PyAutoGUI through E2B Desktop."""
         e2b_button = mouse_button_to_e2b(button)
         self.e2b_desktop.pyautogui(f"pyautogui.mouseUp(button='{e2b_button}')")
 
-    def _execute_click(
+    def _click(
         self,
         x: int,
         y: int,
@@ -271,7 +271,7 @@ class E2BDesktopComputer(BaseComputer):
         elif e2b_button == "middle":
             self.e2b_desktop.middle_click()
 
-    def _execute_double_click(
+    def _double_click(
         self,
         x: int,
         y: int,
@@ -287,13 +287,13 @@ class E2BDesktopComputer(BaseComputer):
         # Then double click (E2B only supports left double click)
         self.e2b_desktop.double_click()
 
-    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
+    def _keypress(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key."""
         e2b_key = keyboard_key_to_e2b(key)
         # E2B doesn't have a direct press method, use PyAutoGUI
         self.e2b_desktop.pyautogui(f"pyautogui.press('{e2b_key}')")
 
-    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
+    def _hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using E2B Desktop's hotkey method."""
         # Convert keys to E2B format
         e2b_keys = [keyboard_key_to_e2b(key) for key in keys]

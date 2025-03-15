@@ -137,7 +137,7 @@ class TestMouseActions(unittest.TestCase):
         action_negative = MouseScrollAction(amount=-5)
         self.assertEqual(action_negative.amount, -5)
 
-    def test_mouse_button_down_action(self):
+    def test_mouse_down_action(self):
         # Test creating a MouseButtonDownAction
         action = MouseButtonDownAction()  # Default is LEFT
 
@@ -260,7 +260,7 @@ class TestComputerAction(unittest.TestCase):
         self.assertIsNone(action.get("keyboard_keys_down"))
         self.assertIsNone(action.get("keyboard_keys_press"))
         self.assertIsNone(action.get("keyboard_keys_release"))
-        self.assertIsNone(action.get("mouse_button_down"))
+        self.assertIsNone(action.get("mouse_down"))
         self.assertIsNone(action.get("mouse_button_up"))
         self.assertIsNone(action.get("mouse_move"))
         self.assertIsNone(action.get("mouse_scroll"))
@@ -283,7 +283,7 @@ class TestComputerAction(unittest.TestCase):
         self.assertIsNone(action.get("keyboard_keys_down"))
         self.assertIsNone(action.get("keyboard_keys_press"))
         self.assertIsNone(action.get("keyboard_keys_release"))
-        self.assertIsNone(action.get("mouse_button_down"))
+        self.assertIsNone(action.get("mouse_down"))
         self.assertIsNone(action.get("mouse_button_up"))
         self.assertIsNone(action.get("mouse_move"))
         self.assertIsNone(action.get("mouse_scroll"))
@@ -306,7 +306,7 @@ class TestComputerAction(unittest.TestCase):
         self.assertIsNone(action.get("keyboard_keys_down"))
         self.assertIsNone(action.get("keyboard_keys_press"))
         self.assertIsNone(action.get("keyboard_keys_release"))
-        self.assertIsNone(action.get("mouse_button_down"))
+        self.assertIsNone(action.get("mouse_down"))
         self.assertIsNone(action.get("mouse_button_up"))
         self.assertIsNone(action.get("mouse_move"))
         self.assertIsNone(action.get("mouse_scroll"))

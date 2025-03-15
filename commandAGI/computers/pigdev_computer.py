@@ -225,13 +225,13 @@ class PigDevComputer(BaseComputer):
         """Return states of keyboard keys."""
         raise NotImplementedError("PigDev does not support getting keyboard key states")
 
-    def _execute_shell_command(
+    def _shell(
         self, command: str, timeout: float | None = None, executable: str | None = None
     ):
         """Execute a system command in the PigDev VM."""
         raise NotImplementedError("PigDev does not support direct command execution")
 
-    def _execute_keyboard_key_down(self, key: KeyboardKey):
+    def _keydown(self, key: KeyboardKey):
         """Execute key down for a keyboard key using PigDev."""
         try:
             # Convert to PigDev key format
@@ -244,7 +244,7 @@ class PigDevComputer(BaseComputer):
             self.logger.error(f"Error executing key down via PigDev: {e}")
             raise
 
-    def _execute_keyboard_key_release(self, key: KeyboardKey):
+    def _keyup(self, key: KeyboardKey):
         """Execute key release for a keyboard key using PigDev."""
         try:
             # Convert to PigDev key format
@@ -257,7 +257,7 @@ class PigDevComputer(BaseComputer):
             self.logger.error(f"Error executing key release via PigDev: {e}")
             raise
 
-    def _execute_type(self, text: str):
+    def _type(self, text: str):
         """Type text using PigDev."""
         try:
             self.logger.debug(f"Typing text: {text}")
@@ -267,7 +267,7 @@ class PigDevComputer(BaseComputer):
             self.logger.error(f"Error typing text via PigDev: {e}")
             raise
 
-    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
+    def _move(self, x: int, y: int, duration: float = 0.5):
         """Move mouse to specified coordinates using PigDev."""
         try:
             self.logger.debug(f"Moving mouse to: ({x}, {y})")
@@ -277,13 +277,13 @@ class PigDevComputer(BaseComputer):
             self.logger.error(f"Error moving mouse via PigDev: {e}")
             raise
 
-    def _execute_mouse_scroll(self, amount: float):
+    def _scroll(self, amount: float):
         """Scroll mouse using PigDev."""
         self.logger.debug("PigDev does not support mouse scrolling")
         # PigDev doesn't have a direct scroll method
         raise NotImplementedError("PigDev does not support mouse scrolling")
 
-    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using PigDev."""
         pigdev_button = mouse_button_to_pigdev(button)
         self.logger.debug(
@@ -293,7 +293,7 @@ class PigDevComputer(BaseComputer):
         # Use the existing connection
         self.connection.mouse_down(pigdev_button)
 
-    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using PigDev."""
         pigdev_button = mouse_button_to_pigdev(button)
         self.logger.debug(
@@ -303,7 +303,7 @@ class PigDevComputer(BaseComputer):
         # Use the existing connection
         self.connection.mouse_up(pigdev_button)
 
-    def _execute_click(
+    def _click(
         self,
         x: int,
         y: int,
@@ -322,7 +322,7 @@ class PigDevComputer(BaseComputer):
         else:
             self.connection.right_click()
 
-    def _execute_double_click(
+    def _double_click(
         self,
         x: int,
         y: int,
@@ -339,7 +339,7 @@ class PigDevComputer(BaseComputer):
         # Then double click (PigDev only supports left double click)
         self.connection.double_click()
 
-    def _execute_drag(
+    def _drag(
         self,
         start_x: int,
         start_y: int,
@@ -358,7 +358,7 @@ class PigDevComputer(BaseComputer):
         # Then perform the drag to the end position
         self.connection.left_click_drag(x=end_x, y=end_y)
 
-    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
+    def _keypress(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key using PigDev's key method."""
         pigdev_key = keyboard_key_to_pigdev(key)
         self.logger.debug(f"Pressing key: {key} (PigDev key: {pigdev_key})")
@@ -366,7 +366,7 @@ class PigDevComputer(BaseComputer):
         # Use the existing connection
         self.connection.key(pigdev_key)
 
-    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
+    def _hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using PigDev's key method with combined keys."""
         # Convert keys to PigDev format
         pigdev_keys = [keyboard_key_to_pigdev(key) for key in keys]

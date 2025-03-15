@@ -150,12 +150,12 @@ class TestDaemonClientComputer(unittest.TestCase):
         result = self.computer.shell(command)
         self.assertFalse(result)
 
-    def test_execute_keyboard_key_down(self):
+    def test_keydown(self):
         # Create a keyboard key down action
         action = KeyboardKeyDownAction(key=KeyboardKey.SHIFT)
 
-        # Call execute_keyboard_key_down
-        result = self.computer.execute_keyboard_key_down(action)
+        # Call keydown
+        result = self.computer.keydown(action)
 
         # Check that requests.post was called with the correct URL and data
         self.mock_requests.post.assert_called_with(
@@ -165,12 +165,12 @@ class TestDaemonClientComputer(unittest.TestCase):
         # Check that the result is True (status_code == 200)
         self.assertTrue(result)
 
-    def test_execute_keyboard_key_release(self):
+    def test_keyup(self):
         # Create a keyboard key release action
         action = KeyboardKeyReleaseAction(key=KeyboardKey.SHIFT)
 
-        # Call execute_keyboard_key_release
-        result = self.computer.execute_keyboard_key_release(action)
+        # Call keyup
+        result = self.computer.keyup(action)
 
         # Check that requests.post was called with the correct URL and data
         self.mock_requests.post.assert_called_with(
@@ -180,12 +180,12 @@ class TestDaemonClientComputer(unittest.TestCase):
         # Check that the result is True (status_code == 200)
         self.assertTrue(result)
 
-    def test_execute_mouse_move(self):
+    def test_move(self):
         # Create a mouse move action
         action = MouseMoveAction(x=100, y=200, move_duration=0.5)
 
-        # Call execute_mouse_move
-        result = self.computer.execute_mouse_move(action)
+        # Call move
+        result = self.computer.move(action)
 
         # Check that requests.post was called with the correct URL and data
         self.mock_requests.post.assert_called_with(
@@ -195,12 +195,12 @@ class TestDaemonClientComputer(unittest.TestCase):
         # Check that the result is True (status_code == 200)
         self.assertTrue(result)
 
-    def test_execute_mouse_scroll(self):
+    def test_scroll(self):
         # Create a mouse scroll action
         action = MouseScrollAction(amount=10)
 
-        # Call execute_mouse_scroll
-        result = self.computer.execute_mouse_scroll(action)
+        # Call scroll
+        result = self.computer.scroll(action)
 
         # Check that requests.post was called with the correct URL and data
         self.mock_requests.post.assert_called_with(
@@ -210,12 +210,12 @@ class TestDaemonClientComputer(unittest.TestCase):
         # Check that the result is True (status_code == 200)
         self.assertTrue(result)
 
-    def test_execute_mouse_button_down(self):
+    def test_mouse_down(self):
         # Create a mouse button down action
         action = MouseButtonDownAction(button=MouseButton.LEFT)
 
-        # Call execute_mouse_button_down
-        result = self.computer.execute_mouse_button_down(action)
+        # Call mouse_down
+        result = self.computer.mouse_down(action)
 
         # Check that requests.post was called with the correct URL and data
         self.mock_requests.post.assert_called_with(
@@ -225,12 +225,12 @@ class TestDaemonClientComputer(unittest.TestCase):
         # Check that the result is True (status_code == 200)
         self.assertTrue(result)
 
-    def test_execute_mouse_button_up(self):
+    def test_mouse_up(self):
         # Create a mouse button up action
         action = MouseButtonUpAction(button=MouseButton.LEFT)
 
-        # Call execute_mouse_button_up
-        result = self.computer.execute_mouse_button_up(action)
+        # Call mouse_up
+        result = self.computer.mouse_up(action)
 
         # Check that requests.post was called with the correct URL and data
         self.mock_requests.post.assert_called_with(

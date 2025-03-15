@@ -75,7 +75,7 @@ def main():
 
         # Demonstrate mouse movement to a grid position
         print("Moving mouse to position (300, 200)...")
-        computer.execute_mouse_move(
+        computer.move(
             MouseMoveAction(
                 x=300, y=200, move_duration=1.0  # Move slowly so it's visible
             )
@@ -84,7 +84,7 @@ def main():
 
         # Demonstrate clicking at a grid position
         print("Clicking at position (300, 200)...")
-        computer.execute_click(ClickAction(x=300, y=200, button=MouseButton.LEFT))
+        computer.click(ClickAction(x=300, y=200, button=MouseButton.LEFT))
 
         print("\nExample completed successfully!")
 

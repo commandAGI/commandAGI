@@ -37,12 +37,12 @@ class MockComputer(BaseComputer):
     get_mouse_state_called: bool = Field(default=False)
     get_keyboard_state_called: bool = Field(default=False)
     execute_command_called: bool = Field(default=False)
-    execute_keyboard_key_down_called: bool = Field(default=False)
-    execute_keyboard_key_release_called: bool = Field(default=False)
-    execute_mouse_move_called: bool = Field(default=False)
-    execute_mouse_scroll_called: bool = Field(default=False)
-    execute_mouse_button_down_called: bool = Field(default=False)
-    execute_mouse_button_up_called: bool = Field(default=False)
+    keydown_called: bool = Field(default=False)
+    keyup_called: bool = Field(default=False)
+    move_called: bool = Field(default=False)
+    scroll_called: bool = Field(default=False)
+    mouse_down_called: bool = Field(default=False)
+    mouse_up_called: bool = Field(default=False)
 
     # Store the last action parameters
     last_command: ShellCommandAction = Field(default=None)
@@ -50,7 +50,7 @@ class MockComputer(BaseComputer):
     last_key_release: KeyboardKeyReleaseAction = Field(default=None)
     last_mouse_move: MouseMoveAction = Field(default=None)
     last_mouse_scroll: MouseScrollAction = Field(default=None)
-    last_mouse_button_down: MouseButtonDownAction = Field(default=None)
+    last_mouse_down: MouseButtonDownAction = Field(default=None)
     last_mouse_button_up: MouseButtonUpAction = Field(default=None)
 
     model_config = {"arbitrary_types_allowed": True, "extra": "allow"}
@@ -85,33 +85,33 @@ class MockComputer(BaseComputer):
         self.last_command = action
         return True
 
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
-        self.execute_keyboard_key_down_called = True
+    def keydown(self, action: KeyboardKeyDownAction) -> bool:
+        self.keydown_called = True
         self.last_key_down = action
         return True
 
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
-        self.execute_keyboard_key_release_called = True
+    def keyup(self, action: KeyboardKeyReleaseAction) -> bool:
+        self.keyup_called = True
         self.last_key_release = action
         return True
 
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
-        self.execute_mouse_move_called = True
+    def move(self, action: MouseMoveAction) -> bool:
+        self.move_called = True
         self.last_mouse_move = action
         return True
 
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
-        self.execute_mouse_scroll_called = True
+    def scroll(self, action: MouseScrollAction) -> bool:
+        self.scroll_called = True
         self.last_mouse_scroll = action
         return True
 
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
-        self.execute_mouse_button_down_called = True
-        self.last_mouse_button_down = action
+    def mouse_down(self, action: MouseButtonDownAction) -> bool:
+        self.mouse_down_called = True
+        self.last_mouse_down = action
         return True
 
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
-        self.execute_mouse_button_up_called = True
+    def mouse_up(self, action: MouseButtonUpAction) -> bool:
+        self.mouse_up_called = True
         self.last_mouse_button_up = action
         return True
 
@@ -149,18 +149,18 @@ class TestBaseComputer(unittest.TestCase):
         self.assertEqual(self.computer.last_command, command)
         self.assertTrue(result)
 
-    def test_execute_keyboard_key_press(self):
-        # Test that execute_keyboard_key_press calls key_down and key_release
+    def test_keypress(self):
+        # Test that keypress calls key_down and key_release
         with (
-            patch.object(self.computer, "execute_keyboard_key_down") as mock_key_down,
+            patch.object(self.computer, "keydown") as mock_key_down,
             patch.object(
-                self.computer, "execute_keyboard_key_release"
+                self.computer, "keyup"
             ) as mock_key_release,
             patch("time.sleep") as mock_sleep,
         ):
 
             action = KeyboardKeyPressAction(key=KeyboardKey.ENTER, duration=0.5)
-            result = self.computer.execute_keyboard_key_press(action)
+            result = self.computer.keypress(action)
 
             # Check that key_down was called with the right key
             mock_key_down.assert_called_once()
@@ -200,7 +200,7 @@ class TestBaseComputer(unittest.TestCase):
 
     def test_execute_keyboard_keys_down(self):
         # Test that execute_keyboard_keys_down calls key_down for each key
-        with patch.object(self.computer, "execute_keyboard_key_down") as mock_key_down:
+        with patch.object(self.computer, "keydown") as mock_key_down:
             action = KeyboardKeysDownAction(keys=[KeyboardKey.CTRL, KeyboardKey.ALT])
             self.computer.execute_keyboard_keys_down(action)
 
@@ -215,7 +215,7 @@ class TestBaseComputer(unittest.TestCase):
     def test_execute_keyboard_keys_release(self):
         # Test that execute_keyboard_keys_release calls key_release for each key
         with patch.object(
-            self.computer, "execute_keyboard_key_release"
+            self.computer, "keyup"
         ) as mock_key_release:
             # Make mock_key_release return True
             mock_key_release.return_value = True
@@ -243,12 +243,12 @@ class TestBaseComputer(unittest.TestCase):
             # Check that the method returned False
             self.assertFalse(result)
 
-    def test_execute_keyboard_hotkey(self):
-        # Test that execute_keyboard_hotkey calls key_down and key_release in the right order
+    def test_hotkey(self):
+        # Test that hotkey calls key_down and key_release in the right order
         with (
-            patch.object(self.computer, "execute_keyboard_key_down") as mock_key_down,
+            patch.object(self.computer, "keydown") as mock_key_down,
             patch.object(
-                self.computer, "execute_keyboard_key_release"
+                self.computer, "keyup"
             ) as mock_key_release,
         ):
 
@@ -257,7 +257,7 @@ class TestBaseComputer(unittest.TestCase):
             mock_key_release.return_value = True
 
             action = KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S])
-            result = self.computer.execute_keyboard_hotkey(action)
+            result = self.computer.hotkey(action)
 
             # Check that key_down was called twice (once for each key)
             self.assertEqual(mock_key_down.call_count, 2)
@@ -283,18 +283,18 @@ class TestBaseComputer(unittest.TestCase):
             mock_key_release.reset_mock()
             mock_key_down.side_effect = [True, False]
 
-            result = self.computer.execute_keyboard_hotkey(action)
+            result = self.computer.hotkey(action)
 
             # Check that the method returned False
             self.assertFalse(result)
 
-    def test_execute_type(self):
-        # Test that execute_type calls keyboard_key_press for each character
+    def test_type(self):
+        # Test that type calls keyboard_key_press for each character
         with patch.object(
-            self.computer, "execute_keyboard_key_press"
+            self.computer, "keypress"
         ) as mock_key_press:
             action = TypeAction(text="Hello")
-            result = self.computer.execute_type(action)
+            result = self.computer.type(action)
 
             # Check that key_press was called 5 times (once for each character)
             self.assertEqual(mock_key_press.call_count, 5)
@@ -310,14 +310,14 @@ class TestBaseComputer(unittest.TestCase):
             # Check that the method returned True
             self.assertTrue(result)
 
-    def test_execute_click(self):
-        # Test that execute_click calls mouse_move, mouse_button_down, and mouse_button_up
+    def test_click(self):
+        # Test that click calls mouse_move, mouse_down, and mouse_button_up
         with (
-            patch.object(self.computer, "execute_mouse_move") as mock_mouse_move,
+            patch.object(self.computer, "move") as mock_mouse_move,
             patch.object(
-                self.computer, "execute_mouse_button_down"
+                self.computer, "mouse_down"
             ) as mock_button_down,
-            patch.object(self.computer, "execute_mouse_button_up") as mock_button_up,
+            patch.object(self.computer, "mouse_up") as mock_button_up,
             patch("time.sleep") as mock_sleep,
         ):
 
@@ -328,7 +328,7 @@ class TestBaseComputer(unittest.TestCase):
                 press_duration=0.3,
                 button=MouseButton.LEFT,
             )
-            result = self.computer.execute_click(action)
+            result = self.computer.click(action)
 
             # Check that mouse_move was called with the right parameters
             mock_mouse_move.assert_called_once()
@@ -337,7 +337,7 @@ class TestBaseComputer(unittest.TestCase):
             self.assertEqual(move_arg.y, 200)
             self.assertEqual(move_arg.move_duration, 0.5)
 
-            # Check that mouse_button_down was called with the right button
+            # Check that mouse_down was called with the right button
             mock_button_down.assert_called_once()
             down_arg = mock_button_down.call_args[0][0]
             self.assertEqual(down_arg.button, MouseButton.LEFT)
@@ -353,10 +353,10 @@ class TestBaseComputer(unittest.TestCase):
             # Check that the method returned True
             self.assertTrue(result)
 
-    def test_execute_double_click(self):
-        # Test that execute_double_click calls execute_click twice
+    def test_double_click(self):
+        # Test that double_click calls click twice
         with (
-            patch.object(self.computer, "execute_click") as mock_click,
+            patch.object(self.computer, "click") as mock_click,
             patch("time.sleep") as mock_sleep,
         ):
 
@@ -368,7 +368,7 @@ class TestBaseComputer(unittest.TestCase):
                 button=MouseButton.LEFT,
                 double_click_interval_seconds=0.2,
             )
-            result = self.computer.execute_double_click(action)
+            result = self.computer.double_click(action)
 
             # Check that click was called twice
             self.assertEqual(mock_click.call_count, 2)
@@ -389,14 +389,14 @@ class TestBaseComputer(unittest.TestCase):
             # Check that the method returned True
             self.assertTrue(result)
 
-    def test_execute_drag(self):
-        # Test that execute_drag calls mouse_move, mouse_button_down, mouse_move, and mouse_button_up
+    def test_drag(self):
+        # Test that drag calls mouse_move, mouse_down, mouse_move, and mouse_button_up
         with (
-            patch.object(self.computer, "execute_mouse_move") as mock_mouse_move,
+            patch.object(self.computer, "move") as mock_mouse_move,
             patch.object(
-                self.computer, "execute_mouse_button_down"
+                self.computer, "mouse_down"
             ) as mock_button_down,
-            patch.object(self.computer, "execute_mouse_button_up") as mock_button_up,
+            patch.object(self.computer, "mouse_up") as mock_button_up,
         ):
 
             action = DragAction(
@@ -407,7 +407,7 @@ class TestBaseComputer(unittest.TestCase):
                 move_duration=0.5,
                 button=MouseButton.LEFT,
             )
-            result = self.computer.execute_drag(action)
+            result = self.computer.drag(action)
 
             # Check that mouse_move was called twice
             self.assertEqual(mock_mouse_move.call_count, 2)
@@ -421,7 +421,7 @@ class TestBaseComputer(unittest.TestCase):
                 move_args[1][1], {"x": 300, "y": 400, "move_duration": 0.5}
             )
 
-            # Check that mouse_button_down was called with the right button
+            # Check that mouse_down was called with the right button
             mock_button_down.assert_called_once_with(button=MouseButton.LEFT)
 
             # Check that mouse_button_up was called with the right button

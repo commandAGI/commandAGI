@@ -92,8 +92,8 @@ class TestComputerDaemon(unittest.TestCase):
         call_args = self.mock_computer.execute_command.call_args[0][0]
         self.assertEqual(call_args.command, "ls -la")
 
-    def test_execute_keyboard_key_down_endpoint(self):
-        # Test the execute_keyboard_key_down endpoint
+    def test_keydown_endpoint(self):
+        # Test the keydown endpoint
         action = KeyboardKeyDownAction(key=KeyboardKey.SHIFT)
         response = self.client.post(
             "/execute/keyboard/key_down",
@@ -104,13 +104,13 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_keyboard_key_down was called on the computer with the right action
-        self.mock_computer.execute_keyboard_key_down.assert_called_once()
-        call_args = self.mock_computer.execute_keyboard_key_down.call_args[0][0]
+        # Check that keydown was called on the computer with the right action
+        self.mock_computer.keydown.assert_called_once()
+        call_args = self.mock_computer.keydown.call_args[0][0]
         self.assertEqual(call_args.key, KeyboardKey.SHIFT)
 
-    def test_execute_keyboard_key_release_endpoint(self):
-        # Test the execute_keyboard_key_release endpoint
+    def test_keyup_endpoint(self):
+        # Test the keyup endpoint
         action = KeyboardKeyReleaseAction(key=KeyboardKey.SHIFT)
         response = self.client.post(
             "/execute/keyboard/key_release",
@@ -121,13 +121,13 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_keyboard_key_release was called on the computer with the right action
-        self.mock_computer.execute_keyboard_key_release.assert_called_once()
-        call_args = self.mock_computer.execute_keyboard_key_release.call_args[0][0]
+        # Check that keyup was called on the computer with the right action
+        self.mock_computer.keyup.assert_called_once()
+        call_args = self.mock_computer.keyup.call_args[0][0]
         self.assertEqual(call_args.key, KeyboardKey.SHIFT)
 
-    def test_execute_keyboard_key_press_endpoint(self):
-        # Test the execute_keyboard_key_press endpoint
+    def test_keypress_endpoint(self):
+        # Test the keypress endpoint
         action = KeyboardKeyPressAction(key=KeyboardKey.ENTER, duration=0.5)
         response = self.client.post(
             "/execute/keyboard/key_press",
@@ -138,14 +138,14 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_keyboard_key_press was called on the computer with the right action
-        self.mock_computer.execute_keyboard_key_press.assert_called_once()
-        call_args = self.mock_computer.execute_keyboard_key_press.call_args[0][0]
+        # Check that keypress was called on the computer with the right action
+        self.mock_computer.keypress.assert_called_once()
+        call_args = self.mock_computer.keypress.call_args[0][0]
         self.assertEqual(call_args.key, KeyboardKey.ENTER)
         self.assertEqual(call_args.duration, 0.5)
 
-    def test_execute_keyboard_hotkey_endpoint(self):
-        # Test the execute_keyboard_hotkey endpoint
+    def test_hotkey_endpoint(self):
+        # Test the hotkey endpoint
         action = KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S])
         response = self.client.post(
             "/execute/keyboard/hotkey",
@@ -156,13 +156,13 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_keyboard_hotkey was called on the computer with the right action
-        self.mock_computer.execute_keyboard_hotkey.assert_called_once()
-        call_args = self.mock_computer.execute_keyboard_hotkey.call_args[0][0]
+        # Check that hotkey was called on the computer with the right action
+        self.mock_computer.hotkey.assert_called_once()
+        call_args = self.mock_computer.hotkey.call_args[0][0]
         self.assertEqual(call_args.keys, [KeyboardKey.CTRL, KeyboardKey.S])
 
-    def test_execute_type_endpoint(self):
-        # Test the execute_type endpoint
+    def test_type_endpoint(self):
+        # Test the type endpoint
         action = TypeAction(text="Hello, commandAGI!")
         response = self.client.post(
             "/execute/type",
@@ -173,13 +173,13 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_type was called on the computer with the right action
-        self.mock_computer.execute_type.assert_called_once()
-        call_args = self.mock_computer.execute_type.call_args[0][0]
+        # Check that type was called on the computer with the right action
+        self.mock_computer.type.assert_called_once()
+        call_args = self.mock_computer.type.call_args[0][0]
         self.assertEqual(call_args.text, "Hello, commandAGI!")
 
-    def test_execute_mouse_move_endpoint(self):
-        # Test the execute_mouse_move endpoint
+    def test_move_endpoint(self):
+        # Test the move endpoint
         action = MouseMoveAction(x=100, y=200, move_duration=0.5)
         response = self.client.post(
             "/execute/mouse/move",
@@ -190,15 +190,15 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_mouse_move was called on the computer with the right action
-        self.mock_computer.execute_mouse_move.assert_called_once()
-        call_args = self.mock_computer.execute_mouse_move.call_args[0][0]
+        # Check that move was called on the computer with the right action
+        self.mock_computer.move.assert_called_once()
+        call_args = self.mock_computer.move.call_args[0][0]
         self.assertEqual(call_args.x, 100)
         self.assertEqual(call_args.y, 200)
         self.assertEqual(call_args.move_duration, 0.5)
 
-    def test_execute_mouse_scroll_endpoint(self):
-        # Test the execute_mouse_scroll endpoint
+    def test_scroll_endpoint(self):
+        # Test the scroll endpoint
         action = MouseScrollAction(amount=10)
         response = self.client.post(
             "/execute/mouse/scroll",
@@ -209,13 +209,13 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_mouse_scroll was called on the computer with the right action
-        self.mock_computer.execute_mouse_scroll.assert_called_once()
-        call_args = self.mock_computer.execute_mouse_scroll.call_args[0][0]
+        # Check that scroll was called on the computer with the right action
+        self.mock_computer.scroll.assert_called_once()
+        call_args = self.mock_computer.scroll.call_args[0][0]
         self.assertEqual(call_args.amount, 10)
 
-    def test_execute_mouse_button_down_endpoint(self):
-        # Test the execute_mouse_button_down endpoint
+    def test_mouse_down_endpoint(self):
+        # Test the mouse_down endpoint
         action = MouseButtonDownAction(button=MouseButton.LEFT)
         response = self.client.post(
             "/execute/mouse/button_down",
@@ -226,13 +226,13 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_mouse_button_down was called on the computer with the right action
-        self.mock_computer.execute_mouse_button_down.assert_called_once()
-        call_args = self.mock_computer.execute_mouse_button_down.call_args[0][0]
+        # Check that mouse_down was called on the computer with the right action
+        self.mock_computer.mouse_down.assert_called_once()
+        call_args = self.mock_computer.mouse_down.call_args[0][0]
         self.assertEqual(call_args.button, MouseButton.LEFT)
 
-    def test_execute_mouse_button_up_endpoint(self):
-        # Test the execute_mouse_button_up endpoint
+    def test_mouse_up_endpoint(self):
+        # Test the mouse_up endpoint
         action = MouseButtonUpAction(button=MouseButton.LEFT)
         response = self.client.post(
             "/execute/mouse/button_up",
@@ -243,9 +243,9 @@ class TestComputerDaemon(unittest.TestCase):
         # Check that the response is successful
         self.assertEqual(response.status_code, 200)
 
-        # Check that execute_mouse_button_up was called on the computer with the right action
-        self.mock_computer.execute_mouse_button_up.assert_called_once()
-        call_args = self.mock_computer.execute_mouse_button_up.call_args[0][0]
+        # Check that mouse_up was called on the computer with the right action
+        self.mock_computer.mouse_up.assert_called_once()
+        call_args = self.mock_computer.mouse_up.call_args[0][0]
         self.assertEqual(call_args.button, MouseButton.LEFT)
 
     def test_get_observation_endpoint(self):

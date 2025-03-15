@@ -885,7 +885,7 @@ class BaseComputer(BaseModel):
     @mouse_position.setter
     def mouse_position(self, value: tuple[int, int]):
         x, y = value
-        self.execute_mouse_move(x=x, y=y, move_duration=0.0)
+        self.move(x=x, y=y, duration=0.0)
 
     def get_mouse_position(self) -> tuple[int, int]:
         """Get the current mouse position."""
@@ -903,9 +903,9 @@ class BaseComputer(BaseModel):
     def mouse_button_states(self, value: dict[str, bool | None]):
         for button_name, button_state in value.items():
             if button_state is True:
-                self.execute_mouse_button_down(button=MouseButton[button_name.upper()])
+                self.mouse_down(button=MouseButton[button_name.upper()])
             elif button_state is False:
-                self.execute_mouse_button_up(button=MouseButton[button_name.upper()])
+                self.mouse_up(button=MouseButton[button_name.upper()])
 
     def get_mouse_button_states(self) -> dict[str, bool | None]:
         """Get the current state of mouse buttons."""
@@ -931,9 +931,9 @@ class BaseComputer(BaseModel):
         """
         for key_name, key_state in value.items():
             if key_state is True:
-                self.execute_keyboard_key_down(key=KeyboardKey[key_name.upper()])
+                self.keydown(key=KeyboardKey[key_name.upper()])
             elif key_state is False:
-                self.execute_keyboard_key_release(key=KeyboardKey[key_name.upper()])
+                self.keyup(key=KeyboardKey[key_name.upper()])
 
     def get_keyboard_key_states(self) -> dict[KeyboardKey, bool]:
         """Get the current state of keyboard keys."""
@@ -976,11 +976,11 @@ class BaseComputer(BaseModel):
 
         # Release keys that should no longer be pressed
         for key in current - target:
-            self.execute_keyboard_key_release(key=key)
+            self.keyup(key=key)
 
         # Press new keys that should be pressed
         for key in target - current:
-            self.execute_keyboard_key_down(key=key)
+            self.keydown(key=key)
 
     @property
     def keys_up(self) -> list[KeyboardKey]:
@@ -1007,11 +1007,11 @@ class BaseComputer(BaseModel):
 
         # Press keys that should no longer be released
         for key in current - target:
-            self.execute_keyboard_key_down(key=key)
+            self.keydown(key=key)
 
         # Release new keys that should be released
         for key in target - current:
-            self.execute_keyboard_key_release(key=key)
+            self.keyup(key=key)
 
     @property
     def processes(self) -> List[ProcessInfo]:
@@ -1280,11 +1280,11 @@ class BaseComputer(BaseModel):
         """
         return self._execute_with_retry(
             "shell command",
-            self._execute_shell_command,
+            self._shell,
             ShellCommandAction(command=command, timeout=timeout, executible=executible),
         )
 
-    def _execute_shell_command(
+    def _shell(
         self,
         command: str,
         timeout: Optional[float] = None,
@@ -1307,198 +1307,198 @@ class BaseComputer(BaseModel):
             func=self.shell,
         )
 
-    def execute_keyboard_key_press(
+    def keypress(
         self, key: KeyboardKey, duration: float = 0.1
     ) -> bool:
         """Execute pressing a keyboard key with a specified duration."""
         return self._execute_with_retry(
             "keyboard key press",
-            self._execute_keyboard_key_press,
+            self._keypress,
             key,
             duration,
         )
 
-    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
+    def _keypress(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key with a specified duration."""
-        self.execute_keyboard_key_down(key)
+        self.keydown(key)
         time.sleep(duration)
-        self.execute_keyboard_key_release(key)
+        self.keyup(key)
 
     @property
-    def keyboard_key_press_tool(self) -> BaseTool:
+    def keypress_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="keyboard_key_press",
             description="Execute pressing a keyboard key with a specified duration",
-            func=self.execute_keyboard_key_press,
+            func=self.keypress,
         )
 
-    def execute_keyboard_key_down(self, key: KeyboardKey) -> bool:
+    def keydown(self, key: KeyboardKey) -> bool:
         """Execute key down for a keyboard key."""
         return self._execute_with_retry(
             "keyboard key down",
-            self._execute_keyboard_key_down,
+            self._keydown,
             key,
         )
 
-    def _execute_keyboard_key_down(self, key: KeyboardKey):
+    def _keydown(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
         raise NotImplementedError(
-            f"{self.__class__.__name__}.execute_keyboard_key_down"
+            f"{self.__class__.__name__}.keydown"
         )
 
     @property
-    def keyboard_key_down_tool(self) -> BaseTool:
+    def keydown_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="keyboard_key_down",
             description="Execute key down for a keyboard key",
-            func=self.execute_keyboard_key_down,
+            func=self.keydown,
         )
 
-    def execute_keyboard_key_release(self, key: KeyboardKey) -> bool:
+    def keyup(self, key: KeyboardKey) -> bool:
         """Execute key release for a keyboard key."""
         return self._execute_with_retry(
             "keyboard key release",
-            self._execute_keyboard_key_release,
+            self._keyup,
             key,
         )
 
-    def _execute_keyboard_key_release(self, key: KeyboardKey):
+    def _keyup(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
         raise NotImplementedError(
-            f"{self.__class__.__name__}.execute_keyboard_key_release"
+            f"{self.__class__.__name__}.keyup"
         )
 
     @property
-    def keyboard_key_release_tool(self) -> BaseTool:
+    def keyup_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="keyboard_key_release",
             description="Execute key release for a keyboard key",
-            func=self.execute_keyboard_key_release,
+            func=self.keyup,
         )
 
-    def execute_keyboard_hotkey(self, keys: List[KeyboardKey]) -> bool:
+    def hotkey(self, keys: List[KeyboardKey]) -> bool:
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
         return self._execute_with_retry(
             "keyboard hotkey",
-            self._execute_keyboard_hotkey,
+            self._hotkey,
             keys,
         )
 
-    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
+    def _hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
         for key in keys:
-            self.execute_keyboard_key_down(key)
+            self.keydown(key)
         for key in reversed(keys):
-            self.execute_keyboard_key_release(key)
+            self.keyup(key)
 
     @property
-    def keyboard_hotkey_tool(self) -> BaseTool:
+    def hotkey_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="keyboard_hotkey",
             description="Execute a keyboard hotkey: press all keys in order and then release them in reverse order",
-            func=self.execute_keyboard_hotkey,
+            func=self.hotkey,
         )
 
-    def execute_type(self, text: str) -> bool:
+    def type(self, text: str) -> bool:
         """Execute typing the given text."""
-        return self._execute_with_retry("type", self._execute_type, text)
+        return self._execute_with_retry("type", self._type, text)
 
-    def _execute_type(self, text: str):
+    def _type(self, text: str):
         """Execute typing the given text."""
         for char in text:
-            self.execute_keyboard_key_press(char)
+            self.keypress(char)
 
     @property
     def type_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="type",
             description="Execute typing the given text",
-            func=self.execute_type,
+            func=self.type,
         )
 
-    def execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5) -> bool:
+    def move(self, x: int, y: int, duration: float = 0.5) -> bool:
         """Execute moving the mouse to (x, y) over the move duration."""
         return self._execute_with_retry(
             "mouse move",
-            self._execute_mouse_move,
+            self._move,
             x,
             y,
-            move_duration,
+            duration,
         )
 
-    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
+    def _move(self, x: int, y: int, duration: float = 0.5):
         """Execute moving the mouse to (x, y) over the move duration."""
-        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_move")
+        raise NotImplementedError(f"{self.__class__.__name__}.move")
 
     @property
-    def mouse_move_tool(self) -> BaseTool:
+    def move_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="mouse_move",
             description="Execute moving the mouse to (x, y) over the move duration",
-            func=self.execute_mouse_move,
+            func=self.move,
         )
 
-    def execute_mouse_scroll(self, amount: float) -> bool:
+    def scroll(self, amount: float) -> bool:
         """Execute mouse scroll by a given amount."""
         return self._execute_with_retry(
-            "mouse scroll", self._execute_mouse_scroll, amount
+            "mouse scroll", self._scroll, amount
         )
 
-    def _execute_mouse_scroll(self, amount: float):
+    def _scroll(self, amount: float):
         """Execute mouse scroll by a given amount."""
-        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_scroll")
+        raise NotImplementedError(f"{self.__class__.__name__}.scroll")
 
     @property
-    def mouse_scroll_tool(self) -> BaseTool:
+    def scroll_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="mouse_scroll",
             description="Execute mouse scroll by a given amount",
-            func=self.execute_mouse_scroll,
+            func=self.scroll,
         )
 
-    def execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT) -> bool:
+    def mouse_down(self, button: MouseButton = MouseButton.LEFT) -> bool:
         """Execute mouse button down action."""
         return self._execute_with_retry(
             "mouse button down",
-            self._execute_mouse_button_down,
+            self._mouse_down,
             button,
         )
 
-    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_down(self, button: MouseButton = MouseButton.LEFT):
         """Execute mouse button down action."""
         raise NotImplementedError(
-            f"{self.__class__.__name__}.execute_mouse_button_down"
+            f"{self.__class__.__name__}.mouse_down"
         )
 
     @property
-    def mouse_button_down_tool(self) -> BaseTool:
+    def mouse_down_tool(self) -> BaseTool:
         return BaseTool.from_function(
-            name="mouse_button_down",
+            name="mouse_down",
             description="Execute mouse button down action",
-            func=self.execute_mouse_button_down,
+            func=self.mouse_down,
         )
 
-    def execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT) -> bool:
+    def mouse_up(self, button: MouseButton = MouseButton.LEFT) -> bool:
         """Execute mouse button up action."""
         return self._execute_with_retry(
             "mouse button up",
-            self._execute_mouse_button_up,
+            self._mouse_up,
             button,
         )
 
-    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_up(self, button: MouseButton = MouseButton.LEFT):
         """Execute mouse button up action."""
-        raise NotImplementedError(f"{self.__class__.__name__}.execute_mouse_button_up")
+        raise NotImplementedError(f"{self.__class__.__name__}.mouse_up")
 
     @property
-    def mouse_button_up_tool(self) -> BaseTool:
+    def mouse_up_tool(self) -> BaseTool:
         return BaseTool.from_function(
-            name="mouse_button_up",
+            name="mouse_up",
             description="Execute mouse button up action",
-            func=self.execute_mouse_button_up,
+            func=self.mouse_up,
         )
 
-    def execute_click(
+    def click(
         self,
         x: int,
         y: int,
@@ -1511,7 +1511,7 @@ class BaseComputer(BaseModel):
         """
         return self._execute_with_retry(
             "click",
-            self._execute_click,
+            self._click,
             x,
             y,
             move_duration,
@@ -1519,7 +1519,7 @@ class BaseComputer(BaseModel):
             button,
         )
 
-    def _execute_click(
+    def _click(
         self,
         x: int,
         y: int,
@@ -1528,20 +1528,20 @@ class BaseComputer(BaseModel):
         button: MouseButton = MouseButton.LEFT,
     ):
         """Execute a click action at the given coordinates using press and release operations with a duration."""
-        self.execute_mouse_move(x=x, y=y, move_duration=move_duration)
-        self.execute_mouse_button_down(button=button)
+        self.move(x=x, y=y, duration=move_duration)
+        self.mouse_down(button=button)
         time.sleep(press_duration)
-        self.execute_mouse_button_up(button=button)
+        self.mouse_up(button=button)
 
     @property
     def click_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="click",
             description="Execute a click action at the given coordinates using press and release operations with a duration",
-            func=self.execute_click,
+            func=self.click,
         )
 
-    def execute_double_click(
+    def double_click(
         self,
         x: int,
         y: int,
@@ -1555,7 +1555,7 @@ class BaseComputer(BaseModel):
         """
         return self._execute_with_retry(
             "double click",
-            self._execute_double_click,
+            self._double_click,
             x,
             y,
             move_duration,
@@ -1564,7 +1564,7 @@ class BaseComputer(BaseModel):
             double_click_interval_seconds,
         )
 
-    def _execute_double_click(
+    def _double_click(
         self,
         x: int,
         y: int,
@@ -1574,7 +1574,7 @@ class BaseComputer(BaseModel):
         double_click_interval_seconds: float = 0.1,
     ):
         """Execute a double click action at the given coordinates using press and release operations with a duration."""
-        self.execute_click(
+        self.click(
             x=x,
             y=y,
             move_duration=move_duration,
@@ -1582,7 +1582,7 @@ class BaseComputer(BaseModel):
             button=button,
         )
         time.sleep(double_click_interval_seconds)
-        self.execute_click(
+        self.click(
             x=x,
             y=y,
             move_duration=move_duration,
@@ -1595,11 +1595,12 @@ class BaseComputer(BaseModel):
         return BaseTool.from_function(
             name="double_click",
             description="Execute a double click action at the given coordinates using press and release operations with a duration",
-            func=self.execute_double_click,
+            func=self.double_click,
         )
 
-    def execute_drag(
+    def drag(
         self,
+        # TODO: maybe remove the start_x/y to align with openai's computer tool
         start_x: int,
         start_y: int,
         end_x: int,
@@ -1610,7 +1611,7 @@ class BaseComputer(BaseModel):
         """Execute a drag action using the primitive mouse operations."""
         return self._execute_with_retry(
             "drag",
-            self._execute_drag,
+            self._drag,
             start_x,
             start_y,
             end_x,
@@ -1619,7 +1620,7 @@ class BaseComputer(BaseModel):
             button,
         )
 
-    def _execute_drag(
+    def _drag(
         self,
         start_x: int,
         start_y: int,
@@ -1630,20 +1631,20 @@ class BaseComputer(BaseModel):
     ):
         """Execute a drag action using the primitive mouse operations."""
         # Move to the starting position
-        self.execute_mouse_move(x=start_x, y=start_y, move_duration=move_duration)
+        self.move(x=start_x, y=start_y, duration=move_duration)
         # Press the mouse button down
-        self.execute_mouse_button_down(button=button)
+        self.mouse_down(button=button)
         # Move to the ending position while holding down the mouse button
-        self.execute_mouse_move(x=end_x, y=end_y, move_duration=move_duration)
+        self.move(x=end_x, y=end_y, duration=move_duration)
         # Release the mouse button
-        self.execute_mouse_button_up(button=button)
+        self.mouse_up(button=button)
 
     @property
     def drag_tool(self) -> BaseTool:
         return BaseTool.from_function(
             name="drag",
             description="Execute a drag action using the primitive mouse operations",
-            func=self.execute_drag,
+            func=self.drag,
         )
 
     @property
@@ -1806,8 +1807,8 @@ class BaseComputer(BaseModel):
             A file-like object for the specified file
         """
         raise NotImplementedError(f"{self.__class__.__name__}._open")
-    
-    def locate_text_on_screen(self, text: str, ocr_engine: str = "pytesseract", additional_ocr_args: dict = {}) -> tuple[int, int] | None:
+
+    def locate_text_on_screen(self, text: str, ocr_engine: Literal["screenparse", "pytesseract"] = "pytesseract", additional_ocr_args: dict = {}) -> tuple[int, int] | None:
         """Find text on screen and return coordinates.
         
         Args:
@@ -1920,7 +1921,7 @@ class BaseComputer(BaseModel):
         # No match found above threshold
         return None
 
-    def execute_mouse_action(
+    def mouse_action(
         self,
         action: Literal["move", "click", "double_click"],
         position: tuple[int, int],
@@ -1945,9 +1946,9 @@ class BaseComputer(BaseModel):
             case "move":
                 return self.execute_move_mouse(position)
             case "click":
-                return self.execute_click(position, button)
+                return self.click(position, button)
             case "double_click":
-                return self.execute_double_click(position, button)
+                return self.double_click(position, button)
             case _:
                 self.logger.error(f"Invalid mouse action: {action}")
                 return False
@@ -1968,142 +1969,134 @@ class BaseComputer(BaseModel):
                 description="Mouse button to use: 'left', 'right', or 'middle'",
             )
 
-        class MouseActionOutput(BaseModel):
-            success: bool = Field(description="Whether the mouse action was successful")
-
         return BaseTool.from_function(
             name="mouse_action",
-            description="Execute mouse actions like move, click, and double-click",
-            func=self.execute_mouse_action,
+            description="Execute mouse actions: move, click, and double-click",
+            func=self.mouse_action,
             args_schema=MouseActionInput,
             return_direct=True,
         )
-
-    def execute_computer_action(self, action: ComputerActionUnion) -> bool:
-        """Execute a computer action based on the action type.
-
-        Args:
-            action: A ComputerActionUnion object representing the action to perform
-
-        Returns:
-            bool: True if action was successful, False otherwise
-        """
-        if self._state == "stopped":
-            self._start()
-        elif self._state == "paused":
-            self.resume()
-
-        try:
-            match action.action_type:
-                case ComputerActionType.SHELL.value:
-                    return self.shell(action.command, timeout=action.timeout)
-
-                case ComputerActionType.KEYBOARD_KEYS_PRESS.value:
-                    return self.execute_keyboard_keys_press(
-                        action.keys, action.duration
-                    )
-
-                case ComputerActionType.KEYBOARD_KEYS_DOWN.value:
-                    return self.execute_keyboard_keys_down(action.keys)
-
-                case ComputerActionType.KEYBOARD_KEYS_RELEASE.value:
-                    return self.execute_keyboard_keys_release(action.keys)
-
-                case ComputerActionType.KEYBOARD_KEY_PRESS.value:
-                    return self.execute_keyboard_key_press(action.key, action.duration)
-
-                case ComputerActionType.KEYBOARD_KEY_DOWN.value:
-                    return self.execute_keyboard_key_down(action.key)
-
-                case ComputerActionType.KEYBOARD_KEY_RELEASE.value:
-                    return self.execute_keyboard_key_release(action.key)
-
-                case ComputerActionType.KEYBOARD_HOTKEY.value:
-                    return self.execute_keyboard_hotkey(action.keys)
-
-                case ComputerActionType.TYPE.value:
-                    return self.execute_type(action.text)
-
-                case ComputerActionType.MOUSE_MOVE.value:
-                    return self.execute_mouse_move(
-                        action.x, action.y, action.move_duration
-                    )
-
-                case ComputerActionType.MOUSE_SCROLL.value:
-                    return self.execute_mouse_scroll(action.amount)
-
-                case ComputerActionType.MOUSE_BUTTON_DOWN.value:
-                    return self.execute_mouse_button_down(action.button)
-
-                case ComputerActionType.MOUSE_BUTTON_UP.value:
-                    return self.execute_mouse_button_up(action.button)
-
-                case ComputerActionType.CLICK.value:
-                    return self.execute_click(
-                        action.x,
-                        action.y,
-                        action.move_duration,
-                        action.press_duration,
-                        action.button,
-                    )
-
-                case ComputerActionType.DOUBLE_CLICK.value:
-                    return self.execute_double_click(
-                        action.x,
-                        action.y,
-                        action.move_duration,
-                        action.press_duration,
-                        action.button,
-                        action.double_click_interval_seconds,
-                    )
-
-                case ComputerActionType.DRAG.value:
-                    return self.execute_drag(
-                        action.start_x,
-                        action.start_y,
-                        action.end_x,
-                        action.end_y,
-                        action.move_duration,
-                        action.button,
-                    )
-
-                case ComputerActionType.RUN_PROCESS.value:
-                    return self.run_process(
-                        action.command,
-                        action.args,
-                        action.cwd,
-                        action.env,
-                        action.timeout,
-                    )
-
-                case ComputerActionType.FILE_COPY_TO_COMPUTER.value:
-                    return self.copy_to_computer(
-                        action.source_path, action.destination_path
-                    )
-
-                case ComputerActionType.FILE_COPY_FROM_COMPUTER.value:
-                    return self.copy_from_computer(
-                        action.source_path, action.destination_path
-                    )
-
-                case _:
-                    self.logger.error(f"Unsupported action type: {action.action_type}")
-                    return False
-
-        except Exception as e:
-            self.logger.error(f"Error executing computer action: {e}")
-            return False
-
+    
     @property
-    def computer_action_tool(self) -> BaseTool:
-        """Tool for executing any computer action."""
-        return BaseTool.from_function(
-            name="computer_action",
-            description="Execute any computer action (keyboard, mouse, process, etc)",
-            func=self.execute_computer_action,
-            args_schema=ComputerActionUnion,
-            return_direct=True,
-        )
+    def tools(self):
+        return [
+            # TODO: include all tools
+        ]
+
+    # def execute_computer_action(self, action: ComputerActionUnion) -> bool:
+    #     """Execute a computer action based on the action type.
+
+    #     Args:
+    #         action: A ComputerActionUnion object representing the action to perform
+
+    #     Returns:
+    #         bool: True if action was successful, False otherwise
+    #     """
+    #     if self._state == "stopped":
+    #         self._start()
+    #     elif self._state == "paused":
+    #         self.resume()
+
+    #     try:
+    #         match action.action_type:
+    #             case ComputerActionType.SHELL.value:
+    #                 return self.shell(action.command, timeout=action.timeout)
+
+    #             case ComputerActionType.KEYBOARD_KEY_PRESS.value:
+    #                 return self.keypress(action.key, action.duration)
+
+    #             case ComputerActionType.KEYBOARD_KEY_DOWN.value:
+    #                 return self.keydown(action.key)
+
+    #             case ComputerActionType.KEYBOARD_KEY_RELEASE.value:
+    #                 return self.keyup(action.key)
+
+    #             case ComputerActionType.KEYBOARD_HOTKEY.value:
+    #                 return self.hotkey(action.keys)
+
+    #             case ComputerActionType.TYPE.value:
+    #                 return self.type(action.text)
+
+    #             case ComputerActionType.MOUSE_MOVE.value:
+    #                 return self.move(
+    #                     action.x, action.y, action.move_duration
+    #                 )
+
+    #             case ComputerActionType.MOUSE_SCROLL.value:
+    #                 return self.scroll(action.amount)
+
+    #             case ComputerActionType.mouse_down.value:
+    #                 return self.mouse_down(action.button)
+
+    #             case ComputerActionType.MOUSE_BUTTON_UP.value:
+    #                 return self.mouse_up(action.button)
+
+    #             case ComputerActionType.CLICK.value:
+    #                 return self.click(
+    #                     action.x,
+    #                     action.y,
+    #                     action.move_duration,
+    #                     action.press_duration,
+    #                     action.button,
+    #                 )
+
+    #             case ComputerActionType.DOUBLE_CLICK.value:
+    #                 return self.double_click(
+    #                     action.x,
+    #                     action.y,
+    #                     action.move_duration,
+    #                     action.press_duration,
+    #                     action.button,
+    #                     action.double_click_interval_seconds,
+    #                 )
+
+    #             case ComputerActionType.DRAG.value:
+    #                 return self.drag(
+    #                     action.start_x,
+    #                     action.start_y,
+    #                     action.end_x,
+    #                     action.end_y,
+    #                     action.move_duration,
+    #                     action.button,
+    #                 )
+
+    #             case ComputerActionType.RUN_PROCESS.value:
+    #                 return self.run_process(
+    #                     action.command,
+    #                     action.args,
+    #                     action.cwd,
+    #                     action.env,
+    #                     action.timeout,
+    #                 )
+
+    #             case ComputerActionType.FILE_COPY_TO_COMPUTER.value:
+    #                 return self.copy_to_computer(
+    #                     action.source_path, action.destination_path
+    #                 )
+
+    #             case ComputerActionType.FILE_COPY_FROM_COMPUTER.value:
+    #                 return self.copy_from_computer(
+    #                     action.source_path, action.destination_path
+    #                 )
+
+    #             case _:
+    #                 self.logger.error(f"Unsupported action type: {action.action_type}")
+    #                 return False
+
+    #     except Exception as e:
+    #         self.logger.error(f"Error executing computer action: {e}")
+    #         return False
+
+    # @property
+    # def computer_action_tool(self) -> BaseTool:
+    #     """Tool for executing any computer action."""
+    #     return BaseTool.from_function(
+    #         name="computer_action",
+    #         description="Execute any computer action (keyboard, mouse, process, etc)",
+    #         func=self.execute_computer_action,
+    #         args_schema=ComputerActionUnion,
+    #         return_direct=True,
+    #     )
 
     def _execute_with_retry(
         self, operation_name: str, operation: callable, *args, **kwargs
@@ -2122,6 +2115,9 @@ class BaseComputer(BaseModel):
         if not self.ensure_running_state("running"):
             return False
 
+        # TODO: remove the retry logic
+        # TODO: remove the DEV logic
+        # TODO: make a attr for error_handling: 'raise'|'pass'
         for attempt in range(self.num_retries):
             try:
                 operation(*args, **kwargs)

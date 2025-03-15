@@ -42,35 +42,35 @@ try:
     from commandAGI.daemon.client.api.default.execute_command_execute_command_post import (
         sync as execute_command_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_keyboard_hotkey_execute_keyboard_hotkey_post import (
-        sync as execute_keyboard_hotkey_sync,
+    from commandAGI.daemon.client.api.default.hotkey_hotkey_post import (
+        sync as hotkey_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_keyboard_key_down_execute_keyboard_key_down_post import (
-        sync as execute_keyboard_key_down_sync,
+    from commandAGI.daemon.client.api.default.keydown_keydown_post import (
+        sync as keydown_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_keyboard_key_press_execute_keyboard_key_press_post import (
-        sync as execute_keyboard_key_press_sync,
+    from commandAGI.daemon.client.api.default.keypress_keypress_post import (
+        sync as keypress_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_keyboard_key_release_execute_keyboard_key_release_post import (
-        sync as execute_keyboard_key_release_sync,
+    from commandAGI.daemon.client.api.default.keyup_keyup_post import (
+        sync as keyup_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_mouse_button_down_execute_mouse_button_down_post import (
-        sync as execute_mouse_button_down_sync,
+    from commandAGI.daemon.client.api.default.mouse_down_mouse_down_post import (
+        sync as mouse_down_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_mouse_button_up_execute_mouse_button_up_post import (
-        sync as execute_mouse_button_up_sync,
+    from commandAGI.daemon.client.api.default.mouse_up_mouse_up_post import (
+        sync as mouse_up_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_mouse_move_execute_mouse_move_post import (
-        sync as execute_mouse_move_sync,
+    from commandAGI.daemon.client.api.default.move_move_post import (
+        sync as move_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_mouse_scroll_execute_mouse_scroll_post import (
-        sync as execute_mouse_scroll_sync,
+    from commandAGI.daemon.client.api.default.scroll_scroll_post import (
+        sync as scroll_sync,
     )
     from commandAGI.daemon.client.api.default.execute_run_process_execute_run_process_post import (
         sync as run_process_sync,
     )
-    from commandAGI.daemon.client.api.default.execute_type_execute_type_post import (
-        sync as execute_type_sync,
+    from commandAGI.daemon.client.api.default.type_type_post import (
+        sync as type_sync,
     )
     from commandAGI.daemon.client.api.default.get_keyboard_state_observation_keyboard_state_get import (
         sync as get_keyboard_state_sync,
@@ -353,7 +353,7 @@ class DaemonClientComputer(BaseComputer):
 
         raise RuntimeError("Failed to get system info from daemon")
 
-    def _execute_shell_command(self, command: str, timeout: Optional[float] = None):
+    def _shell(self, command: str, timeout: Optional[float] = None):
         """Execute a shell command on the computer"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -364,33 +364,33 @@ class DaemonClientComputer(BaseComputer):
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute command: {command}")
 
-    def _execute_keyboard_key_down(self, key: KeyboardKey):
+    def _keydown(self, key: KeyboardKey):
         """Press down a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
         client_action = ClientKeyboardKeyDownAction(key=keyboard_key_to_daemon(key))
 
-        response = execute_keyboard_key_down_sync(
+        response = keydown_sync(
             client=self.client, body=client_action
         )
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key down: {key}")
 
-    def _execute_keyboard_key_release(self, key: KeyboardKey):
+    def _keyup(self, key: KeyboardKey):
         """Release a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
         client_action = ClientKeyboardKeyReleaseAction(key=keyboard_key_to_daemon(key))
 
-        response = execute_keyboard_key_release_sync(
+        response = keyup_sync(
             client=self.client, body=client_action
         )
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key release: {key}")
 
-    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
+    def _keypress(self, key: KeyboardKey, duration: float = 0.1):
         """Press and release a keyboard key"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -399,13 +399,13 @@ class DaemonClientComputer(BaseComputer):
             key=keyboard_key_to_daemon(key), duration=duration
         )
 
-        response = execute_keyboard_key_press_sync(
+        response = keypress_sync(
             client=self.client, body=client_action
         )
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard key press: {key}")
 
-    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
+    def _hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey (multiple keys pressed simultaneously)"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -414,44 +414,44 @@ class DaemonClientComputer(BaseComputer):
             keys=[keyboard_key_to_daemon(k) for k in keys]
         )
 
-        response = execute_keyboard_hotkey_sync(client=self.client, body=client_action)
+        response = hotkey_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute keyboard hotkey: {keys}")
 
-    def _execute_type(self, text: str):
+    def _type(self, text: str):
         """Type text on the keyboard"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
         client_action = ClientTypeAction(text=text)
 
-        response = execute_type_sync(client=self.client, body=client_action)
+        response = type_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute type: {text}")
 
-    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
+    def _move(self, x: int, y: int, duration: float = 0.5):
         """Move the mouse to a position"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
         client_action = ClientMouseMoveAction(x=x, y=y, move_duration=move_duration)
 
-        response = execute_mouse_move_sync(client=self.client, body=client_action)
+        response = move_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute mouse move to ({x}, {y})")
 
-    def _execute_mouse_scroll(self, amount: float):
+    def _scroll(self, amount: float):
         """Scroll the mouse wheel"""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
         client_action = ClientMouseScrollAction(amount=amount)
 
-        response = execute_mouse_scroll_sync(client=self.client, body=client_action)
+        response = scroll_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute mouse scroll: {amount}")
 
-    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_down(self, button: MouseButton = MouseButton.LEFT):
         """Press down a mouse button"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -460,13 +460,13 @@ class DaemonClientComputer(BaseComputer):
             button=mouse_button_to_daemon(button) if button else None
         )
 
-        response = execute_mouse_button_down_sync(
+        response = mouse_down_sync(
             client=self.client, body=client_action
         )
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute mouse button down: {button}")
 
-    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_up(self, button: MouseButton = MouseButton.LEFT):
         """Release a mouse button"""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -475,7 +475,7 @@ class DaemonClientComputer(BaseComputer):
             button=mouse_button_to_daemon(button) if button else None
         )
 
-        response = execute_mouse_button_up_sync(client=self.client, body=client_action)
+        response = mouse_up_sync(client=self.client, body=client_action)
         if not response or not response.success:
             raise RuntimeError(f"Failed to execute mouse button up: {button}")
 

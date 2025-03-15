@@ -133,7 +133,7 @@ def run_example_commands(computer):
 
         # Example 2: Type some text
         print("\n=== Example 2: Typing Text ===")
-        success = computer.execute_type(text="Hello from commandAGI Cloud!")
+        success = computer.type(text="Hello from commandAGI Cloud!")
         print(f"Type action success: {success}")
 
         # Example 3: Take a screenshot

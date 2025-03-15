@@ -200,14 +200,14 @@ class ScrapybaraComputer(BaseComputer):
             "Scrapybara does not support getting keyboard key states"
         )
 
-    def _execute_shell_command(
+    def _shell(
         self, command: str, timeout: float | None = None, executable: str | None = None
     ):
         """Execute a system command in the Scrapybara VM."""
         # Use bash command for Ubuntu instances
         response = self.client.bash(command=command)
 
-    def _execute_keyboard_key_down(self, key: KeyboardKey):
+    def _keydown(self, key: KeyboardKey):
         """Execute key down for a keyboard key using Scrapybara."""
         # Scrapybara doesn't have separate key down/up methods
         # We'll use the key method with a press and hold approach
@@ -216,20 +216,20 @@ class ScrapybaraComputer(BaseComputer):
         # without release
         self.client.computer(action="key", text=key_str)
 
-    def _execute_keyboard_key_release(self, key: KeyboardKey):
+    def _keyup(self, key: KeyboardKey):
         """Execute key release for a keyboard key using Scrapybara."""
         # Scrapybara doesn't have separate key down/up methods
         raise NotImplementedError("Scrapybara does not support key release actions")
 
-    def _execute_type(self, text: str):
+    def _type(self, text: str):
         """Type text using Scrapybara."""
         self.client.computer(action="type", text=text)
 
-    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
+    def _move(self, x: int, y: int, duration: float = 0.5):
         """Move mouse to specified coordinates using Scrapybara."""
         self.client.computer(action="mouse_move", coordinate=[x, y])
 
-    def _execute_mouse_scroll(self, amount: float):
+    def _scroll(self, amount: float):
         """Scroll mouse using Scrapybara."""
         # Scrapybara scroll takes [x, y] coordinates for horizontal and vertical scrolling
         # Convert our amount to a vertical scroll (positive = down, negative =
@@ -239,19 +239,19 @@ class ScrapybaraComputer(BaseComputer):
 
         self.client.computer(action="scroll", coordinate=[x_scroll, y_scroll])
 
-    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError(
             "Scrapybara does not support mouse button down actions"
         )
 
-    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using Scrapybara."""
         # Scrapybara doesn't have separate mouse down/up methods
         raise NotImplementedError("Scrapybara does not support mouse button up actions")
 
-    def _execute_click(
+    def _click(
         self,
         x: int,
         y: int,
@@ -268,19 +268,19 @@ class ScrapybaraComputer(BaseComputer):
         click_action = mouse_button_to_scrapybara(button)
         self.client.computer(action=click_action)
 
-    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
+    def _keypress(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key using Scrapybara's key action."""
         # Scrapybara uses the computer action with key
         scrapybara_key = keyboard_key_to_scrapybara(key)
         self.client.computer(action="key", text=scrapybara_key)
 
-    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
+    def _hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using Scrapybara's key action with combined keys."""
         # Combine keys with + for Scrapybara hotkey format
         hotkey = "+".join([keyboard_key_to_scrapybara(key) for key in keys])
         self.client.computer(action="key", text=hotkey)
 
-    def _execute_double_click(
+    def _double_click(
         self,
         x: int,
         y: int,
@@ -295,7 +295,7 @@ class ScrapybaraComputer(BaseComputer):
         # Then double click
         self.client.computer(action="double_click")
 
-    def _execute_drag(
+    def _drag(
         self,
         start_x: int,
         start_y: int,
@@ -468,7 +468,7 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
             # Start an Ubuntu instance
             self.client = client.start_ubuntu()
 
-    def _execute_shell_command(
+    def _shell(
         self,
         command: str,
         timeout: Optional[float] = None,
@@ -541,7 +541,7 @@ class BrowserScrapybaraComputer(ScrapybaraComputer):
         """
         self.client.authenticate(auth_state_id=auth_state_id)
 
-    def _execute_shell_command(
+    def _shell(
         self,
         command: str,
         timeout: Optional[float] = None,
@@ -576,7 +576,7 @@ class WindowsScrapybaraComputer(ScrapybaraComputer):
             # Start a Windows instance
             self.client = client.start_windows()
 
-    def _execute_shell_command(
+    def _shell(
         self,
         command: str,
         timeout: Optional[float] = None,

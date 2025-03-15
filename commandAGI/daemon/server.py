@@ -180,23 +180,23 @@ class ComputerDaemon:
             }
 
         @app.post("/execute/keyboard/key_down", response_model=SuccessResponse)
-        async def execute_keyboard_key_down(
+        async def keydown(
             action: KeyboardKeyDownAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
-            return {"success": self._computer.execute_keyboard_key_down(action.key)}
+            return {"success": self._computer.keydown(action.key)}
 
         @app.post("/execute/keyboard/key_release", response_model=SuccessResponse)
-        async def execute_keyboard_key_release(
+        async def keyup(
             action: KeyboardKeyReleaseAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
-            return {"success": self._computer.execute_keyboard_key_release(action.key)}
+            return {"success": self._computer.keyup(action.key)}
 
         @app.post("/execute/keyboard/key_press", response_model=SuccessResponse)
-        async def execute_keyboard_key_press(
+        async def keypress(
             action: KeyboardKeyPressAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {
-                "success": self._computer.execute_keyboard_key_press(
+                "success": self._computer.keypress(
                     action.key, action.duration
                 )
             }
@@ -226,51 +226,51 @@ class ComputerDaemon:
             }
 
         @app.post("/execute/keyboard/hotkey", response_model=SuccessResponse)
-        async def execute_keyboard_hotkey(
+        async def hotkey(
             action: KeyboardHotkeyAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
-            return {"success": self._computer.execute_keyboard_hotkey(action.keys)}
+            return {"success": self._computer.hotkey(action.keys)}
 
         @app.post("/execute/type", response_model=SuccessResponse)
-        async def execute_type(
+        async def type(
             action: TypeAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
-            return {"success": self._computer.execute_type(action.text)}
+            return {"success": self._computer.type(action.text)}
 
         @app.post("/execute/mouse/move", response_model=SuccessResponse)
-        async def execute_mouse_move(
+        async def move(
             action: MouseMoveAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {
-                "success": self._computer.execute_mouse_move(
+                "success": self._computer.move(
                     action.x, action.y, action.move_duration
                 )
             }
 
         @app.post("/execute/mouse/scroll", response_model=SuccessResponse)
-        async def execute_mouse_scroll(
+        async def scroll(
             action: MouseScrollAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
-            return {"success": self._computer.execute_mouse_scroll(action.amount)}
+            return {"success": self._computer.scroll(action.amount)}
 
         @app.post("/execute/mouse/button_down", response_model=SuccessResponse)
-        async def execute_mouse_button_down(
+        async def mouse_down(
             action: MouseButtonDownAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
-            return {"success": self._computer.execute_mouse_button_down(action.button)}
+            return {"success": self._computer.mouse_down(action.button)}
 
         @app.post("/execute/mouse/button_up", response_model=SuccessResponse)
-        async def execute_mouse_button_up(
+        async def mouse_up(
             action: MouseButtonUpAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
-            return {"success": self._computer.execute_mouse_button_up(action.button)}
+            return {"success": self._computer.mouse_up(action.button)}
 
         @app.post("/execute/click", response_model=SuccessResponse)
-        async def execute_click(
+        async def click(
             action: ClickAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {
-                "success": self._computer.execute_click(
+                "success": self._computer.click(
                     action.x,
                     action.y,
                     action.move_duration,
@@ -280,11 +280,11 @@ class ComputerDaemon:
             }
 
         @app.post("/execute/double_click", response_model=SuccessResponse)
-        async def execute_double_click(
+        async def double_click(
             action: DoubleClickAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {
-                "success": self._computer.execute_double_click(
+                "success": self._computer.double_click(
                     action.x,
                     action.y,
                     action.move_duration,
@@ -295,11 +295,11 @@ class ComputerDaemon:
             }
 
         @app.post("/execute/drag", response_model=SuccessResponse)
-        async def execute_drag(
+        async def drag(
             action: DragAction, token: str = Depends(verify_token)
         ) -> Dict[str, bool]:
             return {
-                "success": self._computer.execute_drag(
+                "success": self._computer.drag(
                     action.start_x,
                     action.start_y,
                     action.end_x,
@@ -1029,14 +1029,14 @@ class ComputerDaemon:
         def type_text(text: str) -> dict:
             """Type text on the computer"""
             action = TypeAction(text=text)
-            return {"success": self._computer.execute_type(action.text)}
+            return {"success": self._computer.type(action.text)}
 
         @mcp.tool()
         def press_key(key: str, duration: float = None) -> dict:
             """Press a keyboard key"""
             action = KeyboardKeyPressAction(key=key, duration=duration)
             return {
-                "success": self._computer.execute_keyboard_key_press(
+                "success": self._computer.keypress(
                     action.key, action.duration
                 )
             }
@@ -1055,14 +1055,14 @@ class ComputerDaemon:
         def press_hotkey(keys: list) -> dict:
             """Press a keyboard hotkey combination"""
             action = KeyboardHotkeyAction(keys=keys)
-            return {"success": self._computer.execute_keyboard_hotkey(action.keys)}
+            return {"success": self._computer.hotkey(action.keys)}
 
         @mcp.tool()
         def move_mouse(x: int, y: int, move_duration: float = None) -> dict:
             """Move the mouse to specific coordinates"""
             action = MouseMoveAction(x=x, y=y, move_duration=move_duration)
             return {
-                "success": self._computer.execute_mouse_move(
+                "success": self._computer.move(
                     action.x, action.y, action.move_duration
                 )
             }
@@ -1071,7 +1071,7 @@ class ComputerDaemon:
         def scroll_mouse(amount: float) -> dict:
             """Scroll the mouse"""
             action = MouseScrollAction(amount=amount)
-            return {"success": self._computer.execute_mouse_scroll(action.amount)}
+            return {"success": self._computer.scroll(action.amount)}
 
         @mcp.tool()
         def click(
@@ -1090,7 +1090,7 @@ class ComputerDaemon:
                 button=button,
             )
             return {
-                "success": self._computer.execute_click(
+                "success": self._computer.click(
                     action.x,
                     action.y,
                     action.move_duration,
@@ -1118,7 +1118,7 @@ class ComputerDaemon:
                 double_click_interval_seconds=double_click_interval_seconds,
             )
             return {
-                "success": self._computer.execute_double_click(
+                "success": self._computer.double_click(
                     action.x,
                     action.y,
                     action.move_duration,
@@ -1147,7 +1147,7 @@ class ComputerDaemon:
                 button=button,
             )
             return {
-                "success": self._computer.execute_drag(
+                "success": self._computer.drag(
                     action.start_x,
                     action.start_y,
                     action.end_x,

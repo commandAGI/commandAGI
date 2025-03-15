@@ -45,19 +45,19 @@ def main():
         # Example 1: Type some text
         print("\nExample 1: Typing text...")
         type_action = TypeAction(text="Hello, world!")
-        success = computer.execute_type(type_action)
+        success = computer.type(type_action)
         print(f"Type action success: {success}")
 
         # Example 2: Move the mouse
         print("\nExample 2: Moving mouse...")
         move_action = MouseMoveAction(x=500, y=300)
-        success = computer.execute_mouse_move(move_action)
+        success = computer.move(move_action)
         print(f"Mouse move success: {success}")
 
         # Example 3: Press a keyboard hotkey (Ctrl+C)
         print("\nExample 3: Pressing hotkey (Ctrl+C)...")
         hotkey_action = KeyboardHotkeyAction(keys=["ctrl", "c"])
-        success = computer.execute_keyboard_hotkey(hotkey_action)
+        success = computer.hotkey(hotkey_action)
         print(f"Hotkey action success: {success}")
 
         # Example 4: Execute a command
@@ -69,19 +69,19 @@ def main():
         # Example 5: Mouse click (down and up)
         print("\nExample 5: Performing mouse click...")
         # Move to position first
-        computer.execute_mouse_move(MouseMoveAction(x=400, y=400))
+        computer.move(MouseMoveAction(x=400, y=400))
         # Perform click
-        down_success = computer.execute_mouse_button_down(
+        down_success = computer.mouse_down(
             MouseButtonDownAction(button="left")
         )
-        up_success = computer.execute_mouse_button_up(
+        up_success = computer.mouse_up(
             MouseButtonUpAction(button="left")
         )
         print(f"Mouse click success: {down_success and up_success}")
 
         # Example 6: Mouse scroll
         print("\nExample 6: Scrolling...")
-        scroll_success = computer.execute_mouse_scroll(MouseScrollAction(dx=0, dy=-3))
+        scroll_success = computer.scroll(MouseScrollAction(dx=0, dy=-3))
         print(f"Mouse scroll success: {scroll_success}")
 
         # Example 7: Get current observation

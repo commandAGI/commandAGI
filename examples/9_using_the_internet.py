@@ -57,17 +57,17 @@ def main():
         print("Navigating to a website...")
 
         # Press Ctrl+L to focus the address bar
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.L])
         )
         time.sleep(0.5)
 
         # Type the URL
-        computer.execute_type(TypeAction(text="example.com"))
+        computer.type(TypeAction(text="example.com"))
         time.sleep(0.5)
 
         # Press Enter to navigate
-        computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ENTER]))
+        computer.hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ENTER]))
 
         print("Waiting for the page to load...")
         time.sleep(3)
@@ -92,14 +92,14 @@ def main():
 
         # Demonstrate clicking on a link (approximate position for example.com's "More information" link)
         print("Clicking on a link...")
-        computer.execute_click(ClickAction(x=400, y=400, button=MouseButton.LEFT))
+        computer.click(ClickAction(x=400, y=400, button=MouseButton.LEFT))
 
         print("Waiting for the new page to load...")
         time.sleep(3)
 
         # Close the browser
         print("Closing the browser...")
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4])
         )
 

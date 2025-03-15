@@ -53,10 +53,10 @@ computer = LocalPynputComputer()
 screenshot = computer.get_screenshot()
 
 # Click at coordinates (100, 100)
-computer.execute_click(ClickAction(x=100, y=100))
+computer.click(ClickAction(x=100, y=100))
 
 # Type text
-computer.execute_type(TypeAction(text="Hello, commandAGI!"))
+computer.type(TypeAction(text="Hello, commandAGI!"))
 ```
 
 ## Remote Control Example

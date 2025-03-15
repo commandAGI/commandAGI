@@ -40,26 +40,26 @@ class BaseComputer(BaseModel):
     def execute_command(self, action: CommandAction) -> bool:
         """Execute a system command"""
         
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def keydown(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key"""
         
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def keyup(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key"""
         
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def move(self, action: MouseMoveAction) -> bool:
         """Execute moving the mouse"""
         
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def scroll(self, action: MouseScrollAction) -> bool:
         """Execute mouse scroll"""
         
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def mouse_down(self, action: MouseButtonDownAction) -> bool:
         """Execute mouse button down"""
         
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def mouse_up(self, action: MouseButtonUpAction) -> bool:
         """Execute mouse button up"""
 ```
 
-The base class also provides default implementations for composite actions like `execute_click`, `execute_type`, and `execute_keyboard_hotkey`, which are built on top of the primitive actions.
+The base class also provides default implementations for composite actions like `click`, `type`, and `hotkey`, which are built on top of the primitive actions.
 
 ## Step 1: Create a New Computer Class
 
@@ -127,21 +127,21 @@ class MyCustomComputer(BaseComputer):
         # Execute the command and return success/failure
         return True  # Replace with actual implementation
     
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def keydown(self, action: KeyboardKeyDownAction) -> bool:
         """Execute key down for a keyboard key"""
         # Implement key down logic
         key = action.key
         # Press the key and return success/failure
         return True  # Replace with actual implementation
     
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def keyup(self, action: KeyboardKeyReleaseAction) -> bool:
         """Execute key release for a keyboard key"""
         # Implement key release logic
         key = action.key
         # Release the key and return success/failure
         return True  # Replace with actual implementation
     
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def move(self, action: MouseMoveAction) -> bool:
         """Execute moving the mouse"""
         # Implement mouse move logic
         x = action.x
@@ -150,21 +150,21 @@ class MyCustomComputer(BaseComputer):
         # Move the mouse and return success/failure
         return True  # Replace with actual implementation
     
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def scroll(self, action: MouseScrollAction) -> bool:
         """Execute mouse scroll"""
         # Implement mouse scroll logic
         amount = action.amount
         # Scroll the mouse and return success/failure
         return True  # Replace with actual implementation
     
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def mouse_down(self, action: MouseButtonDownAction) -> bool:
         """Execute mouse button down"""
         # Implement mouse button down logic
         button = action.button
         # Press the mouse button and return success/failure
         return True  # Replace with actual implementation
     
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def mouse_up(self, action: MouseButtonUpAction) -> bool:
         """Execute mouse button up"""
         # Implement mouse button up logic
         button = action.button
@@ -194,7 +194,7 @@ If needed, you can override the default implementations of composite methods:
 class MyCustomComputer(BaseComputer):
     # ... standard methods ...
     
-    def execute_click(self, action: ClickAction) -> bool:
+    def click(self, action: ClickAction) -> bool:
         """Custom implementation of click action"""
         # Custom click implementation that might be more efficient
         # than the default implementation that uses move, button down, and button up
@@ -284,7 +284,7 @@ class WebDriverComputer(BaseComputer):
             print(f"Error executing command: {e}")
             return False
     
-    def execute_keyboard_key_down(self, action: KeyboardKeyDownAction) -> bool:
+    def keydown(self, action: KeyboardKeyDownAction) -> bool:
         """Press a key down using ActionChains"""
         try:
             selenium_key = self._convert_to_selenium_key(action.key)
@@ -294,7 +294,7 @@ class WebDriverComputer(BaseComputer):
             print(f"Error executing key down: {e}")
             return False
     
-    def execute_keyboard_key_release(self, action: KeyboardKeyReleaseAction) -> bool:
+    def keyup(self, action: KeyboardKeyReleaseAction) -> bool:
         """Release a key using ActionChains"""
         try:
             selenium_key = self._convert_to_selenium_key(action.key)
@@ -304,7 +304,7 @@ class WebDriverComputer(BaseComputer):
             print(f"Error executing key release: {e}")
             return False
     
-    def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+    def move(self, action: MouseMoveAction) -> bool:
         """Move the mouse using ActionChains"""
         try:
             # Find an element at the target position or use move_by_offset
@@ -314,7 +314,7 @@ class WebDriverComputer(BaseComputer):
             print(f"Error executing mouse move: {e}")
             return False
     
-    def execute_mouse_scroll(self, action: MouseScrollAction) -> bool:
+    def scroll(self, action: MouseScrollAction) -> bool:
         """Scroll using JavaScript"""
         try:
             self.driver.execute_script(f"window.scrollBy(0, {action.amount});")
@@ -323,7 +323,7 @@ class WebDriverComputer(BaseComputer):
             print(f"Error executing mouse scroll: {e}")
             return False
     
-    def execute_mouse_button_down(self, action: MouseButtonDownAction) -> bool:
+    def mouse_down(self, action: MouseButtonDownAction) -> bool:
         """Press a mouse button using ActionChains"""
         try:
             if action.button == MouseButton.LEFT:
@@ -335,7 +335,7 @@ class WebDriverComputer(BaseComputer):
             print(f"Error executing mouse button down: {e}")
             return False
     
-    def execute_mouse_button_up(self, action: MouseButtonUpAction) -> bool:
+    def mouse_up(self, action: MouseButtonUpAction) -> bool:
         """Release a mouse button using ActionChains"""
         try:
             if action.button == MouseButton.LEFT:
@@ -456,15 +456,15 @@ def test_my_custom_computer():
         assert screenshot is not None
         
         # Test mouse move
-        result = computer.execute_mouse_move(MouseMoveAction(x=100, y=100))
+        result = computer.move(MouseMoveAction(x=100, y=100))
         assert result is True
         
         # Test click
-        result = computer.execute_click(ClickAction(x=100, y=100))
+        result = computer.click(ClickAction(x=100, y=100))
         assert result is True
         
         # Test type
-        result = computer.execute_type(TypeAction(text="Hello, World!"))
+        result = computer.type(TypeAction(text="Hello, World!"))
         assert result is True
     finally:
         computer.close()
@@ -482,8 +482,8 @@ from commandAGI.types import ClickAction, TypeAction
 computer = MyCustomComputer(custom_param="value")
 
 # Use it like any other computer
-computer.execute_click(ClickAction(x=100, y=100))
-computer.execute_type(TypeAction(text="Hello, commandAGI!"))
+computer.click(ClickAction(x=100, y=100))
+computer.type(TypeAction(text="Hello, commandAGI!"))
 
 # Use it with the gym framework
 from commandAGI.gym.environments.computer_env import ComputerEnv, ComputerEnvConfig
@@ -521,7 +521,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def execute_mouse_move(self, action: MouseMoveAction) -> bool:
+def move(self, action: MouseMoveAction) -> bool:
     logger.debug(f"Moving mouse to ({action.x}, {action.y})")
     # Implementation
 ```

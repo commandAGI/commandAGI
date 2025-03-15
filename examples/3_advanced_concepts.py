@@ -57,7 +57,7 @@ def main():
 
         # Move the mouse to a position
         print("Moving mouse to position (500, 300)...")
-        computer.execute_mouse_move(
+        computer.move(
             MouseMoveAction(
                 x=500, y=300, move_duration=1.0  # Move slowly so it's visible
             )
@@ -66,12 +66,12 @@ def main():
 
         # Click at the current position
         print("Clicking at current position...")
-        computer.execute_click(ClickAction(x=500, y=300, button=MouseButton.LEFT))
+        computer.click(ClickAction(x=500, y=300, button=MouseButton.LEFT))
         time.sleep(0.5)
 
         # Type some text
         print("Typing text...")
-        computer.execute_type(
+        computer.type(
             TypeAction(
                 text="Hello from commandAGI!\n\nThis text was typed automatically."
             )
@@ -80,14 +80,14 @@ def main():
 
         # Press a keyboard hotkey (Ctrl+A to select all)
         print("Pressing Ctrl+A to select all text...")
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.A])
         )
         time.sleep(0.5)
 
         # Type more text (replacing the selected text)
         print("Typing more text...")
-        computer.execute_type(
+        computer.type(
             TypeAction(
                 text="This text replaced the selected text.\n\ncommandAGI2 makes automation easy!"
             )

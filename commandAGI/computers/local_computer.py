@@ -1227,7 +1227,7 @@ class LocalComputer(BaseComputer):
             self.logger.error(f"Error getting Linux layout tree: {e}")
             return LayoutTreeObservation(tree={"error": str(e)})
 
-    def _execute_shell_command(
+    def _shell(
         self,
         command: str,
         timeout: Optional[float] = None,

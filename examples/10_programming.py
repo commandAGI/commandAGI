@@ -85,19 +85,19 @@ if __name__ == "__main__":
         print("Adding a new function to the script...")
 
         # Press Ctrl+End to go to the end of the file
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.END])
         )
         time.sleep(0.5)
 
         # Add a new line before the end
-        computer.execute_keyboard_key_press(
+        computer.keypress(
             KeyboardKeyPressAction(key=KeyboardKey.UP, duration=0.1)
         )
         time.sleep(0.5)
 
         # Type the new function
-        computer.execute_type(
+        computer.type(
             TypeAction(
                 text="""
 def calculate_sum(a, b):
@@ -110,67 +110,67 @@ def calculate_sum(a, b):
 
         # Modify the main function to use the new function
         # First, find the main function
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.HOME])
         )
         time.sleep(0.5)
 
         # Search for "def main"
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.F])
         )
         time.sleep(0.5)
 
-        computer.execute_type(TypeAction(text="def main"))
+        computer.type(TypeAction(text="def main"))
         time.sleep(0.5)
 
         # Press Enter to search
-        computer.execute_keyboard_key_press(
+        computer.keypress(
             KeyboardKeyPressAction(key=KeyboardKey.ENTER, duration=0.1)
         )
         time.sleep(0.5)
 
         # Close the search dialog if it's still open
-        computer.execute_keyboard_key_press(
+        computer.keypress(
             KeyboardKeyPressAction(key=KeyboardKey.ESCAPE, duration=0.1)
         )
         time.sleep(0.5)
 
         # Move to the end of the main function
-        computer.execute_keyboard_key_press(
+        computer.keypress(
             KeyboardKeyPressAction(key=KeyboardKey.DOWN, duration=0.1)
         )
         time.sleep(0.1)
 
-        computer.execute_keyboard_key_press(
+        computer.keypress(
             KeyboardKeyPressAction(key=KeyboardKey.DOWN, duration=0.1)
         )
         time.sleep(0.1)
 
-        computer.execute_keyboard_key_press(
+        computer.keypress(
             KeyboardKeyPressAction(key=KeyboardKey.END, duration=0.1)
         )
         time.sleep(0.5)
 
         # Add a new line and type the new code
-        computer.execute_keyboard_key_press(
+        computer.keypress(
             KeyboardKeyPressAction(key=KeyboardKey.ENTER, duration=0.1)
         )
         time.sleep(0.1)
 
-        computer.execute_type(
+        computer.type(
             TypeAction(text='    print(f"The sum of 5 and 7 is {calculate_sum(5, 7)}")')
         )
         time.sleep(1)
 
         # Save the file
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S])
         )
         time.sleep(1)
 
         # Close the editor
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4])
         )
         time.sleep(1)

@@ -163,7 +163,7 @@ computer = DaemonClientComputer(
 )
 
 # Use the computer
-computer.execute_type(TypeAction(text="Hello, world!"))
+computer.type(TypeAction(text="Hello, world!"))
 ```
 
 ### Provisioning

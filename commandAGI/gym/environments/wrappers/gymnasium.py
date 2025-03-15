@@ -209,8 +209,8 @@ class OpenRLComputerEnv(gym.Env):
         elif action_type == ComputerActionType.MOUSE_SCROLL:
             computer_action["mouse_scroll"] = MouseScrollAction(amount=params["amount"])
 
-        elif action_type == ComputerActionType.MOUSE_BUTTON_DOWN:
-            computer_action["mouse_button_down"] = MouseButtonDownAction(
+        elif action_type == ComputerActionType.mouse_down:
+            computer_action["mouse_down"] = MouseButtonDownAction(
                 button=params.get("button", MouseButton.LEFT)
             )
 

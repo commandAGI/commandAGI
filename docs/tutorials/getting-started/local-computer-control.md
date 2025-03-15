@@ -93,14 +93,14 @@ from commandAGI.types import (
 )
 
 # Move the mouse
-computer.execute_mouse_move(MouseMoveAction(
+computer.move(MouseMoveAction(
     x=100,
     y=100,
     move_duration=0.5  # Duration of the move in seconds
 ))
 
 # Click
-computer.execute_click(ClickAction(
+computer.click(ClickAction(
     x=100,
     y=100,
     button=MouseButton.LEFT,
@@ -109,7 +109,7 @@ computer.execute_click(ClickAction(
 ))
 
 # Double-click
-computer.execute_double_click(DoubleClickAction(
+computer.double_click(DoubleClickAction(
     x=100,
     y=100,
     button=MouseButton.LEFT,
@@ -117,7 +117,7 @@ computer.execute_double_click(DoubleClickAction(
 ))
 
 # Drag
-computer.execute_drag(DragAction(
+computer.drag(DragAction(
     start_x=100,
     start_y=100,
     end_x=200,
@@ -127,15 +127,15 @@ computer.execute_drag(DragAction(
 ))
 
 # Scroll
-computer.execute_mouse_scroll(MouseScrollAction(
+computer.scroll(MouseScrollAction(
     amount=10  # Positive for up, negative for down
 ))
 
 # Advanced: Manual button control
-computer.execute_mouse_button_down(MouseButtonDownAction(
+computer.mouse_down(MouseButtonDownAction(
     button=MouseButton.LEFT
 ))
-computer.execute_mouse_button_up(MouseButtonUpAction(
+computer.mouse_up(MouseButtonUpAction(
     button=MouseButton.LEFT
 ))
 ```
@@ -153,26 +153,26 @@ from commandAGI.types import (
 )
 
 # Type text
-computer.execute_type(TypeAction(
+computer.type(TypeAction(
     text="Hello, commandAGI!"
 ))
 
 # Press a key
-computer.execute_keyboard_key_press(KeyboardKeyPressAction(
+computer.keypress(KeyboardKeyPressAction(
     key=KeyboardKey.ENTER,
     duration=0.1  # Duration to hold the key down
 ))
 
 # Press a keyboard shortcut
-computer.execute_keyboard_hotkey(KeyboardHotkeyAction(
+computer.hotkey(KeyboardHotkeyAction(
     keys=[KeyboardKey.CTRL, KeyboardKey.C]  # Ctrl+C (copy)
 ))
 
 # Advanced: Manual key control
-computer.execute_keyboard_key_down(KeyboardKeyDownAction(
+computer.keydown(KeyboardKeyDownAction(
     key=KeyboardKey.SHIFT
 ))
-computer.execute_keyboard_key_release(KeyboardKeyReleaseAction(
+computer.keyup(KeyboardKeyReleaseAction(
     key=KeyboardKey.SHIFT
 ))
 ```
@@ -218,15 +218,15 @@ from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 computer = LocalPyAutoGUIComputer()
 
 # Use the same API as with pynput
-computer.execute_click(ClickAction(x=100, y=100))
-computer.execute_type(TypeAction(text="Hello, commandAGI!"))
+computer.click(ClickAction(x=100, y=100))
+computer.type(TypeAction(text="Hello, commandAGI!"))
 ```
 
 ### Handling Errors
 
 ```python
 try:
-    computer.execute_click(ClickAction(x=100, y=100))
+    computer.click(ClickAction(x=100, y=100))
 except Exception as e:
     print(f"Error executing click: {e}")
 ```
@@ -282,13 +282,13 @@ computer.execute_command(CommandAction(command="start chrome"))
 time.sleep(2)  # Wait for the browser to open
 
 # Navigate to a website
-computer.execute_type(TypeAction(text="https://www.google.com"))
-computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
+computer.type(TypeAction(text="https://www.google.com"))
+computer.keypress(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 time.sleep(2)  # Wait for the page to load
 
 # Search for something
-computer.execute_type(TypeAction(text="commandAGI python automation"))
-computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
+computer.type(TypeAction(text="commandAGI python automation"))
+computer.keypress(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 ```
 
 ### Automating a Text Editor
@@ -308,15 +308,15 @@ computer.execute_command(CommandAction(command="start notepad"))
 time.sleep(1)  # Wait for Notepad to open
 
 # Type some text
-computer.execute_type(TypeAction(text="Hello, commandAGI!\n\nThis is an automated test."))
+computer.type(TypeAction(text="Hello, commandAGI!\n\nThis is an automated test."))
 
 # Save the file
-computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S]))
+computer.hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S]))
 time.sleep(1)  # Wait for the save dialog
 
 # Type the filename
-computer.execute_type(TypeAction(text="commandAGI2_test.txt"))
-computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
+computer.type(TypeAction(text="commandAGI2_test.txt"))
+computer.keypress(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 ```
 
 ## Best Practices
@@ -329,11 +329,11 @@ When automating UI interactions, it's important to add delays to account for app
 import time
 
 # Click a button
-computer.execute_click(ClickAction(x=100, y=100))
+computer.click(ClickAction(x=100, y=100))
 time.sleep(0.5)  # Wait for the click to register
 
 # Type text
-computer.execute_type(TypeAction(text="Hello"))
+computer.type(TypeAction(text="Hello"))
 time.sleep(0.2)  # Wait for the text to appear
 ```
 

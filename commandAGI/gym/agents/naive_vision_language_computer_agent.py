@@ -102,9 +102,9 @@ class NaiveComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
         def mouse_scroll(amount: float):
             return ComputerAction(mouse_scroll=MouseScrollAction(amount=amount))
 
-        def mouse_button_down(button: MouseButton = MouseButton.LEFT):
+        def mouse_down(button: MouseButton = MouseButton.LEFT):
             return ComputerAction(
-                mouse_button_down=MouseButtonDownAction(button=button)
+                mouse_down=MouseButtonDownAction(button=button)
             )
 
         def mouse_button_up(button: MouseButton = MouseButton.LEFT):
@@ -177,7 +177,7 @@ class NaiveComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
             type,
             mouse_move,
             mouse_scroll,
-            mouse_button_down,
+            mouse_down,
             mouse_button_up,
             click,
             double_click,
@@ -249,7 +249,7 @@ class NaiveComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
             type=None,
             mouse_move=None,
             mouse_scroll=None,
-            mouse_button_down=None,
+            mouse_down=None,
             mouse_button_up=None,
             click=None,
             double_click=None,

@@ -75,7 +75,7 @@ def main():
 
         # Type some text
         print("Typing text...")
-        computer.execute_type(
+        computer.type(
             TypeAction(
                 text="Hello from commandAGI!\n\nThis is an example of scripting computer interactions."
             )
@@ -84,26 +84,26 @@ def main():
 
         # Press a keyboard hotkey (Ctrl+S to save)
         print("Pressing Ctrl+S to save...")
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S])
         )
         time.sleep(1)
 
         # Type a filename
         print("Typing filename...")
-        computer.execute_type(TypeAction(text="commandAGI2_example.txt"))
+        computer.type(TypeAction(text="commandAGI2_example.txt"))
         time.sleep(1)
 
         # Press Enter to save
         print("Pressing Enter to save...")
-        computer.execute_keyboard_key_press(
+        computer.keypress(
             KeyboardKeyPressAction(key=KeyboardKey.ENTER, duration=0.1)
         )
         time.sleep(1)
 
         # Close the application (Alt+F4)
         print("Pressing Alt+F4 to close the application...")
-        computer.execute_keyboard_hotkey(
+        computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4])
         )
 

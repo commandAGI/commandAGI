@@ -51,7 +51,7 @@ else:
 
 ```python
 # Type some text
-computer.execute_type(TypeAction(text="Hello from commandAGI!\n\nThis file was created automatically."))
+computer.type(TypeAction(text="Hello from commandAGI!\n\nThis file was created automatically."))
 print("Typed text")
 ```
 
@@ -59,17 +59,17 @@ print("Typed text")
 
 ```python
 # Press Ctrl+S to save
-computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S]))
+computer.hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S]))
 print("Pressed Ctrl+S")
 time.sleep(1)
 
 # Type the filename
-computer.execute_type(TypeAction(text="commandAGI2_example.txt"))
+computer.type(TypeAction(text="commandAGI2_example.txt"))
 print("Entered filename")
 time.sleep(1)
 
 # Press Enter to confirm
-computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
+computer.keypress(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 print("Saved file")
 time.sleep(1)
 ```
@@ -78,7 +78,7 @@ time.sleep(1)
 
 ```python
 # Press Alt+F4 to close
-computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4]))
+computer.hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4]))
 print("Closed editor")
 ```
 
@@ -115,26 +115,26 @@ else:
     exit(1)
 
 # Type some text
-computer.execute_type(TypeAction(text="Hello from commandAGI!\n\nThis file was created automatically."))
+computer.type(TypeAction(text="Hello from commandAGI!\n\nThis file was created automatically."))
 print("Typed text")
 
 # Press Ctrl+S to save
-computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S]))
+computer.hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.S]))
 print("Pressed Ctrl+S")
 time.sleep(1)
 
 # Type the filename
-computer.execute_type(TypeAction(text="commandAGI2_example.txt"))
+computer.type(TypeAction(text="commandAGI2_example.txt"))
 print("Entered filename")
 time.sleep(1)
 
 # Press Enter to confirm
-computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
+computer.keypress(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 print("Saved file")
 time.sleep(1)
 
 # Press Alt+F4 to close
-computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4]))
+computer.hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4]))
 print("Closed editor")
 ```
 

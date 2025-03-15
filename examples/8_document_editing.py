@@ -88,12 +88,12 @@ def main():
                 input()
 
                 # Click on the text element
-                computer.execute_click(ClickAction(x=x, y=y, button=MouseButton.LEFT))
+                computer.click(ClickAction(x=x, y=y, button=MouseButton.LEFT))
 
                 # Type some text
                 time.sleep(0.5)
                 print("Typing text after clicking...")
-                computer.execute_type(TypeAction(text=" [commandAGI was here] "))
+                computer.type(TypeAction(text=" [commandAGI was here] "))
 
         except Exception as e:
             print(f"Error parsing screenshot: {e}")

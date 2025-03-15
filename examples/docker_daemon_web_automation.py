@@ -116,18 +116,18 @@ def main():
             # Click on a link (simulated)
             print("Clicking on a link...")
             # Assuming the link is at position (300, 300)
-            computer.execute_click(x=300, y=300)
+            computer.click(x=300, y=300)
             time.sleep(2)
 
             # Type in a search box (simulated)
             print("Typing in a search box...")
             # Assuming the search box is at position (500, 200)
-            computer.execute_click(x=500, y=200)
-            computer.execute_type(text="search query")
+            computer.click(x=500, y=200)
+            computer.type(text="search query")
             time.sleep(1)
 
             # Press Enter to submit
-            computer.execute_keyboard_key_press(key=KeyboardKey.ENTER)
+            computer.keypress(key=KeyboardKey.ENTER)
             time.sleep(3)
         else:
             print("Failed to get layout tree")
@@ -194,15 +194,15 @@ def perform_web_search(
         # Click in the approximate position of the search box
         search_box_x = width // 2
         search_box_y = height // 3
-        computer.execute_click(x=search_box_x, y=search_box_y)
+        computer.click(x=search_box_x, y=search_box_y)
         time.sleep(1)
 
         # Type the search query
-        computer.execute_type(text=query)
+        computer.type(text=query)
         time.sleep(1)
 
         # Press Enter to submit the search
-        computer.execute_keyboard_key_press(key=KeyboardKey.ENTER)
+        computer.keypress(key=KeyboardKey.ENTER)
         time.sleep(5)  # Wait for search results to load
 
         # Take a screenshot after search
@@ -213,7 +213,7 @@ def perform_web_search(
 
         # Scroll down to see more results
         for _ in range(3):
-            computer.execute_mouse_scroll(amount=-5)  # Scroll down
+            computer.scroll(amount=-5)  # Scroll down
             time.sleep(1)
 
         # Take a final screenshot after scrolling

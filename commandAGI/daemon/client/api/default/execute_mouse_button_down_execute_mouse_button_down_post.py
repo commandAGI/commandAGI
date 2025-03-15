@@ -6,7 +6,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.mouse_button_down_action import MouseButtonDownAction
+from ...models.mouse_down_action import MouseButtonDownAction
 from ...models.success_response import SuccessResponse
 from ...types import Response
 

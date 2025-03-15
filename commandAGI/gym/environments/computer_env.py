@@ -73,15 +73,15 @@ class ComputerEnv(MultiModalEnv[ComputerObservation, ComputerAction]):
             "keyboard_keys_release": lambda x: self._computer.execute_keyboard_keys_release(
                 x
             ),
-            "keyboard_hotkey": lambda x: self._computer.execute_keyboard_hotkey(x),
-            "type": lambda x: self._computer.execute_type(x),
-            "mouse_move": lambda x: self._computer.execute_mouse_move(x),
-            "mouse_scroll": lambda x: self._computer.execute_mouse_scroll(x),
-            "mouse_button_down": lambda x: self._computer.execute_mouse_button_down(x),
-            "mouse_button_up": lambda x: self._computer.execute_mouse_button_up(x),
-            "click": lambda x: self._computer.execute_click(x),
-            "double_click": lambda x: self._computer.execute_double_click(x),
-            "drag": lambda x: self._computer.execute_drag(x),
+            "keyboard_hotkey": lambda x: self._computer.hotkey(x),
+            "type": lambda x: self._computer.type(x),
+            "mouse_move": lambda x: self._computer.move(x),
+            "mouse_scroll": lambda x: self._computer.scroll(x),
+            "mouse_down": lambda x: self._computer.mouse_down(x),
+            "mouse_button_up": lambda x: self._computer.mouse_up(x),
+            "click": lambda x: self._computer.click(x),
+            "double_click": lambda x: self._computer.double_click(x),
+            "drag": lambda x: self._computer.drag(x),
         }
 
         super().__init__(

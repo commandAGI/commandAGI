@@ -35,13 +35,13 @@ computer = LocalPynputComputer()
 screenshot = computer.get_screenshot()
 
 # Click at coordinates (100, 100)
-computer.execute_click(ClickAction(x=100, y=100))
+computer.click(ClickAction(x=100, y=100))
 
 # Type text
-computer.execute_type(TypeAction(text="Hello, commandAGI!"))
+computer.type(TypeAction(text="Hello, commandAGI!"))
 
 # Press keyboard shortcut (Ctrl+S)
-computer.execute_keyboard_hotkey(KeyboardHotkeyAction(
+computer.hotkey(KeyboardHotkeyAction(
     keys=[KeyboardKey.CTRL, KeyboardKey.S]
 ))
 ```
@@ -114,10 +114,10 @@ computer = DaemonClientComputer(
 screenshot = computer.get_screenshot()
 
 # Click at coordinates (100, 100) on the remote computer
-computer.execute_click(ClickAction(x=100, y=100))
+computer.click(ClickAction(x=100, y=100))
 
 # Type text on the remote computer
-computer.execute_type(TypeAction(text="Hello from another machine!"))
+computer.type(TypeAction(text="Hello from another machine!"))
 
 # Clean up when done
 computer.close()
@@ -142,7 +142,7 @@ computer = DaemonClientComputer(
 computer.execute_command(CommandAction(command="ls -la", timeout=5))
 
 # Type text in the container
-computer.execute_type(TypeAction(text="Hello from Docker!"))
+computer.type(TypeAction(text="Hello from Docker!"))
 
 # Clean up (stops and removes the container)
 computer.close()
@@ -267,13 +267,13 @@ computer.execute_command(CommandAction(command="chrome"))
 time.sleep(2)  # Wait for the browser to open
 
 # Type a URL
-computer.execute_type(TypeAction(text="https://www.google.com"))
-computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
+computer.type(TypeAction(text="https://www.google.com"))
+computer.keypress(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 time.sleep(2)  # Wait for the page to load
 
 # Type a search query
-computer.execute_type(TypeAction(text="commandAGI python automation"))
-computer.execute_keyboard_key_press(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
+computer.type(TypeAction(text="commandAGI python automation"))
+computer.keypress(KeyboardKeyPressAction(key=KeyboardKey.ENTER))
 time.sleep(2)  # Wait for search results
 
 # Take a screenshot of the results
@@ -281,7 +281,7 @@ screenshot = computer.get_screenshot()
 print("Took screenshot of search results")
 
 # Close the browser
-computer.execute_keyboard_hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4]))
+computer.hotkey(KeyboardHotkeyAction(keys=[KeyboardKey.ALT, KeyboardKey.F4]))
 ```
 
 ## Next Steps

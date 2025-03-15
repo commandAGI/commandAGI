@@ -271,7 +271,7 @@ class LocalPynputComputer(LocalComputer):
         """Reset environment and return initial observation"""
         self.logger.info("Resetting environment state (showing desktop)")
         # Show desktop to reset the environment state
-        self._execute_keyboard_hotkey([KeyboardKey.META, KeyboardKey.D])
+        self._hotkey([KeyboardKey.META, KeyboardKey.D])
         time.sleep(1)  # Give windows time to minimize
 
     def _on_keyboard_press(self, key):
@@ -330,24 +330,24 @@ class LocalPynputComputer(LocalComputer):
         self.logger.debug(f"Getting keyboard key states: {pressed_keys}")
         return pressed_keys
 
-    def _execute_keyboard_key_down(self, key: KeyboardKey):
+    def _keydown(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
         pynput_key = keyboard_key_to_pynput(key)
         self.logger.debug(f"Pressing key down: {key} (Pynput key: {pynput_key})")
         self._keyboard_controller.press(pynput_key)
 
-    def _execute_keyboard_key_release(self, key: KeyboardKey):
+    def _keyup(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
         pynput_key = keyboard_key_to_pynput(key)
         self.logger.debug(f"Releasing key: {key} (Pynput key: {pynput_key})")
         self._keyboard_controller.release(pynput_key)
 
-    def _execute_type(self, text: str):
+    def _type(self, text: str):
         """Type text using pynput."""
         self.logger.debug(f"Typing text: {text}")
         self._keyboard_controller.type(text)
 
-    def _execute_mouse_move(self, x: int, y: int, move_duration: float = 0.5):
+    def _move(self, x: int, y: int, duration: float = 0.5):
         """Move mouse to specified coordinates using pynput."""
         self.logger.debug(f"Moving mouse to: ({x}, {y})")
         # pynput doesn't have a direct move duration parameter, so we simulate
@@ -374,14 +374,14 @@ class LocalPynputComputer(LocalComputer):
             # Instant move
             self._mouse_controller.position = (x, y)
 
-    def _execute_mouse_scroll(self, amount: float):
+    def _scroll(self, amount: float):
         """Scroll mouse using pynput."""
         self.logger.debug(f"Scrolling mouse by: {amount}")
         # pynput scroll is done with dx, dy values
         # Positive values scroll up, negative values scroll down
         self._mouse_controller.scroll(0, amount / 100)  # Scale to reasonable values
 
-    def _execute_mouse_button_down(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_down(self, button: MouseButton = MouseButton.LEFT):
         """Press mouse button down using pynput."""
         pynput_button = mouse_button_to_pynput(button)
         self.logger.debug(
@@ -389,7 +389,7 @@ class LocalPynputComputer(LocalComputer):
         )
         self._mouse_controller.press(pynput_button)
 
-    def _execute_mouse_button_up(self, button: MouseButton = MouseButton.LEFT):
+    def _mouse_up(self, button: MouseButton = MouseButton.LEFT):
         """Release mouse button using pynput."""
         pynput_button = mouse_button_to_pynput(button)
         self.logger.debug(
@@ -397,14 +397,14 @@ class LocalPynputComputer(LocalComputer):
         )
         self._mouse_controller.release(pynput_button)
 
-    def _execute_keyboard_key_press(self, key: KeyboardKey, duration: float = 0.1):
+    def _keypress(self, key: KeyboardKey, duration: float = 0.1):
         """Press and release a keyboard key."""
         pynput_key = keyboard_key_to_pynput(key)
         self._keyboard_controller.press(pynput_key)
         time.sleep(duration)
         self._keyboard_controller.release(pynput_key)
 
-    def _execute_keyboard_hotkey(self, keys: List[KeyboardKey]):
+    def _hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey using pynput's context manager."""
         # Convert all modifier keys except the last key
         modifier_keys = [keyboard_key_to_pynput(key) for key in keys[:-1]]

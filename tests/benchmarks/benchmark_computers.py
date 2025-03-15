@@ -86,20 +86,20 @@ def benchmark_computer(
         "get_screenshot": lambda: computer.get_screenshot(),
         "get_mouse_state": lambda: computer.get_mouse_state(),
         "get_keyboard_state": lambda: computer.get_keyboard_state(),
-        "mouse_move": lambda: computer.execute_mouse_move(
+        "mouse_move": lambda: computer.move(
             MouseMoveAction(x=100, y=100, move_duration=0.1)
         ),
-        "mouse_scroll": lambda: computer.execute_mouse_scroll(
+        "mouse_scroll": lambda: computer.scroll(
             MouseScrollAction(amount=10)
         ),
-        "click": lambda: computer.execute_click(
+        "click": lambda: computer.click(
             ClickAction(x=100, y=100, move_duration=0.1, press_duration=0.1)
         ),
-        "type_short": lambda: computer.execute_type(TypeAction(text="test")),
-        "type_long": lambda: computer.execute_type(
+        "type_short": lambda: computer.type(TypeAction(text="test")),
+        "type_long": lambda: computer.type(
             TypeAction(text="This is a longer text to test typing performance")
         ),
-        "hotkey": lambda: computer.execute_keyboard_hotkey(
+        "hotkey": lambda: computer.hotkey(
             KeyboardHotkeyAction(keys=[KeyboardKey.CTRL, KeyboardKey.A])
         ),
     }

@@ -100,7 +100,7 @@ class ComputerActionType(str, Enum):
     TYPE = "type"
     MOUSE_MOVE = "mouse_move"
     MOUSE_SCROLL = "mouse_scroll"
-    MOUSE_BUTTON_DOWN = "mouse_button_down"
+    mouse_down = "mouse_down"
     MOUSE_BUTTON_UP = "mouse_button_up"
     CLICK = "click"
     DOUBLE_CLICK = "double_click"
@@ -182,8 +182,8 @@ class MouseScrollAction(BaseComputerAction):
 
 
 class MouseButtonDownAction(BaseComputerAction):
-    action_type: Literal["mouse_button_down"] = (
-        ComputerActionType.MOUSE_BUTTON_DOWN.value
+    action_type: Literal["mouse_down"] = (
+        ComputerActionType.mouse_down.value
     )
     button: MouseButton = MouseButton.LEFT
 
@@ -352,7 +352,7 @@ class ComputerAction(TypedDict):
     type: Optional[TypeAction] = None
     mouse_move: Optional[MouseMoveAction] = None
     mouse_scroll: Optional[MouseScrollAction] = None
-    mouse_button_down: Optional[MouseButtonDownAction] = None
+    mouse_down: Optional[MouseButtonDownAction] = None
     mouse_button_up: Optional[MouseButtonUpAction] = None
     click: Optional[ClickAction] = None
     double_click: Optional[DoubleClickAction] = None
