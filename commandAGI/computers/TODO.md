@@ -19,7 +19,8 @@
 [x] preferred_video-Stream_mode; vnc|http
 [ ] understand how i'm doing the run_process and shell and start/stop_shell and make it cleanand and unified. especially considering hte backend daemon that hosts acces to the remote processes
 [ ] implement a start_vscode/cursor, start_texteditor, start_blender, start_onshape, start_kicad, start_ they all just spawn a process with a window (i need ta  way to get the window form a process)
-
+[ ] get rid of local_pyautogui_computer, collapse local_pynput_computer into local_computer
+[ ] use slash / and star * as appropriate in the pythonic api
 
 Computer:
 - processes: list[Process]
