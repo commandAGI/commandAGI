@@ -149,6 +149,9 @@ class VNCComputer(BaseComputer):
         ssh_key_path: Path to SSH private key file (optional if ssh_password is provided)
     """
 
+    preferred_video_stream_mode: Literal["vnc", "http"] = "vnc"
+    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+
     def __init__(
         self,
         host: str = "localhost",
@@ -362,7 +365,7 @@ class VNCComputer(BaseComputer):
         quality: int = 80,
         scale: float = 1.0,
         compression: Literal["jpeg", "png"] = "jpeg"
-    ) -> bool:
+    ):
         """Start the video stream for the VNC instance.
 
         Args:
@@ -372,23 +375,17 @@ class VNCComputer(BaseComputer):
             quality: JPEG/PNG compression quality (0-100)
             scale: Scale factor for the video stream (0.1-1.0)
             compression: Image compression format to use
-
-        Returns:
-            bool: False as VNC streaming is not implemented.
         """
         self.logger.debug("Video streaming not implemented for VNC")
-        return False
+        raise NotImplementedError("Video streaming not implemented for VNC")
 
-    def _stop_http_video_stream(self) -> bool:
+    def _stop_http_video_stream(self):
         """Stop the video stream for the VNC instance.
 
         VNC does not support direct video streaming in this implementation.
-
-        Returns:
-            bool: False as VNC streaming is not implemented.
         """
         self.logger.debug("Video streaming not implemented for VNC")
-        return False
+        raise NotImplementedError("Video streaming not implemented for VNC")
 
     def _get_vnc_video_stream_url(self) -> str:
         """Get the URL for the VNC video stream of the VNC instance.
@@ -415,7 +412,7 @@ class VNCComputer(BaseComputer):
         allow_clipboard: bool = True,
         view_only: bool = False,
         allow_resize: bool = True
-    ) -> bool:
+    ):
         """Start the video stream for the VNC instance.
 
         Args:
@@ -431,23 +428,16 @@ class VNCComputer(BaseComputer):
             allow_clipboard: Enable clipboard sharing
             view_only: Disable input from VNC clients
             allow_resize: Allow clients to resize the display
-
-        Returns:
-            bool: False as VNC streaming is not implemented.
         """
         self.logger.debug("Video streaming not implemented for VNC")
-        return False
+        raise NotImplementedError("Video streaming not implemented for VNC")
 
-    def _stop_vnc_video_stream(self) -> bool:
-        """Stop the video stream for the VNC instance.
-
-        Returns:
-            bool: False as VNC streaming is not implemented.
-        """
+    def _stop_vnc_video_stream(self):
+        """Stop the video stream for the VNC instance."""
         self.logger.debug("Video streaming not implemented for VNC")
-        return False
+        raise NotImplementedError("Video streaming not implemented for VNC")
 
-    def _run_process(self, action: RunProcessAction) -> bool:
+    def _run_process(self, action: RunProcessAction):
         """Run a process with the specified parameters.
 
         For VNC, we'll use the default implementation that relies on shell commands
@@ -455,16 +445,13 @@ class VNCComputer(BaseComputer):
 
         Args:
             action: RunProcessAction containing the process parameters
-
-        Returns:
-            bool: True if the process was executed successfully
         """
         self.logger.info(
             f"Running process via VNC shell: {
                 action.command} with args: {
                 action.args}"
         )
-        return self._default_run_process(action=action)
+        self._default_run_process(action=action)
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_to_computer functionality for VNCComputer.

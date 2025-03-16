@@ -133,6 +133,9 @@ class ScrapybaraComputerFile(BaseComputerFile):
 class ScrapybaraComputer(BaseComputer):
     """Environment that uses Scrapybara for secure computer interactions"""
 
+    preferred_video_stream_mode: Literal["vnc", "http"] = "http"
+    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+
     def __init__(self, api_key: Optional[str] = None):
         super().__init__()
         self.api_key = api_key
@@ -343,7 +346,7 @@ class ScrapybaraComputer(BaseComputer):
         quality: int = 80,
         scale: float = 1.0,
         compression: Literal["jpeg", "png"] = "jpeg"
-    ) -> bool:
+    ):
         """Start the video stream for the Scrapybara instance.
 
         Args:
@@ -353,29 +356,22 @@ class ScrapybaraComputer(BaseComputer):
             quality: JPEG/PNG compression quality (0-100)
             scale: Scale factor for the video stream (0.1-1.0)
             compression: Image compression format to use
-
-        Returns:
-            bool: True if the video stream was successfully started, False otherwise.
         """
         if not self.client:
             self.logger.warning(
                 "Cannot start video stream: Scrapybara client not initialized"
             )
-            return False
+            raise RuntimeError("Scrapybara client not initialized")
 
         self.client.start_stream()
 
-    def _stop_http_video_stream(self) -> bool:
-        """Stop the video stream for the Scrapybara instance.
-
-        Returns:
-            bool: True if the video stream was successfully stopped, False otherwise.
-        """
+    def _stop_http_video_stream(self):
+        """Stop the video stream for the Scrapybara instance."""
         if not self.client:
             self.logger.warning(
                 "Cannot stop video stream: Scrapybara client not initialized"
             )
-            return False
+            raise RuntimeError("Scrapybara client not initialized")
         self.client.stop_stream()
 
     def _run_process(
@@ -385,7 +381,7 @@ class ScrapybaraComputer(BaseComputer):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> bool:
+    ):
         """Run a process with the specified parameters.
 
         This method uses the Scrapybara API to run a process in the VM.
@@ -396,12 +392,9 @@ class ScrapybaraComputer(BaseComputer):
             cwd: Working directory for the process
             env: Environment variables for the process
             timeout: Timeout in seconds
-
-        Returns:
-            bool: True if the process was executed successfully
         """
         self.logger.info(f"Running process via Scrapybara: {command} with args: {args}")
-        return self._default_run_process(
+        self._default_run_process(
             command=command, args=args, cwd=cwd, env=env, timeout=timeout
         )
 
@@ -465,23 +458,15 @@ class UbuntuScrapybaraComputer(ScrapybaraComputer):
         """Execute a bash command in the Ubuntu instance."""
         response = self.client.bash(command=command)
 
-    def edit_file(self, path: str, command: str, **kwargs) -> bool:
+    def edit_file(self, path: str, command: str, **kwargs):
         """Edit a file on the Ubuntu instance.
 
         Args:
             path: Path to the file
             command: Content to write to the file
             **kwargs: Additional arguments to pass to the edit method
-
-        Returns:
-            bool: True if the edit was successful
         """
-        try:
-            self.client.edit(path=path, command=command, **kwargs)
-            return True
-        except Exception as e:
-            self.logger.error(f"Error editing file: {e}")
-            return False
+        self.client.edit(path=path, command=command, **kwargs)
 
 
 class BrowserScrapybaraComputer(ScrapybaraComputer):

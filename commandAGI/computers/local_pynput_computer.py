@@ -246,7 +246,6 @@ class LocalPynputComputer(LocalComputer):
             self._mouse_listener.start()
 
         self.logger.info("Local Pynput computer started successfully")
-        return True
 
     def _stop(self):
         """Stop the local computer environment and pynput listeners."""
@@ -265,7 +264,6 @@ class LocalPynputComputer(LocalComputer):
         # Call parent _stop method to clean up screen capture and temp
         # directory
         super()._stop()
-        return True
 
     def reset_state(self):
         """Reset environment and return initial observation"""

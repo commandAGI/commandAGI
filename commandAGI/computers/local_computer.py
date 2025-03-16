@@ -903,6 +903,9 @@ class LocalComputer(BaseComputer):
     such as screenshot capture, command execution, and basic resource management.
     """
 
+    preferred_video_stream_mode: Literal["vnc", "http"] = "vnc"
+    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+
     def __init__(self):
         super().__init__()
         self._sct = None
@@ -925,7 +928,6 @@ class LocalComputer(BaseComputer):
             self.logger.info("Creating temporary directory")
             self._temp_dir = tempfile.mkdtemp()
         self.logger.info(f"{self.__class__.__name__} started")
-        return True
 
     def _stop(self):
         """Stop the local computer environment."""
@@ -941,7 +943,6 @@ class LocalComputer(BaseComputer):
             self.logger.info("Cleaning up temporary directory")
             self._temp_dir = None
         self.logger.info(f"{self.__class__.__name__} stopped")
-        return True
 
     def _get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
@@ -1249,15 +1250,14 @@ class LocalComputer(BaseComputer):
             timeout=timeout if timeout is not None else 10,
             executable=executable,
         )
-        if result.returncode == 0:
-            self.logger.info("Command executed successfully")
-        else:
+        if result.returncode != 0:
             self.logger.warning(
                 f"Command returned non-zero exit code: {result.returncode}"
             )
             raise RuntimeError(
                 f"Command returned non-zero exit code: {result.returncode}"
             )
+        self.logger.info("Command executed successfully")
 
     def _run_process(
         self,
@@ -1266,7 +1266,7 @@ class LocalComputer(BaseComputer):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> bool:
+    ):
         """Run a process with the specified parameters.
 
         Args:
@@ -1275,9 +1275,6 @@ class LocalComputer(BaseComputer):
             cwd: Working directory for the process
             env: Environment variables to set
             timeout: Timeout in seconds
-
-        Returns:
-            bool: True if the process was executed successfully
         """
         self.logger.info(f"Running process: {command} with args: {args}")
 
@@ -1296,16 +1293,14 @@ class LocalComputer(BaseComputer):
             timeout=timeout,
         )
 
-        if result.returncode == 0:
-            self.logger.info("Process executed successfully")
-            return True
-        else:
+        if result.returncode != 0:
             self.logger.warning(
                 f"Process returned non-zero exit code: {result.returncode}"
             )
             raise RuntimeError(
                 f"Process returned non-zero exit code: {result.returncode}"
             )
+        self.logger.info("Process executed successfully")
 
     def _pause(self):
         """Pause the local computer.
@@ -1354,51 +1349,44 @@ class LocalComputer(BaseComputer):
             f"Starting Jupyter notebook server on port {port} in directory {notebook_dir}"
         )
 
-        try:
-            # Start the Jupyter notebook server as a subprocess
-            cmd = [
-                sys.executable,
-                "-m",
-                "jupyter",
-                "notebook",
-                f"--port={port}",
-                f"--notebook-dir={notebook_dir}",
-                "--no-browser",
-            ]
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                start_new_session=True,  # Create a new process group
-            )
+        # Start the Jupyter notebook server as a subprocess
+        cmd = [
+            sys.executable,
+            "-m",
+            "jupyter",
+            "notebook",
+            f"--port={port}",
+            f"--notebook-dir={notebook_dir}",
+            "--no-browser",
+        ]
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            start_new_session=True,  # Create a new process group
+        )
 
-            self._jupyter_server_pid = process.pid
-            self.logger.info(
-                f"Jupyter notebook server started with PID {
-                    self._jupyter_server_pid}"
-            )
+        self._jupyter_server_pid = process.pid
+        self.logger.info(
+            f"Jupyter notebook server started with PID {
+                self._jupyter_server_pid}"
+        )
 
-            # Wait a moment for the server to start
-            time.sleep(2)
+        # Wait a moment for the server to start
+        time.sleep(2)
 
-            # Check if the server is running
-            if process.poll() is not None:
-                stderr = process.stderr.read().decode("utf-8")
-                self.logger.error(f"Jupyter notebook server failed to start: {stderr}")
-                self._jupyter_server_pid = None
-                return False
-
-            return True
-        except Exception as e:
-            self.logger.error(f"Error starting Jupyter notebook server: {e}")
+        # Check if the server is running
+        if process.poll() is not None:
+            stderr = process.stderr.read().decode("utf-8")
+            self.logger.error(f"Jupyter notebook server failed to start: {stderr}")
             self._jupyter_server_pid = None
-            return False
+            raise RuntimeError(f"Jupyter notebook server failed to start: {stderr}")
 
     def stop_jupyter_server(self):
         """Stop the running Jupyter notebook server if one exists."""
         if self._jupyter_server_pid is None:
             self.logger.info("No Jupyter server is running")
-            return True
+            return
 
         try:
             # Try to terminate the process gracefully
@@ -1415,14 +1403,12 @@ class LocalComputer(BaseComputer):
 
             self._jupyter_server_pid = None
             self.logger.info("Jupyter notebook server stopped")
-            return True
         except psutil.NoSuchProcess:
             self.logger.info("Jupyter notebook server process no longer exists")
             self._jupyter_server_pid = None
-            return True
         except Exception as e:
             self.logger.error(f"Error stopping Jupyter notebook server: {e}")
-            return False
+            raise
 
     def create_shell(
         self,
@@ -1452,15 +1438,15 @@ class LocalComputer(BaseComputer):
         )
 
         # Start the shell
-        if shell.start():
-            self.logger.info(
-                f"Shell started successfully with PID: {
-                    shell.pid}"
-            )
-            return shell
-        else:
+        if not shell.start():
             self.logger.error("Failed to start shell")
             raise RuntimeError("Failed to start shell")
+
+        self.logger.info(
+            f"Shell started successfully with PID: {
+                shell.pid}"
+        )
+        return shell
 
     def _get_sysinfo(self) -> SystemInfo:
         """Get local system information using psutil."""
@@ -1553,7 +1539,7 @@ class LocalComputer(BaseComputer):
         quality: int = 80,
         scale: float = 1.0,
         compression: Literal["jpeg", "png"] = "jpeg"
-    ) -> bool:
+    ):
         """Start the HTTP video stream for the local computer instance.
 
         This starts a simple HTTP server that serves screenshots as a video stream.
@@ -1565,76 +1551,53 @@ class LocalComputer(BaseComputer):
             quality: JPEG/PNG compression quality (0-100)
             scale: Scale factor for the video stream (0.1-1.0)
             compression: Image compression format to use
-
-        Returns:
-            bool: True if the video stream was successfully started, False otherwise.
         """
         if self._video_streaming:
             self.logger.info("Video stream is already running")
-            return True
+            return
 
-        try:
-            # Find a free port if none specified
-            port = port if port != 8080 else self._find_free_port()
-            self._video_server_port = port
+        # Find a free port if none specified
+        port = port if port != 8080 else self._find_free_port()
+        self._video_server_port = port
 
-            # Create and start the HTTP server
-            self.logger.info(f"Starting video stream server on {host}:{port}")
-            server = ThreadedHTTPServer(
-                (host, port), 
-                VideoStreamHandler, 
-                computer=self,
-                frame_rate=frame_rate,
-                quality=quality,
-                scale=scale,
-                compression=compression
-            )
+        # Create and start the HTTP server
+        self.logger.info(f"Starting video stream server on {host}:{port}")
+        server = ThreadedHTTPServer(
+            (host, port), 
+            VideoStreamHandler, 
+            computer=self,
+            frame_rate=frame_rate,
+            quality=quality,
+            scale=scale,
+            compression=compression
+        )
 
-            # Run the server in a separate thread
-            server_thread = threading.Thread(target=server.serve_forever)
-            server_thread.daemon = True  # So the thread will exit when the main program exits
-            server_thread.start()
+        # Run the server in a separate thread
+        server_thread = threading.Thread(target=server.serve_forever)
+        server_thread.daemon = True  # So the thread will exit when the main program exits
+        server_thread.start()
 
-            # Store references
-            self._video_server = server
-            self._video_server_thread = server_thread
-            self._video_streaming = True
+        # Store references
+        self._video_server = server
+        self._video_server_thread = server_thread
+        self._video_streaming = True
 
-            self.logger.info(f"Video stream started at http://{host}:{port}/")
-            return True
-        except Exception as e:
-            self.logger.error(f"Failed to start video stream: {e}")
-            self._video_streaming = False
-            self._video_server = None
-            self._video_server_thread = None
-            self._video_server_port = None
-            return False
+        self.logger.info(f"Video stream started at http://{host}:{port}/")
 
-    def _stop_http_video_stream(self) -> bool:
-        """Stop the HTTP video stream for the local computer instance.
-
-        Returns:
-            bool: True if the video stream was successfully stopped, False otherwise.
-        """
+    def _stop_http_video_stream(self):
+        """Stop the HTTP video stream for the local computer instance."""
         if not self._video_streaming:
             self.logger.info("No video stream is running")
-            return True
+            return
 
-        try:
-            if self._video_server:
-                self.logger.info("Stopping video stream server")
-                self._video_server.shutdown()
-                self._video_server.server_close()
-                self._video_server = None
-                self._video_server_thread = None
-                self._video_streaming = False
-                self.logger.info("Video stream stopped")
-                return True
-        except Exception as e:
-            self.logger.error(f"Error stopping video stream: {e}")
-            return False
-
-        return False
+        if self._video_server:
+            self.logger.info("Stopping video stream server")
+            self._video_server.shutdown()
+            self._video_server.server_close()
+            self._video_server = None
+            self._video_server_thread = None
+            self._video_streaming = False
+            self.logger.info("Video stream stopped")
 
     def _get_vnc_video_stream_url(self) -> str:
         """Get the URL for the VNC video stream of the computer instance.
@@ -1664,7 +1627,7 @@ class LocalComputer(BaseComputer):
         allow_clipboard: bool = True,
         view_only: bool = False,
         allow_resize: bool = True
-    ) -> bool:
+    ):
         """Start a direct VNC server for the local computer using TigerVNC.
         
         Args:
@@ -1680,109 +1643,87 @@ class LocalComputer(BaseComputer):
             allow_clipboard: Enable clipboard sharing
             view_only: Disable input from VNC clients
             allow_resize: Allow clients to resize the display
-
-        Returns:
-            bool: True if VNC server started successfully, False otherwise
         """
+        import subprocess
+        import shutil
+        import tempfile
+        import os
+
+        # Store configuration for URL generation
+        self._vnc_host = host
+        self._vnc_port = port
+
+        # Check if TigerVNC is installed
+        if not shutil.which('x0vncserver'):
+            self.logger.error("TigerVNC (x0vncserver) not found. Please install it first.")
+            raise RuntimeError("TigerVNC (x0vncserver) not found")
+
+        # Create password file
+        passwd_file = os.path.join(tempfile.gettempdir(), f'vnc_passwd_{self.name}')
         try:
-            import subprocess
-            import shutil
-            import tempfile
-            import os
-
-            # Store configuration for URL generation
-            self._vnc_host = host
-            self._vnc_port = port
-
-            # Check if TigerVNC is installed
-            if not shutil.which('x0vncserver'):
-                self.logger.error("TigerVNC (x0vncserver) not found. Please install it first.")
-                return False
-
-            # Create password file
-            passwd_file = os.path.join(tempfile.gettempdir(), f'vnc_passwd_{self.name}')
-            try:
-                # Use vncpasswd to create password file
-                subprocess.run([
-                    'vncpasswd', '-f'
-                ], input=password.encode(),
-                   stdout=open(passwd_file, 'wb'),
-                   check=True
-                )
-            except subprocess.CalledProcessError as e:
-                self.logger.error(f"Failed to create VNC password file: {e}")
-                return False
-
-            # Start x0vncserver with explicit parameters
-            cmd = [
-                'x0vncserver',
-                f'-rfbport={port}',
-                f'-PasswordFile={passwd_file}',
-                f'-MaxProcessorUsage={framerate}',  # Use framerate to control CPU usage
-                f'-CompressionLevel={compression_level}',
-                f'-Quality={quality}',
-                f'-PreferredEncoding={encoding}',
-                f'-Scale={scale}',
-                '-localhost=0' if not host == 'localhost' else '-localhost=1',
-                '-AlwaysShared=1' if shared else '-AlwaysShared=0',
-                '-SecurityTypes=VncAuth',
-                '-AcceptClipboard=1' if allow_clipboard else '-AcceptClipboard=0',
-                '-SendClipboard=1' if allow_clipboard else '-SendClipboard=0',
-                '-ViewOnly=1' if view_only else '-ViewOnly=0',
-                '-ResizeDesktop=1' if allow_resize else '-ResizeDesktop=0'
-            ]
-
-            self._vnc_process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+            # Use vncpasswd to create password file
+            subprocess.run([
+                'vncpasswd', '-f'
+            ], input=password.encode(),
+               stdout=open(passwd_file, 'wb'),
+               check=True
             )
+        except subprocess.CalledProcessError as e:
+            self.logger.error(f"Failed to create VNC password file: {e}")
+            raise
 
-            # Check if server started successfully
-            time.sleep(2)  # Give it a moment to start
-            
-            if self._vnc_process.poll() is None:  # Process is still running
-                self.logger.info(f"VNC server started on {host}:{port}")
-                return True
-            else:
-                stdout, stderr = self._vnc_process.communicate()
-                self.logger.error(f"VNC server failed to start: {stderr.decode()}")
-                self._vnc_process = None
-                return False
+        # Start x0vncserver with explicit parameters
+        cmd = [
+            'x0vncserver',
+            f'-rfbport={port}',
+            f'-PasswordFile={passwd_file}',
+            f'-MaxProcessorUsage={framerate}',  # Use framerate to control CPU usage
+            f'-CompressionLevel={compression_level}',
+            f'-Quality={quality}',
+            f'-PreferredEncoding={encoding}',
+            f'-Scale={scale}',
+            '-localhost=0' if not host == 'localhost' else '-localhost=1',
+            '-AlwaysShared=1' if shared else '-AlwaysShared=0',
+            '-SecurityTypes=VncAuth',
+            '-AcceptClipboard=1' if allow_clipboard else '-AcceptClipboard=0',
+            '-SendClipboard=1' if allow_clipboard else '-SendClipboard=0',
+            '-ViewOnly=1' if view_only else '-ViewOnly=0',
+            '-ResizeDesktop=1' if allow_resize else '-ResizeDesktop=0'
+        ]
 
-        except Exception as e:
-            self.logger.error(f"Error starting VNC server: {e}")
-            if hasattr(self, '_vnc_process') and self._vnc_process:
-                self._vnc_process.terminate()
-                self._vnc_process = None
-            return False
+        self._vnc_process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
 
-    def _stop_vnc_video_stream(self) -> bool:
-        """Stop the direct VNC server.
+        # Check if server started successfully
+        time.sleep(2)  # Give it a moment to start
         
-        Returns:
-            bool: True if server stopped successfully, False otherwise
-        """
-        try:
-            # Check if VNC process exists using getattr to avoid attribute errors
-            if getattr(self, '_vnc_process', None):
-                self._vnc_process.terminate()
-                self._vnc_process.wait(timeout=5)
-                self._vnc_process = None
-                
-                # Clean up password file
-                import os
-                import tempfile
-                passwd_file = os.path.join(tempfile.gettempdir(), f'vnc_passwd_{self.name}')
-                if os.path.exists(passwd_file):
-                    os.remove(passwd_file)
-                
-                self.logger.info("VNC server stopped")
-                return True
-            return False
-        except Exception as e:
-            self.logger.error(f"Error stopping VNC server: {e}")
-            return False
+        if self._vnc_process.poll() is not None:  # Process is not running
+            stdout, stderr = self._vnc_process.communicate()
+            self.logger.error(f"VNC server failed to start: {stderr.decode()}")
+            self._vnc_process = None
+            raise RuntimeError(f"VNC server failed to start: {stderr.decode()}")
+
+        self.logger.info(f"VNC server started on {host}:{port}")
+
+    def _stop_vnc_video_stream(self):
+        """Stop the direct VNC server."""
+        # Check if VNC process exists using getattr to avoid attribute errors
+        if getattr(self, '_vnc_process', None):
+            self._vnc_process.terminate()
+            self._vnc_process.wait(timeout=5)
+            self._vnc_process = None
+            
+            # Clean up password file
+            import os
+            import tempfile
+            passwd_file = os.path.join(tempfile.gettempdir(), f'vnc_passwd_{self.name}')
+            if os.path.exists(passwd_file):
+                os.remove(passwd_file)
+            
+            self.logger.info("VNC server stopped")
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_to_computer functionality for LocalComputer.

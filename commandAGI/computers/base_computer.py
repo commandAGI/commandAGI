@@ -601,6 +601,8 @@ class BaseComputer(BaseModel):
     _file_handler: Optional[logging.FileHandler] = None
     num_retries: int = 3
     error_handling: Literal["raise", "pass"] = "raise"
+    preferred_video_stream_mode: Literal["vnc", "http"] = "http"
+    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
 
     def __init__(self, name=None, **kwargs):
         name = (
@@ -672,17 +674,14 @@ class BaseComputer(BaseModel):
         raise NotImplementedError(f"{self.__class__.__name__}.stop")
 
     @annotation("endpoint", {})
-    def pause(self) -> bool:
+    def pause(self):
         """Pause the computer.
 
         This method pauses the computer, which means it's still running but in a suspended state.
-
-        Returns:
-            bool: True if the computer was successfully paused, False otherwise.
         """
         if self._state != "running":
             self.logger.warning(f"Cannot pause computer in {self._state} state")
-            return False
+            return
 
         self.logger.info(
             f"Attempting to pause {
@@ -695,15 +694,13 @@ class BaseComputer(BaseModel):
                 self.logger.info(
                     f"{self.__class__.__name__} computer paused successfully"
                 )
-                return True
+                return
             except Exception as e:
                 self.logger.error(
                     f"Error pausing computer (attempt {attempt + 1}/{self.num_retries}): {e}"
                 )
                 if attempt == self.num_retries - 1:
-                    return False
-
-        return False
+                    raise
 
     def _pause(self):
         """Implementation of pause functionality.
@@ -715,14 +712,14 @@ class BaseComputer(BaseModel):
         pass
 
     @annotation("endpoint", {})
-    def resume(self) -> bool:
+    def resume(self):
         """Resume a paused computer."""
         if self._state != "paused":
             self.logger.warning(
                 f"Cannot resume computer in {
                     self._state} state"
             )
-            return False
+            return
 
         self.logger.info(f"Attempting to resume {self.__class__.__name__} computer")
         self._resume()
@@ -832,10 +829,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {})
     @annotation("mcp_tool", {})
-    def wait(self, timeout: float = 5.0) -> bool:
+    def wait(self, timeout: float = 5.0):
         """Waits a specified amount of time"""
         time.sleep(timeout)
-        return True
 
     @property
     def screenshot(self) -> Union[str, Image.Image, Path]:
@@ -1140,9 +1136,9 @@ class BaseComputer(BaseModel):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> bool:
-        """Run a process with the specified parameters and return True if successful."""
-        return self._execute_with_retry(
+    ):
+        """Run a process with the specified parameters."""
+        self._execute_with_retry(
             "run_process",
             self._run_process,
             RunProcessAction(
@@ -1157,7 +1153,7 @@ class BaseComputer(BaseModel):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> bool:
+    ):
         """Run a process with the specified parameters.
 
         Args:
@@ -1166,9 +1162,6 @@ class BaseComputer(BaseModel):
             cwd: Working directory for the process
             env: Environment variables for the process
             timeout: Optional timeout in seconds
-
-        Returns:
-            bool: True if process executed successfully
         """
         raise NotImplementedError(f"{self.__class__.__name__}._run_process")
 
@@ -1179,7 +1172,7 @@ class BaseComputer(BaseModel):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> bool:
+    ):
         """Default implementation of run_process using shell commands.
 
         This method is deliberately not wired up to the base _run_process to make
@@ -1192,9 +1185,6 @@ class BaseComputer(BaseModel):
             cwd: Working directory for the process
             env: Environment variables for the process
             timeout: Optional timeout in seconds
-
-        Returns:
-            bool: True if the process was executed successfully
         """
         self.logger.info(f"Running process via shell: {command} with args: {args}")
 
@@ -1213,7 +1203,7 @@ class BaseComputer(BaseModel):
             cmd_shell_format = f"{env_vars} {cmd_shell_format}"
 
         # Execute the command with timeout if specified
-        return self.shell(cmd_shell_format, timeout=timeout)
+        self.shell(cmd_shell_format, timeout=timeout)
 
     @annotation("endpoint", {"method": "post", "path": "/create_shell"})
     def create_shell(
@@ -1244,8 +1234,8 @@ class BaseComputer(BaseModel):
         command: str,
         timeout: Optional[float] = None,
         executible: Optional[str] = None,
-    ) -> bool:
-        """Execute a system command in the global shell environment and return True if successful.
+    ):
+        """Execute a system command in the global shell environment.
 
         NOTE: its generally a better idea to use `create_shell` so you can run your shell in a separate processon the host machine
         (but also not that some computer shell implementations actually shove it all back into the system_shell and only pretend to be multiprocessed lol)
@@ -1253,7 +1243,7 @@ class BaseComputer(BaseModel):
         The timeout parameter indicates how long (in seconds) to wait before giving up,
         with None meaning no timeout.
         """
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "shell command",
             self._shell,
             ShellCommandAction(command=command, timeout=timeout, executible=executible),
@@ -1264,7 +1254,7 @@ class BaseComputer(BaseModel):
         command: str,
         timeout: Optional[float] = None,
         executible: Optional[str] = None,
-    ) -> bool:
+    ):
         """Execute a shell command.
 
         Args:
@@ -1276,9 +1266,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/keypress"})
     @annotation("mcp_tool", {"tool_name": "keypress"})
-    def keypress(self, key: KeyboardKey, duration: float = 0.1) -> bool:
+    def keypress(self, key: KeyboardKey, duration: float = 0.1):
         """Execute pressing a keyboard key with a specified duration."""
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "keyboard key press",
             self._keypress,
             key,
@@ -1293,9 +1283,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/keydown"})
     @annotation("mcp_tool", {"tool_name": "keydown"})
-    def keydown(self, key: KeyboardKey) -> bool:
+    def keydown(self, key: KeyboardKey):
         """Execute key down for a keyboard key."""
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "keyboard key down",
             self._keydown,
             key,
@@ -1307,9 +1297,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/keyup"})
     @annotation("mcp_tool", {"tool_name": "keyup"})
-    def keyup(self, key: KeyboardKey) -> bool:
+    def keyup(self, key: KeyboardKey):
         """Execute key release for a keyboard key."""
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "keyboard key release",
             self._keyup,
             key,
@@ -1321,9 +1311,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/hotkey"})
     @annotation("mcp_tool", {"tool_name": "hotkey"})
-    def hotkey(self, keys: List[KeyboardKey]) -> bool:
+    def hotkey(self, keys: List[KeyboardKey]):
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "keyboard hotkey",
             self._hotkey,
             keys,
@@ -1338,9 +1328,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/type"})
     @annotation("mcp_tool", {"tool_name": "type"})
-    def type(self, text: str) -> bool:
+    def type(self, text: str):
         """Execute typing the given text."""
-        return self._execute_with_retry("type", self._type, text)
+        self._execute_with_retry("type", self._type, text)
 
     def _type(self, text: str):
         """Execute typing the given text."""
@@ -1349,9 +1339,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/move"})
     @annotation("mcp_tool", {"tool_name": "move"})
-    def move(self, x: int, y: int, duration: float = 0.5) -> bool:
+    def move(self, x: int, y: int, duration: float = 0.5):
         """Execute moving the mouse to (x, y) over the move duration."""
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "mouse move",
             self._move,
             x,
@@ -1365,9 +1355,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/scroll"})
     @annotation("mcp_tool", {"tool_name": "scroll"})
-    def scroll(self, amount: float) -> bool:
+    def scroll(self, amount: float):
         """Execute mouse scroll by a given amount."""
-        return self._execute_with_retry("mouse scroll", self._scroll, amount)
+        self._execute_with_retry("mouse scroll", self._scroll, amount)
 
     def _scroll(self, amount: float):
         """Execute mouse scroll by a given amount."""
@@ -1375,9 +1365,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/mouse_down"})
     @annotation("mcp_tool", {"tool_name": "mouse_down"})
-    def mouse_down(self, button: MouseButton = MouseButton.LEFT) -> bool:
+    def mouse_down(self, button: MouseButton = MouseButton.LEFT):
         """Execute mouse button down action."""
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "mouse button down",
             self._mouse_down,
             button,
@@ -1389,9 +1379,9 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"method": "post", "path": "/mouse_up"})
     @annotation("mcp_tool", {"tool_name": "mouse_up"})
-    def mouse_up(self, button: MouseButton = MouseButton.LEFT) -> bool:
+    def mouse_up(self, button: MouseButton = MouseButton.LEFT):
         """Execute mouse button up action."""
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "mouse button up",
             self._mouse_up,
             button,
@@ -1410,11 +1400,11 @@ class BaseComputer(BaseModel):
         move_duration: float = 0.5,
         press_duration: float = 0.1,
         button: MouseButton = MouseButton.LEFT,
-    ) -> bool:
+    ):
         """Execute a click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "click",
             self._click,
             x,
@@ -1448,11 +1438,11 @@ class BaseComputer(BaseModel):
         press_duration: float = 0.1,
         button: MouseButton = MouseButton.LEFT,
         double_click_interval_seconds: float = 0.1,
-    ) -> bool:
+    ):
         """Execute a double click action at the given coordinates using press and release operations with a duration.
         It constructs MouseMoveAction, MouseButtonDownAction, and MouseButtonUpAction objects and calls the corresponding implementations.
         """
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "double click",
             self._double_click,
             x,
@@ -1499,7 +1489,7 @@ class BaseComputer(BaseModel):
         button: MouseButton = MouseButton.LEFT,
     ):
         """Execute a drag action using the primitive mouse operations."""
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "drag",
             self._drag,
             end_x,
@@ -1551,7 +1541,7 @@ class BaseComputer(BaseModel):
         quality: int = 80,
         scale: float = 1.0,
         compression: Literal["jpeg", "png"] = "jpeg"
-    ) -> bool:
+    ):
         """Start the HTTP video stream for the computer instance.
 
         Args:
@@ -1561,11 +1551,8 @@ class BaseComputer(BaseModel):
             quality: JPEG/PNG compression quality (0-100)
             scale: Scale factor for the video stream (0.1-1.0)
             compression: Image compression format to use
-
-        Returns:
-            bool: True if the HTTP video stream was successfully started, False otherwise.
         """
-        return self._start_http_video_stream(
+        self._start_http_video_stream(
             host=host,
             port=port, 
             frame_rate=frame_rate,
@@ -1582,7 +1569,7 @@ class BaseComputer(BaseModel):
         quality: int = 80,
         scale: float = 1.0,
         compression: Literal["jpeg", "png"] = "jpeg"
-    ) -> bool:
+    ):
         """Internal method to start the HTTP video stream.
 
         Args:
@@ -1592,30 +1579,17 @@ class BaseComputer(BaseModel):
             quality: JPEG/PNG compression quality (0-100)
             scale: Scale factor for the video stream (0.1-1.0)
             compression: Image compression format to use
-
-        Returns:
-            bool: True if the HTTP video stream was successfully started, False otherwise.
         """
         self.logger.debug("HTTP video streaming not implemented for this computer type")
-        return False
 
     @annotation("endpoint", {"method": "post", "path": "/stop_http_video_stream"})
-    def stop_http_video_stream(self) -> bool:
-        """Stop the HTTP video stream for the computer instance.
+    def stop_http_video_stream(self):
+        """Stop the HTTP video stream for the computer instance."""
+        self._stop_http_video_stream()
 
-        Returns:
-            bool: True if the HTTP video stream was successfully stopped, False otherwise.
-        """
-        return self._stop_http_video_stream()
-
-    def _stop_http_video_stream(self) -> bool:
-        """Internal method to stop the HTTP video stream.
-
-        Returns:
-            bool: True if the HTTP video stream was successfully stopped, False otherwise.
-        """
+    def _stop_http_video_stream(self):
+        """Internal method to stop the HTTP video stream."""
         self.logger.debug("HTTP video streaming not implemented for this computer type")
-        return False
 
     @annotation("endpoint", {"use_getter": True, "path": "/vnc_video_stream"})
     @property
@@ -1658,7 +1632,7 @@ class BaseComputer(BaseModel):
         allow_clipboard: bool = True,
         view_only: bool = False,
         allow_resize: bool = True
-    ) -> bool:
+    ):
         """Start the VNC video stream for the computer instance.
 
         Args:
@@ -1674,11 +1648,8 @@ class BaseComputer(BaseModel):
             allow_clipboard: Enable clipboard sharing
             view_only: Disable input from VNC clients
             allow_resize: Allow clients to resize the display
-
-        Returns:
-            bool: True if the VNC video stream was successfully started, False otherwise.
         """
-        return self._start_vnc_video_stream(
+        self._start_vnc_video_stream(
             host=host,
             port=port,
             password=password,
@@ -1707,7 +1678,7 @@ class BaseComputer(BaseModel):
         allow_clipboard: bool = True,
         view_only: bool = False,
         allow_resize: bool = True
-    ) -> bool:
+    ):
         """Internal method to start the VNC video stream.
         Sets up a VNC server that proxies the HTTP video stream and handles input events.
 
@@ -1724,15 +1695,10 @@ class BaseComputer(BaseModel):
             allow_clipboard: Enable clipboard sharing
             view_only: Disable input from VNC clients
             allow_resize: Allow clients to resize the display
-
-        Returns:
-            bool: True if the VNC video stream was successfully started, False otherwise.
         """
         try:
             # Start HTTP stream first if not already running
-            if not self._start_http_video_stream():
-                self.logger.error("Failed to start HTTP stream for VNC proxy")
-                return False
+            self._start_http_video_stream()
 
             # Import VNC server implementation
             from commandAGI._utils.vnc import HTTPStreamVNCServer
@@ -1765,28 +1731,20 @@ class BaseComputer(BaseModel):
             # Start the VNC server
             self._vnc_server.start()
             self.logger.info(f"VNC server started on {host}:{port}")
-            return True
 
         except Exception as e:
             self.logger.error(f"Failed to start VNC server: {e}")
             self._vnc_server = None
-            return False
+            raise
 
     @annotation("endpoint", {"method": "post", "path": "/stop_vnc_video_stream"})
-    def stop_vnc_video_stream(self) -> bool:
-        """Stop the VNC video stream for the computer instance.
+    def stop_vnc_video_stream(self):
+        """Stop the VNC video stream for the computer instance."""
+        self._stop_vnc_video_stream()
 
-        Returns:
-            bool: True if the VNC video stream was successfully stopped, False otherwise.
-        """
-        return self._stop_vnc_video_stream()
-
-    def _stop_vnc_video_stream(self) -> bool:
+    def _stop_vnc_video_stream(self):
         """Internal method to stop the VNC video stream.
         Shuts down the VNC server and stops proxying the HTTP stream.
-
-        Returns:
-            bool: True if the VNC video stream was successfully stopped, False otherwise.
         """
         # Check if VNC server exists using getattr to avoid attribute errors
         if getattr(self, '_vnc_server', None):
@@ -1794,25 +1752,21 @@ class BaseComputer(BaseModel):
                 self._vnc_server.stop()
                 self._vnc_server = None
                 self.logger.info("VNC server stopped")
-                return True
             except Exception as e:
                 self.logger.error(f"Error stopping VNC server: {e}")
-        return False
+                raise
 
 
     def copy_to_computer(
         self, source_path: Union[str, Path], destination_path: Union[str, Path]
-    ) -> bool:
+    ):
         """Copy a file or directory to the computer.
 
         Args:
             source_path: The path to the source file or directory.
             destination_path: The path to the destination file or directory on the computer.
-
-        Returns:
-            bool: True if the copy operation was successful, False otherwise.
         """
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "copy to computer",
             self._copy_to_computer,
             Path(source_path) if isinstance(source_path, str) else source_path,
@@ -1834,7 +1788,7 @@ class BaseComputer(BaseModel):
 
     def copy_from_computer(
         self, source_path: Union[str, Path], destination_path: Union[str, Path]
-    ) -> bool:
+    ):
         """Copy a file or directory from the computer to the local machine.
 
         This method copies a file or directory from the computer instance to the local machine.
@@ -1843,11 +1797,8 @@ class BaseComputer(BaseModel):
         Args:
             source_path: Path to the source file or directory on the computer
             destination_path: Path where the file or directory should be copied on the local machine
-
-        Returns:
-            bool: True if the copy operation was successful, False otherwise
         """
-        return self._execute_with_retry(
+        self._execute_with_retry(
             "copy from computer",
             self._copy_from_computer,
             Path(source_path) if isinstance(source_path, str) else source_path,
@@ -2052,16 +2003,13 @@ class BaseComputer(BaseModel):
         action: Literal["move", "click", "double_click"],
         position: tuple[int, int],
         button: MouseButton = MouseButton.LEFT,
-    ) -> bool:
+    ):
         """Execute a mouse action at the specified position with the given button.
 
         Args:
             action: The mouse action to perform ("move", "click", or "double_click")
             position: (x,y) coordinates for the mouse action
             button: Mouse button to use ("left", "right", or "middle")
-
-        Returns:
-            bool: True if action was successful, False otherwise
         """
         if self._state == "stopped":
             self._start()
@@ -2070,14 +2018,14 @@ class BaseComputer(BaseModel):
 
         match action:
             case "move":
-                return self.execute_move_mouse(position)
+                self.execute_move_mouse(position)
             case "click":
-                return self.click(position, button)
+                self.click(position, button)
             case "double_click":
-                return self.double_click(position, button)
+                self.double_click(position, button)
             case _:
                 self.logger.error(f"Invalid mouse action: {action}")
-                return False
+                raise ValueError(f"Invalid mouse action: {action}")
 
     @property
     def tools(self) -> list[BaseTool]:

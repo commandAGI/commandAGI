@@ -130,6 +130,9 @@ class E2BDesktopComputerFile(BaseComputerFile):
 class E2BDesktopComputer(BaseComputer):
     """Environment that uses E2B Desktop Sandbox for secure computer interactions"""
 
+    preferred_video_stream_mode: Literal["vnc", "http"] = "http"
+    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+
     def __init__(self, video_stream=False):
         super().__init__()
         self.video_stream = video_stream
@@ -141,7 +144,6 @@ class E2BDesktopComputer(BaseComputer):
             self.logger.info("Initializing E2B Desktop Sandbox")
             self.e2b_desktop = Sandbox(video_stream=self.video_stream)
             self.logger.info("E2B Desktop Sandbox initialized successfully")
-        return True
 
     def _stop(self):
         """Stop the E2B desktop environment."""
@@ -150,7 +152,6 @@ class E2BDesktopComputer(BaseComputer):
             # E2B sandbox automatically closes when object is destroyed
             self.e2b_desktop = None
             self.logger.info("E2B Desktop Sandbox closed successfully")
-        return True
 
     def reset_state(self):
         """Reset the desktop environment and return initial observation"""
@@ -316,7 +317,6 @@ class E2BDesktopComputer(BaseComputer):
         This is a direct wrapper for E2B Desktop's open method.
         """
         self.e2b_desktop.open(file_path)
-        return True
 
     def get_http_video_stream_url(self) -> str:
         """Get the URL for the HTTP video stream of the E2B Desktop instance."""
@@ -372,7 +372,7 @@ class E2BDesktopComputer(BaseComputer):
         quality: int = 80,
         scale: float = 1.0,
         compression: Literal["jpeg", "png"] = "jpeg"
-    ) -> bool:
+    ):
         """Start the HTTP video stream for the E2B Desktop instance.
 
         Args:
@@ -382,18 +382,11 @@ class E2BDesktopComputer(BaseComputer):
             quality: JPEG/PNG compression quality (0-100)
             scale: Scale factor for the video stream (0.1-1.0)
             compression: Image compression format to use
-
-        Returns:
-            bool: True if the HTTP video stream was successfully started, False otherwise.
         """
         pass # not needed for E2B Desktop as streaming is handled internally
 
-    def _stop_http_video_stream(self) -> bool:
-        """Stop the HTTP video stream for the E2B Desktop instance.
-
-        Returns:
-            bool: True if the HTTP video stream was successfully stopped, False otherwise.
-        """
+    def _stop_http_video_stream(self):
+        """Stop the HTTP video stream for the E2B Desktop instance."""
         pass # not needed for E2B Desktop as streaming is handled internally
 
     def _run_process(
@@ -403,7 +396,7 @@ class E2BDesktopComputer(BaseComputer):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> bool:
+    ):
         """Run a process with the specified parameters.
 
         This method uses the E2B Desktop API to run a process in the sandbox.
@@ -414,13 +407,10 @@ class E2BDesktopComputer(BaseComputer):
             cwd: Working directory for the process
             env: Environment variables dictionary
             timeout: Timeout in seconds
-
-        Returns:
-            bool: True if the process was executed successfully
         """
         args = args or []
         self.logger.info(f"Running process in E2B Desktop: {command} with args: {args}")
-        return self._default_run_process(
+        self._default_run_process(
             command=command, args=args, cwd=cwd, env=env, timeout=timeout
         )
 

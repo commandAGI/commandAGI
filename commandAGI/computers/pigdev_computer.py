@@ -129,6 +129,9 @@ class PigDevComputerFile(BaseComputerFile):
 class PigDevComputer(BaseComputer):
     """Environment that uses PigDev for secure computer interactions"""
 
+    preferred_video_stream_mode: Literal["vnc", "http"] = "http"
+    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+
     def __init__(self, api_key: Optional[str] = None, machine_id: Optional[str] = None):
         super().__init__()
         self.api_key = api_key
@@ -167,7 +170,6 @@ class PigDevComputer(BaseComputer):
         self.logger.info("Establishing connection to machine")
         self.connection = self.machine.connect().__enter__()
         self.logger.info("PigDev connection established successfully")
-        return True
 
     def _stop(self):
         """Stop the PigDev environment and close the connection.
@@ -183,7 +185,6 @@ class PigDevComputer(BaseComputer):
         self.client = None
         self.machine = None
         self.logger.info("PigDev connection closed successfully")
-        return True
 
     def reset_state(self):
         """Reset the PigDev environment"""
@@ -430,7 +431,7 @@ class PigDevComputer(BaseComputer):
         quality: int = 80,
         scale: float = 1.0,
         compression: Literal["jpeg", "png"] = "jpeg"
-    ) -> bool:
+    ):
         """Start the HTTP video stream for the PigDev instance.
 
         Args:
@@ -440,15 +441,12 @@ class PigDevComputer(BaseComputer):
             quality: JPEG/PNG compression quality (0-100)
             scale: Scale factor for the video stream (0.1-1.0)
             compression: Image compression format to use
-
-        Returns:
-            bool: True if the HTTP video stream was successfully started, False otherwise.
         """
-        return True # not needed for PigDev as streaming is handled internally
+        # not needed for PigDev as streaming is handled internally
 
-    def _stop_http_video_stream(self) -> bool:
+    def _stop_http_video_stream(self):
         """Stop the HTTP video stream for the PigDev instance."""
-        return True # not needed for PigDev as streaming is handled internally
+        # not needed for PigDev as streaming is handled internally
 
     def _run_process(
         self,
@@ -457,7 +455,7 @@ class PigDevComputer(BaseComputer):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> bool:
+    ):
         """Run a process with the specified parameters.
 
         This method attempts to use the PigDev API to run a process, but falls back
@@ -470,12 +468,9 @@ class PigDevComputer(BaseComputer):
             cwd: Working directory for the process
             env: Environment variables for the process
             timeout: Timeout in seconds
-
-        Returns:
-            bool: True if the process was executed successfully
         """
         self.logger.info(f"Running process via PigDev: {command} with args: {args}")
-        return self._default_run_process(
+        self._default_run_process(
             command=command, args=args, cwd=cwd, env=env, timeout=timeout
         )
 

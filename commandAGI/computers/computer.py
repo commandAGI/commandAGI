@@ -194,13 +194,13 @@ class ComputerFile(BaseComputerFile):
     transfer capabilities to provide file-like access.
     """
 
-
 class Computer(BaseComputer):
     platform_manager: Optional[BaseComputerPlatformManager] = None
     client: Optional[AuthenticatedClient] = None
     logger: Optional[logging.Logger] = None
     daemon_token: str = ""
-
+    preferred_video_stream_mode: Literal["vnc", "http"] = "vnc"
+    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
     model_config = {"arbitrary_types_allowed": True}
 
     def __init__(
@@ -255,7 +255,6 @@ class Computer(BaseComputer):
                 f"Successfully connected to daemon services at {
                     self.platform_manager.daemon_url}"
             )
-        return True
 
     def _stop(self):
         """Stop the daemon services"""
@@ -264,11 +263,10 @@ class Computer(BaseComputer):
             self.platform_manager.teardown()
             self.client = None
             self.logger.info("Daemon services successfully stopped")
-        return True
 
-    def reset_state(self) -> bool:
+    def reset_state(self):
         """Reset the computer state"""
-        return super().reset_state()
+        super().reset_state()
 
     def get_observation(self) -> Dict[str, Any]:
         """Get a complete observation of the computer state"""
@@ -506,7 +504,6 @@ class Computer(BaseComputer):
         )
         if not response or not response.success:
             raise RuntimeError("Failed to start HTTP video stream")
-        return True
 
     def _stop_http_video_stream(self):
         """Stop the HTTP video stream for the daemon client instance."""
@@ -516,7 +513,8 @@ class Computer(BaseComputer):
         response = stop_http_video_stream_sync(
             client=self.client, body=ClientHttpVideoStopStreamAction()
         )
-        return response.success if response else False
+        if not response or not response.success:
+            raise RuntimeError("Failed to stop HTTP video stream")
 
     def _get_vnc_video_stream_url(self) -> str:
         """Get the URL for the VNC video stream of the daemon client instance.
@@ -529,7 +527,7 @@ class Computer(BaseComputer):
             raise RuntimeError("Failed to get VNC video stream URL from daemon")
         return response.url
 
-    def _start_vnc_video_stream(self, **kwargs) -> bool:
+    def _start_vnc_video_stream(self, **kwargs):
         """Start the VNC video stream for the daemon client instance.
         
         Args:
@@ -544,9 +542,8 @@ class Computer(BaseComputer):
         )
         if not response or not response.success:
             raise RuntimeError("Failed to start VNC video stream")
-        return True
 
-    def _stop_vnc_video_stream(self) -> bool:
+    def _stop_vnc_video_stream(self):
         """Stop the VNC video stream for the daemon client instance."""
         if not self.client:
             raise RuntimeError("Client not initialized")
@@ -555,7 +552,8 @@ class Computer(BaseComputer):
             client=self.client, 
             body=ClientVncVideoStopStreamAction()
         )
-        return response.success if response else False
+        if not response or not response.success:
+            raise RuntimeError("Failed to stop VNC video stream")
 
     def _run_process(
         self,
