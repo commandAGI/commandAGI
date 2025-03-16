@@ -142,57 +142,6 @@ except ImportError:
     pass  # PIL is optional for Computer
 
 
-# Daemon client-specific mappings
-def keyboard_key_to_daemon(key: Union[KeyboardKey, str]) -> ClientKeyboardKey:
-    """Convert KeyboardKey to Daemon client KeyboardKey.
-
-    The daemon client uses its own KeyboardKey enum that should match our KeyboardKey values.
-    This function ensures proper conversion between the two.
-    """
-    if isinstance(key, str):
-        key = KeyboardKey(key)
-
-    # The daemon client's KeyboardKey enum should have the same values as our KeyboardKey enum
-    # We just need to convert to the client's enum type
-    try:
-        return ClientKeyboardKey(key.value)
-    except ValueError:
-        # If the key value doesn't exist in the client's enum, use a fallback
-        logging.warning(
-            f"Key {key} not found in daemon client KeyboardKey enum, using fallback"
-        )
-        return ClientKeyboardKey.ENTER  # Use a safe default
-
-
-def mouse_button_to_daemon(button: Union[MouseButton, str]) -> ClientMouseButton:
-    """Convert MouseButton to Daemon client MouseButton.
-
-    The daemon client uses its own MouseButton enum that should match our MouseButton values.
-    This function ensures proper conversion between the two.
-    """
-    if isinstance(button, str):
-        button = MouseButton(button)
-
-    # The daemon client's MouseButton enum should have the same values as our MouseButton enum
-    # We just need to convert to the client's enum type
-    try:
-        return ClientMouseButton(button.value)
-    except ValueError:
-        # If the button value doesn't exist in the client's enum, use a
-        # fallback
-        logging.warning(
-            f"Button {button} not found in daemon client MouseButton enum, using fallback"
-        )
-        return ClientMouseButton.LEFT  # Use a safe default
-
-
-class ComputerFile(BaseComputerFile):
-    """Implementation of BaseComputerFile for Daemon Client computer files.
-
-    This class provides a file-like interface for working with files on a remote computer
-    accessed via the Daemon Client. It uses temporary local files and the daemon's file
-    transfer capabilities to provide file-like access.
-    """
 
 class RemoteComputer(BaseComputer):
     platform_manager: Optional[BaseComputerPlatformManager] = None
@@ -596,7 +545,7 @@ class RemoteComputer(BaseComputer):
         encoding: Optional[str] = None,
         errors: Optional[str] = None,
         buffering: int = -1,
-    ) -> ComputerFile:
+    ) -> RemoteComputerFile:
         """Open a file on the remote computer.
 
         This method uses the Daemon Client API to access files on the remote computer.
@@ -612,7 +561,7 @@ class RemoteComputer(BaseComputer):
         Returns:
             A ComputerFile instance for the specified file
         """
-        return ComputerFile(
+        return RemoteComputerFile(
             computer=self,
             path=path,
             mode=mode,
