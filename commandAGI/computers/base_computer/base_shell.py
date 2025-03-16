@@ -1,5 +1,5 @@
 
-class BaseShell(BaseComputerProcess):
+class BaseShell(BaseComputerSubprocess):
     """Base class for shell operations.
 
     This class defines the interface for working with a persistent shell/terminal session.

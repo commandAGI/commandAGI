@@ -1,5 +1,5 @@
 
-class BaseComputerProcess(BaseModel):
+class BaseComputerSubprocess(BaseModel):
     """Base class for computer processes."""
 
     pid: int = Field(description="Process ID")

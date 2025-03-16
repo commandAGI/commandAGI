@@ -24,7 +24,7 @@
 
 Computer:
 - processes: list[Process]
-- running_processes: list[BaseComputerProcess] (these are managed by subprocess.Popen so we can feed/read them at any moment)
+- running_processes: list[BaseComputerSubprocess] (these are managed by subprocess.Popen so we can feed/read them at any moment)
 - start_process() -> RunningProcess
 - shell(command, executible):
     1. create shell process
