@@ -1493,20 +1493,15 @@ class BaseComputer(BaseModel):
     @annotation("mcp_tool", {"tool_name": "drag"})
     def drag(
         self,
-        # TODO: maybe remove the start_x/y to align with openai's computer tool
-        start_x: int,
-        start_y: int,
         end_x: int,
         end_y: int,
         move_duration: float = 0.5,
         button: MouseButton = MouseButton.LEFT,
-    ) -> bool:
+    ):
         """Execute a drag action using the primitive mouse operations."""
         return self._execute_with_retry(
             "drag",
             self._drag,
-            start_x,
-            start_y,
             end_x,
             end_y,
             move_duration,
@@ -1515,16 +1510,12 @@ class BaseComputer(BaseModel):
 
     def _drag(
         self,
-        start_x: int,
-        start_y: int,
         end_x: int,
         end_y: int,
         move_duration: float = 0.5,
         button: MouseButton = MouseButton.LEFT,
     ):
         """Execute a drag action using the primitive mouse operations."""
-        # Move to the starting position
-        self.move(x=start_x, y=start_y, duration=move_duration)
         # Press the mouse button down
         self.mouse_down(button=button)
         # Move to the ending position while holding down the mouse button

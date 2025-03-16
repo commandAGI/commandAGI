@@ -297,17 +297,13 @@ class ScrapybaraComputer(BaseComputer):
 
     def _drag(
         self,
-        start_x: int,
-        start_y: int,
         end_x: int,
         end_y: int,
         move_duration: float = 0.5,
         button: MouseButton = MouseButton.LEFT,
     ):
         """Execute a drag action using Scrapybara's left_click_drag method."""
-        # Move to the start position first
-        self.client.computer(action="mouse_move", coordinate=[start_x, start_y])
-        # Then perform the drag to the end position
+        # Move to the end position
         self.client.computer(action="left_click_drag", coordinate=[end_x, end_y])
 
     def _pause(self):

@@ -341,8 +341,6 @@ class PigDevComputer(BaseComputer):
 
     def _drag(
         self,
-        start_x: int,
-        start_y: int,
         end_x: int,
         end_y: int,
         move_duration: float = 0.5,
@@ -350,11 +348,9 @@ class PigDevComputer(BaseComputer):
     ):
         """Execute a drag action using PigDev's left_click_drag method."""
         self.logger.debug(
-            f"Dragging from: ({start_x}, {start_y}) to: ({end_x}, {end_y})"
+            f"Dragging from: ({end_x}, {end_y})"
         )
         # Use the existing connection
-        # First move to the start position
-        self.connection.mouse_move(x=start_x, y=start_y)
         # Then perform the drag to the end position
         self.connection.left_click_drag(x=end_x, y=end_y)
 

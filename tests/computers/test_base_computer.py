@@ -400,8 +400,6 @@ class TestBaseComputer(unittest.TestCase):
         ):
 
             action = DragAction(
-                start_x=100,
-                start_y=200,
                 end_x=300,
                 end_y=400,
                 move_duration=0.5,

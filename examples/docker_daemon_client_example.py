@@ -167,12 +167,9 @@ def main():
             )
             end_x, end_y = random.randint(0, width - 1), random.randint(0, height - 1)
             success = computer.drag(
-                start_x=start_x,
-                start_y=start_y,
                 end_x=end_x,
                 end_y=end_y,
                 move_duration=0.5,
-                button=MouseButton.LEFT,
             )
             logger.info(
                 f"Drag from ({start_x}, {start_y}) to ({end_x}, {end_y}) success: {success}"
