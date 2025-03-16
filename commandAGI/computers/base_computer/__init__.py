@@ -26,6 +26,7 @@ from commandAGI._internal.config import APPDIR, DEV_MODE
 from commandAGI._utils.annotations import annotation, gather_annotated_attr_keys
 from commandAGI._utils.counter import next_for_cls
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
+from commandAGI.computers.misc_types import ComputerRunningState
 from commandAGI.types import (
     ComputerActionType,
     ComputerActionUnion,
@@ -39,617 +40,13 @@ from commandAGI.types import (
 )
 
 
-class RunningState(Enum, str):
-    RUNNING = "running"
-    PAUSED = "paused"
-    STOPPED = "stopped"
-
-
-# Platform enumeration
-class Platform(str, Enum):
-    """Operating system platform."""
-
-    WINDOWS = "windows"
-    MACOS = "macos"
-    LINUX = "linux"
-    UNKNOWN = "unknown"
-
-
-class MouseButton(str, Enum):
-    LEFT = "left"
-    RIGHT = "right"
-    MIDDLE = "middle"
-
-    @classmethod
-    def is_valid_button(cls, button: str) -> bool:
-        """Check if a string is a valid mouse button."""
-        return button in [b.value for b in cls]
-
-
-class KeyboardKey(str, Enum):
-    # Special Keys
-    ENTER = "enter"
-    TAB = "tab"
-    SPACE = "space"
-    BACKSPACE = "backspace"
-    DELETE = "delete"
-    ESCAPE = "escape"
-    HOME = "home"
-    END = "end"
-    PAGE_UP = "pageup"
-    PAGE_DOWN = "pagedown"
-
-    # Arrow Keys
-    UP = "up"
-    DOWN = "down"
-    LEFT = "left"
-    RIGHT = "right"
-
-    # Modifier Keys - generic and with left/right differentiation
-    SHIFT = "shift"
-    CTRL = "ctrl"
-    LCTRL = "lctrl"
-    RCTRL = "rctrl"
-    ALT = "alt"
-    LALT = "lalt"
-    RALT = "ralt"
-    META = "meta"  # Generic / non-specified meta key
-    LMETA = "lmeta"
-    RMETA = "rmeta"
-
-    # Function Keys F1 - F12
-    F1 = "f1"
-    F2 = "f2"
-    F3 = "f3"
-    F4 = "f4"
-    F5 = "f5"
-    F6 = "f6"
-    F7 = "f7"
-    F8 = "f8"
-    F9 = "f9"
-    F10 = "f10"
-    F11 = "f11"
-    F12 = "f12"
-
-    # Common Alphabet Keys A - Z
-    A = "a"
-    B = "b"
-    C = "c"
-    D = "d"
-    E = "e"
-    F = "f"
-    G = "g"
-    H = "h"
-    I = "i"
-    J = "j"
-    K = "k"
-    L = "l"
-    M = "m"
-    N = "n"
-    O = "o"
-    P = "p"
-    Q = "q"
-    R = "r"
-    S = "s"
-    T = "t"
-    U = "u"
-    V = "v"
-    W = "w"
-    X = "x"
-    Y = "y"
-    Z = "z"
-
-    # Number Keys 0 - 9 (using NUM_x naming)
-    NUM_0 = "0"
-    NUM_1 = "1"
-    NUM_2 = "2"
-    NUM_3 = "3"
-    NUM_4 = "4"
-    NUM_5 = "5"
-    NUM_6 = "6"
-    NUM_7 = "7"
-    NUM_8 = "8"
-    NUM_9 = "9"
-
-    @classmethod
-    def is_valid_key(cls, key: Union["KeyboardKey", str]) -> bool:
-        """Check if a string is a valid keyboard key."""
-        if isinstance(key, KeyboardKey):
-            return True
-        return key in [k.value for k in cls]
-
-
-# Define component tree types
-class UIElementCommonProperties(TypedDict, total=False):
-    """Common properties of a UI element across all platforms."""
-
-    name: Optional[str]  # Name/label of the element
-    # Role/type of the element (normalized across platforms)
-    role: Optional[str]
-    value: Optional[Any]  # Current value of the element
-    description: Optional[str]  # Description of the element
-
-    # State properties
-    enabled: Optional[bool]  # Whether the element is enabled
-    focused: Optional[bool]  # Whether the element has keyboard focus
-    visible: Optional[bool]  # Whether the element is visible
-    offscreen: Optional[bool]  # Whether the element is off-screen
-
-    # Position and size
-    bounds: Optional[Dict[str, int]]  # {left, top, width, height}
-
-    # Control-specific properties
-    selected: Optional[bool]  # Whether the element is selected
-    checked: Optional[bool]  # Whether the element is checked
-    expanded: Optional[bool]  # Whether the element is expanded
-
-    # For elements with range values (sliders, progress bars)
-    current_value: Optional[float]  # Current value
-    min_value: Optional[float]  # Minimum value
-    max_value: Optional[float]  # Maximum value
-    percentage: Optional[float]  # Value as percentage
-
-
-class UIElement(TypedDict):
-    """A UI element in the accessibility tree."""
-
-    # Common properties normalized across platforms
-    properties: UIElementCommonProperties
-    # Platform-specific properties
-    platform: Platform  # The platform this element was retrieved from
-    platform_properties: Dict[str, Any]  # Raw platform-specific properties
-    # Child elements
-    children: List["UIElement"]
-
-
-# Define process information type
-class ProcessInfo(TypedDict):
-    """Information about a running process."""
-
-    # Common properties across platforms
-    pid: int  # Process ID
-    name: str  # Process name
-    cpu_percent: float  # CPU usage percentage
-    memory_mb: float  # Memory usage in MB
-    status: str  # Process status (running, sleeping, etc.)
-    # Platform-specific properties
-    platform: Platform  # The platform this process was retrieved from
-    platform_properties: Dict[str, Any]  # Raw platform-specific properties
-
-
-# Define window information type
-class WindowInfo(TypedDict):
-    """Information about a window."""
-
-    # Common properties across platforms
-    title: str  # Window title
-    bounds: Dict[str, int]  # {left, top, width, height}
-    minimized: bool  # Whether the window is minimized
-    maximized: bool  # Whether the window is maximized
-    focused: bool  # Whether the window has focus
-    # Platform-specific properties
-    platform: Platform  # The platform this window was retrieved from
-    platform_properties: Dict[str, Any]  # Raw platform-specific properties
-
-
-# Define display information type
-class DisplayInfo(TypedDict):
-    """Information about a display."""
-
-    # Common properties across platforms
-    id: int  # Display ID
-    bounds: Dict[str, int]  # {left, top, width, height}
-    is_primary: bool  # Whether this is the primary display
-    # Platform-specific properties
-    platform: Platform  # The platform this display was retrieved from
-    platform_properties: Dict[str, Any]  # Raw platform-specific properties
-
-
-class SystemInfo(BaseModel):
-    """Information about the system."""
-
-    cpu_usage: float = Field(
-        description="CPU usage percentage from system monitoring APIs"
-    )
-    memory_usage: float = Field(
-        description="Memory usage percentage from system monitoring APIs"
-    )
-    disk_usage: float = Field(description="Disk usage percentage from filesystem APIs")
-    uptime: float = Field(description="System uptime in seconds")
-    hostname: str = Field(description="System hostname")
-    ip_address: str = Field(description="Primary IP address from network interfaces")
-    user: str = Field(description="Current username")
-    os: str = Field(description="Operating system name")
-    version: str = Field(description="Operating system version")
-    architecture: str = Field(description="CPU architecture (x86_64, arm64, etc.)")
-
-
-class BaseComputerProcess(BaseModel):
-    """Base class for computer processes."""
-
-    pid: int = Field(description="Process ID")
-    executable: str = DEFAULT_SHELL_EXECUTIBLE
-    _logger: Optional[logging.Logger] = None
-    last_pinfo: Optional[ProcessInfo] = Field(None, description="Last process info")
-    _computer: "BaseComputer" = Field(description="Computer instance")
-
-    @property
-    def cwd(self) -> Path:
-        """Get the current working directory of the shell.
-
-        Returns:
-            Path: The current working directory
-        """
-        raise NotImplementedError("Subclasses must implement cwd getter")
-    
-    @property
-    def env(self) -> Dict[str, str]:
-        """Get all environment variables from the shell.
-
-        Returns:
-            Dict[str, str]: Dictionary mapping environment variable names to their values
-        """
-        raise NotImplementedError("Subclasses must implement env getter")
-
-    def read_output(self, timeout: Optional[float] = None, *, encoding: Optional[str] = None) -> str:
-        """Read any available output from the shell.
-
-        Args:
-            timeout: Optional timeout in seconds
-
-        Returns:
-            str: The output from the shell
-        """
-        raise NotImplementedError("Subclasses must implement read_output")
-
-    def send_input(self, text: str, *, encoding: Optional[str] = None) -> bool:
-        """Send input to the shell.
-
-        Args:
-            text: The text to send to the shell
-
-        Returns:
-            bool: True if the input was sent successfully, False otherwise
-        """
-        raise NotImplementedError("Subclasses must implement send_input")
-
-    def start(self) -> bool:
-        """Start the shell process.
-
-        Returns:
-            bool: True if the shell was started successfully, False otherwise.
-        """
-        raise NotImplementedError("Subclasses must implement start")
-
-    def stop(self) -> bool:
-        """Stop the shell process.
-
-        Returns:
-            bool: True if the shell was stopped successfully, False otherwise.
-        """
-        raise NotImplementedError("Subclasses must implement stop")
-
-
-class BaseShell(BaseComputerProcess):
-    """Base class for shell operations.
-
-    This class defines the interface for working with a persistent shell/terminal session.
-    Implementations should provide methods to execute commands and manage the shell environment.
-    """
-
-    model_config = {"arbitrary_types_allowed": True}
-
-    def execute(self, command: str, timeout: Optional[float] = None) -> Dict[str, Any]:
-        """Execute a command in the shell and return the result.
-
-        Args:
-            command: The command to execute
-            timeout: Optional timeout in seconds
-
-        Returns:
-            Dict containing stdout, stderr, and return code
-        """
-        raise NotImplementedError("Subclasses must implement execute")
-
-
-    @property
-    def cwd(self) -> Path:
-        """Get the current working directory of the shell.
-
-        Returns:
-            Path: The current working directory
-        """
-        raise NotImplementedError("Subclasses must implement cwd getter")
-    
-    @cwd.setter
-    def cwd(self, path: Union[str, Path]) -> None:
-        """Set the current working directory of the shell.
-
-        Args:
-            path: The path to set as the current working directory
-        """
-        raise NotImplementedError("Subclasses must implement cwd setter")
-
-    @property
-    def shell_env(self) -> Dict[str, str]:
-        """Get all environment variables from the shell.
-
-        Returns:
-            Dict[str, str]: Dictionary mapping environment variable names to their values
-        """
-        raise NotImplementedError("Subclasses must implement env getter")
-    
-    def get_shell_var(self, name: str) -> Optional[str]:
-        """Get the value of an environment variable from the shell.
-
-        Args:
-            name: The name of the environment variable
-
-        Returns:
-            Optional[str]: The value of the environment variable, or None if it doesn't exist
-        """
-        raise NotImplementedError("Subclasses must implement get_shell_var")
-    
-    def set_shell_var(self, name: str, value: str) -> bool:
-        """Set an environment variable in the shell.
-
-        Args:
-            name: The name of the environment variable
-            value: The value to set
-
-        Returns:
-            bool: True if the variable was set successfully, False otherwise
-        """
-        raise NotImplementedError("Subclasses must implement set_shell_var")
-
-    def get_envtee(self, name: str) -> Optional[str]:
-        """Get the value of an environment variable from the shell.
-
-        Args:
-            name: The name of the environment variable
-
-        Returns:
-            Optional[str]: The value of the environment variable, or None if it doesn't exist
-        """
-        raise NotImplementedError("Subclasses must implement get_envvar")
-    
-    def set_envvar(self, name: str, value: str) -> bool:
-        """Set an environment variable in the shell.
-
-        Args:
-            name: The name of the environment variable
-            value: The value to set
-
-        Returns:
-            bool: True if the variable was set successfully, False otherwise
-        """
-        raise NotImplementedError("Subclasses must implement set_envvar")
-
-    def is_running(self) -> bool:
-        """Check if the shell process is running.
-
-        Returns:
-            bool: True if the shell is running, False otherwise
-        """
-        raise NotImplementedError("Subclasses must implement is_running")
-
-
-class BaseJupyterNotebook(BaseModel):
-    """Base class for Jupyter notebook operations.
-
-    This class defines the interface for working with Jupyter notebooks programmatically.
-    Implementations should provide methods to create, read, modify, and execute notebooks.
-    """
-
-    model_config = {"arbitrary_types_allowed": True}
-
-    notebook_path: Optional[Path] = None
-
-    def create_notebook(self) -> Dict[str, Any]:
-        """Create a new empty notebook and return the notebook object."""
-        raise NotImplementedError("Subclasses must implement create_notebook")
-
-    def read_notebook(self, path: Union[str, Path]) -> Dict[str, Any]:
-        """Read a notebook from a file and return the notebook object."""
-        raise NotImplementedError("Subclasses must implement read_notebook")
-
-    def save_notebook(
-        self, notebook: Dict[str, Any], path: Optional[Union[str, Path]] = None
-    ) -> Path:
-        """Save the notebook to a file and return the path."""
-        raise NotImplementedError("Subclasses must implement save_notebook")
-
-    def add_markdown_cell(
-        self, notebook: Dict[str, Any], source: str, position: Optional[int] = None
-    ) -> Dict[str, Any]:
-        """Add a markdown cell to the notebook and return the updated notebook."""
-        raise NotImplementedError("Subclasses must implement add_markdown_cell")
-
-    def add_code_cell(
-        self, notebook: Dict[str, Any], source: str, position: Optional[int] = None
-    ) -> Dict[str, Any]:
-        """Add a code cell to the notebook and return the updated notebook."""
-        raise NotImplementedError("Subclasses must implement add_code_cell")
-
-    def update_cell(
-        self, notebook: Dict[str, Any], index: int, source: str
-    ) -> Dict[str, Any]:
-        """Update the source of a cell at the given index and return the updated notebook."""
-        raise NotImplementedError("Subclasses must implement update_cell")
-
-    def remove_cell(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
-        """Remove a cell at the given index and return the updated notebook."""
-        raise NotImplementedError("Subclasses must implement remove_cell")
-
-    def list_cells(self, notebook: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Return a list of cells in the notebook."""
-        raise NotImplementedError("Subclasses must implement list_cells")
-
-    def execute_notebook(
-        self, notebook: Dict[str, Any], timeout: int = 600
-    ) -> Dict[str, Any]:
-        """Execute all cells in the notebook and return the executed notebook."""
-        raise NotImplementedError("Subclasses must implement execute_notebook")
-
-    def execute_cell(
-        self, notebook: Dict[str, Any], index: int, timeout: int = 60
-    ) -> Dict[str, Any]:
-        """Execute a specific cell in the notebook and return the executed notebook."""
-        raise NotImplementedError("Subclasses must implement execute_cell")
-
-    def get_cell_output(
-        self, notebook: Dict[str, Any], index: int
-    ) -> List[Dict[str, Any]]:
-        """Return the output of a cell at the given index."""
-        raise NotImplementedError("Subclasses must implement get_cell_output")
-
-    def clear_cell_output(self, notebook: Dict[str, Any], index: int) -> Dict[str, Any]:
-        """Clear the output of a cell at the given index and return the updated notebook."""
-        raise NotImplementedError("Subclasses must implement clear_cell_output")
-
-    def clear_all_outputs(self, notebook: Dict[str, Any]) -> Dict[str, Any]:
-        """Clear the outputs of all cells in the notebook and return the updated notebook."""
-        raise NotImplementedError("Subclasses must implement clear_all_outputs")
-
-class BaseComputerFile(FileIO, ABC):
-    """Base class for computer-specific file implementations.
-
-    This class provides a file-like interface for working with files on remote computers.
-    It mimics the built-in file object API to allow for familiar usage patterns.
-
-    The implementation copies the file from the computer to a local temporary directory,
-    performs operations on the local copy, and syncs changes back to the computer
-    when flushing or closing the file.
-    """
-
-    def __init__(
-        self,
-        computer: "BaseComputer",
-        path: Union[str, Path],
-        mode: str = "r",
-        encoding: Optional[str] = None,
-        errors: Optional[str] = None,
-        buffering: int = -1,
-    ):
-        # Store basic attributes
-        self.computer = computer
-        self.path = Path(path)
-        self.mode = mode
-        self._closed = False
-        self._modified = False
-
-        # Create a unique filename in the temp directory
-        import os
-
-        temp_filename = f"{hash(str(self.path))}-{os.path.basename(self.path)}"
-        self._temp_path = Path(self.computer.temp_dir) / temp_filename
-
-        # Copy from remote to local temp file if needed
-        if "r" in mode or "a" in mode or "+" in mode:
-            try:
-                if self.path.exists():
-                    self.computer._copy_from_computer(self.path, self._temp_path)
-            except Exception as e:
-                if "r" in mode and not ("+" in mode or "a" in mode or "w" in mode):
-                    # If we're only reading, this is an error
-                    raise IOError(f"Could not copy file from computer: {e}")
-                # Otherwise, we'll create a new file
-
-        # Open the file
-        kwargs = {}
-        if encoding is not None and "b" not in mode:
-            kwargs["encoding"] = encoding
-        if errors is not None:
-            kwargs["errors"] = errors
-        if buffering != -1:
-            kwargs["buffering"] = buffering
-
-        self._file = open(self._temp_path, mode, **kwargs)
-
-    def read(self, size=None):
-        """Read from the file."""
-        return self._file.read() if size is None else self._file.read(size)
-
-    def write(self, data):
-        """Write to the file."""
-        self._modified = True
-        return self._file.write(data)
-
-    def seek(self, offset, whence=0):
-        """Change the stream position."""
-        return self._file.seek(offset, whence)
-
-    def tell(self):
-        """Return the current stream position."""
-        return self._file.tell()
-
-    def flush(self):
-        """Flush the write buffers and sync changes back to the computer."""
-        self._file.flush()
-        if self.writable() and self._modified:
-            try:
-                # Ensure the directory exists
-                self.path.parent.mkdir(parents=True, exist_ok=True)
-                self.computer._copy_to_computer(self._temp_path, self.path)
-                self._modified = False
-            except Exception as e:
-                raise IOError(f"Could not copy file to computer: {e}")
-
-    def close(self):
-        """Close the file and sync changes back to the computer."""
-        if not self._closed:
-            self.flush()
-            self._file.close()
-            self._closed = True
-
-    def readable(self):
-        """Return True if the file can be read."""
-        return self._file.readable()
-
-    def writable(self):
-        """Return True if the file can be written."""
-        return self._file.writable()
-
-    def seekable(self):
-        """Return True if the file supports random access."""
-        return self._file.seekable()
-
-    def readline(self, size=-1):
-        """Read until newline or EOF."""
-        return self._file.readline(size)
-
-    def readlines(self, hint=-1):
-        """Read until EOF using readline() and return a list of lines."""
-        return self._file.readlines(hint)
-
-    def writelines(self, lines):
-        """Write a list of lines to the file."""
-        self._modified = True
-        self._file.writelines(lines)
-
-    def __iter__(self):
-        """Return an iterator over the file's lines."""
-        return self._file.__iter__()
-
-    def __next__(self):
-        """Return the next line from the file."""
-        return self._file.__next__()
-
-    def __enter__(self):
-        """Context manager entry."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit."""
-        self.close()
-
 
 class BaseComputer(BaseModel):
 
     model_config = {"arbitrary_types_allowed": True}
 
     name: str
-    _state: RunningState = "stopped"
+    _state: ComputerRunningState = "stopped"
     logger: Optional[logging.Logger] = None
     _log_file_handler: Optional[logging.FileHandler] = None
     num_retries: int = 3
@@ -694,7 +91,7 @@ class BaseComputer(BaseModel):
 
         self.logger.info(f"Starting {self.__class__.__name__} computer")
         self._start()
-        self._state = RunningState.RUNNING
+        self._state = ComputerRunningState.RUNNING
         self.logger.info(f"{self.__class__.__name__} computer started successfully")
 
     def _start(self):
@@ -713,7 +110,7 @@ class BaseComputer(BaseModel):
 
         self.logger.info(f"Stopping {self.__class__.__name__} computer")
         self._stop()
-        self._state = RunningState.STOPPED
+        self._state = ComputerRunningState.STOPPED
 
         # Close and remove the file handler
         if self._log_file_handler:
@@ -743,7 +140,7 @@ class BaseComputer(BaseModel):
         for attempt in range(self.num_retries):
             try:
                 self._pause()
-                self._state = RunningState.PAUSED
+                self._state = ComputerRunningState.PAUSED
                 self.logger.info(
                     f"{self.__class__.__name__} computer paused successfully"
                 )
@@ -776,7 +173,7 @@ class BaseComputer(BaseModel):
 
         self.logger.info(f"Attempting to resume {self.__class__.__name__} computer")
         self._resume()
-        self._state = RunningState.RUNNING
+        self._state = ComputerRunningState.RUNNING
         self.logger.info(f"{self.__class__.__name__} computer resumed successfully")
 
     def _resume(self):
@@ -790,15 +187,15 @@ class BaseComputer(BaseModel):
 
     @annotation("endpoint", {"use_getter": True, "use_setter": True})
     @property
-    def state(self) -> RunningState:
+    def state(self) -> ComputerRunningState:
         return self._state
 
     @state.setter
-    def state(self, value: RunningState):
+    def state(self, value: ComputerRunningState):
         self.ensure_running_state(value)
 
     @annotation("endpoint", {})
-    def ensure_running_state(self, target_state: RunningState):
+    def ensure_running_state(self, target_state: ComputerRunningState):
         """Ensure the computer is in the specified state.
 
         Args:
