@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from commandAGI.computers.computer import (
-    Computer,
+from commandAGI.computers.remote_computer import (
+    RemoteComputer,
     ProvisioningMethod,
 )
 from commandAGI.types import (
@@ -37,7 +37,7 @@ class TestComputer(unittest.TestCase):
         mock_requests.get.return_value = self.mock_response
 
         # Create a Computer
-        self.computer = Computer(
+        self.computer = RemoteComputer(
             daemon_base_url="http://localhost",
             daemon_port=8000,
             provisioning_method=ProvisioningMethod.MANUAL,
@@ -251,7 +251,7 @@ class TestComputer(unittest.TestCase):
         mock_get_provisioner_cls.return_value = mock_provisioner_cls
 
         # Create a Computer with a different provisioning method
-        computer = Computer(
+        computer = RemoteComputer(
             provisioning_method=ProvisioningMethod.DOCKER, platform="local"
         )
 

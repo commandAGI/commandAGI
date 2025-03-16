@@ -20,7 +20,7 @@ import time
 import argparse
 from pathlib import Path
 
-from commandAGI.computers.computer import Computer
+from commandAGI.computers.remote_computer import RemoteComputer
 from commandAGI.computers.provisioners.docker_provisioner import (
     DockerProvisioner,
     DockerPlatform,
@@ -55,7 +55,7 @@ def setup_aws_ecs_computer():
     )
 
     # Create a daemon client computer with the AWS ECS provisioner
-    computer = Computer(
+    computer = RemoteComputer(
         daemon_base_url="http://your-ecs-service-url",  # This will be determined during setup
         daemon_port=8000,
         daemon_token="my-token",  # This should match the token used in the daemon
@@ -82,7 +82,7 @@ def setup_azure_container_instances_computer():
     )
 
     # Create a daemon client computer with the Azure Container Instances provisioner
-    computer = Computer(
+    computer = RemoteComputer(
         daemon_base_url="http://your-aci-service-url",  # This will be determined during setup
         daemon_port=8000,
         daemon_token="my-token",  # This should match the token used in the daemon
@@ -109,7 +109,7 @@ def setup_gcp_cloud_run_computer():
     )
 
     # Create a daemon client computer with the GCP Cloud Run provisioner
-    computer = Computer(
+    computer = RemoteComputer(
         daemon_base_url="http://your-cloud-run-url",  # This will be determined during setup
         daemon_port=8000,
         daemon_token="my-token",  # This should match the token used in the daemon
@@ -193,7 +193,7 @@ def main():
             )
 
             # Create a daemon client computer with the local Docker provisioner
-            computer = Computer(
+            computer = RemoteComputer(
                 daemon_base_url="http://localhost",
                 daemon_port=8000,
                 daemon_token="my-token",

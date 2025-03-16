@@ -194,7 +194,7 @@ class ComputerFile(BaseComputerFile):
     transfer capabilities to provide file-like access.
     """
 
-class Computer(BaseComputer):
+class RemoteComputer(BaseComputer):
     platform_manager: Optional[BaseComputerPlatformManager] = None
     client: Optional[AuthenticatedClient] = None
     logger: Optional[logging.Logger] = None

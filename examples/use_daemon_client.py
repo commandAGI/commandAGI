@@ -3,8 +3,8 @@
 Example of using the Computer with the generated OpenAPI client.
 """
 
-from commandAGI.computers.computer import (
-    Computer,
+from commandAGI.computers.remote_computer import (
+    RemoteComputer,
     ProvisioningMethod,
 )
 from commandAGI.types import (
@@ -25,7 +25,7 @@ def main():
 
     print("Initializing Computer...")
     # Connect to an existing daemon (no provisioning)
-    computer = Computer(
+    computer = RemoteComputer(
         daemon_base_url="http://localhost", daemon_port=8000, daemon_token="my-token"
     )
 
@@ -33,13 +33,13 @@ def main():
     from commandAGI.computers.provisioners.manual_provisioner import ManualProvisioner
 
     provisioner = ManualProvisioner(port=8000)
-    computer = Computer(daemon_port=8000, provisioner=provisioner)
+    computer = RemoteComputer(daemon_port=8000, provisioner=provisioner)
 
     # Use with Docker provisioning
     from commandAGI.computers.provisioners.docker_provisioner import DockerProvisioner
 
     provisioner = DockerProvisioner(port=8000)
-    computer = Computer(daemon_port=8000, provisioner=provisioner)
+    computer = RemoteComputer(daemon_port=8000, provisioner=provisioner)
 
     try:
         # Example 1: Type some text

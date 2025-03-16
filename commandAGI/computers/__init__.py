@@ -41,7 +41,7 @@ except ImportError:
     )
 
 try:
-    from commandAGI.computers.computer import Computer
+    from commandAGI.computers.remote_computer import RemoteComputer
 except ImportError:
     logger.info(
         "Computer not available. Install with: pip install commandAGI[daemon-client-all]"
@@ -78,7 +78,7 @@ __all__ = [
     "LocalPynputComputer",
     "LocalPyAutoGUIComputer",
     "E2BDesktopComputer",
-    "Computer",
+    "RemoteComputer",
     "VNCComputer",
     "PigDevComputer",
     "ScrapybaraComputer",

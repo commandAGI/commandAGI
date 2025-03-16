@@ -28,8 +28,8 @@ from commandAGI.agents.hub_cli import app as hub_cli
 
 # Import available computers
 from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.computers.computer import (
-    Computer,
+from commandAGI.computers.remote_computer import (
+    RemoteComputer,
     ProvisioningMethod,
 )
 from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer

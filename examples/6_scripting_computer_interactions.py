@@ -13,8 +13,8 @@ import time
 import os
 
 try:
-    from commandAGI.computers.computer import (
-        Computer,
+    from commandAGI.computers.remote_computer import (
+        RemoteComputer,
         ProvisioningMethod,
     )
     from commandAGI.types import (
@@ -37,7 +37,7 @@ def main():
 
     try:
         # Create a computer with Manual provisioning
-        computer = Computer(provisioning_method=ProvisioningMethod.MANUAL)
+        computer = RemoteComputer(provisioning_method=ProvisioningMethod.MANUAL)
 
         print("\nManual provisioning instructions:")
         print("1. Open a new terminal window")

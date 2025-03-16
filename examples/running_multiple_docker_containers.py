@@ -1,5 +1,5 @@
 import time
-from commandAGI.computers.computer import Computer
+from commandAGI.computers.remote_computer import RemoteComputer
 from commandAGI.computers.provisioners.docker_provisioner import DockerProvisioner
 
 # Number of containers to create
@@ -16,7 +16,7 @@ for i in range(num_containers):
     )
 
     # Create computer with the provisioner
-    computer = Computer(provisioner=provisioner)
+    computer = RemoteComputer(provisioner=provisioner)
     computers.append(computer)
 
     print(f"Container {i} started at {provisioner.daemon_url}")

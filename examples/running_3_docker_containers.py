@@ -1,5 +1,5 @@
 import time
-from commandAGI.computers.computer import Computer
+from commandAGI.computers.remote_computer import RemoteComputer
 from commandAGI.computers.provisioners.docker_provisioner import DockerProvisioner
 
 # Create first provisioner with default port (8000)
@@ -23,9 +23,9 @@ provisioner3 = DockerProvisioner(
 )
 
 # Create computers with the provisioners
-computer1 = Computer(provisioner=provisioner1)
-computer2 = Computer(provisioner=provisioner2)
-computer3 = Computer(provisioner=provisioner3)
+computer1 = RemoteComputer(provisioner=provisioner1)
+computer2 = RemoteComputer(provisioner=provisioner2)
+computer3 = RemoteComputer(provisioner=provisioner3)
 
 # Now you can use all three computers independently
 print(f"Computer 1 daemon URL: {provisioner1.daemon_url}")
