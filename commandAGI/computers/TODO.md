@@ -10,8 +10,9 @@
 [ ] make the computer.drag start coordinates optional
 [x] rename daemoncomputer to computer
 [o] ~~rename the repo to `command_computer`~~ No, its commandAGI
-[ ] make a decorator that i can  use to automatically annotate which methods should be picked up by fastapi and fastmcp. this decorator should be just for annotation purposes because its going to decorate methods
-[ ] get rid of teh tool properties since we now have a decorator that ectracts tols from a regular mehod
+[x] make a decorator that i can  use to automatically annotate which methods should be picked up by fastapi and fastmcp. this decorator should be just for annotation purposes because its going to decorate methods
+[x] get rid of teh tool properties since we now have a decorator that ectracts tols from a regular mehod
 [ ] get rid of all the observation and action structs. just handle the raw properties
 [ ] playright webbrowser, pupyteer webbrowser computer child/implementation classes
 [ ] terminal
+[ ] get rid of all the bool returns

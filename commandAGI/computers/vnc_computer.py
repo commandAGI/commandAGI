@@ -343,9 +343,8 @@ class VNCComputer(BaseComputer):
             self.client = vnc.connect(connection_string, password=self.password)
             self.logger.info("VNC connection resumed")
 
-    @property
-    def video_stream_url(self) -> str:
-        """Get the URL for the video stream of the VNC instance.
+    def _get_http_video_stream_url(self) -> str:
+        """Get the URL for the HTTP video stream of the VNC instance.
 
         VNC does not provide a direct video stream URL in this implementation.
 
@@ -355,8 +354,33 @@ class VNCComputer(BaseComputer):
         self.logger.debug("Video streaming URL not available for VNC")
         return ""
 
-    def start_video_stream(self) -> bool:
+    def _start_http_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 8080,
+        frame_rate: int = 30,
+        quality: int = 80,
+        scale: float = 1.0,
+        compression: Literal["jpeg", "png"] = "jpeg"
+    ) -> bool:
         """Start the video stream for the VNC instance.
+
+        Args:
+            host: HTTP server host address
+            port: HTTP server port
+            frame_rate: Target frame rate for the video stream
+            quality: JPEG/PNG compression quality (0-100)
+            scale: Scale factor for the video stream (0.1-1.0)
+            compression: Image compression format to use
+
+        Returns:
+            bool: False as VNC streaming is not implemented.
+        """
+        self.logger.debug("Video streaming not implemented for VNC")
+        return False
+
+    def _stop_http_video_stream(self) -> bool:
+        """Stop the video stream for the VNC instance.
 
         VNC does not support direct video streaming in this implementation.
 
@@ -366,10 +390,56 @@ class VNCComputer(BaseComputer):
         self.logger.debug("Video streaming not implemented for VNC")
         return False
 
-    def stop_video_stream(self) -> bool:
-        """Stop the video stream for the VNC instance.
+    def _get_vnc_video_stream_url(self) -> str:
+        """Get the URL for the VNC video stream of the VNC instance.
 
-        VNC does not support direct video streaming in this implementation.
+        VNC does not provide a direct video stream URL in this implementation.
+
+        Returns:
+            str: Empty string as VNC streaming is not implemented in this way.
+        """
+        self.logger.debug("Video streaming URL not available for VNC")
+        return ""
+
+    def _start_vnc_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 5900,
+        password: str = 'commandagi',
+        shared: bool = True,
+        framerate: int = 30,
+        quality: int = 80,
+        encoding: Literal["raw", "tight", "zrle"] = "tight",
+        compression_level: int = 6,
+        scale: float = 1.0,
+        allow_clipboard: bool = True,
+        view_only: bool = False,
+        allow_resize: bool = True
+    ) -> bool:
+        """Start the video stream for the VNC instance.
+
+        Args:
+            host: VNC server host address
+            port: VNC server port
+            password: VNC server password
+            shared: Allow multiple simultaneous connections
+            framerate: Target frame rate for the VNC stream
+            quality: Image quality level (0-100)
+            encoding: VNC encoding method to use
+            compression_level: Compression level (0-9)
+            scale: Scale factor for the VNC display (0.1-1.0)
+            allow_clipboard: Enable clipboard sharing
+            view_only: Disable input from VNC clients
+            allow_resize: Allow clients to resize the display
+
+        Returns:
+            bool: False as VNC streaming is not implemented.
+        """
+        self.logger.debug("Video streaming not implemented for VNC")
+        return False
+
+    def _stop_vnc_video_stream(self) -> bool:
+        """Stop the video stream for the VNC instance.
 
         Returns:
             bool: False as VNC streaming is not implemented.

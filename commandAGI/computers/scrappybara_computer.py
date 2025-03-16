@@ -331,8 +331,7 @@ class ScrapybaraComputer(BaseComputer):
                 self.client.resume()
             self.logger.info("Scrapybara instance resumed successfully")
 
-    @property
-    def video_stream_url(self) -> str:
+    def _get_http_video_stream_url(self) -> str:
         """Get the URL for the video stream of the Scrapybara instance.
 
         Returns:
@@ -340,8 +339,24 @@ class ScrapybaraComputer(BaseComputer):
         """
         return self.client.get_stream_url()
 
-    def start_video_stream(self) -> bool:
+    def _start_http_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 8080,
+        frame_rate: int = 30,
+        quality: int = 80,
+        scale: float = 1.0,
+        compression: Literal["jpeg", "png"] = "jpeg"
+    ) -> bool:
         """Start the video stream for the Scrapybara instance.
+
+        Args:
+            host: HTTP server host address
+            port: HTTP server port
+            frame_rate: Target frame rate for the video stream
+            quality: JPEG/PNG compression quality (0-100)
+            scale: Scale factor for the video stream (0.1-1.0)
+            compression: Image compression format to use
 
         Returns:
             bool: True if the video stream was successfully started, False otherwise.
@@ -352,20 +367,9 @@ class ScrapybaraComputer(BaseComputer):
             )
             return False
 
-        try:
-            self.logger.info("Starting Scrapybara video stream")
-            if hasattr(self.client, "start_stream"):
-                self.client.start_stream()
-                self.logger.info("Scrapybara video stream started successfully")
-                return True
-            else:
-                self.logger.warning("start_stream method not found in Scrapybara API")
-                return False
-        except Exception as e:
-            self.logger.error(f"Error starting Scrapybara video stream: {e}")
-            return False
+        self.client.start_stream()
 
-    def stop_video_stream(self) -> bool:
+    def _stop_http_video_stream(self) -> bool:
         """Stop the video stream for the Scrapybara instance.
 
         Returns:
@@ -376,19 +380,7 @@ class ScrapybaraComputer(BaseComputer):
                 "Cannot stop video stream: Scrapybara client not initialized"
             )
             return False
-
-        try:
-            self.logger.info("Stopping Scrapybara video stream")
-            if hasattr(self.client, "stop_stream"):
-                self.client.stop_stream()
-                self.logger.info("Scrapybara video stream stopped successfully")
-                return True
-            else:
-                self.logger.warning("stop_stream method not found in Scrapybara API")
-                return False
-        except Exception as e:
-            self.logger.error(f"Error stopping Scrapybara video stream: {e}")
-            return False
+        self.client.stop_stream()
 
     def _run_process(
         self,

@@ -318,24 +318,10 @@ class E2BDesktopComputer(BaseComputer):
         self.e2b_desktop.open(file_path)
         return True
 
-    def get_video_stream_url(self) -> str:
-        """Get the URL for the video stream of the E2B Desktop instance."""
-        if not self.video_stream:
-            self.logger.warning(
-                "Warning: Video stream was not enabled during initialization"
-            )
-            return ""
-
-        # The method name might be different based on the API
-        # Check if the method exists
-        if hasattr(self.e2b_desktop, "get_video_stream_url"):
-            return self.e2b_desktop.get_video_stream_url()
-        else:
-            self.logger.warning(
-                "Warning: get_video_stream_url method not found in E2B Desktop API"
-            )
-            return ""
-
+    def get_http_video_stream_url(self) -> str:
+        """Get the URL for the HTTP video stream of the E2B Desktop instance."""
+        return self.e2b_desktop.get_http_video_stream_url()
+    
     def _pause(self):
         """Pause the E2B Desktop instance.
 
@@ -370,14 +356,45 @@ class E2BDesktopComputer(BaseComputer):
                 self.logger.error(f"Error resuming E2B Desktop sandbox: {e}")
                 raise
 
-    @property
-    def video_stream_url(self) -> str:
-        """Get the URL for the video stream of the E2B Desktop instance.
+    def _get_http_video_stream_url(self) -> str:
+        """Get the URL for the HTTP video stream of the E2B Desktop instance.
 
         Returns:
-            str: The URL for the video stream, or an empty string if video streaming is not available.
+            str: The URL for the HTTP video stream, or an empty string if HTTP video streaming is not available.
         """
-        return self.get_video_stream_url()
+        return self.get_http_video_stream_url()
+    
+    def _start_http_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 8080,
+        frame_rate: int = 30,
+        quality: int = 80,
+        scale: float = 1.0,
+        compression: Literal["jpeg", "png"] = "jpeg"
+    ) -> bool:
+        """Start the HTTP video stream for the E2B Desktop instance.
+
+        Args:
+            host: HTTP server host address
+            port: HTTP server port
+            frame_rate: Target frame rate for the video stream
+            quality: JPEG/PNG compression quality (0-100)
+            scale: Scale factor for the video stream (0.1-1.0)
+            compression: Image compression format to use
+
+        Returns:
+            bool: True if the HTTP video stream was successfully started, False otherwise.
+        """
+        pass # not needed for E2B Desktop as streaming is handled internally
+
+    def _stop_http_video_stream(self) -> bool:
+        """Stop the HTTP video stream for the E2B Desktop instance.
+
+        Returns:
+            bool: True if the HTTP video stream was successfully stopped, False otherwise.
+        """
+        pass # not needed for E2B Desktop as streaming is handled internally
 
     def _run_process(
         self,

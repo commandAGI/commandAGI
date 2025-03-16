@@ -405,8 +405,7 @@ class PigDevComputer(BaseComputer):
                 self.logger.error(f"Error resuming PigDev machine: {e}")
                 raise
 
-    @property
-    def video_stream_url(self) -> str:
+    def _get_http_video_stream_url(self) -> str:
         """Get the URL for the video stream of the PigDev instance.
 
         Returns:
@@ -426,6 +425,34 @@ class PigDevComputer(BaseComputer):
         except Exception as e:
             self.logger.error(f"Error getting PigDev video stream URL: {e}")
             return ""
+        
+    def _start_http_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 8080,
+        frame_rate: int = 30,
+        quality: int = 80,
+        scale: float = 1.0,
+        compression: Literal["jpeg", "png"] = "jpeg"
+    ) -> bool:
+        """Start the HTTP video stream for the PigDev instance.
+
+        Args:
+            host: HTTP server host address
+            port: HTTP server port
+            frame_rate: Target frame rate for the video stream
+            quality: JPEG/PNG compression quality (0-100)
+            scale: Scale factor for the video stream (0.1-1.0)
+            compression: Image compression format to use
+
+        Returns:
+            bool: True if the HTTP video stream was successfully started, False otherwise.
+        """
+        return True # not needed for PigDev as streaming is handled internally
+
+    def _stop_http_video_stream(self) -> bool:
+        """Stop the HTTP video stream for the PigDev instance."""
+        return True # not needed for PigDev as streaming is handled internally
 
     def _run_process(
         self,

@@ -483,38 +483,77 @@ class Computer(BaseComputer):
 
         For daemon client, resuming means sending a resume command to the daemon."""
         # TODO: implement specifically for the system in mind
-
-    @property
-    def video_stream_url(self) -> str:
-        """Get the URL for the video stream of the daemon client instance.
+        
+        
+    def _get_http_video_stream_url(self) -> str:
+        """Get the URL for the HTTP video stream of the daemon client instance.
 
         Returns:
-            str: The URL for the video stream, or an empty string if video streaming is not available.
+            str: The URL for the HTTP video stream, or an empty string if HTTP video streaming is not available.
         """
-        response = get_video_stream_url_sync(client=self.client)
+        response = get_http_video_stream_url_sync(client=self.client)
         if not response or not response.url:
-            raise RuntimeError("Failed to get video stream URL from daemon")
+            raise RuntimeError("Failed to get HTTP video stream URL from daemon")
         return response.url
 
-    def start_video_stream(self):
-        """Start the video stream for the daemon client instance."""
+    def _start_http_video_stream(self):
+        """Start the HTTP video stream for the daemon client instance."""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        response = start_video_stream_sync(
-            client=self.client, body=ClientVideoStartStreamAction()
+        response = start_http_video_stream_sync(
+            client=self.client, body=ClientHttpVideoStartStreamAction()
         )
         if not response or not response.success:
-            raise RuntimeError("Failed to start video stream")
+            raise RuntimeError("Failed to start HTTP video stream")
         return True
 
-    def stop_video_stream(self):
-        """Stop the video stream for the daemon client instance."""
+    def _stop_http_video_stream(self):
+        """Stop the HTTP video stream for the daemon client instance."""
         if not self.client:
             raise RuntimeError("Client not initialized")
 
-        response = stop_video_stream_sync(
-            client=self.client, body=ClientVideoStopStreamAction()
+        response = stop_http_video_stream_sync(
+            client=self.client, body=ClientHttpVideoStopStreamAction()
+        )
+        return response.success if response else False
+
+    def _get_vnc_video_stream_url(self) -> str:
+        """Get the URL for the VNC video stream of the daemon client instance.
+
+        Returns:
+            str: The URL for the VNC video stream, or an empty string if VNC video streaming is not available.
+        """
+        response = get_vnc_video_stream_url_sync(client=self.client)
+        if not response or not response.url:
+            raise RuntimeError("Failed to get VNC video stream URL from daemon")
+        return response.url
+
+    def _start_vnc_video_stream(self, **kwargs) -> bool:
+        """Start the VNC video stream for the daemon client instance.
+        
+        Args:
+            **kwargs: VNC server configuration options passed to the daemon
+        """
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+
+        response = start_vnc_video_stream_sync(
+            client=self.client, 
+            body=ClientVncVideoStartStreamAction(**kwargs)
+        )
+        if not response or not response.success:
+            raise RuntimeError("Failed to start VNC video stream")
+        return True
+
+    def _stop_vnc_video_stream(self) -> bool:
+        """Stop the VNC video stream for the daemon client instance."""
+        if not self.client:
+            raise RuntimeError("Client not initialized")
+
+        response = stop_vnc_video_stream_sync(
+            client=self.client, 
+            body=ClientVncVideoStopStreamAction()
         )
         return response.success if response else False
 

@@ -1532,36 +1532,282 @@ class BaseComputer(BaseModel):
         # Release the mouse button
         self.mouse_up(button=button)
 
-    @annotation("endpoint", {"use_getter": True, "path": "/video_stream"})
+    @annotation("endpoint", {"use_getter": True, "path": "/http_video_stream"})
     @property
-    def video_stream_url(self) -> str:
-        """Get the URL for the video stream of the computer instance.
+    def http_video_stream_url(self) -> str:
+        """Get the URL for the HTTP video stream of the computer instance.
 
         Returns:
-            str: The URL for the video stream, or an empty string if video streaming is not supported.
+            str: The URL for the HTTP video stream, or an empty string if HTTP video streaming is not supported.
         """
-        self.logger.debug("Video streaming not implemented for this computer type")
+        return self._get_http_video_stream_url()
+
+    def _get_http_video_stream_url(self) -> str:
+        """Internal method to get the HTTP video stream URL.
+
+        Returns:
+            str: The URL for the HTTP video stream, or an empty string if HTTP video streaming is not supported.
+        """
+        self.logger.debug("HTTP video streaming not implemented for this computer type")
         return ""
 
-    @annotation("endpoint", {"method": "post", "path": "/start_video_stream"})
-    def start_video_stream(self) -> bool:
-        """Start the video stream for the computer instance.
+    @annotation("endpoint", {"method": "post", "path": "/start_http_video_stream"})
+    def start_http_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 8080,
+        frame_rate: int = 30,
+        quality: int = 80,
+        scale: float = 1.0,
+        compression: Literal["jpeg", "png"] = "jpeg"
+    ) -> bool:
+        """Start the HTTP video stream for the computer instance.
+
+        Args:
+            host: HTTP server host address
+            port: HTTP server port
+            frame_rate: Target frame rate for the video stream
+            quality: JPEG/PNG compression quality (0-100)
+            scale: Scale factor for the video stream (0.1-1.0)
+            compression: Image compression format to use
 
         Returns:
-            bool: True if the video stream was successfully started, False otherwise.
+            bool: True if the HTTP video stream was successfully started, False otherwise.
         """
-        self.logger.debug("Video streaming not implemented for this computer type")
-        return False
+        return self._start_http_video_stream(
+            host=host,
+            port=port, 
+            frame_rate=frame_rate,
+            quality=quality,
+            scale=scale,
+            compression=compression
+        )
 
-    @annotation("endpoint", {"method": "post", "path": "/stop_video_stream"})
-    def stop_video_stream(self) -> bool:
-        """Stop the video stream for the computer instance.
+    def _start_http_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 8080,
+        frame_rate: int = 30,
+        quality: int = 80,
+        scale: float = 1.0,
+        compression: Literal["jpeg", "png"] = "jpeg"
+    ) -> bool:
+        """Internal method to start the HTTP video stream.
+
+        Args:
+            host: HTTP server host address
+            port: HTTP server port
+            frame_rate: Target frame rate for the video stream
+            quality: JPEG/PNG compression quality (0-100)
+            scale: Scale factor for the video stream (0.1-1.0)
+            compression: Image compression format to use
 
         Returns:
-            bool: True if the video stream was successfully stopped, False otherwise.
+            bool: True if the HTTP video stream was successfully started, False otherwise.
         """
-        self.logger.debug("Video streaming not implemented for this computer type")
+        self.logger.debug("HTTP video streaming not implemented for this computer type")
         return False
+
+    @annotation("endpoint", {"method": "post", "path": "/stop_http_video_stream"})
+    def stop_http_video_stream(self) -> bool:
+        """Stop the HTTP video stream for the computer instance.
+
+        Returns:
+            bool: True if the HTTP video stream was successfully stopped, False otherwise.
+        """
+        return self._stop_http_video_stream()
+
+    def _stop_http_video_stream(self) -> bool:
+        """Internal method to stop the HTTP video stream.
+
+        Returns:
+            bool: True if the HTTP video stream was successfully stopped, False otherwise.
+        """
+        self.logger.debug("HTTP video streaming not implemented for this computer type")
+        return False
+
+    @annotation("endpoint", {"use_getter": True, "path": "/vnc_video_stream"})
+    @property
+    def vnc_video_stream_url(self) -> str:
+        """Get the URL for the VNC video stream of the computer instance.
+
+        Returns:
+            str: The URL for the VNC video stream, or an empty string if VNC video streaming is not supported.
+        """
+        return self._get_vnc_video_stream_url()
+
+    def _get_vnc_video_stream_url(self) -> str:
+        """Internal method to get the VNC video stream URL.
+        Creates a VNC server that proxies the HTTP video stream.
+
+        Returns:
+            str: The URL for the VNC video stream, or an empty string if VNC streaming is not supported.
+        """
+        # Check if VNC server is running using getattr to avoid attribute errors
+        if getattr(self, '_vnc_server', None):
+            host = getattr(self._vnc_server, 'host', 'localhost')
+            port = getattr(self._vnc_server, 'port', 5900)
+            return f"vnc://{host}:{port}"
+        return ""
+
+    
+
+    @annotation("endpoint", {"method": "post", "path": "/start_vnc_video_stream"})
+    def start_vnc_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 5900,
+        password: str = 'commandagi',
+        shared: bool = True,
+        framerate: int = 30,
+        quality: int = 80,
+        encoding: Literal["raw", "tight", "zrle"] = "tight",
+        compression_level: int = 6,
+        scale: float = 1.0,
+        allow_clipboard: bool = True,
+        view_only: bool = False,
+        allow_resize: bool = True
+    ) -> bool:
+        """Start the VNC video stream for the computer instance.
+
+        Args:
+            host: VNC server host address
+            port: VNC server port
+            password: VNC server password
+            shared: Allow multiple simultaneous connections
+            framerate: Target frame rate for the VNC stream
+            quality: Image quality level (0-100)
+            encoding: VNC encoding method to use
+            compression_level: Compression level (0-9)
+            scale: Scale factor for the VNC display (0.1-1.0)
+            allow_clipboard: Enable clipboard sharing
+            view_only: Disable input from VNC clients
+            allow_resize: Allow clients to resize the display
+
+        Returns:
+            bool: True if the VNC video stream was successfully started, False otherwise.
+        """
+        return self._start_vnc_video_stream(
+            host=host,
+            port=port,
+            password=password,
+            shared=shared,
+            framerate=framerate,
+            quality=quality,
+            encoding=encoding,
+            compression_level=compression_level,
+            scale=scale,
+            allow_clipboard=allow_clipboard,
+            view_only=view_only,
+            allow_resize=allow_resize
+        )
+
+    def _start_vnc_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 5900,
+        password: str = 'commandagi',
+        shared: bool = True,
+        framerate: int = 30,
+        quality: int = 80,
+        encoding: Literal["raw", "tight", "zrle"] = "tight",
+        compression_level: int = 6,
+        scale: float = 1.0,
+        allow_clipboard: bool = True,
+        view_only: bool = False,
+        allow_resize: bool = True
+    ) -> bool:
+        """Internal method to start the VNC video stream.
+        Sets up a VNC server that proxies the HTTP video stream and handles input events.
+
+        Args:
+            host: VNC server host address
+            port: VNC server port
+            password: VNC server password
+            shared: Allow multiple simultaneous connections
+            framerate: Target frame rate for the VNC stream
+            quality: Image quality level (0-100)
+            encoding: VNC encoding method to use
+            compression_level: Compression level (0-9)
+            scale: Scale factor for the VNC display (0.1-1.0)
+            allow_clipboard: Enable clipboard sharing
+            view_only: Disable input from VNC clients
+            allow_resize: Allow clients to resize the display
+
+        Returns:
+            bool: True if the VNC video stream was successfully started, False otherwise.
+        """
+        try:
+            # Start HTTP stream first if not already running
+            if not self._start_http_video_stream():
+                self.logger.error("Failed to start HTTP stream for VNC proxy")
+                return False
+
+            # Import VNC server implementation
+            from commandAGI._utils.vnc import HTTPStreamVNCServer
+            
+            # Create VNC server instance
+            self._vnc_server = HTTPStreamVNCServer(
+                http_stream_url=self._get_http_video_stream_url(),
+                host=host,
+                port=port,
+                password=password,
+                shared=shared,
+                framerate=framerate,
+                quality=quality,
+                encoding=encoding,
+                compression_level=compression_level,
+                scale=scale,
+                allow_clipboard=allow_clipboard,
+                view_only=view_only,
+                allow_resize=allow_resize,
+                # Input event handlers that map to computer methods
+                on_mouse_move=lambda x, y: self.move(x, y),
+                on_mouse_click=lambda x, y, button: self.click(x, y, button=button),
+                on_mouse_down=lambda button: self.mouse_down(button=button),
+                on_mouse_up=lambda button: self.mouse_up(button=button),
+                on_key_press=lambda key: self.keypress(key),
+                on_key_down=lambda key: self.keydown(key),
+                on_key_up=lambda key: self.keyup(key)
+            )
+
+            # Start the VNC server
+            self._vnc_server.start()
+            self.logger.info(f"VNC server started on {host}:{port}")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Failed to start VNC server: {e}")
+            self._vnc_server = None
+            return False
+
+    @annotation("endpoint", {"method": "post", "path": "/stop_vnc_video_stream"})
+    def stop_vnc_video_stream(self) -> bool:
+        """Stop the VNC video stream for the computer instance.
+
+        Returns:
+            bool: True if the VNC video stream was successfully stopped, False otherwise.
+        """
+        return self._stop_vnc_video_stream()
+
+    def _stop_vnc_video_stream(self) -> bool:
+        """Internal method to stop the VNC video stream.
+        Shuts down the VNC server and stops proxying the HTTP stream.
+
+        Returns:
+            bool: True if the VNC video stream was successfully stopped, False otherwise.
+        """
+        # Check if VNC server exists using getattr to avoid attribute errors
+        if getattr(self, '_vnc_server', None):
+            try:
+                self._vnc_server.stop()
+                self._vnc_server = None
+                self.logger.info("VNC server stopped")
+                return True
+            except Exception as e:
+                self.logger.error(f"Error stopping VNC server: {e}")
+        return False
+
 
     def copy_to_computer(
         self, source_path: Union[str, Path], destination_path: Union[str, Path]

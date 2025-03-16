@@ -45,7 +45,14 @@ local = [
     "pyax; platform_system == 'Darwin'",
 ]
 
-vnc = ["vncdotool~=1.2"]
+vnc = [
+    "vncdotool~=1.2",
+    "python-vnc-server",
+    "opencv-python",
+    "numpy",
+    "pillow",
+    "requests"
+]
 docker = ["docker~=7.1"]
 kubernetes = ["kubernetes~=32.0"]
 scrapybara = [

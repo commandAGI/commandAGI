@@ -1535,21 +1535,36 @@ class LocalComputer(BaseComputer):
             s.bind(("", 0))
             return s.getsockname()[1]
 
-    @property
-    def video_stream_url(self) -> str:
-        """Get the URL for the video stream of the local computer instance.
+    def _get_http_video_stream_url(self) -> str:
+        """Get the URL for the HTTP video stream of the local computer instance.
 
         Returns:
-            str: The URL for the video stream, or an empty string if video streaming is not active.
+            str: The URL for the HTTP video stream, or an empty string if HTTP video streaming is not active.
         """
         if self._video_streaming and self._video_server_port:
             return f"http://localhost:{self._video_server_port}/"
         return ""
 
-    def start_video_stream(self) -> bool:
-        """Start the video stream for the local computer instance.
+    def _start_http_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 8080,
+        frame_rate: int = 30,
+        quality: int = 80,
+        scale: float = 1.0,
+        compression: Literal["jpeg", "png"] = "jpeg"
+    ) -> bool:
+        """Start the HTTP video stream for the local computer instance.
 
         This starts a simple HTTP server that serves screenshots as a video stream.
+
+        Args:
+            host: HTTP server host address
+            port: HTTP server port
+            frame_rate: Target frame rate for the video stream
+            quality: JPEG/PNG compression quality (0-100)
+            scale: Scale factor for the video stream (0.1-1.0)
+            compression: Image compression format to use
 
         Returns:
             bool: True if the video stream was successfully started, False otherwise.
@@ -1559,21 +1574,25 @@ class LocalComputer(BaseComputer):
             return True
 
         try:
-            # Find a free port
-            port = self._find_free_port()
+            # Find a free port if none specified
+            port = port if port != 8080 else self._find_free_port()
             self._video_server_port = port
 
             # Create and start the HTTP server
-            self.logger.info(f"Starting video stream server on port {port}")
+            self.logger.info(f"Starting video stream server on {host}:{port}")
             server = ThreadedHTTPServer(
-                ("localhost", port), VideoStreamHandler, computer=self
+                (host, port), 
+                VideoStreamHandler, 
+                computer=self,
+                frame_rate=frame_rate,
+                quality=quality,
+                scale=scale,
+                compression=compression
             )
 
             # Run the server in a separate thread
             server_thread = threading.Thread(target=server.serve_forever)
-            server_thread.daemon = (
-                True  # So the thread will exit when the main program exits
-            )
+            server_thread.daemon = True  # So the thread will exit when the main program exits
             server_thread.start()
 
             # Store references
@@ -1581,7 +1600,7 @@ class LocalComputer(BaseComputer):
             self._video_server_thread = server_thread
             self._video_streaming = True
 
-            self.logger.info(f"Video stream started at http://localhost:{port}/")
+            self.logger.info(f"Video stream started at http://{host}:{port}/")
             return True
         except Exception as e:
             self.logger.error(f"Failed to start video stream: {e}")
@@ -1591,8 +1610,8 @@ class LocalComputer(BaseComputer):
             self._video_server_port = None
             return False
 
-    def stop_video_stream(self) -> bool:
-        """Stop the video stream for the local computer instance.
+    def _stop_http_video_stream(self) -> bool:
+        """Stop the HTTP video stream for the local computer instance.
 
         Returns:
             bool: True if the video stream was successfully stopped, False otherwise.
@@ -1616,6 +1635,154 @@ class LocalComputer(BaseComputer):
             return False
 
         return False
+
+    def _get_vnc_video_stream_url(self) -> str:
+        """Get the URL for the VNC video stream of the computer instance.
+        Uses direct VNC server implementation instead of HTTP stream proxy.
+
+        Returns:
+            str: The URL for the VNC video stream, or an empty string if not running
+        """
+        # Check if VNC process exists using getattr to avoid attribute errors
+        if getattr(self, '_vnc_process', None):
+            host = getattr(self, '_vnc_host', 'localhost')
+            port = getattr(self, '_vnc_port', 5900)
+            return f"vnc://{host}:{port}"
+        return ""
+
+    def _start_vnc_video_stream(
+        self,
+        host: str = 'localhost',
+        port: int = 5900,
+        password: str = 'commandagi',
+        shared: bool = True,
+        framerate: int = 30,
+        quality: int = 80,
+        encoding: Literal["raw", "tight", "zrle"] = "tight",
+        compression_level: int = 6,
+        scale: float = 1.0,
+        allow_clipboard: bool = True,
+        view_only: bool = False,
+        allow_resize: bool = True
+    ) -> bool:
+        """Start a direct VNC server for the local computer using TigerVNC.
+        
+        Args:
+            host: VNC server host address
+            port: VNC server port
+            password: VNC server password
+            shared: Allow multiple simultaneous connections
+            framerate: Target frame rate for the VNC stream
+            quality: Image quality level (0-100)
+            encoding: VNC encoding method to use
+            compression_level: Compression level (0-9)
+            scale: Scale factor for the VNC display (0.1-1.0)
+            allow_clipboard: Enable clipboard sharing
+            view_only: Disable input from VNC clients
+            allow_resize: Allow clients to resize the display
+
+        Returns:
+            bool: True if VNC server started successfully, False otherwise
+        """
+        try:
+            import subprocess
+            import shutil
+            import tempfile
+            import os
+
+            # Store configuration for URL generation
+            self._vnc_host = host
+            self._vnc_port = port
+
+            # Check if TigerVNC is installed
+            if not shutil.which('x0vncserver'):
+                self.logger.error("TigerVNC (x0vncserver) not found. Please install it first.")
+                return False
+
+            # Create password file
+            passwd_file = os.path.join(tempfile.gettempdir(), f'vnc_passwd_{self.name}')
+            try:
+                # Use vncpasswd to create password file
+                subprocess.run([
+                    'vncpasswd', '-f'
+                ], input=password.encode(),
+                   stdout=open(passwd_file, 'wb'),
+                   check=True
+                )
+            except subprocess.CalledProcessError as e:
+                self.logger.error(f"Failed to create VNC password file: {e}")
+                return False
+
+            # Start x0vncserver with explicit parameters
+            cmd = [
+                'x0vncserver',
+                f'-rfbport={port}',
+                f'-PasswordFile={passwd_file}',
+                f'-MaxProcessorUsage={framerate}',  # Use framerate to control CPU usage
+                f'-CompressionLevel={compression_level}',
+                f'-Quality={quality}',
+                f'-PreferredEncoding={encoding}',
+                f'-Scale={scale}',
+                '-localhost=0' if not host == 'localhost' else '-localhost=1',
+                '-AlwaysShared=1' if shared else '-AlwaysShared=0',
+                '-SecurityTypes=VncAuth',
+                '-AcceptClipboard=1' if allow_clipboard else '-AcceptClipboard=0',
+                '-SendClipboard=1' if allow_clipboard else '-SendClipboard=0',
+                '-ViewOnly=1' if view_only else '-ViewOnly=0',
+                '-ResizeDesktop=1' if allow_resize else '-ResizeDesktop=0'
+            ]
+
+            self._vnc_process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+
+            # Check if server started successfully
+            time.sleep(2)  # Give it a moment to start
+            
+            if self._vnc_process.poll() is None:  # Process is still running
+                self.logger.info(f"VNC server started on {host}:{port}")
+                return True
+            else:
+                stdout, stderr = self._vnc_process.communicate()
+                self.logger.error(f"VNC server failed to start: {stderr.decode()}")
+                self._vnc_process = None
+                return False
+
+        except Exception as e:
+            self.logger.error(f"Error starting VNC server: {e}")
+            if hasattr(self, '_vnc_process') and self._vnc_process:
+                self._vnc_process.terminate()
+                self._vnc_process = None
+            return False
+
+    def _stop_vnc_video_stream(self) -> bool:
+        """Stop the direct VNC server.
+        
+        Returns:
+            bool: True if server stopped successfully, False otherwise
+        """
+        try:
+            # Check if VNC process exists using getattr to avoid attribute errors
+            if getattr(self, '_vnc_process', None):
+                self._vnc_process.terminate()
+                self._vnc_process.wait(timeout=5)
+                self._vnc_process = None
+                
+                # Clean up password file
+                import os
+                import tempfile
+                passwd_file = os.path.join(tempfile.gettempdir(), f'vnc_passwd_{self.name}')
+                if os.path.exists(passwd_file):
+                    os.remove(passwd_file)
+                
+                self.logger.info("VNC server stopped")
+                return True
+            return False
+        except Exception as e:
+            self.logger.error(f"Error stopping VNC server: {e}")
+            return False
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:
         """Implementation of copy_to_computer functionality for LocalComputer.
