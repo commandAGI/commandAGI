@@ -22,6 +22,7 @@ from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
 
 from commandAGI._internal.config import APPDIR, DEV_MODE
+from commandAGI._utils.annotations import annotation, gather_annotated_attr_keys
 from commandAGI._utils.counter import next_for_cls
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.types import (
@@ -599,6 +600,7 @@ class BaseComputer(BaseModel):
     logger: Optional[logging.Logger] = None
     _file_handler: Optional[logging.FileHandler] = None
     num_retries: int = 3
+    error_handling: Literal["raise", "pass"] = "raise"
 
     def __init__(self, name=None, **kwargs):
         name = (
@@ -611,6 +613,7 @@ class BaseComputer(BaseModel):
         self.logger = logging.getLogger(f"commandAGI.computers.{self.name}")
         self.logger.setLevel(logging.INFO)
 
+    @annotation("endpoint", {})
     def start(self):
         """Start the computer."""
         if self._state == "running":
@@ -643,6 +646,7 @@ class BaseComputer(BaseModel):
         """Start the computer."""
         raise NotImplementedError(f"{self.__class__.__name__}.start")
 
+    @annotation("endpoint", {})
     def stop(self):
         """Stop the computer."""
         if self._state == "stopped":
@@ -667,6 +671,7 @@ class BaseComputer(BaseModel):
         """Stop the computer."""
         raise NotImplementedError(f"{self.__class__.__name__}.stop")
 
+    @annotation("endpoint", {})
     def pause(self) -> bool:
         """Pause the computer.
 
@@ -709,15 +714,9 @@ class BaseComputer(BaseModel):
         self.logger.debug("Pause not implemented for this computer type")
         pass
 
-    def resume(self, timeout_hours: Optional[float] = None) -> bool:
-        """Resume a paused computer.
-
-        Args:
-            timeout_hours: Optional timeout in hours after which the computer will be paused again.
-
-        Returns:
-            bool: True if the computer was successfully resumed, False otherwise.
-        """
+    @annotation("endpoint", {})
+    def resume(self) -> bool:
+        """Resume a paused computer."""
         if self._state != "paused":
             self.logger.warning(
                 f"Cannot resume computer in {
@@ -725,32 +724,13 @@ class BaseComputer(BaseModel):
             )
             return False
 
-        self.logger.info(
-            f"Attempting to resume {self.__class__.__name__} computer"
-            + (f" with {timeout_hours} hour timeout" if timeout_hours else "")
-        )
-        for attempt in range(self.num_retries):
-            try:
-                self._resume(timeout_hours)
-                self._state = RunningState.RUNNING
-                self.logger.info(
-                    f"{self.__class__.__name__} computer resumed successfully"
-                )
-                return True
-            except Exception as e:
-                self.logger.error(
-                    f"Error resuming computer (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
+        self.logger.info(f"Attempting to resume {self.__class__.__name__} computer")
+        self._resume()
+        self._state = RunningState.RUNNING
+        self.logger.info(f"{self.__class__.__name__} computer resumed successfully")
 
-        return False
-
-    def _resume(self, timeout_hours: Optional[float] = None):
+    def _resume(self):
         """Implementation of resume functionality.
-
-        Args:
-            timeout_hours: Optional timeout in hours after which the computer will automatically pause again.
 
         This method should be overridden by subclasses to implement computer-specific resume functionality.
         The default implementation does nothing.
@@ -758,6 +738,7 @@ class BaseComputer(BaseModel):
         self.logger.debug("Resume not implemented for this computer type")
         pass
 
+    @annotation("endpoint", {"use_getter": True, "use_setter": True})
     @property
     def state(self) -> RunningState:
         return self._state
@@ -766,10 +747,9 @@ class BaseComputer(BaseModel):
     def state(self, value: RunningState):
         self.ensure_running_state(value)
 
+    @annotation("endpoint", {})
     def ensure_running_state(self, target_state: RunningState):
         """Ensure the computer is in the specified state.
-
-        TODO: implement a timeout for the state transition or else raise an exception
 
         Args:
             target_state: The desired state ("running", "paused", or "stopped")
@@ -805,6 +785,7 @@ class BaseComputer(BaseModel):
             case (current, target):
                 raise ValueError(f"Invalid state transition: {current} -> {target}")
 
+    @annotation("endpoint", {})
     def reset_state(self):
         """Reset the computer state. If you just need ot reset the computer state without a full off-on, use this method. NOTE: in most cases, we just do a full off-on"""
         self.logger.info(f"Resetting {self.__class__.__name__} computer state")
@@ -813,6 +794,7 @@ class BaseComputer(BaseModel):
 
     _temp_dir: str = None
 
+    @annotation("endpoint", {"use_getter": True})
     @property
     def temp_dir(self) -> Path:
         """Get or create a temporary directory for this computer.
@@ -829,6 +811,7 @@ class BaseComputer(BaseModel):
 
     _has_created_artifact_dir = False
 
+    @annotation("endpoint", {"use_getter": True})
     @property
     def artifact_dir(self) -> Path:
         artifact_dir_path = APPDIR / self.name
@@ -838,6 +821,7 @@ class BaseComputer(BaseModel):
             self._has_created_artifact_dir = True
         return artifact_dir_path
 
+    @annotation("endpoint", {"use_getter": True})
     @property
     def logfile_path(self) -> Path:
         return self.artifact_dir / "logfile.log"
@@ -846,6 +830,8 @@ class BaseComputer(BaseModel):
     def _new_screenshot_name(self) -> Path:
         return self.artifact_dir / f"screenshot-{datetime.now():%Y-%m-%d_%H-%M-%S-%f}"
 
+    @annotation("endpoint", {})
+    @annotation("mcp_tool", {})
     def wait(self, timeout: float = 5.0) -> bool:
         """Waits a specified amount of time"""
         time.sleep(timeout)
@@ -856,6 +842,8 @@ class BaseComputer(BaseModel):
         """Get a screenshot of the current display."""
         return self.get_screenshot()
 
+    @annotation("endpoint", {"method": "get", "path": "/screenshot"})
+    @annotation("mcp_resource", {"resource_name": "screenshot"})
     def get_screenshot(
         self, display_id: int = 0, format: Literal["base64", "PIL", "path"] = "PIL"
     ) -> Union[str, Image.Image, Path]:
@@ -889,6 +877,7 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.get_screenshot")
 
+    @annotation("endpoint", {"use_getter": True, "use_setter": True})
     @property
     def mouse_position(self) -> tuple[int, int]:
         return self.get_mouse_position()
@@ -898,6 +887,7 @@ class BaseComputer(BaseModel):
         x, y = value
         self.move(x=x, y=y, duration=0.0)
 
+    @annotation("mcp_resource", {"resource_name": "mouse_position"})
     def get_mouse_position(self) -> tuple[int, int]:
         """Get the current mouse position."""
         return self._execute_with_retry("get_mouse_position", self._get_mouse_position)
@@ -918,6 +908,8 @@ class BaseComputer(BaseModel):
             elif button_state is False:
                 self.mouse_up(button=MouseButton[button_name.upper()])
 
+    @annotation("endpoint", {"method": "get", "path": "/mouse_button_states"})
+    @annotation("mcp_resource", {"resource_name": "mouse_button_states"})
     def get_mouse_button_states(self) -> dict[str, bool | None]:
         """Get the current state of mouse buttons."""
         return self._execute_with_retry(
@@ -946,6 +938,8 @@ class BaseComputer(BaseModel):
             elif key_state is False:
                 self.keyup(key=KeyboardKey[key_name.upper()])
 
+    @annotation("endpoint", {"method": "get", "path": "/keyboard_key_states"})
+    @annotation("mcp_resource", {"resource_name": "keyboard_key_states"})
     def get_keyboard_key_states(self) -> dict[KeyboardKey, bool]:
         """Get the current state of keyboard keys."""
         return self._execute_with_retry(
@@ -955,14 +949,6 @@ class BaseComputer(BaseModel):
     def _get_keyboard_key_states(self) -> dict[KeyboardKey, bool]:
         """Get the current state of keyboard keys."""
         raise NotImplementedError(f"{self.__class__.__name__}.get_keyboard_key_states")
-
-    @property
-    def keyboard_key_states_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_keyboard_key_states",
-            description="Get the current keyboard key states",
-            func=self.get_keyboard_key_states,
-        )
 
     @property
     def keys_down(self) -> list[KeyboardKey]:
@@ -1029,6 +1015,8 @@ class BaseComputer(BaseModel):
         """Get information about running processes."""
         return self.get_processes()
 
+    @annotation("endpoint", {"method": "get", "path": "/processes"})
+    @annotation("mcp_resource", {"resource_name": "processes"})
     def get_processes(self) -> List[ProcessInfo]:
         """Get information about running processes."""
         return self._execute_with_retry("get_processes", self._get_processes)
@@ -1038,18 +1026,12 @@ class BaseComputer(BaseModel):
         raise NotImplementedError(f"{self.__class__.__name__}._get_processes")
 
     @property
-    def get_processes_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_processes",
-            description="Get information about running processes",
-            func=self.get_processes,
-        )
-
-    @property
     def windows(self) -> List[WindowInfo]:
         """Get information about open windows."""
         return self.get_windows()
 
+    @annotation("endpoint", {"method": "get", "path": "/windows"})
+    @annotation("mcp_resource", {"resource_name": "windows"})
     def get_windows(self) -> List[WindowInfo]:
         """Get information about open windows."""
         return self._execute_with_retry("get_windows", self._get_windows)
@@ -1059,18 +1041,12 @@ class BaseComputer(BaseModel):
         raise NotImplementedError(f"{self.__class__.__name__}._get_windows")
 
     @property
-    def get_windows_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_windows",
-            description="Get information about open windows",
-            func=self.get_windows,
-        )
-
-    @property
     def displays(self) -> List[DisplayInfo]:
         """Get information about connected displays."""
         return self.get_displays()
 
+    @annotation("endpoint", {"method": "get", "path": "/displays"})
+    @annotation("mcp_resource", {"resource_name": "displays"})
     def get_displays(self) -> List[DisplayInfo]:
         """Get information about connected displays."""
         return self._execute_with_retry("get_displays", self._get_displays)
@@ -1080,18 +1056,12 @@ class BaseComputer(BaseModel):
         raise NotImplementedError(f"{self.__class__.__name__}._get_displays")
 
     @property
-    def get_displays_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_displays",
-            description="Get information about connected displays",
-            func=self.get_displays,
-        )
-
-    @property
     def layout_tree(self) -> UIElement:
         """Get the current UI layout tree."""
         return self.get_layout_tree()
 
+    @annotation("endpoint", {"method": "get", "path": "/layout_tree"})
+    @annotation("mcp_resource", {"resource_name": "layout_tree"})
     def get_layout_tree(self) -> UIElement:
         """Return a LayoutTreeObservation containing the accessibility tree of the current UI."""
         return self._execute_with_retry("get_layout_tree", self._get_layout_tree)
@@ -1105,18 +1075,12 @@ class BaseComputer(BaseModel):
         raise NotImplementedError(f"{self.__class__.__name__}._get_layout_tree")
 
     @property
-    def layout_tree_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="get_layout_tree",
-            description="Get the current layout tree",
-            func=self.get_layout_tree,
-        )
-
-    @property
     def sysinfo(self) -> SystemInfo:
         """Get information about the system."""
         return self.get_sysinfo()
 
+    @annotation("endpoint", {"method": "get", "path": "/sysinfo"})
+    @annotation("mcp_resource", {"resource_name": "sysinfo"})
     def get_sysinfo(self) -> SystemInfo:
         """Get information about the system."""
         if self._state == "stopped":
@@ -1138,6 +1102,7 @@ class BaseComputer(BaseModel):
 
     _jupyter_server_pid: int | None = None
 
+    @annotation("endpoint", {"method": "post", "path": "/start_jupyter_server"})
     def start_jupyter_server(
         self, port: int = 8888, notebook_dir: Optional[str] = None
     ):
@@ -1149,10 +1114,12 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.start_jupyter_server")
 
+    @annotation("endpoint", {"method": "post", "path": "/stop_jupyter_server"})
     def stop_jupyter_server(self):
         """Stop the running Jupyter notebook server if one exists."""
         raise NotImplementedError(f"{self.__class__.__name__}.stop_jupyter_server")
 
+    @annotation("endpoint", {"method": "post", "path": "/create_jupyter_notebook"})
     def create_jupyter_notebook(self) -> BaseJupyterNotebook:
         """Create and return a new BaseJupyterNotebook instance.
 
@@ -1164,6 +1131,8 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.create_jupyter_notebook")
 
+    @annotation("endpoint", {"method": "post", "path": "/run_process"})
+    @annotation("mcp_tool", {"tool_name": "run_process"})
     def run_process(
         self,
         command: str,
@@ -1202,14 +1171,6 @@ class BaseComputer(BaseModel):
             bool: True if process executed successfully
         """
         raise NotImplementedError(f"{self.__class__.__name__}._run_process")
-
-    @property
-    def run_process_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="run_process",
-            description="Run a process with the specified parameters",
-            func=self.run_process,
-        )
 
     def _default_run_process(
         self,
@@ -1254,6 +1215,7 @@ class BaseComputer(BaseModel):
         # Execute the command with timeout if specified
         return self.shell(cmd_shell_format, timeout=timeout)
 
+    @annotation("endpoint", {"method": "post", "path": "/create_shell"})
     def create_shell(
         self,
         executable: str = None,
@@ -1275,6 +1237,8 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.create_shell")
 
+    @annotation("endpoint", {"method": "post", "path": "/shell"})
+    @annotation("mcp_tool", {"tool_name": "shell"})
     def shell(
         self,
         command: str,
@@ -1310,14 +1274,8 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}.execute_shell_command")
 
-    @property
-    def shell_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="shell",
-            description="Execute a system command in the global shell environment",
-            func=self.shell,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/keypress"})
+    @annotation("mcp_tool", {"tool_name": "keypress"})
     def keypress(self, key: KeyboardKey, duration: float = 0.1) -> bool:
         """Execute pressing a keyboard key with a specified duration."""
         return self._execute_with_retry(
@@ -1333,14 +1291,8 @@ class BaseComputer(BaseModel):
         time.sleep(duration)
         self.keyup(key)
 
-    @property
-    def keypress_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="keyboard_key_press",
-            description="Execute pressing a keyboard key with a specified duration",
-            func=self.keypress,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/keydown"})
+    @annotation("mcp_tool", {"tool_name": "keydown"})
     def keydown(self, key: KeyboardKey) -> bool:
         """Execute key down for a keyboard key."""
         return self._execute_with_retry(
@@ -1353,14 +1305,8 @@ class BaseComputer(BaseModel):
         """Execute key down for a keyboard key."""
         raise NotImplementedError(f"{self.__class__.__name__}.keydown")
 
-    @property
-    def keydown_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="keyboard_key_down",
-            description="Execute key down for a keyboard key",
-            func=self.keydown,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/keyup"})
+    @annotation("mcp_tool", {"tool_name": "keyup"})
     def keyup(self, key: KeyboardKey) -> bool:
         """Execute key release for a keyboard key."""
         return self._execute_with_retry(
@@ -1373,14 +1319,8 @@ class BaseComputer(BaseModel):
         """Execute key release for a keyboard key."""
         raise NotImplementedError(f"{self.__class__.__name__}.keyup")
 
-    @property
-    def keyup_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="keyboard_key_release",
-            description="Execute key release for a keyboard key",
-            func=self.keyup,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/hotkey"})
+    @annotation("mcp_tool", {"tool_name": "hotkey"})
     def hotkey(self, keys: List[KeyboardKey]) -> bool:
         """Execute a keyboard hotkey: press all keys in order and then release them in reverse order."""
         return self._execute_with_retry(
@@ -1396,14 +1336,8 @@ class BaseComputer(BaseModel):
         for key in reversed(keys):
             self.keyup(key)
 
-    @property
-    def hotkey_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="keyboard_hotkey",
-            description="Execute a keyboard hotkey: press all keys in order and then release them in reverse order",
-            func=self.hotkey,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/type"})
+    @annotation("mcp_tool", {"tool_name": "type"})
     def type(self, text: str) -> bool:
         """Execute typing the given text."""
         return self._execute_with_retry("type", self._type, text)
@@ -1413,14 +1347,8 @@ class BaseComputer(BaseModel):
         for char in text:
             self.keypress(char)
 
-    @property
-    def type_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="type",
-            description="Execute typing the given text",
-            func=self.type,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/move"})
+    @annotation("mcp_tool", {"tool_name": "move"})
     def move(self, x: int, y: int, duration: float = 0.5) -> bool:
         """Execute moving the mouse to (x, y) over the move duration."""
         return self._execute_with_retry(
@@ -1435,14 +1363,8 @@ class BaseComputer(BaseModel):
         """Execute moving the mouse to (x, y) over the move duration."""
         raise NotImplementedError(f"{self.__class__.__name__}.move")
 
-    @property
-    def move_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="mouse_move",
-            description="Execute moving the mouse to (x, y) over the move duration",
-            func=self.move,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/scroll"})
+    @annotation("mcp_tool", {"tool_name": "scroll"})
     def scroll(self, amount: float) -> bool:
         """Execute mouse scroll by a given amount."""
         return self._execute_with_retry("mouse scroll", self._scroll, amount)
@@ -1451,14 +1373,8 @@ class BaseComputer(BaseModel):
         """Execute mouse scroll by a given amount."""
         raise NotImplementedError(f"{self.__class__.__name__}.scroll")
 
-    @property
-    def scroll_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="mouse_scroll",
-            description="Execute mouse scroll by a given amount",
-            func=self.scroll,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/mouse_down"})
+    @annotation("mcp_tool", {"tool_name": "mouse_down"})
     def mouse_down(self, button: MouseButton = MouseButton.LEFT) -> bool:
         """Execute mouse button down action."""
         return self._execute_with_retry(
@@ -1471,14 +1387,8 @@ class BaseComputer(BaseModel):
         """Execute mouse button down action."""
         raise NotImplementedError(f"{self.__class__.__name__}.mouse_down")
 
-    @property
-    def mouse_down_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="mouse_down",
-            description="Execute mouse button down action",
-            func=self.mouse_down,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/mouse_up"})
+    @annotation("mcp_tool", {"tool_name": "mouse_up"})
     def mouse_up(self, button: MouseButton = MouseButton.LEFT) -> bool:
         """Execute mouse button up action."""
         return self._execute_with_retry(
@@ -1491,14 +1401,8 @@ class BaseComputer(BaseModel):
         """Execute mouse button up action."""
         raise NotImplementedError(f"{self.__class__.__name__}.mouse_up")
 
-    @property
-    def mouse_up_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="mouse_up",
-            description="Execute mouse button up action",
-            func=self.mouse_up,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/click"})
+    @annotation("mcp_tool", {"tool_name": "click"})
     def click(
         self,
         x: int,
@@ -1534,14 +1438,8 @@ class BaseComputer(BaseModel):
         time.sleep(press_duration)
         self.mouse_up(button=button)
 
-    @property
-    def click_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="click",
-            description="Execute a click action at the given coordinates using press and release operations with a duration",
-            func=self.click,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/double_click"})
+    @annotation("mcp_tool", {"tool_name": "double_click"})
     def double_click(
         self,
         x: int,
@@ -1591,14 +1489,8 @@ class BaseComputer(BaseModel):
             button=button,
         )
 
-    @property
-    def double_click_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="double_click",
-            description="Execute a double click action at the given coordinates using press and release operations with a duration",
-            func=self.double_click,
-        )
-
+    @annotation("endpoint", {"method": "post", "path": "/drag"})
+    @annotation("mcp_tool", {"tool_name": "drag"})
     def drag(
         self,
         # TODO: maybe remove the start_x/y to align with openai's computer tool
@@ -1640,14 +1532,7 @@ class BaseComputer(BaseModel):
         # Release the mouse button
         self.mouse_up(button=button)
 
-    @property
-    def drag_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="drag",
-            description="Execute a drag action using the primitive mouse operations",
-            func=self.drag,
-        )
-
+    @annotation("endpoint", {"use_getter": True, "path": "/video_stream"})
     @property
     def video_stream_url(self) -> str:
         """Get the URL for the video stream of the computer instance.
@@ -1658,6 +1543,7 @@ class BaseComputer(BaseModel):
         self.logger.debug("Video streaming not implemented for this computer type")
         return ""
 
+    @annotation("endpoint", {"method": "post", "path": "/start_video_stream"})
     def start_video_stream(self) -> bool:
         """Start the video stream for the computer instance.
 
@@ -1667,6 +1553,7 @@ class BaseComputer(BaseModel):
         self.logger.debug("Video streaming not implemented for this computer type")
         return False
 
+    @annotation("endpoint", {"method": "post", "path": "/stop_video_stream"})
     def stop_video_stream(self) -> bool:
         """Stop the video stream for the computer instance.
 
@@ -1708,14 +1595,6 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._copy_to_computer")
 
-    @property
-    def copy_to_computer_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="copy_to_computer",
-            description="Copy a file or directory to the computer",
-            func=self.copy_to_computer,
-        )
-
     def copy_from_computer(
         self, source_path: Union[str, Path], destination_path: Union[str, Path]
     ) -> bool:
@@ -1750,14 +1629,6 @@ class BaseComputer(BaseModel):
             destination_path: Path where to copy on local machine
         """
         raise NotImplementedError(f"{self.__class__.__name__}._copy_from_computer")
-
-    @property
-    def copy_from_computer_tool(self) -> BaseTool:
-        return BaseTool.from_function(
-            name="copy_from_computer",
-            description="Copy a file or directory from the computer to the local machine",
-            func=self.copy_from_computer,
-        )
 
     def open(
         self,
@@ -1809,6 +1680,8 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._open")
 
+    @annotation("endpoint", {"method": "post", "path": "/locate_text_on_screen"})
+    @annotation("mcp_tool", {"tool_name": "locate_text_on_screen"})
     def locate_text_on_screen(
         self,
         text: str,
@@ -1857,6 +1730,8 @@ class BaseComputer(BaseModel):
         # Text not found
         return None
 
+    @annotation("endpoint", {"method": "post", "path": "/locate_object_on_screen"})
+    @annotation("mcp_tool", {"tool_name": "locate_object_on_screen"})
     def locate_object_on_screen(
         self,
         template: Union[str, Path, Image.Image],
@@ -1933,6 +1808,8 @@ class BaseComputer(BaseModel):
         # No match found above threshold
         return None
 
+    @annotation("endpoint", {"method": "post", "path": "/mouse_action"})
+    @annotation("mcp_tool", {"tool_name": "mouse_action"})
     def mouse_action(
         self,
         action: Literal["move", "click", "double_click"],
@@ -1966,149 +1843,130 @@ class BaseComputer(BaseModel):
                 return False
 
     @property
-    def mouse_action_tool(self) -> BaseTool:
-        """Tool for executing mouse actions."""
-
-        class MouseActionInput(BaseModel):
-            action: Literal["move", "click", "double_click"] = Field(
-                description="Mouse action to perform: 'move', 'click', or 'double_click'"
+    def tools(self) -> list[BaseTool]:
+        mcp_tool_names = gather_annotated_attr_keys(self, "mcp_tool")
+        tools = []
+        for mcp_tool_name in mcp_tool_names:
+            tool_method = getattr(self, mcp_tool_name)
+            tool = BaseTool.from_function(
+                name=tool_method.__name__,
+                description=tool_method.__doc__,
+                func=tool_method,
+                return_direct=True,
             )
-            position: tuple[int, int] = Field(
-                description="(x,y) coordinates for mouse action"
+            tools.append(tool)
+        return tools
+
+    def get_mcp_server(self):
+        """Create and return a FastMCP server with tools and resources based on annotations."""
+        from fastmcp import FastMCP
+        from commandAGI._utils.annotations import gather_annotated_attrs
+
+        # Create FastMCP server with the computer's name
+        mcp = FastMCP(self.name)
+
+        # Gather all tool and resource annotated attributes
+        tools = gather_annotated_attrs(self, "mcp_tool")
+        resources = gather_annotated_attrs(self, "mcp_resource")
+
+        # Register tools (POST endpoints)
+        for attr_name, annotation_data in tools.items():
+            method = getattr(self, attr_name)
+
+            @mcp.tool()
+            def tool_endpoint(*args, method=method, **kwargs):
+                try:
+                    return method(*args, **kwargs)
+                except Exception as e:
+                    self.logger.error(f"Error executing tool {attr_name}: {e}")
+                    raise
+
+        # Register resources (GET endpoints)
+        for attr_name, annotation_data in resources.items():
+            method = getattr(self, attr_name)
+            resource_name = annotation_data.get("mcp_resource", {}).get(
+                "resource_name", attr_name
             )
-            button: MouseButton = Field(
-                default=MouseButton.LEFT,
-                description="Mouse button to use: 'left', 'right', or 'middle'",
+
+            @mcp.resource(name=resource_name)
+            def resource_endpoint(*args, method=method, **kwargs):
+                try:
+                    return method(*args, **kwargs)
+                except Exception as e:
+                    self.logger.error(f"Error getting resource {attr_name}: {e}")
+                    raise
+
+        return mcp
+
+    def get_http_server(self):
+        """Create and return a FastAPI server with endpoints based on annotations."""
+        from fastapi import FastAPI, HTTPException
+        from typing import Any, Dict
+        from enum import Enum
+        from commandAGI._utils.annotations import gather_annotated_attrs
+
+        class HTTPMethod(str, Enum):
+            GET = "GET"
+            POST = "POST"
+            PUT = "PUT"
+            DELETE = "DELETE"
+            PATCH = "PATCH"
+            HEAD = "HEAD"
+            OPTIONS = "OPTIONS"
+
+        app = FastAPI()
+
+        # Gather all endpoint-annotated attributes
+        endpoints = gather_annotated_attrs(self, "endpoint")
+
+        def create_endpoint(path: str, http_method: HTTPMethod, handler: callable):
+            """Helper function to create FastAPI endpoints with consistent error handling"""
+
+            async def endpoint_wrapper(**kwargs) -> Any:
+                try:
+                    return await handler(**kwargs)
+                except Exception as e:
+                    raise HTTPException(status_code=500, detail=str(e))
+
+            app.add_api_route(
+                path=path,
+                endpoint=endpoint_wrapper,
+                methods=[http_method],
+                name=f"{http_method.lower()}_{path.replace('/', '_')}",
             )
 
-        return BaseTool.from_function(
-            name="mouse_action",
-            description="Execute mouse actions: move, click, and double-click",
-            func=self.mouse_action,
-            args_schema=MouseActionInput,
-            return_direct=True,
-        )
+        for attr_name, annotation_data in endpoints.items():
+            endpoint_config = annotation_data.get("endpoint", {})
+            path = endpoint_config.get("path", f"/{attr_name}")
+            method = HTTPMethod(endpoint_config.get("method", "POST").upper())
+            use_getter = endpoint_config.get("use_getter", False)
+            use_setter = endpoint_config.get("use_setter", False)
 
-    @property
-    def tools(self):
-        return [
-            # TODO: include all tools
-        ]
+            # Handle property getters/setters
+            if use_getter or use_setter:
+                if use_getter:
 
-    # def execute_computer_action(self, action: ComputerActionUnion) -> bool:
-    #     """Execute a computer action based on the action type.
+                    async def getter_handler(attr_name=attr_name):
+                        return getattr(self, attr_name)
 
-    #     Args:
-    #         action: A ComputerActionUnion object representing the action to perform
+                    create_endpoint(path, HTTPMethod.GET, getter_handler)
 
-    #     Returns:
-    #         bool: True if action was successful, False otherwise
-    #     """
-    #     if self._state == "stopped":
-    #         self._start()
-    #     elif self._state == "paused":
-    #         self.resume()
+                if use_setter:
 
-    #     try:
-    #         match action.action_type:
-    #             case ComputerActionType.SHELL.value:
-    #                 return self.shell(action.command, timeout=action.timeout)
+                    async def setter_handler(value: Any, attr_name=attr_name):
+                        setattr(self, attr_name, value)
+                        return {"status": "success"}
 
-    #             case ComputerActionType.KEYBOARD_KEY_PRESS.value:
-    #                 return self.keypress(action.key, action.duration)
+                    create_endpoint(path, HTTPMethod.PUT, setter_handler)
+                continue
 
-    #             case ComputerActionType.KEYBOARD_KEY_DOWN.value:
-    #                 return self.keydown(action.key)
+            # Handle regular method endpoints
+            async def method_handler(method=getattr(self, attr_name), **kwargs):
+                return method(**kwargs)
 
-    #             case ComputerActionType.KEYBOARD_KEY_RELEASE.value:
-    #                 return self.keyup(action.key)
+            create_endpoint(path, method, method_handler)
 
-    #             case ComputerActionType.KEYBOARD_HOTKEY.value:
-    #                 return self.hotkey(action.keys)
-
-    #             case ComputerActionType.TYPE.value:
-    #                 return self.type(action.text)
-
-    #             case ComputerActionType.MOUSE_MOVE.value:
-    #                 return self.move(
-    #                     action.x, action.y, action.move_duration
-    #                 )
-
-    #             case ComputerActionType.MOUSE_SCROLL.value:
-    #                 return self.scroll(action.amount)
-
-    #             case ComputerActionType.mouse_down.value:
-    #                 return self.mouse_down(action.button)
-
-    #             case ComputerActionType.MOUSE_BUTTON_UP.value:
-    #                 return self.mouse_up(action.button)
-
-    #             case ComputerActionType.CLICK.value:
-    #                 return self.click(
-    #                     action.x,
-    #                     action.y,
-    #                     action.move_duration,
-    #                     action.press_duration,
-    #                     action.button,
-    #                 )
-
-    #             case ComputerActionType.DOUBLE_CLICK.value:
-    #                 return self.double_click(
-    #                     action.x,
-    #                     action.y,
-    #                     action.move_duration,
-    #                     action.press_duration,
-    #                     action.button,
-    #                     action.double_click_interval_seconds,
-    #                 )
-
-    #             case ComputerActionType.DRAG.value:
-    #                 return self.drag(
-    #                     action.start_x,
-    #                     action.start_y,
-    #                     action.end_x,
-    #                     action.end_y,
-    #                     action.move_duration,
-    #                     action.button,
-    #                 )
-
-    #             case ComputerActionType.RUN_PROCESS.value:
-    #                 return self.run_process(
-    #                     action.command,
-    #                     action.args,
-    #                     action.cwd,
-    #                     action.env,
-    #                     action.timeout,
-    #                 )
-
-    #             case ComputerActionType.FILE_COPY_TO_COMPUTER.value:
-    #                 return self.copy_to_computer(
-    #                     action.source_path, action.destination_path
-    #                 )
-
-    #             case ComputerActionType.FILE_COPY_FROM_COMPUTER.value:
-    #                 return self.copy_from_computer(
-    #                     action.source_path, action.destination_path
-    #                 )
-
-    #             case _:
-    #                 self.logger.error(f"Unsupported action type: {action.action_type}")
-    #                 return False
-
-    #     except Exception as e:
-    #         self.logger.error(f"Error executing computer action: {e}")
-    #         return False
-
-    # @property
-    # def computer_action_tool(self) -> BaseTool:
-    #     """Tool for executing any computer action."""
-    #     return BaseTool.from_function(
-    #         name="computer_action",
-    #         description="Execute any computer action (keyboard, mouse, process, etc)",
-    #         func=self.execute_computer_action,
-    #         args_schema=ComputerActionUnion,
-    #         return_direct=True,
-    #     )
+        return app
 
     def _execute_with_retry(
         self, operation_name: str, operation: callable, *args, **kwargs
@@ -2127,20 +1985,15 @@ class BaseComputer(BaseModel):
         if not self.ensure_running_state("running"):
             return False
 
-        # TODO: remove the retry logic
-        # TODO: remove the DEV logic
-        # TODO: make a attr for error_handling: 'raise'|'pass'
-        for attempt in range(self.num_retries):
+        if self.error_handling == "raise":
+            operation(*args, **kwargs)
+        elif self.error_handling == "pass":
             try:
                 operation(*args, **kwargs)
-                return True
             except Exception as e:
-                if DEV_MODE and attempt == self.num_retries - 1:
-                    raise e
-                self.logger.error(
-                    f"Error executing {operation_name} (attempt {attempt + 1}/{self.num_retries}): {e}"
-                )
-                if attempt == self.num_retries - 1:
-                    return False
+                self.logger.error(f"Error executing {operation_name}: {e}")
+                return False
+        else:
+            raise ValueError(f"Invalid error handling: {self.error_handling}")
 
         return False

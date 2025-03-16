@@ -353,14 +353,10 @@ class E2BDesktopComputer(BaseComputer):
                 self.logger.error(f"Error pausing E2B Desktop sandbox: {e}")
                 raise
 
-    def _resume(self, timeout_hours: Optional[float] = None):
+    def _resume(self):
         """Resume the E2B Desktop instance.
 
         For E2B Desktop, resuming means taking the sandbox out of a paused state.
-
-        Args:
-            timeout_hours: Optional timeout in hours after which the sandbox will automatically pause again.
-                          Not used in the current E2B Desktop implementation.
         """
         if self.e2b_desktop:
             self.logger.info("Resuming E2B Desktop sandbox")

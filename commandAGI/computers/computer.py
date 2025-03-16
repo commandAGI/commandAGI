@@ -478,14 +478,10 @@ class Computer(BaseComputer):
         """
         # TODO: implement specifically for the system in mind
 
-    def _resume(self, timeout_hours: Optional[float] = None):
+    def _resume(self):
         """Resume the daemon client computer.
 
-        For daemon client, resuming means sending a resume command to the daemon.
-
-        Args:
-            timeout_hours: Optional timeout in hours after which the computer will automatically pause again.
-        """
+        For daemon client, resuming means sending a resume command to the daemon."""
         # TODO: implement specifically for the system in mind
 
     @property

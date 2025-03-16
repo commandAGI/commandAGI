@@ -1316,14 +1316,11 @@ class LocalComputer(BaseComputer):
         self.logger.info(f"Pausing {self.__class__.__name__} (no-op)")
         # No specific pause implementation for local computers
 
-    def _resume(self, timeout_hours: Optional[float] = None):
+    def _resume(self):
         """Resume the local computer.
 
         For local computers, resuming doesn't have a specific implementation
         as it's running on the local machine.
-
-        Args:
-            timeout_hours: Not used for local computer implementations.
         """
         self.logger.info(f"Resuming {self.__class__.__name__} (no-op)")
         # No specific resume implementation for local computers

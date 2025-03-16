@@ -8,9 +8,10 @@
 [x] add `@property sysinfo` and more stubs to the base computer (think of others)
 [x] rename most of the action methods to somehting more user friendly. click -> click, execute_shell_command to shell
 [ ] make the computer.drag start coordinates optional
-[ ] rename daemoncomputer to computer
-[ ] rename the repo to `command_computer`
+[x] rename daemoncomputer to computer
+[o] ~~rename the repo to `command_computer`~~ No, its commandAGI
 [ ] make a decorator that i can  use to automatically annotate which methods should be picked up by fastapi and fastmcp. this decorator should be just for annotation purposes because its going to decorate methods
+[ ] get rid of teh tool properties since we now have a decorator that ectracts tols from a regular mehod
 [ ] get rid of all the observation and action structs. just handle the raw properties
 [ ] playright webbrowser, pupyteer webbrowser computer child/implementation classes
 [ ] terminal

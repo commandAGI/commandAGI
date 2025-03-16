@@ -332,13 +332,10 @@ class VNCComputer(BaseComputer):
             self.client.disconnect()
             self.logger.info("VNC connection paused")
 
-    def _resume(self, timeout_hours: Optional[float] = None):
+    def _resume(self):
         """Resume the VNC connection.
 
         For VNC, resuming means reconnecting if the client was disconnected.
-
-        Args:
-            timeout_hours: Not used for VNC implementation.
         """
         if self.client:
             self.logger.info("Resuming VNC connection")
