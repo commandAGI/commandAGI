@@ -1,9 +1,7 @@
 from pathlib import Path
-from typing import Dict, Optional, List, Union, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.base_application import BaseApplication
 
 
 class BaseLibreOfficeCalc(BaseApplication):

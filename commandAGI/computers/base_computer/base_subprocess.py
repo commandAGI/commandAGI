@@ -1,11 +1,12 @@
 import logging
 from pathlib import Path
-from typing import Dict, Literal, Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Literal, Optional, Union
+
 from pydantic import BaseModel, Field
 
 from commandAGI._utils.annotations import annotation
-from commandAGI.computers.misc_types import ProcessInfo
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
+from commandAGI.computers.misc_types import ProcessInfo
 
 if TYPE_CHECKING:
     from commandAGI.computers.base_computer.base_computer import BaseComputer

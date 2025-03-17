@@ -2,7 +2,7 @@ import logging
 import platform
 import shlex
 from pathlib import Path
-from typing import Dict, Optional, Union, Any
+from typing import Any, Dict, Optional, Union
 
 from commandAGI.computers.base_computer.applications.base_shell import BaseShell
 from commandAGI.computers.remote_computer.remote_subprocess import RemoteApplication

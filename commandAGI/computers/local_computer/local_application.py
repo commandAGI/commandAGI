@@ -17,7 +17,7 @@ class LocalApplication(BaseApplication, LocalApplication):
 
         Args:
             display_id: Display ID to capture
-            format: Format to return screenshot in  
+            format: Format to return screenshot in
 
         Returns:
             Screenshot in requested format

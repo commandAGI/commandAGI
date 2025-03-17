@@ -6,11 +6,16 @@ import signal
 import subprocess
 import threading
 from pathlib import Path
-from typing import Dict, Optional, Union, Any
+from typing import Any, Dict, Optional, Union
 
-from commandAGI.computers.base_computer.applications.base_background_shell import BaseBackgroundShell
-from commandAGI.computers.local_computer.local_subprocess import LocalApplication, LocalSubprocess
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
+from commandAGI.computers.base_computer.applications.base_background_shell import (
+    BaseBackgroundShell,
+)
+from commandAGI.computers.local_computer.local_subprocess import (
+    LocalApplication,
+    LocalSubprocess,
+)
 
 
 class LocalBackgroundShell(BaseBackgroundShell, LocalSubprocess):
@@ -213,4 +218,4 @@ class LocalBackgroundShell(BaseBackgroundShell, LocalSubprocess):
         if pid in self._output_buffers:
             del self._output_buffers[pid]
         if pid in self._locks:
-            del self._locks[pid] 
+            del self._locks[pid]

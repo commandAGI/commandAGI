@@ -61,8 +61,8 @@ except ImportError:
 
 try:
     from commandAGI.computers.scrappybara_computer import (
-        BrowserScrapybaraComputer,
         BaseScrapybaraComputer,
+        BrowserScrapybaraComputer,
         UbuntuScrapybaraComputer,
         WindowsScrapybaraComputer,
     )

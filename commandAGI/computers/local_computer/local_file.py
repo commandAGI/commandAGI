@@ -1,10 +1,10 @@
 import io
 from pathlib import Path
-from typing import TypeAlias, Union, Optional
+from typing import Optional, TypeAlias, Union
 
 from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.computers.base_computer.base_computer_file import BaseComputerFile
-
+from commandAGI.computers.base_computer.base_computer_file import \
+    BaseComputerFile
 
 LocalFile: TypeAlias = Union[io.TextIOWrapper, io.BufferedReader, io.BufferedWriter]
 

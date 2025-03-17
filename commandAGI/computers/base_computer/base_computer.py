@@ -1,4 +1,3 @@
-from itertools import tee
 import logging
 import os
 import tempfile
@@ -6,17 +5,9 @@ import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
+from itertools import tee
 from pathlib import Path
-from typing import (
-    Any,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    TypeAlias,
-    TypedDict,
-    Union,
-)
+from typing import Any, Dict, List, Literal, Optional, TypeAlias, TypedDict, Union
 
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
@@ -25,7 +16,10 @@ from commandAGI._internal.config import APPDIR, DEV_MODE
 from commandAGI._utils.annotations import annotation, gather_annotated_attr_keys
 from commandAGI._utils.counter import next_for_cls
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
-from commandAGI.computers.base_computer.applications.base_background_shell import BaseBackgroundShell
+from commandAGI.computers.base_computer.applications.base_background_shell import (
+    BaseBackgroundShell,
+)
+from commandAGI.computers.base_computer.applications.base_blender import BaseBlender
 from commandAGI.computers.base_computer.applications.base_chrome_browser import (
     BaseChromeBrowser,
 )
@@ -36,40 +30,43 @@ from commandAGI.computers.base_computer.applications.base_file_explorer import (
     BaseFileExplorer,
 )
 from commandAGI.computers.base_computer.applications.base_freecad import BaseFreeCAD
+from commandAGI.computers.base_computer.applications.base_kdenlive import BaseKdenlive
+from commandAGI.computers.base_computer.applications.base_kicad import BaseKicad
 from commandAGI.computers.base_computer.applications.base_libre_office_calc import (
     BaseLibreOfficeCalc,
 )
 from commandAGI.computers.base_computer.applications.base_libre_office_present import (
     BaseLibreOfficePresent,
 )
-from commandAGI.computers.base_computer.applications.base_microsoft_excel import BaseMicrosoftExcel
-from commandAGI.computers.base_computer.applications.base_microsoft_powerpoint import (
-    BaseMicrosoftPowerPoint,
-)
-from commandAGI.computers.base_computer.applications.base_microsoft_word import BaseMicrosoftWord
-from commandAGI.computers.base_computer.applications.base_text_editor import (
-    BaseTextEditor,
-)
-from commandAGI.computers.base_computer.applications.base_blender import BaseBlender
 from commandAGI.computers.base_computer.applications.base_libre_office_writer import (
     BaseLibraOfficeWriter,
 )
-from commandAGI.computers.base_computer.base_keyboard import KeyboardKey
-from commandAGI.computers.base_computer.applications.base_kicad import BaseKicad
-from commandAGI.computers.base_computer.base_mouse import MouseButton
+from commandAGI.computers.base_computer.applications.base_microsoft_excel import (
+    BaseMicrosoftExcel,
+)
+from commandAGI.computers.base_computer.applications.base_microsoft_powerpoint import (
+    BaseMicrosoftPowerPoint,
+)
+from commandAGI.computers.base_computer.applications.base_microsoft_word import (
+    BaseMicrosoftWord,
+)
 from commandAGI.computers.base_computer.applications.base_paint_editor import (
     BasePaintEditor,
 )
 from commandAGI.computers.base_computer.applications.base_shell import BaseShell
+from commandAGI.computers.base_computer.applications.base_text_editor import (
+    BaseTextEditor,
+)
+from commandAGI.computers.base_computer.base_keyboard import KeyboardKey
+from commandAGI.computers.base_computer.base_mouse import MouseButton
 from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess
-from commandAGI.computers.base_computer.applications.base_kdenlive import BaseKdenlive
 from commandAGI.computers.misc_types import (
     ComputerRunningState,
+    DisplayInfo,
+    ProcessInfo,
     SystemInfo,
     UIElement,
     WindowInfo,
-    DisplayInfo,
-    ProcessInfo,
 )
 
 
@@ -863,7 +860,9 @@ class BaseComputer(BaseModel):
 
     def _start_microsoft_powerpoint(self) -> BaseMicrosoftPowerPoint:
         """Create and return a new PowerPoint instance."""
-        raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_powerpoint")
+        raise NotImplementedError(
+            f"{self.__class__.__name__}._start_microsoft_powerpoint"
+        )
 
     @annotation("endpoint", {"method": "post", "path": "/start_paint_editor"})
     def start_paint_editor(self) -> BasePaintEditor:
@@ -1694,6 +1693,7 @@ class BaseComputer(BaseModel):
     def get_mcp_server(self):
         """Create and return a FastMCP server with tools and resources based on annotations."""
         from fastmcp import FastMCP
+
         from commandAGI._utils.annotations import gather_annotated_attrs
 
         # Create FastMCP server with the computer's name
@@ -1734,9 +1734,11 @@ class BaseComputer(BaseModel):
 
     def get_http_server(self):
         """Create and return a FastAPI server with endpoints based on annotations."""
-        from fastapi import FastAPI, HTTPException
-        from typing import Any, Dict
         from enum import Enum
+        from typing import Any, Dict
+
+        from fastapi import FastAPI, HTTPException
+
         from commandAGI._utils.annotations import gather_annotated_attrs
 
         class HTTPMethod(str, Enum):

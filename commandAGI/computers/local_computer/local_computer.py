@@ -29,23 +29,49 @@ from commandAGI.computers.base_computer import (
     BaseShell,
     SystemInfo,
 )
-from commandAGI.computers.local_computer.applications.local_background_shell import LocalBackgroundShell
+from commandAGI.computers.local_computer.applications.local_background_shell import (
+    LocalBackgroundShell,
+)
 from commandAGI.computers.local_computer.applications.local_blender import LocalBlender
-from commandAGI.computers.local_computer.applications.local_chrome_browser import LocalChromeBrowser
-from commandAGI.computers.local_computer.applications.local_cursor_ide import LocalCursorIDE
-from commandAGI.computers.local_computer.applications.local_file_explorer import LocalFileExplorer
+from commandAGI.computers.local_computer.applications.local_chrome_browser import (
+    LocalChromeBrowser,
+)
+from commandAGI.computers.local_computer.applications.local_cursor_ide import (
+    LocalCursorIDE,
+)
+from commandAGI.computers.local_computer.applications.local_file_explorer import (
+    LocalFileExplorer,
+)
 from commandAGI.computers.local_computer.applications.local_freecad import LocalFreeCAD
-from commandAGI.computers.local_computer.applications.local_kdenlive import LocalKdenlive
+from commandAGI.computers.local_computer.applications.local_kdenlive import (
+    LocalKdenlive,
+)
 from commandAGI.computers.local_computer.applications.local_kicad import LocalKicad
-from commandAGI.computers.local_computer.applications.local_libre_office_calc import LocalLibreOfficeCalc
-from commandAGI.computers.local_computer.applications.local_libre_office_present import LocalLibreOfficePresent
-from commandAGI.computers.local_computer.applications.local_libreoffice_writer import LocalLibreOfficeWriter
-from commandAGI.computers.local_computer.applications.local_microsoft_excel import LocalMicrosoftExcel
-from commandAGI.computers.local_computer.applications.local_microsoft_powerpoint import LocalMicrosoftPowerPoint
-from commandAGI.computers.local_computer.applications.local_microsoft_word import LocalMicrosoftWord
-from commandAGI.computers.local_computer.applications.local_paint_editor import LocalPaintEditor
+from commandAGI.computers.local_computer.applications.local_libre_office_calc import (
+    LocalLibreOfficeCalc,
+)
+from commandAGI.computers.local_computer.applications.local_libre_office_present import (
+    LocalLibreOfficePresent,
+)
+from commandAGI.computers.local_computer.applications.local_libreoffice_writer import (
+    LocalLibreOfficeWriter,
+)
+from commandAGI.computers.local_computer.applications.local_microsoft_excel import (
+    LocalMicrosoftExcel,
+)
+from commandAGI.computers.local_computer.applications.local_microsoft_powerpoint import (
+    LocalMicrosoftPowerPoint,
+)
+from commandAGI.computers.local_computer.applications.local_microsoft_word import (
+    LocalMicrosoftWord,
+)
+from commandAGI.computers.local_computer.applications.local_paint_editor import (
+    LocalPaintEditor,
+)
 from commandAGI.computers.local_computer.applications.local_shell import LocalShell
-from commandAGI.computers.local_computer.applications.local_text_editor import LocalTextEditor
+from commandAGI.computers.local_computer.applications.local_text_editor import (
+    LocalTextEditor,
+)
 from commandAGI.computers.local_computer.local_subprocess import LocalSubprocess
 from commandAGI.types import (
     DisplaysObservation,
@@ -713,7 +739,7 @@ class LocalComputer(BaseComputer):
                 version=platform.version(),
                 architecture=platform.machine(),
             )
-    
+
     def _shell(
         self,
         command: str,
@@ -885,7 +911,6 @@ class LocalComputer(BaseComputer):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._start_video_editor")
 
-
     def _find_free_port(self) -> int:
         """Find a free port to use for the video server."""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -1017,10 +1042,10 @@ class LocalComputer(BaseComputer):
             view_only: Disable input from VNC clients
             allow_resize: Allow clients to resize the display
         """
-        import subprocess
-        import shutil
-        import tempfile
         import os
+        import shutil
+        import subprocess
+        import tempfile
 
         # Store configuration for URL generation
         self._vnc_host = host

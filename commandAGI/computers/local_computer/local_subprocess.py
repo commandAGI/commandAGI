@@ -1,12 +1,15 @@
 import os
 import platform
-import psutil
 from pathlib import Path
 from typing import Dict, Optional
 
-from commandAGI.computers.base_computer import BaseComputer
+import psutil
 
-from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess, BaseApplication
+from commandAGI.computers.base_computer import BaseComputer
+from commandAGI.computers.base_computer.base_subprocess import (
+    BaseApplication,
+    BaseSubprocess,
+)
 
 
 class LocalSubprocess(BaseSubprocess):

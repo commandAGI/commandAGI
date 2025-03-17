@@ -1,7 +1,9 @@
 from pathlib import Path
-from typing import Dict, Optional, List, Union, Any, Tuple, Literal
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
-from commandAGI.computers.base_computer.applications.base_cursor_ide import BaseCursorIDE
+from commandAGI.computers.base_computer.applications.base_cursor_ide import (
+    BaseCursorIDE,
+)
 from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 

@@ -1,15 +1,15 @@
 import asyncio
 import logging
 import threading
-from typing import Callable, Optional, Literal
-from urllib.parse import urlparse
 import time
+from typing import Callable, Literal, Optional
+from urllib.parse import urlparse
 
 import cv2
 import numpy as np
 import requests
 from PIL import Image
-from vnc import VNCServer, VNCClient
+from vnc import VNCClient, VNCServer
 from vnc.client import MouseButton as VNCMouseButton
 from vnc.server import VNCServerScreen
 

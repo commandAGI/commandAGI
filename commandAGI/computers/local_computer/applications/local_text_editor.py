@@ -1,7 +1,9 @@
 from pathlib import Path
-from typing import Dict, Optional, List, Union, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from commandAGI.computers.base_computer.applications.base_text_editor import BaseTextEditor
+from commandAGI.computers.base_computer.applications.base_text_editor import (
+    BaseTextEditor,
+)
 from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 

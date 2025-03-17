@@ -1,5 +1,8 @@
 from commandAGI.computers.base_computer.applications.base_shell import BaseShell
-from commandAGI.computers.local_computer.local_subprocess import LocalSubprocess, LocalApplication
+from commandAGI.computers.local_computer.local_subprocess import (
+    LocalApplication,
+    LocalSubprocess,
+)
 
 
 class LocalShell(BaseShell, LocalApplication):

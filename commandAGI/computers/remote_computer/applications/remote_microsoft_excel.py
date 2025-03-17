@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import Dict, Optional, List, Union, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from commandAGI.computers.base_computer.applications.base_microsoft_excel import BaseMicrosoftExcel
-from commandAGI.computers.remote_computer.remote_application import (
-    RemoteApplication,
+from commandAGI.computers.base_computer.applications.base_microsoft_excel import (
+    BaseMicrosoftExcel,
 )
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
 class RemoteMicrosoftExcel(BaseMicrosoftExcel, RemoteApplication):

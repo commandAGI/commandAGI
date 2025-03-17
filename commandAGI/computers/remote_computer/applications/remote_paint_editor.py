@@ -1,7 +1,9 @@
 from pathlib import Path
-from typing import Dict, Optional, List, Union, Tuple, Any, Literal
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
-from commandAGI.computers.base_computer.applications.base_paint_editor import BasePaintEditor
+from commandAGI.computers.base_computer.applications.base_paint_editor import (
+    BasePaintEditor,
+)
 from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 

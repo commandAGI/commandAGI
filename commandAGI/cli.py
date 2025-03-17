@@ -28,12 +28,9 @@ from commandAGI.agents.hub_cli import app as hub_cli
 
 # Import available computers
 from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.computers.remote_computer import (
-    RemoteComputer,
-    ProvisioningMethod,
-)
 from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandAGI.computers.local_pynput_computer import LocalPynputComputer
+from commandAGI.computers.remote_computer import ProvisioningMethod, RemoteComputer
 from commandAGI.version import __version__, get_container_version, get_package_version
 
 try:

@@ -8,4 +8,4 @@ class LocalWord(BaseWord, LocalApplication):
     This class defines the interface for working with Microsoft Word.
     Implementations should provide methods to create and modify documents
     through Word's COM API or other automation interfaces.
-    """ 
+    """

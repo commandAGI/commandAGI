@@ -2,11 +2,16 @@ import logging
 import platform
 import shlex
 from pathlib import Path
-from typing import Dict, Optional, Union, Any
+from typing import Any, Dict, Optional, Union
 
-from commandAGI.computers.base_computer.applications.base_background_shell import BaseBackgroundShell
-from commandAGI.computers.remote_computer.remote_subprocess import RemoteApplication, RemoteSubprocess
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
+from commandAGI.computers.base_computer.applications.base_background_shell import (
+    BaseBackgroundShell,
+)
+from commandAGI.computers.remote_computer.remote_subprocess import (
+    RemoteApplication,
+    RemoteSubprocess,
+)
 
 
 class RemoteBackgroundShell(BaseBackgroundShell, RemoteSubprocess):
@@ -58,7 +63,11 @@ class RemoteBackgroundShell(BaseBackgroundShell, RemoteSubprocess):
 
         if result["returncode"] == 0:
             # On Unix, the output will be the PID of the background process
-            pid = int(result["stdout"].strip()) if not platform.system() == "Windows" else None
+            pid = (
+                int(result["stdout"].strip())
+                if not platform.system() == "Windows"
+                else None
+            )
             return {
                 "pid": pid,
                 "command": command,
@@ -83,7 +92,7 @@ class RemoteBackgroundShell(BaseBackgroundShell, RemoteSubprocess):
         """
         if platform.system() == "Windows":
             # Windows implementation using TASKLIST
-            result = self.execute(f"TASKLIST /FI \"PID eq {pid}\" /NH")
+            result = self.execute(f'TASKLIST /FI "PID eq {pid}" /NH')
             return str(pid) in result["stdout"]
         else:
             # Unix implementation using ps
@@ -135,4 +144,4 @@ class RemoteBackgroundShell(BaseBackgroundShell, RemoteSubprocess):
             # Unix implementation using kill
             result = self.execute(f"kill -TERM {pid} || kill -KILL {pid}")
 
-        return result["returncode"] == 0 
+        return result["returncode"] == 0

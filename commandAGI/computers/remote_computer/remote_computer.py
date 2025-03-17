@@ -17,23 +17,53 @@ from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.computers.platform_managers.base_platform_manager import (
     BaseComputerPlatformManager,
 )
-from commandAGI.computers.remote_computer.applications.remote_background_shell import RemoteBackgroundShell
-from commandAGI.computers.remote_computer.applications.remote_blender import RemoteBlender
-from commandAGI.computers.remote_computer.applications.remote_chrome_browser import RemoteChromeBrowser
-from commandAGI.computers.remote_computer.applications.remote_cursor_ide import RemoteCursorIDE
-from commandAGI.computers.remote_computer.applications.remote_file_explorer import RemoteFileExplorer
-from commandAGI.computers.remote_computer.applications.remote_freecad import RemoteFreeCAD
-from commandAGI.computers.remote_computer.applications.remote_kdenlive import RemoteKdenlive
+from commandAGI.computers.remote_computer.applications.remote_background_shell import (
+    RemoteBackgroundShell,
+)
+from commandAGI.computers.remote_computer.applications.remote_blender import (
+    RemoteBlender,
+)
+from commandAGI.computers.remote_computer.applications.remote_chrome_browser import (
+    RemoteChromeBrowser,
+)
+from commandAGI.computers.remote_computer.applications.remote_cursor_ide import (
+    RemoteCursorIDE,
+)
+from commandAGI.computers.remote_computer.applications.remote_file_explorer import (
+    RemoteFileExplorer,
+)
+from commandAGI.computers.remote_computer.applications.remote_freecad import (
+    RemoteFreeCAD,
+)
+from commandAGI.computers.remote_computer.applications.remote_kdenlive import (
+    RemoteKdenlive,
+)
 from commandAGI.computers.remote_computer.applications.remote_kicad import RemoteKicad
-from commandAGI.computers.remote_computer.applications.remote_libre_office_calc import RemoteLibreOfficeCalc
-from commandAGI.computers.remote_computer.applications.remote_libre_office_present import RemoteLibreOfficePresent
-from commandAGI.computers.remote_computer.applications.remote_libre_office_writer import RemoteLibreOfficeWriter
-from commandAGI.computers.remote_computer.applications.remote_microsoft_excel import RemoteMicrosoftExcel
-from commandAGI.computers.remote_computer.applications.remote_microsoft_powerpoint import RemoteMicrosoftPowerPoint
-from commandAGI.computers.remote_computer.applications.remote_microsoft_word import RemoteMicrosoftWord
-from commandAGI.computers.remote_computer.applications.remote_paint_editor import RemotePaintEditor
+from commandAGI.computers.remote_computer.applications.remote_libre_office_calc import (
+    RemoteLibreOfficeCalc,
+)
+from commandAGI.computers.remote_computer.applications.remote_libre_office_present import (
+    RemoteLibreOfficePresent,
+)
+from commandAGI.computers.remote_computer.applications.remote_libre_office_writer import (
+    RemoteLibreOfficeWriter,
+)
+from commandAGI.computers.remote_computer.applications.remote_microsoft_excel import (
+    RemoteMicrosoftExcel,
+)
+from commandAGI.computers.remote_computer.applications.remote_microsoft_powerpoint import (
+    RemoteMicrosoftPowerPoint,
+)
+from commandAGI.computers.remote_computer.applications.remote_microsoft_word import (
+    RemoteMicrosoftWord,
+)
+from commandAGI.computers.remote_computer.applications.remote_paint_editor import (
+    RemotePaintEditor,
+)
 from commandAGI.computers.remote_computer.applications.remote_shell import RemoteShell
-from commandAGI.computers.remote_computer.applications.remote_text_editor import RemoteTextEditor
+from commandAGI.computers.remote_computer.applications.remote_text_editor import (
+    RemoteTextEditor,
+)
 from commandAGI.computers.remote_computer.remote_subprocess import RemoteSubprocess
 from commandAGI.types import (
     KeyboardHotkeyAction,
@@ -61,35 +91,8 @@ try:
     from commandAGI.daemon.client.api.default.execute_command_execute_command_post import (
         sync as execute_command_sync,
     )
-    from commandAGI.daemon.client.api.default.hotkey_hotkey_post import (
-        sync as hotkey_sync,
-    )
-    from commandAGI.daemon.client.api.default.keydown_keydown_post import (
-        sync as keydown_sync,
-    )
-    from commandAGI.daemon.client.api.default.keypress_keypress_post import (
-        sync as keypress_sync,
-    )
-    from commandAGI.daemon.client.api.default.keyup_keyup_post import (
-        sync as keyup_sync,
-    )
-    from commandAGI.daemon.client.api.default.mouse_down_mouse_down_post import (
-        sync as mouse_down_sync,
-    )
-    from commandAGI.daemon.client.api.default.mouse_up_mouse_up_post import (
-        sync as mouse_up_sync,
-    )
-    from commandAGI.daemon.client.api.default.move_move_post import (
-        sync as move_sync,
-    )
-    from commandAGI.daemon.client.api.default.scroll_scroll_post import (
-        sync as scroll_sync,
-    )
     from commandAGI.daemon.client.api.default.execute_run_process_execute_run_process_post import (
         sync as run_process_sync,
-    )
-    from commandAGI.daemon.client.api.default.type_type_post import (
-        sync as type_sync,
     )
     from commandAGI.daemon.client.api.default.get_keyboard_state_observation_keyboard_state_get import (
         sync as get_keyboard_state_sync,
@@ -106,13 +109,34 @@ try:
     from commandAGI.daemon.client.api.default.get_video_stream_url_video_stream_url_get import (
         sync as get_video_stream_url_sync,
     )
+    from commandAGI.daemon.client.api.default.hotkey_hotkey_post import (
+        sync as hotkey_sync,
+    )
+    from commandAGI.daemon.client.api.default.keydown_keydown_post import (
+        sync as keydown_sync,
+    )
+    from commandAGI.daemon.client.api.default.keypress_keypress_post import (
+        sync as keypress_sync,
+    )
+    from commandAGI.daemon.client.api.default.keyup_keyup_post import sync as keyup_sync
+    from commandAGI.daemon.client.api.default.mouse_down_mouse_down_post import (
+        sync as mouse_down_sync,
+    )
+    from commandAGI.daemon.client.api.default.mouse_up_mouse_up_post import (
+        sync as mouse_up_sync,
+    )
+    from commandAGI.daemon.client.api.default.move_move_post import sync as move_sync
     from commandAGI.daemon.client.api.default.reset_reset_post import sync as reset_sync
+    from commandAGI.daemon.client.api.default.scroll_scroll_post import (
+        sync as scroll_sync,
+    )
     from commandAGI.daemon.client.api.default.start_video_stream_video_start_stream_post import (
         sync as start_video_stream_sync,
     )
     from commandAGI.daemon.client.api.default.stop_video_stream_video_stop_stream_post import (
         sync as stop_video_stream_sync,
     )
+    from commandAGI.daemon.client.api.default.type_type_post import sync as type_sync
     from commandAGI.daemon.client.models import (
         KeyboardHotkeyAction as ClientKeyboardHotkeyAction,
     )
@@ -318,7 +342,6 @@ class RemoteComputer(BaseComputer):
 
         raise RuntimeError("Failed to get system info from daemon")
 
-
     def _run_process(
         self,
         command: str,
@@ -432,6 +455,7 @@ class RemoteComputer(BaseComputer):
         raise NotImplementedError(
             f"{self.__class__.__name__}._start_libre_office_present"
         )
+
     def _start_microsoft_word(self) -> RemoteMicrosoftWord:
         """Create and return a new LocalMicrosoftWord instance."""
         raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_word")
@@ -440,9 +464,11 @@ class RemoteComputer(BaseComputer):
         """Create and return a new LocalMicrosoftExcel instance."""
         raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_excel")
 
-    def _start_microsoft_powerpoint(self) ->RemoteMicrosoftPowerPoint:
+    def _start_microsoft_powerpoint(self) -> RemoteMicrosoftPowerPoint:
         """Create and return a new LocalMicrosoftPowerPoint instance."""
-        raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_powerpoint")
+        raise NotImplementedError(
+            f"{self.__class__.__name__}._start_microsoft_powerpoint"
+        )
 
     def _start_paint_editor(self) -> RemotePaintEditor:
         """Create and return a new LocalPaintEditor instance.
@@ -467,7 +493,6 @@ class RemoteComputer(BaseComputer):
         implementation of BaseVideoEditor for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}._start_video_editor")
-
 
     def _keydown(self, key: KeyboardKey):
         """Press down a keyboard key"""

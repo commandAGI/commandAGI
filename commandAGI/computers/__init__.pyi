@@ -14,7 +14,6 @@ from commandAGI.computers.base_computer import (
     BaseJupyterNotebook,
     BaseShell,
 )
-from commandAGI.computers.remote_computer import RemoteComputer
 from commandAGI.computers.e2b_desktop_computer import E2BDesktopComputer
 from commandAGI.computers.local_computer import (
     LocalComputer,
@@ -25,9 +24,10 @@ from commandAGI.computers.local_computer import (
 from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 from commandAGI.computers.pigdev_computer import PigDevComputer
+from commandAGI.computers.remote_computer import RemoteComputer
 from commandAGI.computers.scrappybara_computer import (
-    BrowserScrapybaraComputer,
     BaseScrapybaraComputer,
+    BrowserScrapybaraComputer,
     UbuntuScrapybaraComputer,
     WindowsScrapybaraComputer,
 )

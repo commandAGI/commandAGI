@@ -1,7 +1,9 @@
 from pathlib import Path
-from typing import Dict, Optional, List, Union, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from commandAGI.computers.base_computer.applications.base_microsoft_word import BaseMicrosoftWord
+from commandAGI.computers.base_computer.applications.base_microsoft_word import (
+    BaseMicrosoftWord,
+)
 from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 

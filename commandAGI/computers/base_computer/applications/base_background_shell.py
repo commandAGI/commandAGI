@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Union, Any
+from typing import Any, Dict, Optional, Union
 
 from commandAGI.computers.base_computer.applications.base_shell import BaseShell
 from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess
@@ -81,4 +81,4 @@ class BaseBackgroundShell(BaseSubprocess):
         Returns:
             bool: True if the command was stopped successfully
         """
-        raise NotImplementedError("Subclasses must implement stop_command") 
+        raise NotImplementedError("Subclasses must implement stop_command")

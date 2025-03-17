@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import Dict, Literal, Optional, Union
+
 from PIL import Image
 
 from commandAGI.computers.base_computer.base_subprocess import (
-    BaseSubprocess,
     BaseApplication,
+    BaseSubprocess,
 )
 
 
@@ -20,13 +21,13 @@ class RemoteSubprocess(BaseSubprocess):
         """
         if not self._computer.client:
             raise RuntimeError("Client not initialized")
-        
+
         response = self._computer.client.get_process_info(self.pid)
         if response and "cwd" in response:
             return Path(response["cwd"])
         raise RuntimeError("Failed to get process cwd from daemon")
 
-    @property 
+    @property
     def env(self) -> Dict[str, str]:
         """Get environment variables from the subprocess.
 
@@ -101,4 +102,3 @@ class RemoteSubprocess(BaseSubprocess):
             raise RuntimeError("Client not initialized")
 
         return self._computer.client.stop_process(self.pid)
-
