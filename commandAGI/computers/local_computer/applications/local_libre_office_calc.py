@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_libreoffice_calc import BaseLibreOfficeCalc
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseLibreOfficeCalc(BaseApplication):
-    """Base class for spreadsheet operations.
+class LocalLibreOfficeCalc(BaseLibreOfficeCalc, LocalApplication):
+    """Local class for spreadsheet operations.
 
     This class defines the interface for working with desktop spreadsheet applications
     like Microsoft Excel, Apple Numbers, etc. Implementations should provide methods

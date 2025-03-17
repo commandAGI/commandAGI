@@ -1,12 +1,13 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any, Literal
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
+from commandAGI.computers.base_computer.applications.base_kicad import BaseKicad
+from commandAGI.computers.remote_computer.remote_application import (
+    RemoteApplication,
 )
 
 
-class BaseKicad(BaseApplication):
+class RemoteKicad(BaseKicad, RemoteApplication):
     """Base class for KiCad operations.
 
     This class defines the interface for working with KiCad for electronic design.

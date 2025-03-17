@@ -29,6 +29,24 @@ from commandAGI.computers.base_computer import (
     BaseShell,
     SystemInfo,
 )
+from commandAGI.computers.local_computer.applications.local_background_shell import LocalBackgroundShell
+from commandAGI.computers.local_computer.applications.local_blender import LocalBlender
+from commandAGI.computers.local_computer.applications.local_chrome_browser import LocalChromeBrowser
+from commandAGI.computers.local_computer.applications.local_cursor_ide import LocalCursorIDE
+from commandAGI.computers.local_computer.applications.local_file_explorer import LocalFileExplorer
+from commandAGI.computers.local_computer.applications.local_freecad import LocalFreeCAD
+from commandAGI.computers.local_computer.applications.local_kdenlive import LocalKdenlive
+from commandAGI.computers.local_computer.applications.local_kicad import LocalKicad
+from commandAGI.computers.local_computer.applications.local_libre_office_calc import LocalLibreOfficeCalc
+from commandAGI.computers.local_computer.applications.local_libre_office_present import LocalLibreOfficePresent
+from commandAGI.computers.local_computer.applications.local_libreoffice_writer import LocalLibreOfficeWriter
+from commandAGI.computers.local_computer.applications.local_microsoft_excel import LocalMicrosoftExcel
+from commandAGI.computers.local_computer.applications.local_microsoft_powerpoint import LocalMicrosoftPowerPoint
+from commandAGI.computers.local_computer.applications.local_microsoft_word import LocalMicrosoftWord
+from commandAGI.computers.local_computer.applications.local_paint_editor import LocalPaintEditor
+from commandAGI.computers.local_computer.applications.local_shell import LocalShell
+from commandAGI.computers.local_computer.applications.local_text_editor import LocalTextEditor
+from commandAGI.computers.local_computer.local_subprocess import LocalSubprocess
 from commandAGI.types import (
     DisplaysObservation,
     KeyboardKey,
@@ -629,44 +647,6 @@ class LocalComputer(BaseComputer):
             self.logger.error(f"Error stopping Jupyter notebook server: {e}")
             raise
 
-    def start_shell(
-        self,
-        executable: str = DEFAULT_SHELL_EXECUTIBLE,
-        cwd: Optional[Union[str, Path]] = None,
-        env: Optional[Dict[str, str]] = None,
-    ) -> LocalShell:
-        """Create and return a new LocalShell instance.
-
-        This method creates a persistent shell that can be used to execute commands
-        and interact with the system shell environment.
-
-        Args:
-            executable: Path to the shell executable to use
-            cwd: Initial working directory for the shell
-            env: Environment variables to set in the shell
-
-        Returns:
-            LocalShell: A shell instance for executing commands and interacting with the shell
-        """
-        self.logger.info(f"Creating new shell with executable: {executable}")
-        shell = LocalShell(
-            executable=executable,
-            cwd=cwd,
-            env=env,
-            logger=self.logger.getChild("shell"),
-        )
-
-        # Start the shell
-        if not shell.start():
-            self.logger.error("Failed to start shell")
-            raise RuntimeError("Failed to start shell")
-
-        self.logger.info(
-            f"Shell started successfully with PID: {
-                shell.pid}"
-        )
-        return shell
-
     def _get_sysinfo(self) -> SystemInfo:
         """Get local system information using psutil."""
         try:
@@ -733,6 +713,178 @@ class LocalComputer(BaseComputer):
                 version=platform.version(),
                 architecture=platform.machine(),
             )
+    
+    def _shell(
+        self,
+        command: str,
+        timeout: Optional[float] = None,
+        executible: Optional[str] = None,
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+    ):
+        """Execute a shell command.
+
+        Args:
+            command: The command to execute
+            timeout: Optional timeout in seconds
+            executable: Optional shell executable to use
+            cwd: Optional working directory to use
+            env: Optional environment variables to use
+        """
+        shell_process = self.start_shell(executible=executible, cwd=cwd, env=env)
+        output = shell_process.execute(command, timeout=timeout)
+        return output
+
+    def _run_process(
+        self,
+        command: str,
+        args: List[str] = [],
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None,
+    ) -> LocalSubprocess:
+        """Run a process with the specified parameters.
+
+        Args:
+            command: The command to run
+            args: List of command arguments
+            cwd: Working directory for the process
+            env: Environment variables for the process
+            timeout: Optional timeout in seconds
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._run_process")
+
+    def _start_shell(
+        self,
+        executable: str = None,
+        cwd: Optional[Union[str, Path]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> LocalShell:
+        raise NotImplementedError(f"{self.__class__.__name__}.start_shell")
+
+    def _start_background_shell(
+        self,
+        executable: str = None,
+        cwd: Optional[Union[str, Path]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> LocalBackgroundShell:
+        """Create and return a new local background shell instance.
+
+        Args:
+            executable: Path to the shell executable to use
+            cwd: Initial working directory for the shell
+            env: Environment variables to set in the shell
+
+        Returns:
+            LocalBackgroundShell: A background shell instance for executing background commands
+        """
+        return LocalBackgroundShell(
+            executable=executable or DEFAULT_SHELL_EXECUTIBLE,
+            cwd=cwd,
+            env=env,
+            logger=self.logger,
+        )
+
+    def _start_cursor_ide(self) -> LocalCursorIDE:
+        """Create and return a new LocalCursorIDE instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseCursorIDE for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_cursor_ide")
+
+    def _start_kicad(self) -> LocalKicad:
+        """Create and return a new LocalKicad instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseKicad for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_kicad")
+
+    def _start_blender(self) -> LocalBlender:
+        """Create and return a new LocalBlender instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalBlender for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_blender")
+
+    def _start_file_explorer(self) -> LocalFileExplorer:
+        """Create and return a new LocalFileExplorer instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalFileExplorer for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_file_explorer")
+
+    def _start_chrome_browser(self) -> LocalChromeBrowser:
+        """Create and return a new LocalChromeBrowser instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseChromeBrowser for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_chrome_browser")
+
+    def _start_text_editor(self) -> LocalTextEditor:
+        """Create and return a new LocalTextEditor instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalTextEditor for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_text_editor")
+
+    def _start_libre_office_writer(self) -> LocalLibreOfficeWriter:
+        """Create and return a new LocalLibreOfficeWriter instance."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}._start_libre_office_writer"
+        )
+
+    def _start_libre_office_calc(self) -> LocalLibreOfficeCalc:
+        """Create and return a new LocalLibreOfficeCalc instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_libre_office_calc")
+
+    def _start_libre_office_present(self) -> LocalLibreOfficePresent:
+        """Create and return a new LocalLibreOfficePresent instance."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}._start_libre_office_present"
+        )
+
+    def _start_microsoft_word(self) -> LocalMicrosoftWord:
+        """Create and return a new LocalWord instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_word")
+
+    def _start_microsoft_excel(self) -> LocalMicrosoftExcel:
+        """Create and return a new LocalExcel instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_excel")
+
+    def _start_microsoft_powerpoint(self) -> LocalMicrosoftPowerPoint:
+        """Create and return a new LocalPowerPoint instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_powerpoint")
+
+    def _start_paint_editor(self) -> LocalPaintEditor:
+        """Create and return a new LocalPaintEditor instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalPaintEditor for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_paint_editor")
+
+    def _start_freecad(self) -> LocalFreeCAD:
+        """Create and return a new LocalFreeCAD instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalFreeCAD for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_cad")
+
+    def _start_kdenlive(self) -> LocalKdenlive:
+        """Create and return a new LocalKdenlive instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseVideoEditor for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_video_editor")
+
 
     def _find_free_port(self) -> int:
         """Find a free port to use for the video server."""

@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_blender import BaseBlender
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseBlender(BaseApplication):
-    """Base class for Blender operations.
+class LocalBlender(BaseBlender, LocalApplication):
+    """Local class for Blender operations.
 
     This class defines the interface for working with Blender for 3D modeling.
     Implementations should provide methods to create and modify 3D models,

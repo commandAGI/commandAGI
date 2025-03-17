@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any, Literal
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_kicad import BaseKicad
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseKicad(BaseApplication):
-    """Base class for KiCad operations.
+class LocalKicad(BaseKicad, LocalApplication):
+    """Local class for KiCad operations.
 
     This class defines the interface for working with KiCad for electronic design.
     Implementations should provide methods to interact with KiCad's various tools

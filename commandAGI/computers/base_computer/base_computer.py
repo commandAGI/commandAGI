@@ -25,6 +25,7 @@ from commandAGI._internal.config import APPDIR, DEV_MODE
 from commandAGI._utils.annotations import annotation, gather_annotated_attr_keys
 from commandAGI._utils.counter import next_for_cls
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
+from commandAGI.computers.base_computer.applications.base_background_shell import BaseBackgroundShell
 from commandAGI.computers.base_computer.applications.base_chrome_browser import (
     BaseChromeBrowser,
 )
@@ -41,11 +42,11 @@ from commandAGI.computers.base_computer.applications.base_libre_office_calc impo
 from commandAGI.computers.base_computer.applications.base_libre_office_present import (
     BaseLibreOfficePresent,
 )
-from commandAGI.computers.base_computer.applications.base_office_excel import BaseExcel
-from commandAGI.computers.base_computer.applications.base_office_powerpoint import (
-    BasePowerPoint,
+from commandAGI.computers.base_computer.applications.base_microsoft_excel import BaseMicrosoftExcel
+from commandAGI.computers.base_computer.applications.base_microsoft_powerpoint import (
+    BaseMicrosoftPowerPoint,
 )
-from commandAGI.computers.base_computer.applications.base_office_word import BaseWord
+from commandAGI.computers.base_computer.applications.base_microsoft_word import BaseMicrosoftWord
 from commandAGI.computers.base_computer.applications.base_text_editor import (
     BaseTextEditor,
 )
@@ -59,8 +60,8 @@ from commandAGI.computers.base_computer.base_mouse import MouseButton
 from commandAGI.computers.base_computer.applications.base_paint_editor import (
     BasePaintEditor,
 )
-from commandAGI.computers.base_computer.base_shell import BaseShell
-from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubprocess
+from commandAGI.computers.base_computer.applications.base_shell import BaseShell
+from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess
 from commandAGI.computers.base_computer.applications.base_kdenlive import BaseKdenlive
 from commandAGI.computers.misc_types import (
     ComputerRunningState,
@@ -577,6 +578,34 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._get_sysinfo")
 
+    @annotation("endpoint", {"method": "post", "path": "/shell"})
+    @annotation("mcp_tool", {"tool_name": "shell"})
+    def shell(
+        self,
+        command: str,
+        timeout: Optional[float] = None,
+        executible: Optional[str] = None,
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+    ):
+        """Execute a system command in the global shell environment.
+
+        NOTE: its generally a better idea to use `start_shell` so you can run your shell in a separate processon the host machine
+        (but also not that some computer shell implementations actually shove it all back into the system_shell and only pretend to be multiprocessed lol)
+
+        The timeout parameter indicates how long (in seconds) to wait before giving up,
+        with None meaning no timeout.
+        """
+        self._execute_with_retry(
+            "shell command",
+            self._shell,
+            command=command,
+            timeout=timeout,
+            executible=executible,
+            cwd=cwd,
+            env=env,
+        )
+
     @annotation("endpoint", {"method": "post", "path": "/run_process"})
     @annotation("mcp_tool", {"tool_name": "run_process"})
     def run_process(
@@ -586,7 +615,7 @@ class BaseComputer(BaseModel):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> BaseComputerSubprocess:
+    ) -> BaseSubprocess:
         """Run a process with the specified parameters."""
         self._execute_with_retry(
             "run_process",
@@ -605,7 +634,7 @@ class BaseComputer(BaseModel):
         cwd: Optional[str] = None,
         env: Optional[dict] = None,
         timeout: Optional[float] = None,
-    ) -> BaseComputerSubprocess:
+    ) -> BaseSubprocess:
         """Run a process with the specified parameters.
 
         Args:
@@ -646,6 +675,36 @@ class BaseComputer(BaseModel):
         env: Optional[Dict[str, str]] = None,
     ) -> BaseShell:
         raise NotImplementedError(f"{self.__class__.__name__}.start_shell")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_background_shell"})
+    def start_background_shell(
+        self,
+        executable: str = None,
+        cwd: Optional[Union[str, Path]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> BaseBackgroundShell:
+        """Create and return a new background shell instance.
+
+        This method creates a persistent background shell that can be used to execute
+        commands that run in the background without blocking the main execution thread.
+
+        Args:
+            executable: Path to the shell executable to use
+            cwd: Initial working directory for the shell
+            env: Environment variables to set in the shell
+
+        Returns:
+            BaseBackgroundShell: A background shell instance for executing background commands
+        """
+        return self._start_background_shell(executable=executable, cwd=cwd, env=env)
+
+    def _start_background_shell(
+        self,
+        executable: str = None,
+        cwd: Optional[Union[str, Path]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> BaseBackgroundShell:
+        raise NotImplementedError(f"{self.__class__.__name__}.start_background_shell")
 
     @annotation("endpoint", {"method": "post", "path": "/start_cursor_ide"})
     def start_cursor_ide(self) -> BaseCursorIDE:
@@ -779,32 +838,32 @@ class BaseComputer(BaseModel):
             f"{self.__class__.__name__}._start_libre_office_present"
         )
 
-    @annotation("endpoint", {"method": "post", "path": "/start_word"})
-    def start_word(self) -> BaseWord:
+    @annotation("endpoint", {"method": "post", "path": "/start_microsoft_word"})
+    def start_microsoft_word(self) -> BaseMicrosoftWord:
         """Create and return a new Word instance."""
-        return self._start_word()
+        return self._start_microsoft_word()
 
-    def _start_word(self) -> BaseWord:
+    def _start_microsoft_word(self) -> BaseMicrosoftWord:
         """Create and return a new Word instance."""
-        raise NotImplementedError(f"{self.__class__.__name__}._start_word")
+        raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_word")
 
-    @annotation("endpoint", {"method": "post", "path": "/start_excel"})
-    def start_excel(self) -> BaseExcel:
+    @annotation("endpoint", {"method": "post", "path": "/start_microsoft_excel"})
+    def start_microsoft_excel(self) -> BaseMicrosoftExcel:
         """Create and return a new Excel instance."""
-        return self._start_excel()
+        return self._start_microsoft_excel()
 
-    def _start_excel(self) -> BaseExcel:
+    def _start_microsoft_excel(self) -> BaseMicrosoftExcel:
         """Create and return a new Excel instance."""
-        raise NotImplementedError(f"{self.__class__.__name__}._start_excel")
+        raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_excel")
 
-    @annotation("endpoint", {"method": "post", "path": "/start_powerpoint"})
-    def start_powerpoint(self) -> BasePowerPoint:
+    @annotation("endpoint", {"method": "post", "path": "/start_microsoft_powerpoint"})
+    def start_microsoft_powerpoint(self) -> BaseMicrosoftPowerPoint:
         """Create and return a new PowerPoint instance."""
-        return self._start_powerpoint()
+        return self._start_microsoft_powerpoint()
 
-    def _start_powerpoint(self) -> BasePowerPoint:
+    def _start_microsoft_powerpoint(self) -> BaseMicrosoftPowerPoint:
         """Create and return a new PowerPoint instance."""
-        raise NotImplementedError(f"{self.__class__.__name__}._start_powerpoint")
+        raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_powerpoint")
 
     @annotation("endpoint", {"method": "post", "path": "/start_paint_editor"})
     def start_paint_editor(self) -> BasePaintEditor:
@@ -856,55 +915,6 @@ class BaseComputer(BaseModel):
         implementation of BaseVideoEditor for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}._start_video_editor")
-
-    @annotation("endpoint", {"method": "post", "path": "/shell"})
-    @annotation("mcp_tool", {"tool_name": "shell"})
-    def shell(
-        self,
-        command: str,
-        timeout: Optional[float] = None,
-        executible: Optional[str] = None,
-        cwd: Optional[str] = None,
-        env: Optional[dict] = None,
-    ):
-        """Execute a system command in the global shell environment.
-
-        NOTE: its generally a better idea to use `start_shell` so you can run your shell in a separate processon the host machine
-        (but also not that some computer shell implementations actually shove it all back into the system_shell and only pretend to be multiprocessed lol)
-
-        The timeout parameter indicates how long (in seconds) to wait before giving up,
-        with None meaning no timeout.
-        """
-        self._execute_with_retry(
-            "shell command",
-            self._shell,
-            command=command,
-            timeout=timeout,
-            executible=executible,
-            cwd=cwd,
-            env=env,
-        )
-
-    def _shell(
-        self,
-        command: str,
-        timeout: Optional[float] = None,
-        executible: Optional[str] = None,
-        cwd: Optional[str] = None,
-        env: Optional[dict] = None,
-    ):
-        """Execute a shell command.
-
-        Args:
-            command: The command to execute
-            timeout: Optional timeout in seconds
-            executable: Optional shell executable to use
-            cwd: Optional working directory to use
-            env: Optional environment variables to use
-        """
-        shell_process = self.start_shell(executible=executible, cwd=cwd, env=env)
-        output = shell_process.execute(command, timeout=timeout)
-        return output
 
     @annotation("endpoint", {"method": "post", "path": "/keypress"})
     @annotation("mcp_tool", {"tool_name": "keypress"})

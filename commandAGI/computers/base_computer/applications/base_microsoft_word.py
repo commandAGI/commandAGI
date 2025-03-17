@@ -6,7 +6,7 @@ from commandAGI.computers.base_computer.base_application import (
 )
 
 
-class BaseLibraOfficeWriter(BaseApplication):
+class BaseMicrosoftWord(BaseApplication):
     """Base class for document editor operations.
 
     This class defines the interface for working with desktop document editors

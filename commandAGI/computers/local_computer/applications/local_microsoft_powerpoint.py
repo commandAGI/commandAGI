@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.applications.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_microsoft_powerpoint import BaseMicrosoftPowerPoint
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BasePowerPoint(BaseApplication):
-    """Base class for PowerPoint presentation operations.
+class LocalMicrosoftPowerPoint(BaseMicrosoftPowerPoint, LocalApplication):
+    """Local class for PowerPoint presentation operations.
 
     This class defines the interface for working with Microsoft PowerPoint. Implementations
     should provide methods to create and modify presentations through PowerPoint's API.

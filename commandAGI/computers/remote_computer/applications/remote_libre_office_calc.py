@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_libreoffice_calc import BaseLibreOfficeCalc
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
-class BaseLibreOfficeCalc(BaseApplication):
+class RemoteLibreOfficeCalc(BaseLibreOfficeCalc, RemoteApplication):
     """Base class for spreadsheet operations.
 
     This class defines the interface for working with desktop spreadsheet applications

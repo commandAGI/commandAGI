@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple, Literal
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_file_explorer import BaseFileExplorer
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseFileExplorer(BaseApplication):
-    """Base class for File Explorer operations.
+class LocalFileExplorer(BaseFileExplorer, LocalApplication):
+    """Local class for File Explorer operations.
 
     This class defines the interface for working with the system's file explorer.
     Implementations should provide methods to navigate, manipulate files and folders,

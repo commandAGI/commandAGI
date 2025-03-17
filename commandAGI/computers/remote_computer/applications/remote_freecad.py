@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess
+from commandAGI.computers.base_computer.applications.base_freecad import BaseFreeCAD
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
-class BaseFreeCAD(BaseSubprocess):
+class RemoteFreeCAD(BaseFreeCAD, RemoteApplication):
     """Base class for FreeCAD operations.
 
     This class defines the interface for working with FreeCAD application.

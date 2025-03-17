@@ -1,12 +1,13 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any, Literal
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
+from commandAGI.computers.base_computer.applications.base_kdenlive import BaseKdenlive
+from commandAGI.computers.remote_computer.remote_application import (
+    RemoteApplication,
 )
 
 
-class BaseKdenlive(BaseApplication):
+class RemoteKdenlive(BaseKdenlive, RemoteApplication):
     """Base class for video editor operations.
 
     This class defines the interface for working with Kdenlive and similar

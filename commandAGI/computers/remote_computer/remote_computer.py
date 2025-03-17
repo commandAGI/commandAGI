@@ -12,10 +12,29 @@ from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 
 from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import base64_to_image, process_screenshot
+from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.computers.platform_managers.base_platform_manager import (
     BaseComputerPlatformManager,
 )
+from commandAGI.computers.remote_computer.applications.remote_background_shell import RemoteBackgroundShell
+from commandAGI.computers.remote_computer.applications.remote_blender import RemoteBlender
+from commandAGI.computers.remote_computer.applications.remote_chrome_browser import RemoteChromeBrowser
+from commandAGI.computers.remote_computer.applications.remote_cursor_ide import RemoteCursorIDE
+from commandAGI.computers.remote_computer.applications.remote_file_explorer import RemoteFileExplorer
+from commandAGI.computers.remote_computer.applications.remote_freecad import RemoteFreeCAD
+from commandAGI.computers.remote_computer.applications.remote_kdenlive import RemoteKdenlive
+from commandAGI.computers.remote_computer.applications.remote_kicad import RemoteKicad
+from commandAGI.computers.remote_computer.applications.remote_libre_office_calc import RemoteLibreOfficeCalc
+from commandAGI.computers.remote_computer.applications.remote_libre_office_present import RemoteLibreOfficePresent
+from commandAGI.computers.remote_computer.applications.remote_libre_office_writer import RemoteLibreOfficeWriter
+from commandAGI.computers.remote_computer.applications.remote_microsoft_excel import RemoteMicrosoftExcel
+from commandAGI.computers.remote_computer.applications.remote_microsoft_powerpoint import RemoteMicrosoftPowerPoint
+from commandAGI.computers.remote_computer.applications.remote_microsoft_word import RemoteMicrosoftWord
+from commandAGI.computers.remote_computer.applications.remote_paint_editor import RemotePaintEditor
+from commandAGI.computers.remote_computer.applications.remote_shell import RemoteShell
+from commandAGI.computers.remote_computer.applications.remote_text_editor import RemoteTextEditor
+from commandAGI.computers.remote_computer.remote_subprocess import RemoteSubprocess
 from commandAGI.types import (
     KeyboardHotkeyAction,
     KeyboardKey,
@@ -299,16 +318,156 @@ class RemoteComputer(BaseComputer):
 
         raise RuntimeError("Failed to get system info from daemon")
 
-    def _shell(self, command: str, timeout: Optional[float] = None):
-        """Execute a shell command on the computer"""
-        if not self.client:
-            raise RuntimeError("Client not initialized")
 
-        client_action = ClientShellCommandAction(command=command, timeout=timeout)
+    def _run_process(
+        self,
+        command: str,
+        args: List[str] = [],
+        cwd: Optional[str] = None,
+        env: Optional[dict] = None,
+        timeout: Optional[float] = None,
+    ) -> RemoteSubprocess:
+        """Run a process with the specified parameters.
 
-        response = execute_command_sync(client=self.client, body=client_action)
-        if not response or not response.success:
-            raise RuntimeError(f"Failed to execute command: {command}")
+        Args:
+            command: The command to run
+            args: List of command arguments
+            cwd: Working directory for the process
+            env: Environment variables for the process
+            timeout: Optional timeout in seconds
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._run_process")
+
+    def _start_shell(
+        self,
+        executable: str = None,
+        cwd: Optional[Union[str, Path]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> RemoteShell:
+        raise NotImplementedError(f"{self.__class__.__name__}.start_shell")
+
+    def _start_background_shell(
+        self,
+        executable: str = None,
+        cwd: Optional[Union[str, Path]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> RemoteBackgroundShell:
+        """Create and return a new remote background shell instance.
+
+        Args:
+            executable: Path to the shell executable to use
+            cwd: Initial working directory for the shell
+            env: Environment variables to set in the shell
+
+        Returns:
+            RemoteBackgroundShell: A background shell instance for executing background commands
+        """
+        return RemoteBackgroundShell(
+            executable=executable or DEFAULT_SHELL_EXECUTIBLE,
+            cwd=cwd,
+            env=env,
+            logger=self.logger,
+        )
+
+    def _start_cursor_ide(self) -> RemoteCursorIDE:
+        """Create and return a new LocalCursorIDE instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseCursorIDE for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_cursor_ide")
+
+    def _start_kicad(self) -> RemoteKicad:
+        """Create and return a new LocalKicad instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseKicad for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_kicad")
+
+    def _start_blender(self) -> RemoteBlender:
+        """Create and return a new LocalBlender instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalBlender for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_blender")
+
+    def _start_file_explorer(self) -> RemoteFileExplorer:
+        """Create and return a new LocalFileExplorer instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalFileExplorer for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_file_explorer")
+
+    def _start_chrome_browser(self) -> RemoteChromeBrowser:
+        """Create and return a new LocalChromeBrowser instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseChromeBrowser for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_chrome_browser")
+
+    def _start_text_editor(self) -> RemoteTextEditor:
+        """Create and return a new LocalTextEditor instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalTextEditor for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_text_editor")
+
+    def _start_libre_office_writer(self) -> RemoteLibreOfficeWriter:
+        """Create and return a new LocalLibreOfficeWriter instance."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}._start_libre_office_writer"
+        )
+
+    def _start_libre_office_calc(self) -> RemoteLibreOfficeCalc:
+        """Create and return a new LocalLibreOfficeCalc instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_libre_office_calc")
+
+    def _start_libre_office_present(self) -> RemoteLibreOfficePresent:
+        """Create and return a new LocalLibreOfficePresent instance."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__}._start_libre_office_present"
+        )
+    def _start_microsoft_word(self) -> RemoteMicrosoftWord:
+        """Create and return a new LocalMicrosoftWord instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_word")
+
+    def _start_microsoft_excel(self) -> RemoteMicrosoftExcel:
+        """Create and return a new LocalMicrosoftExcel instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_excel")
+
+    def _start_microsoft_powerpoint(self) ->RemoteMicrosoftPowerPoint:
+        """Create and return a new LocalMicrosoftPowerPoint instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_microsoft_powerpoint")
+
+    def _start_paint_editor(self) -> RemotePaintEditor:
+        """Create and return a new LocalPaintEditor instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalPaintEditor for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_paint_editor")
+
+    def _start_freecad(self) -> RemoteFreeCAD:
+        """Create and return a new LocalFreeCAD instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of LocalFreeCAD for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_cad")
+
+    def _start_kdenlive(self) -> RemoteKdenlive:
+        """Create and return a new LocalKdenlive instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseVideoEditor for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_video_editor")
+
 
     def _keydown(self, key: KeyboardKey):
         """Press down a keyboard key"""

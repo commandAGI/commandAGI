@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_microsoft_word import BaseMicrosoftWord
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseLibraOfficeWriter(BaseApplication):
-    """Base class for document editor operations.
+class LocalMicrosoftWord(BaseMicrosoftWord, LocalApplication):
+    """Local class for document editor operations.
 
     This class defines the interface for working with desktop document editors
     like Microsoft Word, WordPad, Apple Pages, etc. Implementations should provide

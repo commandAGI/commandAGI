@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple, Literal
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_cursor_ide import BaseCursorIDE
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseCursorIDE(BaseApplication):
-    """Base class for VSCode IDE operations.
+class LocalCursorIDE(BaseCursorIDE, LocalApplication):
+    """Local class for VSCode IDE operations.
 
     This class defines the interface for working with VSCode.
     Implementations should provide methods to control VSCode through its extension API,

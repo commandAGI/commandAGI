@@ -1,17 +1,16 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any, Literal
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_paint_editor import BasePaintEditor
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BasePaintEditor(BaseApplication):
-    """Base class for paint/image editor operations.
+class LocalPaintEditor(BasePaintEditor, LocalApplication):
+    """Local class for paint editor operations.
 
-    This class defines the interface for working with desktop paint/image editors
-    like Photoshop, GIMP, Paint.NET, etc. Implementations should provide methods
-    to create and modify images through the application's API.
+    This class defines the interface for working with paint editors like
+    MS Paint or similar applications. Implementations should provide methods
+    to create and modify images through automation interfaces.
     """
 
     model_config = {"arbitrary_types_allowed": True}

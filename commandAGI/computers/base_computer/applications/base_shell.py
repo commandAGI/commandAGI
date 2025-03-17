@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import Dict, Optional, Union
 
-from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubprocess
+from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess
 
 
-class BaseShell(BaseComputerSubprocess):
+class BaseShell(BaseSubprocess):
     """Base class for shell operations.
 
     This class defines the interface for working with a persistent shell/terminal session.

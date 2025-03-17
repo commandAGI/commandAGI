@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_chrome_browser import BaseChromeBrowser
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
-class BaseChromeBrowser(BaseApplication):
+class RemoteChromeBrowser(BaseChromeBrowser, RemoteApplication):
     """Base class for Chrome browser operations.
 
     This class defines the interface for controlling Chrome browser.

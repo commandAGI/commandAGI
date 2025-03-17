@@ -1,16 +1,16 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_text_editor import BaseTextEditor
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseTextEditor(BaseApplication):
-    """Base class for Text Editor operations.
+class LocalTextEditor(BaseTextEditor, LocalApplication):
+    """Local class for text editor operations.
 
     This class defines the interface for working with text editors.
-    Implementations should provide methods to edit and manipulate text files.
+    Implementations should provide methods to create and modify text files
+    through the editor's API or automation interfaces.
     """
 
     model_config = {"arbitrary_types_allowed": True}

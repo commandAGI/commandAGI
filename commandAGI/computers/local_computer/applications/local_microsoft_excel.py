@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.applications.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_microsoft_excel import BaseMicrosoftExcel
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseExcel(BaseApplication):
-    """Base class for Excel spreadsheet operations.
+class LocalMicrosoftExcel(BaseMicrosoftExcel, LocalApplication):
+    """Local class for Excel spreadsheet operations.
 
     This class defines the interface for working with Microsoft Excel. Implementations
     should provide methods to create and modify spreadsheets through Excel's API.

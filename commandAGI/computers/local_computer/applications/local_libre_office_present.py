@@ -1,13 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_libreoffice_present import BaseLibreOfficePresent
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseLibreOfficePresent(BaseApplication):
-    """Base class for LibreOffice Impress presentation operations.
+class LocalLibreOfficePresent(BaseLibreOfficePresent, LocalApplication):
+    """Local class for LibreOffice Impress presentation operations.
 
     This class defines the interface for working with LibreOffice Impress. Implementations
     should provide methods to create and modify presentations through the application's API.
@@ -31,5 +30,5 @@ class BaseLibreOfficePresent(BaseApplication):
         """Save the current presentation."""
         raise NotImplementedError("Subclasses must implement save_presentation")
 
-    # Add same methods as BasePowerPointEditor for consistency
+    # Add same methods as LocalPowerPointEditor for consistency
     # (add_slide, delete_slide, etc.)

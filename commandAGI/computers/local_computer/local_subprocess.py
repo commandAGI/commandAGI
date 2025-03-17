@@ -6,10 +6,10 @@ from typing import Dict, Optional
 
 from commandAGI.computers.base_computer import BaseComputer
 
-from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubprocess
+from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess, BaseApplication
 
 
-class LocalSubprocess(BaseComputerSubprocess):
+class LocalSubprocess(BaseSubprocess):
     """Implementation of BaseComputerSubprocess for local system processes."""
 
     def __init__(self, pid: int, computer: BaseComputer):

@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_text_editor import BaseTextEditor
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
-class BaseTextEditor(BaseApplication):
+class RemoteTextEditor(BaseTextEditor, RemoteApplication):
     """Base class for Text Editor operations.
 
     This class defines the interface for working with text editors.

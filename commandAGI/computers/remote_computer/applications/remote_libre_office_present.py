@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_libreoffice_present import BaseLibreOfficePresent
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
-class BaseLibreOfficePresent(BaseApplication):
+class RemoteLibreOfficePresent(BaseLibreOfficePresent, RemoteApplication):
     """Base class for LibreOffice Impress presentation operations.
 
     This class defines the interface for working with LibreOffice Impress. Implementations

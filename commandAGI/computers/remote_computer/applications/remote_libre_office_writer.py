@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.applications.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_libreoffice_writer import BaseLibreOfficeWriter
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
-class BaseWord(BaseApplication):
+class RemoteLibreOfficeWriter(BaseLibreOfficeWriter, RemoteApplication):
     """Base class for document editor operations.
 
     This class defines the interface for working with desktop document editors

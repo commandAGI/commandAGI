@@ -1,11 +1,12 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess
+from commandAGI.computers.base_computer.applications.base_freecad import BaseFreeCAD
+from commandAGI.computers.local_computer.local_subprocess import LocalApplication
 
 
-class BaseFreeCAD(BaseSubprocess):
-    """Base class for FreeCAD operations.
+class LocalFreeCAD(BaseFreeCAD, LocalApplication):
+    """Local class for FreeCAD operations.
 
     This class defines the interface for working with FreeCAD application.
     Implementations should provide methods to interact with FreeCAD's Python API.

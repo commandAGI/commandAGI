@@ -1,8 +1,13 @@
-class LocalShell(BaseShell):
-    """Implementation of BaseShell for local system shells.
+from commandAGI.computers.base_computer.applications.base_shell import BaseShell
+from commandAGI.computers.local_computer.local_subprocess import LocalSubprocess, LocalApplication
 
-    This class provides methods to interact with a persistent shell process
-    on the local system.
+
+class LocalShell(BaseShell, LocalApplication):
+    """Local class for shell operations.
+
+    This class defines the interface for working with command-line shells.
+    Implementations should provide methods to execute commands and interact
+    with the shell through standard input/output streams.
     """
 
     _process: Optional[subprocess.Popen] = None

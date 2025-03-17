@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple, Literal
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_file_explorer import BaseFileExplorer
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
-class BaseFileExplorer(BaseApplication):
+class RemoteFileExplorer(BaseFileExplorer, RemoteApplication):
     """Base class for File Explorer operations.
 
     This class defines the interface for working with the system's file explorer.

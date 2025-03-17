@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.base_application import (
-    BaseApplication,
-)
+from commandAGI.computers.base_computer.applications.base_blender import BaseBlender
+from commandAGI.computers.remote_computer.remote_application import RemoteApplication
 
 
-class BaseBlender(BaseApplication):
+class RemoteBlender(BaseBlender, RemoteApplication):
     """Base class for Blender operations.
 
     This class defines the interface for working with Blender for 3D modeling.
