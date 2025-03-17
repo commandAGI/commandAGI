@@ -25,27 +25,51 @@ from commandAGI._internal.config import APPDIR, DEV_MODE
 from commandAGI._utils.annotations import annotation, gather_annotated_attr_keys
 from commandAGI._utils.counter import next_for_cls
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
-from commandAGI.computers.base_computer.applications.base_chrome_browser import BaseChromeBrowser
-from commandAGI.computers.base_computer.applications.base_cursor_ide import BaseCursorIDE
-from commandAGI.computers.base_computer.applications.base_file_explorer import BaseFileExplorer
+from commandAGI.computers.base_computer.applications.base_chrome_browser import (
+    BaseChromeBrowser,
+)
+from commandAGI.computers.base_computer.applications.base_cursor_ide import (
+    BaseCursorIDE,
+)
+from commandAGI.computers.base_computer.applications.base_file_explorer import (
+    BaseFileExplorer,
+)
 from commandAGI.computers.base_computer.applications.base_freecad import BaseFreeCAD
-from commandAGI.computers.base_computer.applications.base_libre_office_calc import BaseLibreOfficeCalc
-from commandAGI.computers.base_computer.applications.base_libre_office_present import BaseLibreOfficePresent
+from commandAGI.computers.base_computer.applications.base_libre_office_calc import (
+    BaseLibreOfficeCalc,
+)
+from commandAGI.computers.base_computer.applications.base_libre_office_present import (
+    BaseLibreOfficePresent,
+)
 from commandAGI.computers.base_computer.applications.base_office_excel import BaseExcel
-from commandAGI.computers.base_computer.applications.base_office_powerpoint import BasePowerPoint
+from commandAGI.computers.base_computer.applications.base_office_powerpoint import (
+    BasePowerPoint,
+)
 from commandAGI.computers.base_computer.applications.base_office_word import BaseWord
-from commandAGI.computers.base_computer.applications.base_text_editor import BaseTextEditor
+from commandAGI.computers.base_computer.applications.base_text_editor import (
+    BaseTextEditor,
+)
 from commandAGI.computers.base_computer.applications.base_blender import BaseBlender
-from commandAGI.computers.base_computer.applications.base_libre_office_writer import BaseLibraOfficeWriter
+from commandAGI.computers.base_computer.applications.base_libre_office_writer import (
+    BaseLibraOfficeWriter,
+)
 from commandAGI.computers.base_computer.base_keyboard import KeyboardKey
 from commandAGI.computers.base_computer.applications.base_kicad import BaseKicad
 from commandAGI.computers.base_computer.base_mouse import MouseButton
-from commandAGI.computers.base_computer.applications.base_paint_editor import BasePaintEditor
+from commandAGI.computers.base_computer.applications.base_paint_editor import (
+    BasePaintEditor,
+)
 from commandAGI.computers.base_computer.base_shell import BaseShell
 from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubprocess
 from commandAGI.computers.base_computer.applications.base_kdenlive import BaseKdenlive
-from commandAGI.computers.misc_types import ComputerRunningState, SystemInfo, UIElement, WindowInfo, DisplayInfo, ProcessInfo
-
+from commandAGI.computers.misc_types import (
+    ComputerRunningState,
+    SystemInfo,
+    UIElement,
+    WindowInfo,
+    DisplayInfo,
+    ProcessInfo,
+)
 
 
 class BaseComputer(BaseModel):
@@ -59,7 +83,7 @@ class BaseComputer(BaseModel):
     num_retries: int = 3
     error_handling: Literal["raise", "pass"] = "raise"
     preferred_video_stream_mode: Literal["vnc", "http"] = "http"
-    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+    """Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)"""
 
     def __init__(self, name=None, **kwargs):
         name = (
@@ -614,7 +638,7 @@ class BaseComputer(BaseModel):
             BaseShell: A shell instance for executing commands and interacting with the shell
         """
         return self._start_shell(executable=executable, cwd=cwd, env=env)
-        
+
     def _start_shell(
         self,
         executable: str = None,
@@ -630,8 +654,7 @@ class BaseComputer(BaseModel):
         implementation of BaseCursorIDE for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.start_cursor_ide")
-    
-    
+
     def _start_cursor_ide(self) -> BaseCursorIDE:
         """Create and return a new BaseCursorIDE instance.
 
@@ -648,7 +671,7 @@ class BaseComputer(BaseModel):
         implementation of BaseKicad for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.start_kicad")
-    
+
     def _start_kicad(self) -> BaseKicad:
         """Create and return a new BaseKicad instance.
 
@@ -665,7 +688,7 @@ class BaseComputer(BaseModel):
         implementation of BaseBlender for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.start_blender")
-    
+
     def _start_blender(self) -> BaseBlender:
         """Create and return a new BaseBlender instance.
 
@@ -682,7 +705,7 @@ class BaseComputer(BaseModel):
         implementation of BaseFileExplorer for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.start_file_explorer")
-    
+
     def _start_file_explorer(self) -> BaseFileExplorer:
         """Create and return a new BaseFileExplorer instance.
 
@@ -699,7 +722,7 @@ class BaseComputer(BaseModel):
         implementation of BaseChromeBrowser for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.start_chrome_browser")
-    
+
     def _start_chrome_browser(self) -> BaseChromeBrowser:
         """Create and return a new BaseChromeBrowser instance.
 
@@ -716,7 +739,7 @@ class BaseComputer(BaseModel):
         implementation of BaseTextEditor for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.start_text_editor")
-    
+
     def _start_text_editor(self) -> BaseTextEditor:
         """Create and return a new BaseTextEditor instance.
 
@@ -725,14 +748,16 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._start_text_editor")
 
-    @annotation("endpoint", {"method": "post", "path": "/start_libre_office_writer"}) 
+    @annotation("endpoint", {"method": "post", "path": "/start_libre_office_writer"})
     def start_libre_office_writer(self) -> BaseLibraOfficeWriter:
         """Create and return a new LibreOffice Writer instance."""
         return self._start_libre_office_writer()
 
     def _start_libre_office_writer(self) -> BaseLibraOfficeWriter:
         """Create and return a new LibreOffice Writer instance."""
-        raise NotImplementedError(f"{self.__class__.__name__}._start_libre_office_writer")
+        raise NotImplementedError(
+            f"{self.__class__.__name__}._start_libre_office_writer"
+        )
 
     @annotation("endpoint", {"method": "post", "path": "/start_libre_office_calc"})
     def start_libre_office_calc(self) -> BaseLibreOfficeCalc:
@@ -750,7 +775,9 @@ class BaseComputer(BaseModel):
 
     def _start_libre_office_present(self) -> BaseLibreOfficePresent:
         """Create and return a new LibreOffice Impress instance."""
-        raise NotImplementedError(f"{self.__class__.__name__}._start_libre_office_present")
+        raise NotImplementedError(
+            f"{self.__class__.__name__}._start_libre_office_present"
+        )
 
     @annotation("endpoint", {"method": "post", "path": "/start_word"})
     def start_word(self) -> BaseWord:
@@ -838,7 +865,7 @@ class BaseComputer(BaseModel):
         timeout: Optional[float] = None,
         executible: Optional[str] = None,
         cwd: Optional[str] = None,
-        env: Optional[dict] = None, 
+        env: Optional[dict] = None,
     ):
         """Execute a system command in the global shell environment.
 
@@ -1150,12 +1177,12 @@ class BaseComputer(BaseModel):
     @annotation("endpoint", {"method": "post", "path": "/start_http_video_stream"})
     def start_http_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 8080,
         frame_rate: int = 30,
         quality: int = 80,
         scale: float = 1.0,
-        compression: Literal["jpeg", "png"] = "jpeg"
+        compression: Literal["jpeg", "png"] = "jpeg",
     ):
         """Start the HTTP video stream for the computer instance.
 
@@ -1169,21 +1196,21 @@ class BaseComputer(BaseModel):
         """
         self._start_http_video_stream(
             host=host,
-            port=port, 
+            port=port,
             frame_rate=frame_rate,
             quality=quality,
             scale=scale,
-            compression=compression
+            compression=compression,
         )
 
     def _start_http_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 8080,
         frame_rate: int = 30,
         quality: int = 80,
         scale: float = 1.0,
-        compression: Literal["jpeg", "png"] = "jpeg"
+        compression: Literal["jpeg", "png"] = "jpeg",
     ):
         """Internal method to start the HTTP video stream.
 
@@ -1224,20 +1251,18 @@ class BaseComputer(BaseModel):
             str: The URL for the VNC video stream, or an empty string if VNC streaming is not supported.
         """
         # Check if VNC server is running using getattr to avoid attribute errors
-        if getattr(self, '_vnc_server', None):
-            host = getattr(self._vnc_server, 'host', 'localhost')
-            port = getattr(self._vnc_server, 'port', 5900)
+        if getattr(self, "_vnc_server", None):
+            host = getattr(self._vnc_server, "host", "localhost")
+            port = getattr(self._vnc_server, "port", 5900)
             return f"vnc://{host}:{port}"
         return ""
-
-    
 
     @annotation("endpoint", {"method": "post", "path": "/start_vnc_video_stream"})
     def start_vnc_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 5900,
-        password: str = 'commandagi',
+        password: str = "commandagi",
         shared: bool = True,
         framerate: int = 30,
         quality: int = 80,
@@ -1246,7 +1271,7 @@ class BaseComputer(BaseModel):
         scale: float = 1.0,
         allow_clipboard: bool = True,
         view_only: bool = False,
-        allow_resize: bool = True
+        allow_resize: bool = True,
     ):
         """Start the VNC video stream for the computer instance.
 
@@ -1276,14 +1301,14 @@ class BaseComputer(BaseModel):
             scale=scale,
             allow_clipboard=allow_clipboard,
             view_only=view_only,
-            allow_resize=allow_resize
+            allow_resize=allow_resize,
         )
 
     def _start_vnc_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 5900,
-        password: str = 'commandagi',
+        password: str = "commandagi",
         shared: bool = True,
         framerate: int = 30,
         quality: int = 80,
@@ -1292,7 +1317,7 @@ class BaseComputer(BaseModel):
         scale: float = 1.0,
         allow_clipboard: bool = True,
         view_only: bool = False,
-        allow_resize: bool = True
+        allow_resize: bool = True,
     ):
         """Internal method to start the VNC video stream.
         Sets up a VNC server that proxies the HTTP video stream and handles input events.
@@ -1317,7 +1342,7 @@ class BaseComputer(BaseModel):
 
             # Import VNC server implementation
             from commandAGI._utils.vnc import HTTPStreamVNCServer
-            
+
             # Create VNC server instance
             self._vnc_server = HTTPStreamVNCServer(
                 http_stream_url=self._get_http_video_stream_url(),
@@ -1340,7 +1365,7 @@ class BaseComputer(BaseModel):
                 on_mouse_up=lambda button: self.mouse_up(button=button),
                 on_key_press=lambda key: self.keypress(key),
                 on_key_down=lambda key: self.keydown(key),
-                on_key_up=lambda key: self.keyup(key)
+                on_key_up=lambda key: self.keyup(key),
             )
 
             # Start the VNC server
@@ -1362,7 +1387,7 @@ class BaseComputer(BaseModel):
         Shuts down the VNC server and stops proxying the HTTP stream.
         """
         # Check if VNC server exists using getattr to avoid attribute errors
-        if getattr(self, '_vnc_server', None):
+        if getattr(self, "_vnc_server", None):
             try:
                 self._vnc_server.stop()
                 self._vnc_server = None
@@ -1370,7 +1395,6 @@ class BaseComputer(BaseModel):
             except Exception as e:
                 self.logger.error(f"Error stopping VNC server: {e}")
                 raise
-
 
     def copy_to_computer(
         self, source_path: Union[str, Path], destination_path: Union[str, Path]

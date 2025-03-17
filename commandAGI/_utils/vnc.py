@@ -24,21 +24,22 @@ MOUSE_BUTTON_MAP = {
     MouseButton.MIDDLE: VNCMouseButton.MIDDLE,
 }
 
+
 class HTTPStreamScreen(VNCServerScreen):
     """VNC server screen that pulls frames from an HTTP video stream."""
-    
+
     def __init__(
-        self, 
-        http_stream_url: str, 
-        width: int = 1920, 
+        self,
+        http_stream_url: str,
+        width: int = 1920,
         height: int = 1080,
         framerate: int = 30,
         quality: int = 80,
         scale: float = 1.0,
-        compression: Literal["jpeg", "png"] = "jpeg"
+        compression: Literal["jpeg", "png"] = "jpeg",
     ):
         """Initialize the HTTP stream screen.
-        
+
         Args:
             http_stream_url: URL of the HTTP video stream
             width: Screen width
@@ -52,7 +53,7 @@ class HTTPStreamScreen(VNCServerScreen):
         scaled_width = int(width * scale)
         scaled_height = int(height * scale)
         super().__init__(scaled_width, scaled_height)
-        
+
         self.http_stream_url = http_stream_url
         self.framerate = framerate
         self.quality = quality
@@ -94,33 +95,38 @@ class HTTPStreamScreen(VNCServerScreen):
                     continue
 
                 bytes_buffer += chunk
-                a = bytes_buffer.find(b'\xff\xd8')  # JPEG start
-                b = bytes_buffer.find(b'\xff\xd9')  # JPEG end
+                a = bytes_buffer.find(b"\xff\xd8")  # JPEG start
+                b = bytes_buffer.find(b"\xff\xd9")  # JPEG end
 
                 if a != -1 and b != -1:
-                    img_data = bytes_buffer[a:b+2]
-                    bytes_buffer = bytes_buffer[b+2:]
-                    
+                    img_data = bytes_buffer[a : b + 2]
+                    bytes_buffer = bytes_buffer[b + 2 :]
+
                     # Convert to numpy array
-                    frame = cv2.imdecode(np.frombuffer(img_data, dtype=np.uint8), cv2.IMREAD_COLOR)
-                    
+                    frame = cv2.imdecode(
+                        np.frombuffer(img_data, dtype=np.uint8), cv2.IMREAD_COLOR
+                    )
+
                     # Convert BGR to RGB
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    
+
                     # Apply quality and compression settings
                     if self.compression == "jpeg":
                         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), self.quality]
-                        _, frame = cv2.imencode('.jpg', frame, encode_param)
+                        _, frame = cv2.imencode(".jpg", frame, encode_param)
                         frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
                     else:  # png
-                        encode_param = [cv2.IMWRITE_PNG_COMPRESSION, 9 - (self.quality // 10)]
-                        _, frame = cv2.imencode('.png', frame, encode_param)
+                        encode_param = [
+                            cv2.IMWRITE_PNG_COMPRESSION,
+                            9 - (self.quality // 10),
+                        ]
+                        _, frame = cv2.imencode(".png", frame, encode_param)
                         frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-                    
+
                     # Update current frame
                     self._current_frame = frame
                     last_frame_time = current_time
-                    
+
                     # Notify VNC server of screen update
                     self.updated.set()
 
@@ -135,15 +141,16 @@ class HTTPStreamScreen(VNCServerScreen):
             return np.zeros((self.height, self.width, 3), dtype=np.uint8)
         return self._current_frame
 
+
 class HTTPStreamVNCServer:
     """VNC server that proxies an HTTP video stream and handles input events."""
 
     def __init__(
         self,
         http_stream_url: str,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 5900,
-        password: str = 'commandagi',
+        password: str = "commandagi",
         shared: bool = True,
         framerate: int = 30,
         quality: int = 80,
@@ -162,7 +169,7 @@ class HTTPStreamVNCServer:
         on_key_up: Optional[Callable[[KeyboardKey], None]] = None,
     ):
         """Initialize the VNC server.
-        
+
         Args:
             http_stream_url: URL of the HTTP video stream to proxy
             host: VNC server host address
@@ -193,7 +200,7 @@ class HTTPStreamVNCServer:
         self.view_only = view_only
         self.allow_clipboard = allow_clipboard
         self.allow_resize = allow_resize
-        
+
         # Store callback handlers
         self.on_mouse_move = on_mouse_move
         self.on_mouse_click = on_mouse_click
@@ -209,7 +216,7 @@ class HTTPStreamVNCServer:
             framerate=framerate,
             quality=quality,
             scale=scale,
-            compression="jpeg" if encoding == "tight" else "png"
+            compression="jpeg" if encoding == "tight" else "png",
         )
 
         # Create VNC server with configuration
@@ -221,13 +228,13 @@ class HTTPStreamVNCServer:
             compression_level=compression_level,
             allow_clipboard=allow_clipboard,
             view_only=view_only,
-            allow_resize=allow_resize
+            allow_resize=allow_resize,
         )
 
         # Set up event handlers
         self.server.on_client_connected = self._handle_client_connected
         self.server.on_client_disconnected = self._handle_client_disconnected
-        
+
         self._server_thread = None
         self._running = False
 
@@ -237,7 +244,7 @@ class HTTPStreamVNCServer:
             return
 
         self._running = True
-        
+
         # Start screen capture
         self.screen.start()
 
@@ -252,13 +259,13 @@ class HTTPStreamVNCServer:
             return
 
         self._running = False
-        
+
         # Stop screen capture
         self.screen.stop()
-        
+
         # Stop server
         self.server.close()
-        
+
         if self._server_thread:
             self._server_thread.join()
 
@@ -275,7 +282,7 @@ class HTTPStreamVNCServer:
     def _handle_client_connected(self, client: VNCClient):
         """Handle VNC client connection."""
         logger.info(f"VNC client connected from {client.address}")
-        
+
         # Set up input handlers for this client
         client.on_key_event = self._handle_key_event
         client.on_pointer_event = self._handle_pointer_event
@@ -293,7 +300,7 @@ class HTTPStreamVNCServer:
                 return
 
             key_enum = KeyboardKey(key_name)
-            
+
             if down:
                 if self.on_key_down:
                     self.on_key_down(key_enum)
@@ -306,7 +313,9 @@ class HTTPStreamVNCServer:
         except Exception as e:
             logger.error(f"Error handling key event: {e}")
 
-    def _handle_pointer_event(self, client: VNCClient, x: int, y: int, button_mask: int):
+    def _handle_pointer_event(
+        self, client: VNCClient, x: int, y: int, button_mask: int
+    ):
         """Handle mouse events from VNC client."""
         try:
             # Handle mouse movement
@@ -317,7 +326,7 @@ class HTTPStreamVNCServer:
             for button in MouseButton:
                 vnc_button = MOUSE_BUTTON_MAP[button]
                 button_pressed = bool(button_mask & vnc_button)
-                
+
                 if button_pressed:
                     if self.on_mouse_down:
                         self.on_mouse_down(button)
@@ -328,4 +337,4 @@ class HTTPStreamVNCServer:
                         self.on_mouse_up(button)
 
         except Exception as e:
-            logger.error(f"Error handling pointer event: {e}") 
+            logger.error(f"Error handling pointer event: {e}")

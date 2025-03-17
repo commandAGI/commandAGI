@@ -1,4 +1,3 @@
-
 class LocalShell(BaseShell):
     """Implementation of BaseShell for local system shells.
 

@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any, Literal
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BaseKdenlive(BaseApplication):
@@ -69,8 +71,9 @@ class BaseKdenlive(BaseApplication):
         raise NotImplementedError("Subclasses must implement save_project")
 
     # Clip Management
-    def import_clip(self, file_path: Union[str, Path],
-                   folder_id: Optional[str] = None) -> str:
+    def import_clip(
+        self, file_path: Union[str, Path], folder_id: Optional[str] = None
+    ) -> str:
         """Import media clip into project bin.
 
         Args:
@@ -82,9 +85,9 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement import_clip")
 
-    def create_color_clip(self, color: str,
-                         duration: float,
-                         name: Optional[str] = None) -> str:
+    def create_color_clip(
+        self, color: str, duration: float, name: Optional[str] = None
+    ) -> str:
         """Create a color clip.
 
         Args:
@@ -97,9 +100,9 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement create_color_clip")
 
-    def create_title_clip(self, text: str,
-                         duration: float,
-                         template: Optional[str] = None) -> str:
+    def create_title_clip(
+        self, text: str, duration: float, template: Optional[str] = None
+    ) -> str:
         """Create a title clip.
 
         Args:
@@ -113,10 +116,9 @@ class BaseKdenlive(BaseApplication):
         raise NotImplementedError("Subclasses must implement create_title_clip")
 
     # Timeline Operations
-    def add_clip_to_timeline(self, clip_id: str,
-                           track: int,
-                           position: int,  # in frames
-                           speed: float = 1.0) -> str:
+    def add_clip_to_timeline(
+        self, clip_id: str, track: int, position: int, speed: float = 1.0  # in frames
+    ) -> str:
         """Add clip to timeline.
 
         Args:
@@ -130,8 +132,9 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement add_clip_to_timeline")
 
-    def add_track(self, track_type: Literal["video", "audio"],
-                 position: Optional[int] = None) -> int:
+    def add_track(
+        self, track_type: Literal["video", "audio"], position: Optional[int] = None
+    ) -> int:
         """Add a new track.
 
         Args:
@@ -143,8 +146,7 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement add_track")
 
-    def split_clip(self, clip_id: str,
-                  frame: int) -> Tuple[str, str]:
+    def split_clip(self, clip_id: str, frame: int) -> Tuple[str, str]:
         """Split a clip at specified frame.
 
         Args:
@@ -156,10 +158,13 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement split_clip")
 
-    def resize_clip(self, clip_id: str,
-                   in_point: int,  # in frames
-                   out_point: int,  # in frames
-                   ripple: bool = False) -> bool:
+    def resize_clip(
+        self,
+        clip_id: str,
+        in_point: int,  # in frames
+        out_point: int,  # in frames
+        ripple: bool = False,
+    ) -> bool:
         """Resize a clip in the timeline.
 
         Args:
@@ -174,9 +179,9 @@ class BaseKdenlive(BaseApplication):
         raise NotImplementedError("Subclasses must implement resize_clip")
 
     # Effects and Transitions
-    def add_effect(self, clip_id: str,
-                  effect_id: str,
-                  parameters: Optional[Dict[str, Any]] = None) -> str:
+    def add_effect(
+        self, clip_id: str, effect_id: str, parameters: Optional[Dict[str, Any]] = None
+    ) -> str:
         """Add MLT effect to a clip.
 
         Args:
@@ -189,10 +194,9 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement add_effect")
 
-    def add_transition(self, clip1_id: str,
-                      clip2_id: str,
-                      transition_id: str,
-                      duration: int) -> str:  # duration in frames
+    def add_transition(
+        self, clip1_id: str, clip2_id: str, transition_id: str, duration: int
+    ) -> str:  # duration in frames
         """Add transition between clips.
 
         Args:
@@ -206,10 +210,9 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement add_transition")
 
-    def add_keyframe(self, effect_id: str,
-                    parameter: str,
-                    frame: int,
-                    value: Any) -> bool:
+    def add_keyframe(
+        self, effect_id: str, parameter: str, frame: int, value: Any
+    ) -> bool:
         """Add a keyframe to an effect parameter.
 
         Args:
@@ -224,9 +227,12 @@ class BaseKdenlive(BaseApplication):
         raise NotImplementedError("Subclasses must implement add_keyframe")
 
     # Audio Operations
-    def adjust_clip_volume(self, clip_id: str,
-                         gain: float,  # in dB
-                         keyframes: Optional[List[Dict[str, Any]]] = None) -> bool:
+    def adjust_clip_volume(
+        self,
+        clip_id: str,
+        gain: float,  # in dB
+        keyframes: Optional[List[Dict[str, Any]]] = None,
+    ) -> bool:
         """Adjust clip volume.
 
         Args:
@@ -239,8 +245,7 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement adjust_clip_volume")
 
-    def normalize_audio(self, clip_id: str,
-                       target_db: float = -12.0) -> bool:
+    def normalize_audio(self, clip_id: str, target_db: float = -12.0) -> bool:
         """Normalize clip audio.
 
         Args:
@@ -253,9 +258,12 @@ class BaseKdenlive(BaseApplication):
         raise NotImplementedError("Subclasses must implement normalize_audio")
 
     # Rendering
-    def render_project(self, output_path: Union[str, Path],
-                      render_preset: str,
-                      range: Optional[Tuple[int, int]] = None) -> bool:
+    def render_project(
+        self,
+        output_path: Union[str, Path],
+        render_preset: str,
+        range: Optional[Tuple[int, int]] = None,
+    ) -> bool:
         """Render the project.
 
         Args:
@@ -268,8 +276,7 @@ class BaseKdenlive(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement render_project")
 
-    def render_preview(self, frame: int,
-                      output_path: Union[str, Path]) -> bool:
+    def render_preview(self, frame: int, output_path: Union[str, Path]) -> bool:
         """Render a preview frame.
 
         Args:

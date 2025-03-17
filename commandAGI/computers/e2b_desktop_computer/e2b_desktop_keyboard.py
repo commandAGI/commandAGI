@@ -38,6 +38,7 @@ from commandAGI.types import (
     TypeAction,
 )
 
+
 def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to E2B Desktop key name.
 
@@ -92,4 +93,3 @@ def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
 
     # For letter keys and number keys, use the value directly
     return e2b_key_mapping.get(key, key.value)
-

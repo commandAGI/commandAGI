@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from typing import Dict, Optional, Union
 
@@ -26,7 +25,6 @@ class BaseShell(BaseComputerSubprocess):
         """
         raise NotImplementedError("Subclasses must implement execute")
 
-
     @property
     def cwd(self) -> Path:
         """Get the current working directory of the shell.
@@ -35,7 +33,7 @@ class BaseShell(BaseComputerSubprocess):
             Path: The current working directory
         """
         raise NotImplementedError("Subclasses must implement cwd getter")
-    
+
     @cwd.setter
     def cwd(self, path: Union[str, Path]) -> None:
         """Set the current working directory of the shell.
@@ -53,7 +51,7 @@ class BaseShell(BaseComputerSubprocess):
             Dict[str, str]: Dictionary mapping environment variable names to their values
         """
         raise NotImplementedError("Subclasses must implement env getter")
-    
+
     def get_shell_var(self, name: str) -> Optional[str]:
         """Get the value of an environment variable from the shell.
 
@@ -64,7 +62,7 @@ class BaseShell(BaseComputerSubprocess):
             Optional[str]: The value of the environment variable, or None if it doesn't exist
         """
         raise NotImplementedError("Subclasses must implement get_shell_var")
-    
+
     def set_shell_var(self, name: str, value: str) -> bool:
         """Set an environment variable in the shell.
 
@@ -87,7 +85,7 @@ class BaseShell(BaseComputerSubprocess):
             Optional[str]: The value of the environment variable, or None if it doesn't exist
         """
         raise NotImplementedError("Subclasses must implement get_envvar")
-    
+
     def set_envvar(self, name: str, value: str) -> bool:
         """Set an environment variable in the shell.
 

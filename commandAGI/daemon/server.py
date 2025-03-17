@@ -294,10 +294,7 @@ class ComputerDaemon:
         ) -> Dict[str, bool]:
             return {
                 "success": self._computer.drag(
-                    action.end_x,
-                    action.end_y,
-                    action.move_duration,
-                    action.button
+                    action.end_x, action.end_y, action.move_duration, action.button
                 )
             }
 

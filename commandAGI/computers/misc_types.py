@@ -1,4 +1,3 @@
-
 from enum import Enum
 from typing import Optional, TypedDict
 
@@ -122,4 +121,3 @@ class SystemInfo(BaseModel):
     os: str = Field(description="Operating system name")
     version: str = Field(description="Operating system version")
     architecture: str = Field(description="CPU architecture (x86_64, arm64, etc.)")
-

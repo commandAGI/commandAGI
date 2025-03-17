@@ -8,4 +8,3 @@ class BaseApplication(BaseComputerSubprocess):
     Implementations should provide methods to control application windows,
     execute commands, and interact with application interfaces.
     """
-

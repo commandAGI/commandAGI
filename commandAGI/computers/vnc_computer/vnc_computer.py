@@ -43,7 +43,6 @@ from commandAGI.types import (
 )
 
 
-
 class VNCComputer(BaseComputer):
     """Environment that uses VNC for remote computer interactions
 
@@ -62,7 +61,7 @@ class VNCComputer(BaseComputer):
     """
 
     preferred_video_stream_mode: Literal["vnc", "http"] = "vnc"
-    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+    """Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)"""
 
     def __init__(
         self,
@@ -271,12 +270,12 @@ class VNCComputer(BaseComputer):
 
     def _start_http_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 8080,
         frame_rate: int = 30,
         quality: int = 80,
         scale: float = 1.0,
-        compression: Literal["jpeg", "png"] = "jpeg"
+        compression: Literal["jpeg", "png"] = "jpeg",
     ):
         """Start the video stream for the VNC instance.
 
@@ -312,9 +311,9 @@ class VNCComputer(BaseComputer):
 
     def _start_vnc_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 5900,
-        password: str = 'commandagi',
+        password: str = "commandagi",
         shared: bool = True,
         framerate: int = 30,
         quality: int = 80,
@@ -323,7 +322,7 @@ class VNCComputer(BaseComputer):
         scale: float = 1.0,
         allow_clipboard: bool = True,
         view_only: bool = False,
-        allow_resize: bool = True
+        allow_resize: bool = True,
     ):
         """Start the video stream for the VNC instance.
 

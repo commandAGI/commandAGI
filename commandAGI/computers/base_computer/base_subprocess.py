@@ -1,4 +1,3 @@
-
 import logging
 from pathlib import Path
 from typing import Dict, Literal, Optional, Union, TYPE_CHECKING
@@ -29,7 +28,7 @@ class BaseComputerSubprocess(BaseModel):
             Path: The current working directory
         """
         raise NotImplementedError("Subclasses must implement cwd getter")
-    
+
     @property
     def env(self) -> Dict[str, str]:
         """Get all environment variables from the shell.
@@ -39,7 +38,9 @@ class BaseComputerSubprocess(BaseModel):
         """
         raise NotImplementedError("Subclasses must implement env getter")
 
-    def read_output(self, timeout: Optional[float] = None, *, encoding: Optional[str] = None) -> str:
+    def read_output(
+        self, timeout: Optional[float] = None, *, encoding: Optional[str] = None
+    ) -> str:
         """Read any available output from the shell.
 
         Args:
@@ -77,10 +78,12 @@ class BaseComputerSubprocess(BaseModel):
         """
         raise NotImplementedError("Subclasses must implement stop")
 
+
 class BaseComputerWindowedSubprocess(BaseComputerSubprocess):
     """Base class for computer processes that run in a window."""
 
     window_title: str = Field(description="Window title")
+
     @property
     def screenshot(self) -> Union[str, Image.Image, Path]:
         """Get a screenshot of the current display."""
@@ -120,4 +123,3 @@ class BaseComputerWindowedSubprocess(BaseComputerSubprocess):
                 - 'path': Save the screenshot to a file and return the path
         """
         raise NotImplementedError(f"{self.__class__.__name__}.get_screenshot")
-

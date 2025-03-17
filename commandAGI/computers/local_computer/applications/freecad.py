@@ -22,7 +22,7 @@ class FreeCAD(BaseFreeCAD):
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True
+                text=True,
             )
             return True
         except Exception as e:
@@ -51,18 +51,20 @@ class FreeCAD(BaseFreeCAD):
             "import Part",
             f"doc = FreeCAD.ActiveDocument",
         ]
-        
+
         if geometry_type.lower() == "box":
             length = parameters.get("length", 10)
             width = parameters.get("width", 10)
             height = parameters.get("height", 10)
-            commands.extend([
-                f"box = Part.makeBox({length}, {width}, {height})",
-                "obj = doc.addObject('Part::Feature', 'Box')",
-                "obj.Shape = box",
-            ])
+            commands.extend(
+                [
+                    f"box = Part.makeBox({length}, {width}, {height})",
+                    "obj = doc.addObject('Part::Feature', 'Box')",
+                    "obj.Shape = box",
+                ]
+            )
         # Add more geometry types as needed
-        
+
         commands.append("doc.recompute()")
         return all(self.send_command(cmd) for cmd in commands)
 
@@ -75,7 +77,7 @@ class FreeCAD(BaseFreeCAD):
         output_path = str(Path(output_path).absolute())
         commands = [
             "import Import",
-            f"Import.export([FreeCAD.ActiveDocument.Objects], '{output_path}')"
+            f"Import.export([FreeCAD.ActiveDocument.Objects], '{output_path}')",
         ]
         return all(self.send_command(cmd) for cmd in commands)
 
@@ -83,7 +85,7 @@ class FreeCAD(BaseFreeCAD):
         """Send a Python command to FreeCAD's Python console."""
         if not self.process:
             return False
-            
+
         try:
             self.process.stdin.write(command + "\n")
             self.process.stdin.flush()
@@ -104,4 +106,4 @@ class FreeCAD(BaseFreeCAD):
             except Exception as e:
                 print(f"Failed to stop FreeCAD: {e}")
                 return False
-        return True 
+        return True

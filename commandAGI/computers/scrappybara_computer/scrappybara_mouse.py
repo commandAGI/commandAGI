@@ -40,7 +40,6 @@ from commandAGI.types import (
 )
 
 
-
 # Scrapybara-specific mappings
 def mouse_button_to_scrapybara(button: Union[MouseButton, str]) -> str:
     """Convert MouseButton to Scrapybara button action.
@@ -63,4 +62,3 @@ def mouse_button_to_scrapybara(button: Union[MouseButton, str]) -> str:
     return scrapybara_button_mapping.get(
         button, "left_click"
     )  # Default to left click if not found
-

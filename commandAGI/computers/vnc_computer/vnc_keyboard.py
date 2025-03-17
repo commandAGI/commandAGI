@@ -43,7 +43,6 @@ from commandAGI.types import (
 )
 
 
-
 def keyboard_key_to_vnc(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to VNC key name.
 

@@ -40,7 +40,6 @@ from commandAGI.types import (
 )
 
 
-
 class UbuntuScrapybaraComputer(BaseScrapybaraComputer):
     """Scrapybara computer specifically for Ubuntu instances"""
 

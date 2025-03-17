@@ -1,4 +1,3 @@
-
 # Daemon client-specific mappings
 def keyboard_key_to_daemon(key: Union[KeyboardKey, str]) -> ClientKeyboardKey:
     """Convert KeyboardKey to Daemon client KeyboardKey.
@@ -19,5 +18,3 @@ def keyboard_key_to_daemon(key: Union[KeyboardKey, str]) -> ClientKeyboardKey:
             f"Key {key} not found in daemon client KeyboardKey enum, using fallback"
         )
         return ClientKeyboardKey.ENTER  # Use a safe default
-
-

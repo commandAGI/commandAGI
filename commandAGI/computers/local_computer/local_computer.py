@@ -115,8 +115,6 @@ except ImportError:
     pyatspi = None
 
 
-
-
 class LocalComputer(BaseComputer):
     """Base class for local computer implementations.
 
@@ -125,7 +123,7 @@ class LocalComputer(BaseComputer):
     """
 
     preferred_video_stream_mode: Literal["vnc", "http"] = "vnc"
-    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+    """Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)"""
 
     def __init__(self):
         super().__init__()
@@ -754,12 +752,12 @@ class LocalComputer(BaseComputer):
 
     def _start_http_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 8080,
         frame_rate: int = 30,
         quality: int = 80,
         scale: float = 1.0,
-        compression: Literal["jpeg", "png"] = "jpeg"
+        compression: Literal["jpeg", "png"] = "jpeg",
     ):
         """Start the HTTP video stream for the local computer instance.
 
@@ -784,18 +782,20 @@ class LocalComputer(BaseComputer):
         # Create and start the HTTP server
         self.logger.info(f"Starting video stream server on {host}:{port}")
         server = ThreadedHTTPServer(
-            (host, port), 
-            VideoStreamHandler, 
+            (host, port),
+            VideoStreamHandler,
             computer=self,
             frame_rate=frame_rate,
             quality=quality,
             scale=scale,
-            compression=compression
+            compression=compression,
         )
 
         # Run the server in a separate thread
         server_thread = threading.Thread(target=server.serve_forever)
-        server_thread.daemon = True  # So the thread will exit when the main program exits
+        server_thread.daemon = (
+            True  # So the thread will exit when the main program exits
+        )
         server_thread.start()
 
         # Store references
@@ -828,17 +828,17 @@ class LocalComputer(BaseComputer):
             str: The URL for the VNC video stream, or an empty string if not running
         """
         # Check if VNC process exists using getattr to avoid attribute errors
-        if getattr(self, '_vnc_process', None):
-            host = getattr(self, '_vnc_host', 'localhost')
-            port = getattr(self, '_vnc_port', 5900)
+        if getattr(self, "_vnc_process", None):
+            host = getattr(self, "_vnc_host", "localhost")
+            port = getattr(self, "_vnc_port", 5900)
             return f"vnc://{host}:{port}"
         return ""
 
     def _start_vnc_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 5900,
-        password: str = 'commandagi',
+        password: str = "commandagi",
         shared: bool = True,
         framerate: int = 30,
         quality: int = 80,
@@ -847,10 +847,10 @@ class LocalComputer(BaseComputer):
         scale: float = 1.0,
         allow_clipboard: bool = True,
         view_only: bool = False,
-        allow_resize: bool = True
+        allow_resize: bool = True,
     ):
         """Start a direct VNC server for the local computer using TigerVNC.
-        
+
         Args:
             host: VNC server host address
             port: VNC server port
@@ -875,19 +875,21 @@ class LocalComputer(BaseComputer):
         self._vnc_port = port
 
         # Check if TigerVNC is installed
-        if not shutil.which('x0vncserver'):
-            self.logger.error("TigerVNC (x0vncserver) not found. Please install it first.")
+        if not shutil.which("x0vncserver"):
+            self.logger.error(
+                "TigerVNC (x0vncserver) not found. Please install it first."
+            )
             raise RuntimeError("TigerVNC (x0vncserver) not found")
 
         # Create password file
-        passwd_file = os.path.join(tempfile.gettempdir(), f'vnc_passwd_{self.name}')
+        passwd_file = os.path.join(tempfile.gettempdir(), f"vnc_passwd_{self.name}")
         try:
             # Use vncpasswd to create password file
-            subprocess.run([
-                'vncpasswd', '-f'
-            ], input=password.encode(),
-               stdout=open(passwd_file, 'wb'),
-               check=True
+            subprocess.run(
+                ["vncpasswd", "-f"],
+                input=password.encode(),
+                stdout=open(passwd_file, "wb"),
+                check=True,
             )
         except subprocess.CalledProcessError as e:
             self.logger.error(f"Failed to create VNC password file: {e}")
@@ -895,32 +897,30 @@ class LocalComputer(BaseComputer):
 
         # Start x0vncserver with explicit parameters
         cmd = [
-            'x0vncserver',
-            f'-rfbport={port}',
-            f'-PasswordFile={passwd_file}',
-            f'-MaxProcessorUsage={framerate}',  # Use framerate to control CPU usage
-            f'-CompressionLevel={compression_level}',
-            f'-Quality={quality}',
-            f'-PreferredEncoding={encoding}',
-            f'-Scale={scale}',
-            '-localhost=0' if not host == 'localhost' else '-localhost=1',
-            '-AlwaysShared=1' if shared else '-AlwaysShared=0',
-            '-SecurityTypes=VncAuth',
-            '-AcceptClipboard=1' if allow_clipboard else '-AcceptClipboard=0',
-            '-SendClipboard=1' if allow_clipboard else '-SendClipboard=0',
-            '-ViewOnly=1' if view_only else '-ViewOnly=0',
-            '-ResizeDesktop=1' if allow_resize else '-ResizeDesktop=0'
+            "x0vncserver",
+            f"-rfbport={port}",
+            f"-PasswordFile={passwd_file}",
+            f"-MaxProcessorUsage={framerate}",  # Use framerate to control CPU usage
+            f"-CompressionLevel={compression_level}",
+            f"-Quality={quality}",
+            f"-PreferredEncoding={encoding}",
+            f"-Scale={scale}",
+            "-localhost=0" if not host == "localhost" else "-localhost=1",
+            "-AlwaysShared=1" if shared else "-AlwaysShared=0",
+            "-SecurityTypes=VncAuth",
+            "-AcceptClipboard=1" if allow_clipboard else "-AcceptClipboard=0",
+            "-SendClipboard=1" if allow_clipboard else "-SendClipboard=0",
+            "-ViewOnly=1" if view_only else "-ViewOnly=0",
+            "-ResizeDesktop=1" if allow_resize else "-ResizeDesktop=0",
         ]
 
         self._vnc_process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
 
         # Check if server started successfully
         time.sleep(2)  # Give it a moment to start
-        
+
         if self._vnc_process.poll() is not None:  # Process is not running
             stdout, stderr = self._vnc_process.communicate()
             self.logger.error(f"VNC server failed to start: {stderr.decode()}")
@@ -932,18 +932,19 @@ class LocalComputer(BaseComputer):
     def _stop_vnc_video_stream(self):
         """Stop the direct VNC server."""
         # Check if VNC process exists using getattr to avoid attribute errors
-        if getattr(self, '_vnc_process', None):
+        if getattr(self, "_vnc_process", None):
             self._vnc_process.terminate()
             self._vnc_process.wait(timeout=5)
             self._vnc_process = None
-            
+
             # Clean up password file
             import os
             import tempfile
-            passwd_file = os.path.join(tempfile.gettempdir(), f'vnc_passwd_{self.name}')
+
+            passwd_file = os.path.join(tempfile.gettempdir(), f"vnc_passwd_{self.name}")
             if os.path.exists(passwd_file):
                 os.remove(passwd_file)
-            
+
             self.logger.info("VNC server stopped")
 
     def _copy_to_computer(self, source_path: Path, destination_path: Path) -> None:

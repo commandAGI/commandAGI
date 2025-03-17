@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any, Literal
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BasePaintEditor(BaseApplication):
@@ -32,11 +34,15 @@ class BasePaintEditor(BaseApplication):
         raise NotImplementedError("Subclasses must implement close_application")
 
     # File Operations
-    def create_new_image(self, width: int, height: int, 
-                        resolution: int = 72,
-                        color_mode: Literal["RGB", "CMYK", "Grayscale"] = "RGB",
-                        background_color: Optional[Tuple[int, int, int]] = None,
-                        bit_depth: int = 8) -> bool:
+    def create_new_image(
+        self,
+        width: int,
+        height: int,
+        resolution: int = 72,
+        color_mode: Literal["RGB", "CMYK", "Grayscale"] = "RGB",
+        background_color: Optional[Tuple[int, int, int]] = None,
+        bit_depth: int = 8,
+    ) -> bool:
         """Create a new image with specified properties.
 
         Args:
@@ -63,10 +69,13 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement open_image")
 
-    def save_image(self, file_path: Optional[Union[str, Path]] = None,
-                  format: Optional[str] = None,
-                  quality: Optional[int] = None,
-                  options: Optional[Dict[str, Any]] = None) -> bool:
+    def save_image(
+        self,
+        file_path: Optional[Union[str, Path]] = None,
+        format: Optional[str] = None,
+        quality: Optional[int] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """Save the current image.
 
         Args:
@@ -81,9 +90,9 @@ class BasePaintEditor(BaseApplication):
         raise NotImplementedError("Subclasses must implement save_image")
 
     # Layer Operations
-    def create_layer(self, name: str,
-                    blend_mode: str = "normal",
-                    opacity: float = 100.0) -> str:
+    def create_layer(
+        self, name: str, blend_mode: str = "normal", opacity: float = 100.0
+    ) -> str:
         """Create a new layer.
 
         Args:
@@ -130,9 +139,12 @@ class BasePaintEditor(BaseApplication):
         raise NotImplementedError("Subclasses must implement merge_layers")
 
     # Selection Operations
-    def create_selection(self, shape: Literal["rectangle", "ellipse", "polygon"],
-                        coordinates: List[Tuple[int, int]],
-                        feather: int = 0) -> str:
+    def create_selection(
+        self,
+        shape: Literal["rectangle", "ellipse", "polygon"],
+        coordinates: List[Tuple[int, int]],
+        feather: int = 0,
+    ) -> str:
         """Create a selection area.
 
         Args:
@@ -145,9 +157,12 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement create_selection")
 
-    def modify_selection(self, operation: Literal["add", "subtract", "intersect"],
-                        shape: Literal["rectangle", "ellipse", "polygon"],
-                        coordinates: List[Tuple[int, int]]) -> bool:
+    def modify_selection(
+        self,
+        operation: Literal["add", "subtract", "intersect"],
+        shape: Literal["rectangle", "ellipse", "polygon"],
+        coordinates: List[Tuple[int, int]],
+    ) -> bool:
         """Modify the current selection.
 
         Args:
@@ -169,8 +184,9 @@ class BasePaintEditor(BaseApplication):
         raise NotImplementedError("Subclasses must implement clear_selection")
 
     # Drawing Operations
-    def set_tool(self, tool_name: str,
-                properties: Optional[Dict[str, Any]] = None) -> bool:
+    def set_tool(
+        self, tool_name: str, properties: Optional[Dict[str, Any]] = None
+    ) -> bool:
         """Set the active tool and its properties.
 
         Args:
@@ -182,9 +198,12 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement set_tool")
 
-    def draw_shape(self, shape_type: str,
-                  coordinates: List[Tuple[int, int]], 
-                  properties: Dict[str, Any]) -> bool:
+    def draw_shape(
+        self,
+        shape_type: str,
+        coordinates: List[Tuple[int, int]],
+        properties: Dict[str, Any],
+    ) -> bool:
         """Draw a shape on the current layer.
 
         Args:
@@ -197,8 +216,9 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement draw_shape")
 
-    def draw_brush_stroke(self, points: List[Tuple[int, int]],
-                         properties: Dict[str, Any]) -> bool:
+    def draw_brush_stroke(
+        self, points: List[Tuple[int, int]], properties: Dict[str, Any]
+    ) -> bool:
         """Draw a brush stroke.
 
         Args:
@@ -210,9 +230,9 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement draw_brush_stroke")
 
-    def add_text(self, text: str,
-                position: Tuple[int, int],
-                properties: Dict[str, Any]) -> bool:
+    def add_text(
+        self, text: str, position: Tuple[int, int], properties: Dict[str, Any]
+    ) -> bool:
         """Add text to the image.
 
         Args:
@@ -226,9 +246,9 @@ class BasePaintEditor(BaseApplication):
         raise NotImplementedError("Subclasses must implement add_text")
 
     # Image Adjustments
-    def apply_filter(self, filter_type: str,
-                    parameters: Dict[str, Any],
-                    selection_only: bool = False) -> bool:
+    def apply_filter(
+        self, filter_type: str, parameters: Dict[str, Any], selection_only: bool = False
+    ) -> bool:
         """Apply an image filter.
 
         Args:
@@ -241,9 +261,12 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement apply_filter")
 
-    def adjust_image(self, adjustment_type: str,
-                    parameters: Dict[str, Any],
-                    selection_only: bool = False) -> bool:
+    def adjust_image(
+        self,
+        adjustment_type: str,
+        parameters: Dict[str, Any],
+        selection_only: bool = False,
+    ) -> bool:
         """Apply an image adjustment.
 
         Args:
@@ -256,8 +279,9 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement adjust_image")
 
-    def apply_color_correction(self, correction_type: str,
-                             parameters: Dict[str, Any]) -> bool:
+    def apply_color_correction(
+        self, correction_type: str, parameters: Dict[str, Any]
+    ) -> bool:
         """Apply color correction.
 
         Args:
@@ -270,9 +294,14 @@ class BasePaintEditor(BaseApplication):
         raise NotImplementedError("Subclasses must implement apply_color_correction")
 
     # Transform Operations
-    def crop_image(self, x: int, y: int,
-                  width: int, height: int,
-                  maintain_aspect_ratio: bool = False) -> bool:
+    def crop_image(
+        self,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        maintain_aspect_ratio: bool = False,
+    ) -> bool:
         """Crop the image to specified dimensions.
 
         Args:
@@ -287,9 +316,13 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement crop_image")
 
-    def resize_image(self, width: int, height: int, 
-                    maintain_aspect_ratio: bool = True,
-                    resample_method: str = "bicubic") -> bool:
+    def resize_image(
+        self,
+        width: int,
+        height: int,
+        maintain_aspect_ratio: bool = True,
+        resample_method: str = "bicubic",
+    ) -> bool:
         """Resize the image.
 
         Args:
@@ -303,8 +336,7 @@ class BasePaintEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement resize_image")
 
-    def rotate_image(self, angle: float,
-                    expand: bool = True) -> bool:
+    def rotate_image(self, angle: float, expand: bool = True) -> bool:
         """Rotate the image.
 
         Args:

@@ -1,4 +1,3 @@
-
 class MouseButton(str, Enum):
     LEFT = "left"
     RIGHT = "right"

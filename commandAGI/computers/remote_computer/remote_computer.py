@@ -142,14 +142,13 @@ except ImportError:
     pass  # PIL is optional for Computer
 
 
-
 class RemoteComputer(BaseComputer):
     platform_manager: Optional[BaseComputerPlatformManager] = None
     client: Optional[AuthenticatedClient] = None
     logger: Optional[logging.Logger] = None
     daemon_token: str = ""
     preferred_video_stream_mode: Literal["vnc", "http"] = "vnc"
-    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+    """Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)"""
     model_config = {"arbitrary_types_allowed": True}
 
     def __init__(
@@ -430,8 +429,7 @@ class RemoteComputer(BaseComputer):
 
         For daemon client, resuming means sending a resume command to the daemon."""
         # TODO: implement specifically for the system in mind
-        
-        
+
     def _get_http_video_stream_url(self) -> str:
         """Get the URL for the HTTP video stream of the daemon client instance.
 
@@ -478,7 +476,7 @@ class RemoteComputer(BaseComputer):
 
     def _start_vnc_video_stream(self, **kwargs):
         """Start the VNC video stream for the daemon client instance.
-        
+
         Args:
             **kwargs: VNC server configuration options passed to the daemon
         """
@@ -486,8 +484,7 @@ class RemoteComputer(BaseComputer):
             raise RuntimeError("Client not initialized")
 
         response = start_vnc_video_stream_sync(
-            client=self.client, 
-            body=ClientVncVideoStartStreamAction(**kwargs)
+            client=self.client, body=ClientVncVideoStartStreamAction(**kwargs)
         )
         if not response or not response.success:
             raise RuntimeError("Failed to start VNC video stream")
@@ -498,8 +495,7 @@ class RemoteComputer(BaseComputer):
             raise RuntimeError("Client not initialized")
 
         response = stop_vnc_video_stream_sync(
-            client=self.client, 
-            body=ClientVncVideoStopStreamAction()
+            client=self.client, body=ClientVncVideoStopStreamAction()
         )
         if not response or not response.success:
             raise RuntimeError("Failed to stop VNC video stream")

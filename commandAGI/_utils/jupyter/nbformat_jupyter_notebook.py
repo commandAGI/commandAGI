@@ -1,4 +1,3 @@
-
 class NbFormatJupyterNotebook(BaseJupyterNotebook):
     """Implementation of BaseJupyterNotebook using nbformat and nbclient libraries.
 
@@ -177,4 +176,3 @@ class NbFormatJupyterNotebook(BaseJupyterNotebook):
                 cell["outputs"] = []
                 cell["execution_count"] = None
         return notebook
-

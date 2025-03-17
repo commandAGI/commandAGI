@@ -40,12 +40,11 @@ from commandAGI.types import (
 )
 
 
-
 class PigDevComputer(BaseComputer):
     """Environment that uses PigDev for secure computer interactions"""
 
     preferred_video_stream_mode: Literal["vnc", "http"] = "http"
-    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+    """Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)"""
 
     def __init__(self, api_key: Optional[str] = None, machine_id: Optional[str] = None):
         super().__init__()
@@ -263,9 +262,7 @@ class PigDevComputer(BaseComputer):
         button: MouseButton = MouseButton.LEFT,
     ):
         """Execute a drag action using PigDev's left_click_drag method."""
-        self.logger.debug(
-            f"Dragging from: ({end_x}, {end_y})"
-        )
+        self.logger.debug(f"Dragging from: ({end_x}, {end_y})")
         # Use the existing connection
         # Then perform the drag to the end position
         self.connection.left_click_drag(x=end_x, y=end_y)
@@ -337,15 +334,15 @@ class PigDevComputer(BaseComputer):
         except Exception as e:
             self.logger.error(f"Error getting PigDev video stream URL: {e}")
             return ""
-        
+
     def _start_http_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 8080,
         frame_rate: int = 30,
         quality: int = 80,
         scale: float = 1.0,
-        compression: Literal["jpeg", "png"] = "jpeg"
+        compression: Literal["jpeg", "png"] = "jpeg",
     ):
         """Start the HTTP video stream for the PigDev instance.
 

@@ -38,11 +38,12 @@ from commandAGI.types import (
     TypeAction,
 )
 
+
 class E2BDesktopComputer(BaseComputer):
     """Environment that uses E2B Desktop Sandbox for secure computer interactions"""
 
     preferred_video_stream_mode: Literal["vnc", "http"] = "http"
-    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+    """Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)"""
 
     def __init__(self, video_stream=False):
         super().__init__()
@@ -232,7 +233,7 @@ class E2BDesktopComputer(BaseComputer):
     def get_http_video_stream_url(self) -> str:
         """Get the URL for the HTTP video stream of the E2B Desktop instance."""
         return self.e2b_desktop.get_http_video_stream_url()
-    
+
     def _pause(self):
         """Pause the E2B Desktop instance.
 
@@ -274,15 +275,15 @@ class E2BDesktopComputer(BaseComputer):
             str: The URL for the HTTP video stream, or an empty string if HTTP video streaming is not available.
         """
         return self.get_http_video_stream_url()
-    
+
     def _start_http_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 8080,
         frame_rate: int = 30,
         quality: int = 80,
         scale: float = 1.0,
-        compression: Literal["jpeg", "png"] = "jpeg"
+        compression: Literal["jpeg", "png"] = "jpeg",
     ):
         """Start the HTTP video stream for the E2B Desktop instance.
 
@@ -294,11 +295,11 @@ class E2BDesktopComputer(BaseComputer):
             scale: Scale factor for the video stream (0.1-1.0)
             compression: Image compression format to use
         """
-        pass # not needed for E2B Desktop as streaming is handled internally
+        pass  # not needed for E2B Desktop as streaming is handled internally
 
     def _stop_http_video_stream(self):
         """Stop the HTTP video stream for the E2B Desktop instance."""
-        pass # not needed for E2B Desktop as streaming is handled internally
+        pass  # not needed for E2B Desktop as streaming is handled internally
 
     def _run_process(
         self,

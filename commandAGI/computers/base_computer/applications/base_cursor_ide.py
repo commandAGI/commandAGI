@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple, Literal
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BaseCursorIDE(BaseApplication):
@@ -72,7 +74,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_active_file")
 
-    def open_folder(self, folder_path: Union[str, Path], new_window: bool = False) -> bool:
+    def open_folder(
+        self, folder_path: Union[str, Path], new_window: bool = False
+    ) -> bool:
         """Open a folder in VSCode.
 
         Args:
@@ -92,7 +96,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_workspace_folders")
 
-    def execute_command(self, command_id: str, args: Optional[List[Any]] = None) -> bool:
+    def execute_command(
+        self, command_id: str, args: Optional[List[Any]] = None
+    ) -> bool:
         """Execute a VSCode command.
 
         Args:
@@ -113,7 +119,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_editor_selection")
 
-    def insert_text(self, text: str, position: Optional[Tuple[int, int]] = None) -> bool:
+    def insert_text(
+        self, text: str, position: Optional[Tuple[int, int]] = None
+    ) -> bool:
         """Insert text at current cursor position or specified position.
 
         Args:
@@ -125,7 +133,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement insert_text")
 
-    def replace_text(self, text: str, start_pos: Tuple[int, int], end_pos: Tuple[int, int]) -> bool:
+    def replace_text(
+        self, text: str, start_pos: Tuple[int, int], end_pos: Tuple[int, int]
+    ) -> bool:
         """Replace text in specified range.
 
         Args:
@@ -176,7 +186,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_problems")
 
-    def search_files(self, query: str, include_pattern: Optional[str] = None) -> List[Path]:
+    def search_files(
+        self, query: str, include_pattern: Optional[str] = None
+    ) -> List[Path]:
         """Search for files in workspace.
 
         Args:
@@ -218,7 +230,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_file_contents")
 
-    def create_terminal(self, name: Optional[str] = None, cwd: Optional[Union[str, Path]] = None) -> bool:
+    def create_terminal(
+        self, name: Optional[str] = None, cwd: Optional[Union[str, Path]] = None
+    ) -> bool:
         """Create a new integrated terminal.
 
         Args:
@@ -230,7 +244,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement create_terminal")
 
-    def send_terminal_command(self, command: str, terminal_name: Optional[str] = None) -> bool:
+    def send_terminal_command(
+        self, command: str, terminal_name: Optional[str] = None
+    ) -> bool:
         """Send command to integrated terminal.
 
         Args:
@@ -242,7 +258,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement send_terminal_command")
 
-    def get_language_at_position(self, file_path: Union[str, Path], position: Tuple[int, int]) -> Optional[str]:
+    def get_language_at_position(
+        self, file_path: Union[str, Path], position: Tuple[int, int]
+    ) -> Optional[str]:
         """Get programming language at specified position.
 
         Args:
@@ -265,7 +283,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement format_document")
 
-    def get_code_actions(self, file_path: Union[str, Path], range: Tuple[int, int, int, int]) -> List[Dict[str, Any]]:
+    def get_code_actions(
+        self, file_path: Union[str, Path], range: Tuple[int, int, int, int]
+    ) -> List[Dict[str, Any]]:
         """Get available code actions for specified range.
 
         Args:
@@ -289,7 +309,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement apply_code_action")
 
-    def get_symbol_references(self, file_path: Union[str, Path], position: Tuple[int, int]) -> List[Dict[str, Any]]:
+    def get_symbol_references(
+        self, file_path: Union[str, Path], position: Tuple[int, int]
+    ) -> List[Dict[str, Any]]:
         """Get all references to symbol at position.
 
         Args:
@@ -301,7 +323,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_symbol_references")
 
-    def rename_symbol(self, file_path: Union[str, Path], position: Tuple[int, int], new_name: str) -> bool:
+    def rename_symbol(
+        self, file_path: Union[str, Path], position: Tuple[int, int], new_name: str
+    ) -> bool:
         """Rename symbol at position across workspace.
 
         Args:
@@ -314,7 +338,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement rename_symbol")
 
-    def get_hover_info(self, file_path: Union[str, Path], position: Tuple[int, int]) -> Optional[str]:
+    def get_hover_info(
+        self, file_path: Union[str, Path], position: Tuple[int, int]
+    ) -> Optional[str]:
         """Get hover information at position.
 
         Args:
@@ -326,7 +352,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_hover_info")
 
-    def get_completion_items(self, file_path: Union[str, Path], position: Tuple[int, int]) -> List[Dict[str, Any]]:
+    def get_completion_items(
+        self, file_path: Union[str, Path], position: Tuple[int, int]
+    ) -> List[Dict[str, Any]]:
         """Get completion items at position.
 
         Args:
@@ -338,7 +366,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_completion_items")
 
-    def set_breakpoint(self, file_path: Union[str, Path], line: int, condition: Optional[str] = None) -> bool:
+    def set_breakpoint(
+        self, file_path: Union[str, Path], line: int, condition: Optional[str] = None
+    ) -> bool:
         """Set a breakpoint in file.
 
         Args:
@@ -359,7 +389,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_breakpoints")
 
-    def get_call_hierarchy(self, file_path: Union[str, Path], position: Tuple[int, int]) -> Dict[str, Any]:
+    def get_call_hierarchy(
+        self, file_path: Union[str, Path], position: Tuple[int, int]
+    ) -> Dict[str, Any]:
         """Get call hierarchy for symbol at position.
 
         Args:
@@ -371,7 +403,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_call_hierarchy")
 
-    def get_type_hierarchy(self, file_path: Union[str, Path], position: Tuple[int, int]) -> Dict[str, Any]:
+    def get_type_hierarchy(
+        self, file_path: Union[str, Path], position: Tuple[int, int]
+    ) -> Dict[str, Any]:
         """Get type hierarchy for symbol at position.
 
         Args:
@@ -405,7 +439,11 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_extension_api")
 
-    def create_workspace(self, folders: List[Union[str, Path]], save_path: Optional[Union[str, Path]] = None) -> bool:
+    def create_workspace(
+        self,
+        folders: List[Union[str, Path]],
+        save_path: Optional[Union[str, Path]] = None,
+    ) -> bool:
         """Create a multi-root workspace.
 
         Args:
@@ -425,7 +463,9 @@ class BaseCursorIDE(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_git_changes")
 
-    def run_git_command(self, command: str, args: Optional[List[str]] = None) -> Tuple[bool, Optional[str]]:
+    def run_git_command(
+        self, command: str, args: Optional[List[str]] = None
+    ) -> Tuple[bool, Optional[str]]:
         """Run Git command in workspace.
 
         Args:
@@ -454,4 +494,4 @@ class BaseCursorIDE(BaseApplication):
         Returns:
             bool: True if theme was set successfully
         """
-        raise NotImplementedError("Subclasses must implement set_color_theme") 
+        raise NotImplementedError("Subclasses must implement set_color_theme")

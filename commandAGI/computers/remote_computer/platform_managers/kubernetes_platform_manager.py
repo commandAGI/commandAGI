@@ -6,7 +6,9 @@ from typing import Optional
 
 from kubernetes import client, config
 
-from commandAGI.computers.platform_managers.base_platform_manager import BaseComputerPlatformManager
+from commandAGI.computers.platform_managers.base_platform_manager import (
+    BaseComputerPlatformManager,
+)
 from commandAGI.version import get_container_version
 
 logger = logging.getLogger(__name__)

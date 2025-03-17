@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BaseTextEditor(BaseApplication):
@@ -54,7 +56,9 @@ class BaseTextEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement set_text")
 
-    def insert_text(self, text: str, position: Optional[Tuple[int, int]] = None) -> bool:
+    def insert_text(
+        self, text: str, position: Optional[Tuple[int, int]] = None
+    ) -> bool:
         """Insert text at position.
 
         Args:
@@ -78,7 +82,9 @@ class BaseTextEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement delete_text")
 
-    def find_text(self, search_text: str, case_sensitive: bool = False) -> List[Tuple[int, int]]:
+    def find_text(
+        self, search_text: str, case_sensitive: bool = False
+    ) -> List[Tuple[int, int]]:
         """Find all occurrences of text.
 
         Args:
@@ -90,8 +96,13 @@ class BaseTextEditor(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement find_text")
 
-    def replace_text(self, search_text: str, replace_text: str, 
-                    case_sensitive: bool = False, all_occurrences: bool = False) -> int:
+    def replace_text(
+        self,
+        search_text: str,
+        replace_text: str,
+        case_sensitive: bool = False,
+        all_occurrences: bool = False,
+    ) -> int:
         """Replace text occurrences.
 
         Args:
@@ -140,12 +151,14 @@ class BaseTextEditor(BaseApplication):
         """Get current text selection.
 
         Returns:
-            Optional[Tuple[Tuple[int, int], Tuple[int, int]]]: 
+            Optional[Tuple[Tuple[int, int], Tuple[int, int]]]:
             ((start_line, start_col), (end_line, end_col)) or None if no selection
         """
         raise NotImplementedError("Subclasses must implement get_selection")
 
-    def set_selection(self, start_pos: Tuple[int, int], end_pos: Tuple[int, int]) -> bool:
+    def set_selection(
+        self, start_pos: Tuple[int, int], end_pos: Tuple[int, int]
+    ) -> bool:
         """Set text selection.
 
         Args:
@@ -179,4 +192,4 @@ class BaseTextEditor(BaseApplication):
         Returns:
             bool: True if editor is running
         """
-        raise NotImplementedError("Subclasses must implement is_running") 
+        raise NotImplementedError("Subclasses must implement is_running")

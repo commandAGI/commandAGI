@@ -20,4 +20,3 @@ def gather_annotated_attr_keys(obj, annotation_key):
         if hasattr(attr_value, annotation_key):
             annotated_attrs_keys.append(attr_key)
     return annotated_attrs_keys
-

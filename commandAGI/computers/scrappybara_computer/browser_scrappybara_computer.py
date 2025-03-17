@@ -40,8 +40,6 @@ from commandAGI.types import (
 )
 
 
-
-
 class BrowserScrapybaraComputer(BaseScrapybaraComputer):
     """Scrapybara computer specifically for Browser instances"""
 

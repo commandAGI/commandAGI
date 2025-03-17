@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BaseLibreOfficeCalc(BaseApplication):
@@ -176,9 +178,13 @@ class BaseLibreOfficeCalc(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement apply_cell_formatting")
 
-    def insert_chart(self, range: str, chart_type: str, 
-                    position: Tuple[str, str],
-                    properties: Optional[Dict[str, Any]] = None) -> bool:
+    def insert_chart(
+        self,
+        range: str,
+        chart_type: str,
+        position: Tuple[str, str],
+        properties: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """Insert a chart using data from specified range.
 
         Args:
@@ -215,9 +221,12 @@ class BaseLibreOfficeCalc(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement sort_range")
 
-    def export_sheet(self, output_path: Union[str, Path], 
-                    format: str,
-                    options: Optional[Dict[str, Any]] = None) -> bool:
+    def export_sheet(
+        self,
+        output_path: Union[str, Path],
+        format: str,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """Export worksheet to different format.
 
         Args:

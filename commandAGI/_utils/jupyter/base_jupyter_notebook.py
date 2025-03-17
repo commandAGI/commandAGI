@@ -1,5 +1,3 @@
-
-
 class BaseJupyterNotebook(BaseModel):
     """Base class for Jupyter notebook operations.
 

@@ -40,8 +40,6 @@ from commandAGI.types import (
 )
 
 
-
-
 def keyboard_key_to_pigdev(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to PigDev key name.
 
@@ -96,4 +94,3 @@ def keyboard_key_to_pigdev(key: Union[KeyboardKey, str]) -> str:
 
     # For letter keys and number keys, use the value directly
     return pigdev_key_mapping.get(key, key.value)
-

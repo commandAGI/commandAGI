@@ -6,7 +6,7 @@ from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubpr
 
 class BaseFreeCAD(BaseComputerSubprocess):
     """Base class for FreeCAD operations.
-    
+
     This class defines the interface for working with FreeCAD application.
     Implementations should provide methods to interact with FreeCAD's Python API.
     """
@@ -90,5 +90,3 @@ class BaseFreeCAD(BaseComputerSubprocess):
             bool: True if command was executed successfully
         """
         raise NotImplementedError("Subclasses must implement send_command")
-
-

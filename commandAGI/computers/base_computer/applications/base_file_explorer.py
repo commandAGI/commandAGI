@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple, Literal
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BaseFileExplorer(BaseApplication):
@@ -14,7 +16,9 @@ class BaseFileExplorer(BaseApplication):
 
     model_config = {"arbitrary_types_allowed": True}
 
-    def open_folder(self, folder_path: Union[str, Path], new_window: bool = False) -> bool:
+    def open_folder(
+        self, folder_path: Union[str, Path], new_window: bool = False
+    ) -> bool:
         """Open a folder in file explorer.
 
         Args:
@@ -37,7 +41,9 @@ class BaseFileExplorer(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement select_file")
 
-    def copy_files(self, source_paths: List[Union[str, Path]], destination: Union[str, Path]) -> bool:
+    def copy_files(
+        self, source_paths: List[Union[str, Path]], destination: Union[str, Path]
+    ) -> bool:
         """Copy files or folders to destination.
 
         Args:
@@ -49,7 +55,9 @@ class BaseFileExplorer(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement copy_files")
 
-    def move_files(self, source_paths: List[Union[str, Path]], destination: Union[str, Path]) -> bool:
+    def move_files(
+        self, source_paths: List[Union[str, Path]], destination: Union[str, Path]
+    ) -> bool:
         """Move files or folders to destination.
 
         Args:
@@ -61,7 +69,9 @@ class BaseFileExplorer(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement move_files")
 
-    def delete_files(self, paths: List[Union[str, Path]], permanent: bool = False) -> bool:
+    def delete_files(
+        self, paths: List[Union[str, Path]], permanent: bool = False
+    ) -> bool:
         """Delete files or folders.
 
         Args:
@@ -107,7 +117,9 @@ class BaseFileExplorer(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_properties")
 
-    def search(self, query: str, location: Union[str, Path], recursive: bool = True) -> List[Path]:
+    def search(
+        self, query: str, location: Union[str, Path], recursive: bool = True
+    ) -> List[Path]:
         """Search for files and folders.
 
         Args:
@@ -128,8 +140,12 @@ class BaseFileExplorer(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_drive_info")
 
-    def compress_items(self, paths: List[Union[str, Path]], archive_path: Union[str, Path], 
-                      format: Literal["zip", "7z", "tar", "rar"] = "zip") -> bool:
+    def compress_items(
+        self,
+        paths: List[Union[str, Path]],
+        archive_path: Union[str, Path],
+        format: Literal["zip", "7z", "tar", "rar"] = "zip",
+    ) -> bool:
         """Compress files and folders into an archive.
 
         Args:
@@ -142,7 +158,9 @@ class BaseFileExplorer(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement compress_items")
 
-    def extract_archive(self, archive_path: Union[str, Path], destination: Union[str, Path]) -> bool:
+    def extract_archive(
+        self, archive_path: Union[str, Path], destination: Union[str, Path]
+    ) -> bool:
         """Extract an archive.
 
         Args:
@@ -165,7 +183,9 @@ class BaseFileExplorer(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_folder_size")
 
-    def set_attributes(self, path: Union[str, Path], attributes: Dict[str, Any]) -> bool:
+    def set_attributes(
+        self, path: Union[str, Path], attributes: Dict[str, Any]
+    ) -> bool:
         """Set file or folder attributes.
 
         Args:
@@ -183,4 +203,4 @@ class BaseFileExplorer(BaseApplication):
         Returns:
             bool: True if file explorer is running
         """
-        raise NotImplementedError("Subclasses must implement is_running") 
+        raise NotImplementedError("Subclasses must implement is_running")

@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BasePowerPoint(BaseApplication):
@@ -70,8 +72,9 @@ class BasePowerPoint(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement select_slide")
 
-    def add_text_box(self, text: str, position: Tuple[float, float], 
-                    size: Tuple[float, float]) -> bool:
+    def add_text_box(
+        self, text: str, position: Tuple[float, float], size: Tuple[float, float]
+    ) -> bool:
         """Add a text box to the current slide.
 
         Args:
@@ -84,8 +87,13 @@ class BasePowerPoint(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement add_text_box")
 
-    def add_shape(self, shape_type: str, position: Tuple[float, float],
-                size: Tuple[float, float], properties: Optional[Dict[str, Any]] = None) -> bool:
+    def add_shape(
+        self,
+        shape_type: str,
+        position: Tuple[float, float],
+        size: Tuple[float, float],
+        properties: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """Add a shape to the current slide.
 
         Args:
@@ -99,8 +107,12 @@ class BasePowerPoint(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement add_shape")
 
-    def add_image(self, image_path: Union[str, Path], position: Tuple[float, float],
-                size: Optional[Tuple[float, float]] = None) -> bool:
+    def add_image(
+        self,
+        image_path: Union[str, Path],
+        position: Tuple[float, float],
+        size: Optional[Tuple[float, float]] = None,
+    ) -> bool:
         """Add an image to the current slide.
 
         Args:
@@ -113,9 +125,14 @@ class BasePowerPoint(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement add_image")
 
-    def add_chart(self, chart_type: str, data: List[List[Any]], 
-                position: Tuple[float, float], size: Tuple[float, float],
-                properties: Optional[Dict[str, Any]] = None) -> bool:
+    def add_chart(
+        self,
+        chart_type: str,
+        data: List[List[Any]],
+        position: Tuple[float, float],
+        size: Tuple[float, float],
+        properties: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """Add a chart to the current slide.
 
         Args:
@@ -141,9 +158,12 @@ class BasePowerPoint(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement apply_template")
 
-    def export_presentation(self, output_path: Union[str, Path],
-                        format: str,
-                        options: Optional[Dict[str, Any]] = None) -> bool:
+    def export_presentation(
+        self,
+        output_path: Union[str, Path],
+        format: str,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """Export presentation to different format.
 
         Args:

@@ -40,12 +40,11 @@ from commandAGI.types import (
 )
 
 
-
 class BaseScrapybaraComputer(BaseComputer):
     """Environment that uses Scrapybara for secure computer interactions"""
 
     preferred_video_stream_mode: Literal["vnc", "http"] = "http"
-    '''Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)'''
+    """Used  to indicate which video stream mode is more efficient (ie, to avoid using proxy streams)"""
 
     def __init__(self, api_key: Optional[str] = None):
         super().__init__()
@@ -251,12 +250,12 @@ class BaseScrapybaraComputer(BaseComputer):
 
     def _start_http_video_stream(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 8080,
         frame_rate: int = 30,
         quality: int = 80,
         scale: float = 1.0,
-        compression: Literal["jpeg", "png"] = "jpeg"
+        compression: Literal["jpeg", "png"] = "jpeg",
     ):
         """Start the video stream for the Scrapybara instance.
 

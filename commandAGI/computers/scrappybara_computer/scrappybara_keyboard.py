@@ -40,7 +40,6 @@ from commandAGI.types import (
 )
 
 
-
 def keyboard_key_to_scrapybara(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to Scrapybara key name.
 
@@ -96,4 +95,3 @@ def keyboard_key_to_scrapybara(key: Union[KeyboardKey, str]) -> str:
 
     # For letter keys and number keys, use the value directly
     return scrapybara_key_mapping.get(key, key.value)
-

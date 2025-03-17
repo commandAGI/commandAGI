@@ -60,4 +60,3 @@ def mouse_button_to_e2b(button: Union[MouseButton, str]) -> str:
 
     # Default to left button if not found
     return e2b_button_mapping.get(button, "left")
-

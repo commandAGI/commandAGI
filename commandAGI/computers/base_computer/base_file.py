@@ -1,6 +1,7 @@
 from abc import ABC
 from io import FileIO
 
+
 class BaseComputerFile(FileIO, ABC):
     """Base class for computer-specific file implementations.
 

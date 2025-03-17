@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BaseWord(BaseApplication):
@@ -52,8 +54,11 @@ class BaseWord(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement save_document")
 
-    def get_text(self, start: Optional[Tuple[int, int]] = None, 
-                end: Optional[Tuple[int, int]] = None) -> str:
+    def get_text(
+        self,
+        start: Optional[Tuple[int, int]] = None,
+        end: Optional[Tuple[int, int]] = None,
+    ) -> str:
         """Get text from the document.
 
         Args:
@@ -65,7 +70,9 @@ class BaseWord(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement get_text")
 
-    def insert_text(self, text: str, position: Optional[Tuple[int, int]] = None) -> bool:
+    def insert_text(
+        self, text: str, position: Optional[Tuple[int, int]] = None
+    ) -> bool:
         """Insert text at specified position.
 
         Args:
@@ -89,8 +96,9 @@ class BaseWord(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement delete_text")
 
-    def apply_character_formatting(self, start: Tuple[int, int], end: Tuple[int, int], 
-                                formatting: Dict[str, Any]) -> bool:
+    def apply_character_formatting(
+        self, start: Tuple[int, int], end: Tuple[int, int], formatting: Dict[str, Any]
+    ) -> bool:
         """Apply character-level formatting to a range of text.
 
         Args:
@@ -101,10 +109,13 @@ class BaseWord(BaseApplication):
         Returns:
             bool: True if formatting was applied successfully
         """
-        raise NotImplementedError("Subclasses must implement apply_character_formatting")
+        raise NotImplementedError(
+            "Subclasses must implement apply_character_formatting"
+        )
 
-    def apply_paragraph_formatting(self, start_para: int, end_para: int,
-                                formatting: Dict[str, Any]) -> bool:
+    def apply_paragraph_formatting(
+        self, start_para: int, end_para: int, formatting: Dict[str, Any]
+    ) -> bool:
         """Apply paragraph-level formatting.
 
         Args:
@@ -115,11 +126,16 @@ class BaseWord(BaseApplication):
         Returns:
             bool: True if formatting was applied successfully
         """
-        raise NotImplementedError("Subclasses must implement apply_paragraph_formatting")
+        raise NotImplementedError(
+            "Subclasses must implement apply_paragraph_formatting"
+        )
 
-    def insert_image(self, image_path: Union[str, Path], 
-                    position: Optional[Tuple[int, int]] = None,
-                    properties: Optional[Dict[str, Any]] = None) -> bool:
+    def insert_image(
+        self,
+        image_path: Union[str, Path],
+        position: Optional[Tuple[int, int]] = None,
+        properties: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """Insert an image into the document.
 
         Args:
@@ -132,8 +148,9 @@ class BaseWord(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement insert_image")
 
-    def insert_table(self, rows: int, columns: int,
-                    position: Optional[Tuple[int, int]] = None) -> bool:
+    def insert_table(
+        self, rows: int, columns: int, position: Optional[Tuple[int, int]] = None
+    ) -> bool:
         """Insert a table into the document.
 
         Args:
@@ -170,9 +187,12 @@ class BaseWord(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement add_footnote")
 
-    def export_document(self, output_path: Union[str, Path], 
-                       format: str,
-                       options: Optional[Dict[str, Any]] = None) -> bool:
+    def export_document(
+        self,
+        output_path: Union[str, Path],
+        format: str,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """Export document to different format.
 
         Args:

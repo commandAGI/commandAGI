@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Any, Tuple
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BaseChromeBrowser(BaseApplication):
@@ -189,4 +191,4 @@ class BaseChromeBrowser(BaseApplication):
         Returns:
             bool: True if browser is running
         """
-        raise NotImplementedError("Subclasses must implement is_running") 
+        raise NotImplementedError("Subclasses must implement is_running")

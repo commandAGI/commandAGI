@@ -35,6 +35,7 @@ from commandAGI.types import (
     TypeAction,
 )
 
+
 def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
     """Convert KeyboardKey to PyAutoGUI key name.
 
@@ -89,4 +90,3 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
 
     # For letter keys and number keys, use the value directly
     return pyautogui_key_mapping.get(key, key.value)
-

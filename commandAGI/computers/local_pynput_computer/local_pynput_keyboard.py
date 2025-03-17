@@ -42,7 +42,6 @@ from commandAGI.types import (
 )
 
 
-
 def keyboard_key_to_pynput(
     key: Union[KeyboardKey, str],
 ) -> Union[PynputKey, PynputKeyCode]:
@@ -162,4 +161,3 @@ def keyboard_key_from_pynput(key) -> Optional[KeyboardKey]:
     }
 
     return pynput_to_keyboard_key.get(key)  # Returns None if not found
-

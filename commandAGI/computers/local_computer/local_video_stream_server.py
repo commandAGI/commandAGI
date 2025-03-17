@@ -1,7 +1,7 @@
-
 from http.server import BaseHTTPRequestHandler
 
 # NOTE: this should really be consolidated into the daemon server
+
 
 class VideoStreamHandler(BaseHTTPRequestHandler):
     """HTTP request handler for video streaming."""
@@ -77,4 +77,3 @@ class ThreadedHTTPServer(HTTPServer):
                 super().__init__(*args, computer=computer, **kwargs)
 
         super().__init__(server_address, Handler)
-

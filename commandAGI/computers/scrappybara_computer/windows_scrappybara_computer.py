@@ -40,7 +40,6 @@ from commandAGI.types import (
 )
 
 
-
 class WindowsScrapybaraComputer(BaseScrapybaraComputer):
     """Scrapybara computer specifically for Windows instances"""
 

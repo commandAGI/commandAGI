@@ -40,8 +40,6 @@ from commandAGI.types import (
 )
 
 
-
-
 # PigDev-specific mappings
 def mouse_button_to_pigdev(button: Union[MouseButton, str]) -> str:
     """Convert MouseButton to PigDev button name.

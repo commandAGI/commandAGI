@@ -60,4 +60,3 @@ def mouse_button_to_pyautogui(button: Union[MouseButton, str]) -> str:
     return pyautogui_button_mapping.get(
         button, "left"
     )  # Default to left button if not found
-

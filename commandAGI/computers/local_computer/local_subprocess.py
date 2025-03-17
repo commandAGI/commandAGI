@@ -8,12 +8,13 @@ from commandAGI.computers.base_computer import BaseComputer
 
 from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubprocess
 
+
 class LocalSubprocess(BaseComputerSubprocess):
     """Implementation of BaseComputerSubprocess for local system processes."""
 
     def __init__(self, pid: int, computer: BaseComputer):
         """Initialize the process handler.
-        
+
         Args:
             pid: Process ID to monitor/control
             computer: Reference to the computer instance
@@ -21,7 +22,7 @@ class LocalSubprocess(BaseComputerSubprocess):
         super().__init__(pid=pid, _computer=computer)
         self._process = psutil.Process(pid)
 
-    @property 
+    @property
     def cwd(self) -> Path:
         """Get the current working directory of the process.
 
@@ -45,7 +46,9 @@ class LocalSubprocess(BaseComputerSubprocess):
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             return {}
 
-    def read_output(self, timeout: Optional[float] = None, *, encoding: Optional[str] = None) -> str:
+    def read_output(
+        self, timeout: Optional[float] = None, *, encoding: Optional[str] = None
+    ) -> str:
         """Read output from the process.
         Note: This is not implemented for generic processes as there's no standard way to read output.
 
@@ -85,4 +88,3 @@ class LocalSubprocess(BaseComputerSubprocess):
             return True
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             return False
-

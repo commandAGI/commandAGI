@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Union, Tuple, Any
 
-from commandAGI.computers.base_computer.applications.base_application import BaseApplication
+from commandAGI.computers.base_computer.applications.base_application import (
+    BaseApplication,
+)
 
 
 class BaseBlender(BaseApplication):
@@ -36,7 +38,9 @@ class BaseBlender(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement save_project")
 
-    def create_object(self, obj_type: str, name: str, parameters: Dict[str, Any]) -> bool:
+    def create_object(
+        self, obj_type: str, name: str, parameters: Dict[str, Any]
+    ) -> bool:
         """Create a new object in the scene.
 
         Args:
@@ -49,7 +53,9 @@ class BaseBlender(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement create_object")
 
-    def modify_object(self, obj_name: str, operation: str, parameters: Dict[str, Any]) -> bool:
+    def modify_object(
+        self, obj_name: str, operation: str, parameters: Dict[str, Any]
+    ) -> bool:
         """Apply a modifier or operation to an object.
 
         Args:
@@ -114,7 +120,9 @@ class BaseBlender(BaseApplication):
         """
         raise NotImplementedError("Subclasses must implement import_model")
 
-    def export_model(self, file_path: Union[str, Path], export_type: str, parameters: Dict[str, Any]) -> bool:
+    def export_model(
+        self, file_path: Union[str, Path], export_type: str, parameters: Dict[str, Any]
+    ) -> bool:
         """Export the scene or selected objects.
 
         Args:

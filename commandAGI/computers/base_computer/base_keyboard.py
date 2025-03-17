@@ -1,5 +1,3 @@
-
-
 class KeyboardKey(str, Enum):
     # Special Keys
     ENTER = "enter"
@@ -91,4 +89,3 @@ class KeyboardKey(str, Enum):
         if isinstance(key, KeyboardKey):
             return True
         return key in [k.value for k in cls]
-
