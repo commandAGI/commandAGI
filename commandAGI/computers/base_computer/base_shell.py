@@ -1,4 +1,10 @@
 
+from pathlib import Path
+from typing import Dict, Optional, Union
+
+from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubprocess
+
+
 class BaseShell(BaseComputerSubprocess):
     """Base class for shell operations.
 

@@ -62,7 +62,7 @@ except ImportError:
 try:
     from commandAGI.computers.scrappybara_computer import (
         BrowserScrapybaraComputer,
-        ScrapybaraComputer,
+        BaseScrapybaraComputer,
         UbuntuScrapybaraComputer,
         WindowsScrapybaraComputer,
     )
@@ -81,7 +81,7 @@ __all__ = [
     "RemoteComputer",
     "VNCComputer",
     "PigDevComputer",
-    "ScrapybaraComputer",
+    "BaseScrapybaraComputer",
     "UbuntuScrapybaraComputer",
     "BrowserScrapybaraComputer",
     "WindowsScrapybaraComputer",

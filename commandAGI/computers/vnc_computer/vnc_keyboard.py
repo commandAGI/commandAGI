@@ -2,23 +2,29 @@ import base64
 import datetime
 import io
 import os
-import subprocess
 import tempfile
-import time
-from typing import Literal, Optional, Union
+from pathlib import Path
+from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 
 try:
-    import mss
-    import pyautogui
+    import vncdotool.api as vnc
     from PIL import Image
+
+    # Try to import paramiko for SFTP file transfer
+    try:
+        import paramiko
+
+        SFTP_AVAILABLE = True
+    except ImportError:
+        SFTP_AVAILABLE = False
 except ImportError:
     raise ImportError(
-        "The local dependencies are not installed. Please install commandAGI with the local extra:\n\npip install commandAGI[local]"
+        "The VNC dependencies are not installed. Please install commandAGI with the vnc extra:\n\npip install commandAGI[vnc]"
     )
 
 from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
-from commandAGI.computers.local_computer import LocalComputer
+from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
     KeyboardKey,
     KeyboardKeyDownAction,
@@ -30,32 +36,35 @@ from commandAGI.types import (
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
+    RunProcessAction,
     ScreenshotObservation,
     ShellCommandAction,
     TypeAction,
 )
 
-def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
-    """Convert KeyboardKey to PyAutoGUI key name.
 
-    PyAutoGUI uses specific key names that may differ from our standard KeyboardKey values.
+
+def keyboard_key_to_vnc(key: Union[KeyboardKey, str]) -> str:
+    """Convert KeyboardKey to VNC key name.
+
+    VNC uses specific key names that may differ from our standard KeyboardKey values.
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
 
-    # PyAutoGUI-specific key mappings
-    pyautogui_key_mapping = {
+    # VNC-specific key mappings
+    vnc_key_mapping = {
         # Special keys
-        KeyboardKey.ENTER: "enter",
+        KeyboardKey.ENTER: "return",
         KeyboardKey.TAB: "tab",
         KeyboardKey.SPACE: "space",
         KeyboardKey.BACKSPACE: "backspace",
         KeyboardKey.DELETE: "delete",
-        KeyboardKey.ESCAPE: "esc",
+        KeyboardKey.ESCAPE: "escape",
         KeyboardKey.HOME: "home",
         KeyboardKey.END: "end",
-        KeyboardKey.PAGE_UP: "pageup",
-        KeyboardKey.PAGE_DOWN: "pagedown",
+        KeyboardKey.PAGE_UP: "page_up",
+        KeyboardKey.PAGE_DOWN: "page_down",
         # Arrow keys
         KeyboardKey.UP: "up",
         KeyboardKey.DOWN: "down",
@@ -63,15 +72,15 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
         KeyboardKey.RIGHT: "right",
         # Modifier keys
         KeyboardKey.SHIFT: "shift",
-        KeyboardKey.CTRL: "ctrl",
-        KeyboardKey.LCTRL: "ctrlleft",
-        KeyboardKey.RCTRL: "ctrlright",
+        KeyboardKey.CTRL: "control",
+        KeyboardKey.LCTRL: "control",
+        KeyboardKey.RCTRL: "control",
         KeyboardKey.ALT: "alt",
-        KeyboardKey.LALT: "altleft",
-        KeyboardKey.RALT: "altright",
-        KeyboardKey.META: "win",  # Windows key
-        KeyboardKey.LMETA: "winleft",
-        KeyboardKey.RMETA: "winright",
+        KeyboardKey.LALT: "alt",
+        KeyboardKey.RALT: "alt",
+        KeyboardKey.META: "meta",
+        KeyboardKey.LMETA: "meta",
+        KeyboardKey.RMETA: "meta",
         # Function keys
         KeyboardKey.F1: "f1",
         KeyboardKey.F2: "f2",
@@ -88,5 +97,4 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
     }
 
     # For letter keys and number keys, use the value directly
-    return pyautogui_key_mapping.get(key, key.value)
-
+    return vnc_key_mapping.get(key, key.value)

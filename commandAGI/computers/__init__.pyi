@@ -27,7 +27,7 @@ from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 from commandAGI.computers.pigdev_computer import PigDevComputer
 from commandAGI.computers.scrappybara_computer import (
     BrowserScrapybaraComputer,
-    ScrapybaraComputer,
+    BaseScrapybaraComputer,
     UbuntuScrapybaraComputer,
     WindowsScrapybaraComputer,
 )
@@ -48,7 +48,7 @@ __all__ = [
     "RemoteComputer",
     "VNCComputer",
     "PigDevComputer",
-    "ScrapybaraComputer",
+    "BaseScrapybaraComputer",
     "UbuntuScrapybaraComputer",
     "BrowserScrapybaraComputer",
     "WindowsScrapybaraComputer",

@@ -1,5 +1,8 @@
 
 
+from commandAGI.computers.base_computer.base_file import BaseComputerFile
+
+
 class RemoteComputerFile(BaseComputerFile):
     """Implementation of BaseComputerFile for Daemon Client computer files.
 

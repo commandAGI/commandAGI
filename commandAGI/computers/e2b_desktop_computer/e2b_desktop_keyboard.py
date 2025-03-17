@@ -2,26 +2,28 @@ import base64
 import datetime
 import io
 import os
-import subprocess
 import tempfile
-import time
-from typing import Literal, Optional, Union
+from pathlib import Path
+from typing import AnyStr, List, Literal, Optional, Union
 
 try:
-    import mss
-    import pyautogui
+    from e2b_desktop import Sandbox
     from PIL import Image
 except ImportError:
     raise ImportError(
-        "The local dependencies are not installed. Please install commandAGI with the local extra:\n\npip install commandAGI[local]"
+        "The E2B Desktop dependencies are not installed. Please install commandAGI with the e2b_desktop extra:\n\npip install commandAGI[e2b_desktop]"
     )
 
 from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
-from commandAGI.computers.local_computer import LocalComputer
+from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
+    ClickAction,
+    DoubleClickAction,
+    KeyboardHotkeyAction,
     KeyboardKey,
     KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
     KeyboardStateObservation,
     MouseButton,
@@ -30,28 +32,29 @@ from commandAGI.types import (
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
+    RunProcessAction,
     ScreenshotObservation,
     ShellCommandAction,
     TypeAction,
 )
 
-def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
-    """Convert KeyboardKey to PyAutoGUI key name.
+def keyboard_key_to_e2b(key: Union[KeyboardKey, str]) -> str:
+    """Convert KeyboardKey to E2B Desktop key name.
 
-    PyAutoGUI uses specific key names that may differ from our standard KeyboardKey values.
+    E2B Desktop uses specific key names that may differ from our standard KeyboardKey values.
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
 
-    # PyAutoGUI-specific key mappings
-    pyautogui_key_mapping = {
+    # E2B Desktop key mappings
+    e2b_key_mapping = {
         # Special keys
-        KeyboardKey.ENTER: "enter",
+        KeyboardKey.ENTER: "return",  # E2B uses "return" not "enter"
         KeyboardKey.TAB: "tab",
         KeyboardKey.SPACE: "space",
         KeyboardKey.BACKSPACE: "backspace",
         KeyboardKey.DELETE: "delete",
-        KeyboardKey.ESCAPE: "esc",
+        KeyboardKey.ESCAPE: "esc",  # E2B uses "esc" not "escape"
         KeyboardKey.HOME: "home",
         KeyboardKey.END: "end",
         KeyboardKey.PAGE_UP: "pageup",
@@ -64,14 +67,14 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
         # Modifier keys
         KeyboardKey.SHIFT: "shift",
         KeyboardKey.CTRL: "ctrl",
-        KeyboardKey.LCTRL: "ctrlleft",
-        KeyboardKey.RCTRL: "ctrlright",
+        KeyboardKey.LCTRL: "ctrl",  # E2B may not distinguish left/right
+        KeyboardKey.RCTRL: "ctrl",  # E2B may not distinguish left/right
         KeyboardKey.ALT: "alt",
-        KeyboardKey.LALT: "altleft",
-        KeyboardKey.RALT: "altright",
+        KeyboardKey.LALT: "alt",  # E2B may not distinguish left/right
+        KeyboardKey.RALT: "alt",  # E2B may not distinguish left/right
         KeyboardKey.META: "win",  # Windows key
-        KeyboardKey.LMETA: "winleft",
-        KeyboardKey.RMETA: "winright",
+        KeyboardKey.LMETA: "win",  # E2B may not distinguish left/right
+        KeyboardKey.RMETA: "win",  # E2B may not distinguish left/right
         # Function keys
         KeyboardKey.F1: "f1",
         KeyboardKey.F2: "f2",
@@ -88,5 +91,5 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
     }
 
     # For letter keys and number keys, use the value directly
-    return pyautogui_key_mapping.get(key, key.value)
+    return e2b_key_mapping.get(key, key.value)
 

@@ -6,7 +6,7 @@ from typing import Dict, Optional
 
 from commandAGI.computers.base_computer import BaseComputer
 
-from commandAGI.computers.base_computer.base_process import BaseComputerSubprocess
+from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubprocess
 
 class LocalSubprocess(BaseComputerSubprocess):
     """Implementation of BaseComputerSubprocess for local system processes."""

@@ -25,18 +25,26 @@ from commandAGI._internal.config import APPDIR, DEV_MODE
 from commandAGI._utils.annotations import annotation, gather_annotated_attr_keys
 from commandAGI._utils.counter import next_for_cls
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
-from commandAGI.computers.misc_types import ComputerRunningState
-from commandAGI.types import (
-    ComputerActionType,
-    ComputerActionUnion,
-    DisplayInfo,
-    KeyboardKey,
-    MouseButton,
-    ProcessInfo,
-    RunProcessAction,
-    ShellCommandAction,
-    WindowInfo,
-)
+from commandAGI.computers.base_computer.applications.base_chrome_browser import BaseChromeBrowser
+from commandAGI.computers.base_computer.applications.base_cursor_ide import BaseCursorIDE
+from commandAGI.computers.base_computer.applications.base_file_explorer import BaseFileExplorer
+from commandAGI.computers.base_computer.applications.base_freecad import BaseFreeCAD
+from commandAGI.computers.base_computer.applications.base_libre_office_calc import BaseLibreOfficeCalc
+from commandAGI.computers.base_computer.applications.base_libre_office_present import BaseLibreOfficePresent
+from commandAGI.computers.base_computer.applications.base_office_excel import BaseExcel
+from commandAGI.computers.base_computer.applications.base_office_powerpoint import BasePowerPoint
+from commandAGI.computers.base_computer.applications.base_office_word import BaseWord
+from commandAGI.computers.base_computer.applications.base_text_editor import BaseTextEditor
+from commandAGI.computers.base_computer.applications.base_blender import BaseBlender
+from commandAGI.computers.base_computer.applications.base_libre_office_writer import BaseLibraOfficeWriter
+from commandAGI.computers.base_computer.base_keyboard import KeyboardKey
+from commandAGI.computers.base_computer.applications.base_kicad import BaseKicad
+from commandAGI.computers.base_computer.base_mouse import MouseButton
+from commandAGI.computers.base_computer.applications.base_paint_editor import BasePaintEditor
+from commandAGI.computers.base_computer.base_shell import BaseShell
+from commandAGI.computers.base_computer.base_subprocess import BaseComputerSubprocess
+from commandAGI.computers.base_computer.applications.base_kdenlive import BaseKdenlive
+from commandAGI.computers.misc_types import ComputerRunningState, SystemInfo, UIElement, WindowInfo, DisplayInfo, ProcessInfo
 
 
 
@@ -585,42 +593,6 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._run_process")
 
-    # def _default_run_process(
-    #     self,
-    #     command: str,
-    #     args: List[str] = [],
-    #     cwd: Optional[str] = None,
-    #     env: Optional[dict] = None,
-    #     timeout: Optional[float] = None,
-    # ):
-    #     """Default implementation of run_process using shell commands.
-    #
-    #     This method is deliberately not wired up to the base _run_process to make
-    #     subclasses think about what they really want. It defaults to using shell
-    #     commands to execute the process.
-    #
-    #     Args:
-    #         command: The command to run
-    #         args: List of command arguments
-    #         cwd: Working directory for the process
-    #         env: Environment variables for the process
-    #         timeout: Optional timeout in seconds
-    #     """
-    #     self.logger.info(f"Running process via shell: {command} with args: {args}")
-    #     # Change to the specified directory if provided
-    #     if cwd:
-    #         self.shell(f"cd {cwd}")
-    #     # Build the command string
-    #     cmd_parts = [command] + args
-    #     cmd_shell_format = " ".join(cmd_parts)
-    #     # Add environment variables if specified
-    #     if env:
-    #         # For Unix-like shells
-    #         env_vars = " ".join([f"{k}={v}" for k, v in env.items()])
-    #         cmd_shell_format = f"{env_vars} {cmd_shell_format}"
-    #     # Execute the command with timeout if specified
-    #     self.shell(cmd_shell_format, timeout=timeout)
-
     @annotation("endpoint", {"method": "post", "path": "/start_shell"})
     def start_shell(
         self,
@@ -651,22 +623,22 @@ class BaseComputer(BaseModel):
     ) -> BaseShell:
         raise NotImplementedError(f"{self.__class__.__name__}.start_shell")
 
-    @annotation("endpoint", {"method": "post", "path": "/start_ide"})
-    def start_ide(self) -> BaseIDE:
-        """Create and return a new BaseIDE instance.
+    @annotation("endpoint", {"method": "post", "path": "/start_cursor_ide"})
+    def start_cursor_ide(self) -> BaseCursorIDE:
+        """Create and return a new BaseCursorIDE instance.
 
-        This method should be implemented by subclasses to return an appropriate
-        implementation of BaseIDE for the specific computer type.
+        implementation of BaseCursorIDE for the specific computer type.
         """
-        raise NotImplementedError(f"{self.__class__.__name__}.start_ide")
+        raise NotImplementedError(f"{self.__class__.__name__}.start_cursor_ide")
     
-    def _start_ide(self) -> BaseIDE:
-        """Create and return a new BaseIDE instance.
+    
+    def _start_cursor_ide(self) -> BaseCursorIDE:
+        """Create and return a new BaseCursorIDE instance.
 
         This method should be implemented by subclasses to return an appropriate
-        implementation of BaseIDE for the specific computer type.
+        implementation of BaseCursorIDE for the specific computer type.
         """
-        raise NotImplementedError(f"{self.__class__.__name__}._start_ide")
+        raise NotImplementedError(f"{self.__class__.__name__}._start_cursor_ide")
 
     @annotation("endpoint", {"method": "post", "path": "/start_kicad"})
     def start_kicad(self) -> BaseKicad:
@@ -702,22 +674,110 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._start_blender")
 
-    @annotation("endpoint", {"method": "post", "path": "/start_document_editor"}) 
-    def start_document_editor(self) -> BaseDocumentEditor:
-        """Create and return a new BaseDocumentEditor instance.
+    @annotation("endpoint", {"method": "post", "path": "/start_file_explorer"})
+    def start_file_explorer(self) -> BaseFileExplorer:
+        """Create and return a new BaseFileExplorer instance.
 
         This method should be implemented by subclasses to return an appropriate
-        implementation of BaseDocumentEditor for the specific computer type.
+        implementation of BaseFileExplorer for the specific computer type.
         """
-        raise NotImplementedError(f"{self.__class__.__name__}.start_document_editor")
-
-    def _start_document_editor(self) -> BaseDocumentEditor:
-        """Create and return a new BaseDocumentEditor instance.
+        raise NotImplementedError(f"{self.__class__.__name__}.start_file_explorer")
+    
+    def _start_file_explorer(self) -> BaseFileExplorer:
+        """Create and return a new BaseFileExplorer instance.
 
         This method should be implemented by subclasses to return an appropriate
-        implementation of BaseDocumentEditor for the specific computer type.
+        implementation of BaseFileExplorer for the specific computer type.
         """
-        raise NotImplementedError(f"{self.__class__.__name__}._start_document_editor")
+        raise NotImplementedError(f"{self.__class__.__name__}._start_file_explorer")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_chrome_browser"})
+    def start_chrome_browser(self) -> BaseChromeBrowser:
+        """Create and return a new BaseChromeBrowser instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseChromeBrowser for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}.start_chrome_browser")
+    
+    def _start_chrome_browser(self) -> BaseChromeBrowser:
+        """Create and return a new BaseChromeBrowser instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseChromeBrowser for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_chrome_browser")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_text_editor"})
+    def start_text_editor(self) -> BaseTextEditor:
+        """Create and return a new BaseTextEditor instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseTextEditor for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}.start_text_editor")
+    
+    def _start_text_editor(self) -> BaseTextEditor:
+        """Create and return a new BaseTextEditor instance.
+
+        This method should be implemented by subclasses to return an appropriate
+        implementation of BaseTextEditor for the specific computer type.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}._start_text_editor")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_libre_office_writer"}) 
+    def start_libre_office_writer(self) -> BaseLibraOfficeWriter:
+        """Create and return a new LibreOffice Writer instance."""
+        return self._start_libre_office_writer()
+
+    def _start_libre_office_writer(self) -> BaseLibraOfficeWriter:
+        """Create and return a new LibreOffice Writer instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_libre_office_writer")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_libre_office_calc"})
+    def start_libre_office_calc(self) -> BaseLibreOfficeCalc:
+        """Create and return a new LibreOffice Calc instance."""
+        return self._start_libre_office_calc()
+
+    def _start_libre_office_calc(self) -> BaseLibreOfficeCalc:
+        """Create and return a new LibreOffice Calc instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_libre_office_calc")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_libre_office_present"})
+    def start_libre_office_present(self) -> BaseLibreOfficePresent:
+        """Create and return a new LibreOffice Impress instance."""
+        return self._start_libre_office_present()
+
+    def _start_libre_office_present(self) -> BaseLibreOfficePresent:
+        """Create and return a new LibreOffice Impress instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_libre_office_present")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_word"})
+    def start_word(self) -> BaseWord:
+        """Create and return a new Word instance."""
+        return self._start_word()
+
+    def _start_word(self) -> BaseWord:
+        """Create and return a new Word instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_word")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_excel"})
+    def start_excel(self) -> BaseExcel:
+        """Create and return a new Excel instance."""
+        return self._start_excel()
+
+    def _start_excel(self) -> BaseExcel:
+        """Create and return a new Excel instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_excel")
+
+    @annotation("endpoint", {"method": "post", "path": "/start_powerpoint"})
+    def start_powerpoint(self) -> BasePowerPoint:
+        """Create and return a new PowerPoint instance."""
+        return self._start_powerpoint()
+
+    def _start_powerpoint(self) -> BasePowerPoint:
+        """Create and return a new PowerPoint instance."""
+        raise NotImplementedError(f"{self.__class__.__name__}._start_powerpoint")
 
     @annotation("endpoint", {"method": "post", "path": "/start_paint_editor"})
     def start_paint_editor(self) -> BasePaintEditor:
@@ -736,34 +796,17 @@ class BaseComputer(BaseModel):
         """
         raise NotImplementedError(f"{self.__class__.__name__}._start_paint_editor")
 
-    @annotation("endpoint", {"method": "post", "path": "/start_spreadsheet"})
-    def start_spreadsheet(self) -> BaseSpreadsheet:
-        """Create and return a new BaseSpreadsheet instance.
-
-        This method should be implemented by subclasses to return an appropriate
-        implementation of BaseSpreadsheet for the specific computer type.
-        """
-        raise NotImplementedError(f"{self.__class__.__name__}.start_spreadsheet")
-
-    def _start_spreadsheet(self) -> BaseSpreadsheet:
-        """Create and return a new BaseSpreadsheet instance.
-
-        This method should be implemented by subclasses to return an appropriate
-        implementation of BaseSpreadsheet for the specific computer type.
-        """
-        raise NotImplementedError(f"{self.__class__.__name__}._start_spreadsheet")
-
     @annotation("endpoint", {"method": "post", "path": "/start_cad"})
-    def start_cad(self) -> BaseCAD:
-        """Create and return a new BaseCAD instance.
+    def start_freecad(self) -> BaseFreeCAD:
+        """Create and return a new BaseFreeCAD instance.
 
         This method should be implemented by subclasses to return an appropriate
         implementation of BaseCAD for the specific computer type.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.start_cad")
 
-    def _start_cad(self) -> BaseCAD:
-        """Create and return a new BaseCAD instance.
+    def _start_freecad(self) -> BaseFreeCAD:
+        """Create and return a new BaseFreeCAD instance.
 
         This method should be implemented by subclasses to return an appropriate
         implementation of BaseCAD for the specific computer type.
@@ -771,16 +814,16 @@ class BaseComputer(BaseModel):
         raise NotImplementedError(f"{self.__class__.__name__}._start_cad")
 
     @annotation("endpoint", {"method": "post", "path": "/start_video_editor"})
-    def start_video_editor(self) -> BaseVideoEditor:
-        """Create and return a new BaseVideoEditor instance.
+    def start_kdenlive(self) -> BaseKdenlive:
+        """Create and return a new BaseKdenlive instance.
 
         This method should be implemented by subclasses to return an appropriate
-        implementation of BaseVideoEditor for the specific computer type.
+        implementation of BaseKdenlive for the specific computer type.
         """
-        raise NotImplementedError(f"{self.__class__.__name__}.start_video_editor")
+        raise NotImplementedError(f"{self.__class__.__name__}.start_kdenlive")
 
-    def _start_video_editor(self) -> BaseVideoEditor:
-        """Create and return a new BaseVideoEditor instance.
+    def _start_kdenlive(self) -> BaseKdenlive:
+        """Create and return a new BaseKdenlive instance.
 
         This method should be implemented by subclasses to return an appropriate
         implementation of BaseVideoEditor for the specific computer type.

@@ -2,26 +2,29 @@ import base64
 import datetime
 import io
 import os
-import subprocess
 import tempfile
-import time
-from typing import Literal, Optional, Union
+from pathlib import Path
+from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 
 try:
-    import mss
-    import pyautogui
+    import scrapybara
     from PIL import Image
 except ImportError:
     raise ImportError(
-        "The local dependencies are not installed. Please install commandAGI with the local extra:\n\npip install commandAGI[local]"
+        "The Scrapybara dependencies are not installed. Please install commandAGI with the scrapybara extra:\n\npip install commandAGI[scrapybara]"
     )
 
 from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
-from commandAGI.computers.local_computer import LocalComputer
+from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
+    ClickAction,
+    DoubleClickAction,
+    DragAction,
+    KeyboardHotkeyAction,
     KeyboardKey,
     KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
     KeyboardStateObservation,
     MouseButton,
@@ -30,28 +33,32 @@ from commandAGI.types import (
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
+    RunProcessAction,
     ScreenshotObservation,
     ShellCommandAction,
     TypeAction,
 )
 
-def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
-    """Convert KeyboardKey to PyAutoGUI key name.
 
-    PyAutoGUI uses specific key names that may differ from our standard KeyboardKey values.
+
+def keyboard_key_to_scrapybara(key: Union[KeyboardKey, str]) -> str:
+    """Convert KeyboardKey to Scrapybara key name.
+
+    Scrapybara uses specific key names that may differ from our standard KeyboardKey values.
+    For hotkeys, Scrapybara uses the '+' separator (e.g., "ctrl+c").
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
 
-    # PyAutoGUI-specific key mappings
-    pyautogui_key_mapping = {
+    # Scrapybara-specific key mappings
+    scrapybara_key_mapping = {
         # Special keys
         KeyboardKey.ENTER: "enter",
         KeyboardKey.TAB: "tab",
         KeyboardKey.SPACE: "space",
         KeyboardKey.BACKSPACE: "backspace",
         KeyboardKey.DELETE: "delete",
-        KeyboardKey.ESCAPE: "esc",
+        KeyboardKey.ESCAPE: "escape",
         KeyboardKey.HOME: "home",
         KeyboardKey.END: "end",
         KeyboardKey.PAGE_UP: "pageup",
@@ -64,14 +71,14 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
         # Modifier keys
         KeyboardKey.SHIFT: "shift",
         KeyboardKey.CTRL: "ctrl",
-        KeyboardKey.LCTRL: "ctrlleft",
-        KeyboardKey.RCTRL: "ctrlright",
+        KeyboardKey.LCTRL: "ctrl",  # Scrapybara doesn't distinguish between left/right
+        KeyboardKey.RCTRL: "ctrl",
         KeyboardKey.ALT: "alt",
-        KeyboardKey.LALT: "altleft",
-        KeyboardKey.RALT: "altright",
-        KeyboardKey.META: "win",  # Windows key
-        KeyboardKey.LMETA: "winleft",
-        KeyboardKey.RMETA: "winright",
+        KeyboardKey.LALT: "alt",  # Scrapybara doesn't distinguish between left/right
+        KeyboardKey.RALT: "alt",
+        KeyboardKey.META: "meta",  # Command/Windows key
+        KeyboardKey.LMETA: "meta",  # Scrapybara doesn't distinguish between left/right
+        KeyboardKey.RMETA: "meta",
         # Function keys
         KeyboardKey.F1: "f1",
         KeyboardKey.F2: "f2",
@@ -88,5 +95,5 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
     }
 
     # For letter keys and number keys, use the value directly
-    return pyautogui_key_mapping.get(key, key.value)
+    return scrapybara_key_mapping.get(key, key.value)
 

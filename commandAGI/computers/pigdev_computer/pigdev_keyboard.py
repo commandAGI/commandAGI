@@ -2,26 +2,29 @@ import base64
 import datetime
 import io
 import os
-import subprocess
 import tempfile
-import time
-from typing import Literal, Optional, Union
+from pathlib import Path
+from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
 
 try:
-    import mss
-    import pyautogui
+    from pig import Client
     from PIL import Image
 except ImportError:
     raise ImportError(
-        "The local dependencies are not installed. Please install commandAGI with the local extra:\n\npip install commandAGI[local]"
+        "The PigDev dependencies are not installed. Please install commandAGI with the pigdev extra:\n\npip install commandAGI[pigdev]"
     )
 
 from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
-from commandAGI.computers.local_computer import LocalComputer
+from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
+    ClickAction,
+    DoubleClickAction,
+    DragAction,
+    KeyboardHotkeyAction,
     KeyboardKey,
     KeyboardKeyDownAction,
+    KeyboardKeyPressAction,
     KeyboardKeyReleaseAction,
     KeyboardStateObservation,
     MouseButton,
@@ -30,28 +33,32 @@ from commandAGI.types import (
     MouseMoveAction,
     MouseScrollAction,
     MouseStateObservation,
+    RunProcessAction,
     ScreenshotObservation,
     ShellCommandAction,
     TypeAction,
 )
 
-def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
-    """Convert KeyboardKey to PyAutoGUI key name.
 
-    PyAutoGUI uses specific key names that may differ from our standard KeyboardKey values.
+
+
+def keyboard_key_to_pigdev(key: Union[KeyboardKey, str]) -> str:
+    """Convert KeyboardKey to PigDev key name.
+
+    PigDev uses specific key names that may differ from our standard KeyboardKey values.
     """
     if isinstance(key, str):
         key = KeyboardKey(key)
 
-    # PyAutoGUI-specific key mappings
-    pyautogui_key_mapping = {
+    # PigDev-specific key mappings
+    pigdev_key_mapping = {
         # Special keys
         KeyboardKey.ENTER: "enter",
         KeyboardKey.TAB: "tab",
         KeyboardKey.SPACE: "space",
         KeyboardKey.BACKSPACE: "backspace",
         KeyboardKey.DELETE: "delete",
-        KeyboardKey.ESCAPE: "esc",
+        KeyboardKey.ESCAPE: "escape",
         KeyboardKey.HOME: "home",
         KeyboardKey.END: "end",
         KeyboardKey.PAGE_UP: "pageup",
@@ -64,14 +71,14 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
         # Modifier keys
         KeyboardKey.SHIFT: "shift",
         KeyboardKey.CTRL: "ctrl",
-        KeyboardKey.LCTRL: "ctrlleft",
-        KeyboardKey.RCTRL: "ctrlright",
+        KeyboardKey.LCTRL: "ctrl",  # PigDev may not distinguish between left/right
+        KeyboardKey.RCTRL: "ctrl",
         KeyboardKey.ALT: "alt",
-        KeyboardKey.LALT: "altleft",
-        KeyboardKey.RALT: "altright",
-        KeyboardKey.META: "win",  # Windows key
-        KeyboardKey.LMETA: "winleft",
-        KeyboardKey.RMETA: "winright",
+        KeyboardKey.LALT: "alt",  # PigDev may not distinguish between left/right
+        KeyboardKey.RALT: "alt",
+        KeyboardKey.META: "super",  # Command/Windows key is called "super" in PigDev
+        KeyboardKey.LMETA: "super",  # PigDev may not distinguish between left/right
+        KeyboardKey.RMETA: "super",
         # Function keys
         KeyboardKey.F1: "f1",
         KeyboardKey.F2: "f2",
@@ -88,5 +95,5 @@ def keyboard_key_to_pyautogui(key: Union[KeyboardKey, str]) -> str:
     }
 
     # For letter keys and number keys, use the value directly
-    return pyautogui_key_mapping.get(key, key.value)
+    return pigdev_key_mapping.get(key, key.value)
 
