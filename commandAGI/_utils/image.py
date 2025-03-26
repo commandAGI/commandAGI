@@ -2,7 +2,7 @@ import base64
 import datetime
 import io
 import os
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 try:
     from PIL import Image

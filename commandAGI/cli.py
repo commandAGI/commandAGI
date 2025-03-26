@@ -15,11 +15,8 @@ Subcommands:
   hub             Manage agents on the CommandAGI Hub
 """
 
-import os
-import sys
 import time
 from enum import Enum
-from typing import List, Optional
 
 import typer
 
@@ -27,14 +24,10 @@ import typer
 from commandAGI.agents.hub_cli import app as hub_cli
 
 # Import available computers
-from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
-from commandAGI.computers.local_pynput_computer import LocalPynputComputer
-from commandAGI.computers.remote_computer import ProvisioningMethod, RemoteComputer
 from commandAGI.version import __version__, get_container_version, get_package_version
 
 try:
-    from commandAGI.computers.e2b_desktop_computer import E2BDesktopComputer
+    pass
 
     e2b_available = True
 except ImportError:
@@ -57,24 +50,13 @@ except ImportError:
 
 # Import processors if available
 try:
-    from commandAGI.processors.grid_overlay import overlay_grid
-    from commandAGI.processors.screen_parser.pytesseract_screen_parser import (
-        parse_screenshot,
-    )
+    pass
 
     processors_available = True
 except ImportError:
     processors_available = False
 
 # Import types
-from commandAGI.types import (
-    ClickAction,
-    KeyboardHotkeyAction,
-    KeyboardKey,
-    MouseButton,
-    ShellCommandAction,
-    TypeAction,
-)
 
 # Create the CLI app
 cli = typer.Typer(help="commandAGI CLI")
@@ -120,7 +102,6 @@ def start_computer(
     computer_args: list[str] = typer.Option([], help="Arguments for the computer"),
 ):
     """Start a daemon server for remote control."""
-    pass
 
 
 @cli.command()
@@ -129,7 +110,6 @@ def start_agent(
     agent_args: list[str] = typer.Option([], help="Arguments for the agent"),
 ):
     """Start an agent for remote control."""
-    pass
 
 
 @cli.coommand()
@@ -138,7 +118,6 @@ def run_example(
 ):
     """Run an example script."""
     # this is good for testing
-    pass
 
 
 computer_subcli = typer.Typer(help="commandAGI CLI")
@@ -169,7 +148,6 @@ def start(
     agent_args: list[str] = typer.Option([], help="Arguments for the agent"),
 ):
     """Start an agent for remote control."""
-    pass
 
 
 def run_gym(

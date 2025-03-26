@@ -1,6 +1,5 @@
 import logging
 import platform
-import shlex
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
@@ -9,7 +8,6 @@ from commandAGI.computers.base_computer.applications.base_background_shell impor
     BaseBackgroundShell,
 )
 from commandAGI.computers.remote_computer.remote_subprocess import (
-    RemoteApplication,
     RemoteSubprocess,
 )
 

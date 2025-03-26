@@ -1,5 +1,3 @@
-import os
-import platform
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -7,7 +5,6 @@ import psutil
 
 from commandAGI.computers.base_computer import BaseComputer
 from commandAGI.computers.base_computer.base_subprocess import (
-    BaseApplication,
     BaseSubprocess,
 )
 

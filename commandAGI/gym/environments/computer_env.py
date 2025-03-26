@@ -1,11 +1,9 @@
-from typing import Any, Callable, ClassVar, Dict, Generic, Optional, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from rich.console import Console
 
 from commandAGI.computers.base_computer import BaseComputer
 from commandAGI.computers.local_pynput_computer import LocalPynputComputer
-from commandAGI.gym.environments.base_env import BaseEnv
 from commandAGI.gym.environments.multimodal_env import MultiModalEnv
 from commandAGI.types import ComputerAction, ComputerObservation, ShellCommandAction
 

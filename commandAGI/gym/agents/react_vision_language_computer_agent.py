@@ -1,16 +1,11 @@
-import inspect
-import re
 from collections.abc import Callable
 from textwrap import dedent
 from typing import List, Optional
 
-from langchain.schema import ChatMessage
-from langchain_core.output_parsers.string import StrOutputParser
 from rich.console import Console
 from rich.panel import Panel
 from transformers import Agent
 
-from commandAGI.gym._utils.llms import get_chat_model
 from commandAGI.gym.agents.base_agent import BaseAgent
 from commandAGI.gym.schema import Episode
 from commandAGI.types import (
@@ -232,4 +227,3 @@ class ReactComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
     def train(self, episodes: list[Episode]) -> None:
         """Train the agent on a list of episodes."""
         # React agents typically don't support direct training
-        pass

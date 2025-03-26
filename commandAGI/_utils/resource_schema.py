@@ -1,12 +1,11 @@
 import uuid
 from abc import abstractmethod
-from typing import AnyContent, Literal, Union
+from typing import Union
 
 from langchain.schema import ChatMessage
 from pydantic import BaseModel, Field
 
 from commandAGI._utils.mcp_schema import MCPServerConnection
-from commandAGI.agents.advanced_agent import Context
 
 
 class BaseResource(BaseModel):

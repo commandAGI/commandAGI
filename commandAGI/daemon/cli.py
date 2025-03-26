@@ -1,32 +1,14 @@
 import json
-import os
-import secrets
 import signal
 import sys
 import time
-from typing import Any, Dict, Literal, Optional, Type
+from typing import Optional
 
 import typer
-import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Security
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from commandAGI.computers.base_computer import BaseComputer
 from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
 from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 from commandAGI.daemon.server import ComputerDaemon
-from commandAGI.types import (
-    KeyboardHotkeyAction,
-    KeyboardKeyDownAction,
-    KeyboardKeyPressAction,
-    KeyboardKeyReleaseAction,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    ShellCommandAction,
-    TypeAction,
-)
 
 cli = typer.Typer()
 

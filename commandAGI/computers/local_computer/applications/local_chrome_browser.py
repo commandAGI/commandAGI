@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 from commandAGI.computers.base_computer.applications.base_chrome_browser import (
     BaseChromeBrowser,

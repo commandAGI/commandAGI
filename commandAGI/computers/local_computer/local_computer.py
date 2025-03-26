@@ -1,10 +1,6 @@
-import base64
 import datetime
-import io
-import logging
 import os
 import platform
-import shlex
 import shutil
 import socket
 import subprocess
@@ -12,21 +8,15 @@ import sys
 import tempfile
 import threading
 import time
-from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from textwrap import dedent
-from typing import IO, Any, AnyStr, Dict, List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 
 import psutil
 
-from commandAGI._internal.config import APPDIR
 from commandAGI._utils.image import process_screenshot
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.computers.base_computer import (
     BaseComputer,
-    BaseComputerFile,
-    BaseJupyterNotebook,
-    BaseShell,
     SystemInfo,
 )
 from commandAGI.computers.local_computer.applications.local_background_shell import (
@@ -75,23 +65,9 @@ from commandAGI.computers.local_computer.applications.local_text_editor import (
 from commandAGI.computers.local_computer.local_subprocess import LocalSubprocess
 from commandAGI.types import (
     DisplaysObservation,
-    KeyboardKey,
-    KeyboardKeyDownAction,
-    KeyboardKeyReleaseAction,
-    KeyboardStateObservation,
     LayoutTreeObservation,
-    MouseButton,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseStateObservation,
     Platform,
     ProcessesObservation,
-    RunProcessAction,
-    ScreenshotObservation,
-    ShellCommandAction,
-    TypeAction,
     WindowsObservation,
 )
 
@@ -104,7 +80,7 @@ if platform.system() != "Windows":
     import termios
 else:
     # For Windows, we need msvcrt for console I/O
-    import msvcrt
+    pass
 
     # Define dummy imports for Unix-specific modules
     pty = None
@@ -122,9 +98,7 @@ except ImportError:
     )
 
 try:
-    import nbformat
-    from nbclient import NotebookClient
-    from nbclient.exceptions import CellExecutionError
+    pass
 except ImportError:
     raise ImportError(
         "Jupyter notebook dependencies are not installed. Please install with:\n\npip install nbformat nbclient"

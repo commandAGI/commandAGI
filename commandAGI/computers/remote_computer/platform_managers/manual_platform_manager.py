@@ -2,7 +2,6 @@ from typing import Optional
 
 from commandAGI.computers.platform_managers.base_platform_manager import (
     BaseComputerPlatformManager,
-    PlatformManagerStatus,
 )
 
 

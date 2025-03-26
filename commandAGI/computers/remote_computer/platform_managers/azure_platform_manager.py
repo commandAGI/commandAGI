@@ -9,7 +9,6 @@ from azure.mgmt.compute import ComputeManagementClient
 
 from commandAGI.computers.platform_managers.base_platform_manager import (
     BaseComputerPlatformManager,
-    PlatformManagerStatus,
 )
 
 logger = logging.getLogger(__name__)

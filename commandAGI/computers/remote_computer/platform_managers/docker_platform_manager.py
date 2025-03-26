@@ -9,16 +9,13 @@ from typing import List, Optional, Tuple
 import boto3
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.containerinstance import ContainerInstanceManagementClient
-from google.cloud import container_v1, run_v2
+from google.cloud import run_v2
 
-from commandAGI._internal.config import PROJ_DIR
-from commandAGI._utils.command import run_command
 from commandAGI._utils.network import find_free_port
 from commandAGI.computers.platform_managers.base_platform_manager import (
     BaseComputerPlatformManager,
-    PlatformManagerStatus,
 )
-from commandAGI.version import get_container_version, get_package_version
+from commandAGI.version import get_container_version
 
 
 class DockerPlatform(str, Enum):

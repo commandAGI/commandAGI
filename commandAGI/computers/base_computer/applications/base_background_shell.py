@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from commandAGI.computers.base_computer.applications.base_shell import BaseShell
 from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess
 
 

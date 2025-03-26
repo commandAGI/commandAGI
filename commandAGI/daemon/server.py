@@ -1,25 +1,18 @@
-import os
 import platform
 import platform as sys_platform
 import secrets
 import shutil
-import subprocess
-import sys
-import tempfile
 import threading
 import time
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, Literal, Optional, Tuple
 
 import psutil
-import typer
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 
 from commandAGI.computers.base_computer import BaseComputer
-from commandAGI.computers.local_pyautogui_computer import LocalPyAutoGUIComputer
-from commandAGI.computers.local_pynput_computer import LocalPynputComputer
 from commandAGI.types import (  # Observation types for return type annotations
     ClickAction,
     ComputerPauseAction,
@@ -900,7 +893,6 @@ class ComputerDaemon:
         Returns:
             FastMCP: The MCP server instance
         """
-        import requests
         from mcp.server.fastmcp import FastMCP
 
         # Create the MCP server instance

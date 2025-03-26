@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 from commandAGI.computers.base_computer.applications.base_blender import BaseBlender
 from commandAGI.computers.local_computer.local_subprocess import LocalApplication

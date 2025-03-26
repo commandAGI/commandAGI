@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Union
 
 from commandAGI.computers.base_computer.applications.base_file_explorer import (
     BaseFileExplorer,

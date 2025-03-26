@@ -1,7 +1,6 @@
 import logging
 import os
 import platform
-import shlex
 import signal
 import subprocess
 import threading
@@ -13,7 +12,6 @@ from commandAGI.computers.base_computer.applications.base_background_shell impor
     BaseBackgroundShell,
 )
 from commandAGI.computers.local_computer.local_subprocess import (
-    LocalApplication,
     LocalSubprocess,
 )
 

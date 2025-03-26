@@ -3,7 +3,7 @@ import sys
 
 import typer
 
-from commandAGI.dev.build_images import cli as build_images_cli
+from commandAGI.dev.ci.cli import cli as build_images_cli
 from commandAGI.dev.update_daemon_client import generate_openapi_client
 
 # Configure logging

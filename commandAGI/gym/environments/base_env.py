@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, Iterator, Tuple, TypeVar
+from typing import Any, Dict, Generic, Tuple, TypeVar
 
-from pydantic import BaseModel
 
 ObsType = TypeVar("ObsType")
 ActionType = TypeVar("ActType")

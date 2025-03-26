@@ -2,14 +2,14 @@
 
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import typer
 
 from commandAGI._internal.config import PROJ_DIR
 from commandAGI._utils.command import run_command
-from commandAGI.dev.build_images.cli import cli
-from commandAGI.dev.build_images.utils import ensure_packer_template
+from commandAGI.dev.ci.cli import cli
+from commandAGI.dev.ci.utils import ensure_packer_template
 from commandAGI.version import get_container_version
 
 logger = logging.getLogger("build_images")

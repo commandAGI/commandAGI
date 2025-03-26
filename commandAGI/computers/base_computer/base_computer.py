@@ -2,20 +2,17 @@ import logging
 import os
 import tempfile
 import time
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from datetime import datetime
-from enum import Enum
-from itertools import tee
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, TypeAlias, TypedDict, Union
+from typing import Dict, List, Literal, Optional, Union
 
 from langchain.tools import BaseTool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from commandAGI._internal.config import APPDIR, DEV_MODE
+from commandAGI._internal.config import APPDIR
 from commandAGI._utils.annotations import annotation, gather_annotated_attr_keys
 from commandAGI._utils.counter import next_for_cls
-from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.computers.base_computer.applications.base_background_shell import (
     BaseBackgroundShell,
 )
@@ -188,7 +185,6 @@ class BaseComputer(BaseModel):
         The default implementation does nothing.
         """
         self.logger.debug("Pause not implemented for this computer type")
-        pass
 
     @annotation("endpoint", {})
     def resume(self):
@@ -212,7 +208,6 @@ class BaseComputer(BaseModel):
         The default implementation does nothing.
         """
         self.logger.debug("Resume not implemented for this computer type")
-        pass
 
     @annotation("endpoint", {"use_getter": True, "use_setter": True})
     @property
@@ -1735,7 +1730,7 @@ class BaseComputer(BaseModel):
     def get_http_server(self):
         """Create and return a FastAPI server with endpoints based on annotations."""
         from enum import Enum
-        from typing import Any, Dict
+        from typing import Any
 
         from fastapi import FastAPI, HTTPException
 

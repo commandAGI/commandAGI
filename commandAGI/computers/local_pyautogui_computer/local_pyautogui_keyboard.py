@@ -1,38 +1,14 @@
-import base64
-import datetime
-import io
-import os
-import subprocess
-import tempfile
-import time
-from typing import Literal, Optional, Union
+from typing import Union
 
 try:
-    import mss
-    import pyautogui
-    from PIL import Image
+    pass
 except ImportError:
     raise ImportError(
         "The local dependencies are not installed. Please install commandAGI with the local extra:\n\npip install commandAGI[local]"
     )
 
-from commandAGI._internal.config import APPDIR
-from commandAGI._utils.image import process_screenshot
-from commandAGI.computers.local_computer import LocalComputer
 from commandAGI.types import (
     KeyboardKey,
-    KeyboardKeyDownAction,
-    KeyboardKeyReleaseAction,
-    KeyboardStateObservation,
-    MouseButton,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseStateObservation,
-    ScreenshotObservation,
-    ShellCommandAction,
-    TypeAction,
 )
 
 

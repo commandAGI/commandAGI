@@ -2,19 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import traceback
-import uuid
-from abc import abstractmethod
 from contextlib import contextmanager
 from dataclasses import Field
-from enum import Enum
 from typing import (
     AsyncGenerator,
-    Callable,
     List,
     Literal,
     Optional,
     Protocol,
-    TypeVar,
     Union,
 )
 
@@ -30,7 +25,6 @@ from commandAGI._utils.resource_schema import BaseResource
 from commandAGI._utils.rfc6902 import JsonPatchOperation
 from commandAGI.agents._api_provider_utils import (
     AIClient,
-    _format_tools_for_api_provider,
     generate_response,
 )
 from commandAGI.agents.base_agent import (
@@ -50,7 +44,6 @@ from commandAGI.agents.events import (
     ToolCallEvent,
     ToolResultEvent,
 )
-from commandAGI.computers.base_computer import BaseComputer
 
 
 class RuleState(BaseModel):

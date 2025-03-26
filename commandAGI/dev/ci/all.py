@@ -8,12 +8,12 @@ import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from commandAGI.dev.build_images.aws import build_aws_ami
-from commandAGI.dev.build_images.azure import build_azure_vm
-from commandAGI.dev.build_images.cli import cli
-from commandAGI.dev.build_images.docker import build_docker_image
-from commandAGI.dev.build_images.gcp import build_gcp_vm
-from commandAGI.dev.build_images.kubernetes import build_kubernetes_image
+from commandAGI.dev.ci.aws import build_aws_ami
+from commandAGI.dev.ci.azure import build_azure_vm
+from commandAGI.dev.ci.cli import cli
+from commandAGI.dev.ci.docker import build_docker_image
+from commandAGI.dev.ci.gcp import build_gcp_vm
+from commandAGI.dev.ci.kubernetes import build_kubernetes_image
 from commandAGI.version import get_container_version
 
 logger = logging.getLogger("build_images")

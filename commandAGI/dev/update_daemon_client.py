@@ -1,13 +1,9 @@
-import os
-import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-import requests
 
-from commandAGI.daemon.server import ComputerDaemon
 
 
 def generate_openapi_client():

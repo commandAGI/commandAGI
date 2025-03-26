@@ -1,10 +1,9 @@
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Literal, Optional, Union
+from typing import TYPE_CHECKING, Dict, Optional
 
 from pydantic import BaseModel, Field
 
-from commandAGI._utils.annotations import annotation
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
 from commandAGI.computers.misc_types import ProcessInfo
 

@@ -1,18 +1,11 @@
-import base64
-import datetime
-import io
-import os
-import tempfile
-from pathlib import Path
-from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
+from typing import Union
 
 try:
-    import vncdotool.api as vnc
-    from PIL import Image
+    pass
 
     # Try to import paramiko for SFTP file transfer
     try:
-        import paramiko
+        pass
 
         SFTP_AVAILABLE = True
     except ImportError:
@@ -22,24 +15,8 @@ except ImportError:
         "The VNC dependencies are not installed. Please install commandAGI with the vnc extra:\n\npip install commandAGI[vnc]"
     )
 
-from commandAGI._internal.config import APPDIR
-from commandAGI._utils.image import process_screenshot
-from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
     KeyboardKey,
-    KeyboardKeyDownAction,
-    KeyboardKeyReleaseAction,
-    KeyboardStateObservation,
-    MouseButton,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseStateObservation,
-    RunProcessAction,
-    ScreenshotObservation,
-    ShellCommandAction,
-    TypeAction,
 )
 
 

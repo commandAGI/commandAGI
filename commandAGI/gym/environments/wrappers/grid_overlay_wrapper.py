@@ -1,12 +1,12 @@
 import base64
 import io
-from typing import Any, Optional
+from typing import Any
 
 from PIL import Image
 
 from commandAGI.gym.environments.computer_env import ComputerEnv
 from commandAGI.processors.grid_overlay import overlay_grid
-from commandAGI.types import ComputerAction, ComputerObservation
+from commandAGI.types import ComputerObservation
 
 
 class GridOverlayWrapper(ComputerEnv):

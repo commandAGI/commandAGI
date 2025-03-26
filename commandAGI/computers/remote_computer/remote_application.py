@@ -1,5 +1,4 @@
 from commandAGI.computers.base_computer.base_application import BaseApplication
-from commandAGI.computers.base_computer.base_subprocess import BaseSubprocess
 from commandAGI.computers.remote_computer.remote_subprocess import RemoteSubprocess
 
 

@@ -2,7 +2,7 @@ from typing import Generic
 
 from pydantic import BaseModel
 
-from commandAGI.gym.drivers import ActionType, Episode, ObsType, Step
+from commandAGI.gym.drivers import ActionType, Episode, ObsType
 from commandAGI.gym.environments.base_env import BaseEnv
 
 
@@ -13,4 +13,3 @@ class BaseTask(Generic[ObsType, ActionType], BaseModel):
 
     def evaluate(self, env: BaseEnv, episode: Episode[ObsType, ActionType]):
         """This function is called when the task is activated."""
-        pass

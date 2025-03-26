@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from commandAGI.computers.base_computer.applications.base_libreoffice_writer import (
     BaseLibreOfficeWriter,

@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Any, AsyncGenerator, Generator, TypeAlias, Union
+from typing import Any, Generator, TypeAlias, Union
 
 from pydantic import BaseModel, HttpUrl
 

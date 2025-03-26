@@ -5,9 +5,8 @@ from langchain.output_parsers.boolean import BooleanOutputParser
 from pydantic import BaseModel, Field
 
 from commandAGI.gym._utils.llms import get_chat_model
-from commandAGI.gym.drivers import ActionType, Episode, ObsType, Step
+from commandAGI.gym.drivers import ActionType, Episode, ObsType
 from commandAGI.gym.environments.base_env import BaseEnv
-from commandAGI.gym.tasks.base import BaseTask
 
 
 class BaseEvaluator(Generic[ObsType, ActionType], BaseModel, ABC):

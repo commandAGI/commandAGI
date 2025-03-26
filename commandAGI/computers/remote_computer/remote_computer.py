@@ -1,19 +1,10 @@
-import base64
-import datetime
-import io
 import logging
-import os
-import platform
-import subprocess
-import tempfile
-from enum import Enum
 from pathlib import Path
-from typing import Any, AnyStr, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
-from commandAGI._internal.config import APPDIR
-from commandAGI._utils.image import base64_to_image, process_screenshot
+from commandAGI._utils.image import process_screenshot
 from commandAGI._utils.platform import DEFAULT_SHELL_EXECUTIBLE
-from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
+from commandAGI.computers.base_computer import BaseComputer
 from commandAGI.computers.platform_managers.base_platform_manager import (
     BaseComputerPlatformManager,
 )
@@ -66,31 +57,14 @@ from commandAGI.computers.remote_computer.applications.remote_text_editor import
 )
 from commandAGI.computers.remote_computer.remote_subprocess import RemoteSubprocess
 from commandAGI.types import (
-    KeyboardHotkeyAction,
     KeyboardKey,
-    KeyboardKeyDownAction,
-    KeyboardKeyPressAction,
-    KeyboardKeyReleaseAction,
-    KeyboardStateObservation,
     MouseButton,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseStateObservation,
-    RunProcessAction,
-    ScreenshotObservation,
-    ShellCommandAction,
     SystemInfo,
-    TypeAction,
 )
 
 # Import the proper client classes
 try:
     from commandAGI.daemon.client import AuthenticatedClient
-    from commandAGI.daemon.client.api.default.execute_command_execute_command_post import (
-        sync as execute_command_sync,
-    )
     from commandAGI.daemon.client.api.default.execute_run_process_execute_run_process_post import (
         sync as run_process_sync,
     )
@@ -105,9 +79,6 @@ try:
     )
     from commandAGI.daemon.client.api.default.get_screenshot_observation_screenshot_get import (
         sync as get_screenshot_sync,
-    )
-    from commandAGI.daemon.client.api.default.get_video_stream_url_video_stream_url_get import (
-        sync as get_video_stream_url_sync,
     )
     from commandAGI.daemon.client.api.default.hotkey_hotkey_post import (
         sync as hotkey_sync,
@@ -126,21 +97,13 @@ try:
         sync as mouse_up_sync,
     )
     from commandAGI.daemon.client.api.default.move_move_post import sync as move_sync
-    from commandAGI.daemon.client.api.default.reset_reset_post import sync as reset_sync
     from commandAGI.daemon.client.api.default.scroll_scroll_post import (
         sync as scroll_sync,
-    )
-    from commandAGI.daemon.client.api.default.start_video_stream_video_start_stream_post import (
-        sync as start_video_stream_sync,
-    )
-    from commandAGI.daemon.client.api.default.stop_video_stream_video_stop_stream_post import (
-        sync as stop_video_stream_sync,
     )
     from commandAGI.daemon.client.api.default.type_type_post import sync as type_sync
     from commandAGI.daemon.client.models import (
         KeyboardHotkeyAction as ClientKeyboardHotkeyAction,
     )
-    from commandAGI.daemon.client.models import KeyboardKey as ClientKeyboardKey
     from commandAGI.daemon.client.models import (
         KeyboardKeyDownAction as ClientKeyboardKeyDownAction,
     )
@@ -150,7 +113,6 @@ try:
     from commandAGI.daemon.client.models import (
         KeyboardKeyReleaseAction as ClientKeyboardKeyReleaseAction,
     )
-    from commandAGI.daemon.client.models import MouseButton as ClientMouseButton
     from commandAGI.daemon.client.models import (
         MouseButtonDownAction as ClientMouseButtonDownAction,
     )
@@ -164,16 +126,7 @@ try:
     from commandAGI.daemon.client.models import (
         RunProcessAction as ClientRunProcessAction,
     )
-    from commandAGI.daemon.client.models import (
-        ShellCommandAction as ClientShellCommandAction,
-    )
     from commandAGI.daemon.client.models import TypeAction as ClientTypeAction
-    from commandAGI.daemon.client.models import (
-        VideoStartStreamAction as ClientVideoStartStreamAction,
-    )
-    from commandAGI.daemon.client.models import (
-        VideoStopStreamAction as ClientVideoStopStreamAction,
-    )
 except ImportError:
     raise ImportError(
         "commandAGI daemon client is not installed. Please install commandAGI with the daemon extra:\n\npip install commandAGI[daemon-client-all] (or one of the other `daemon-client-*` extras)"

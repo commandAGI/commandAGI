@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, List, Optional
+from typing import Any, Dict, Generic, List
 
 import numpy as np
 
@@ -23,7 +23,6 @@ class BaseTrainer(Generic[ObsType, ActionType], ABC):
     @abstractmethod
     def train(self, num_episodes: int) -> List[Episode[ObsType, ActionType]]:
         """Train the agent."""
-        pass
 
     def get_training_stats(self) -> Dict[str, Any]:
         """Get training statistics."""

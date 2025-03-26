@@ -8,7 +8,7 @@ import typer
 
 from commandAGI._internal.config import PROJ_DIR
 from commandAGI._utils.command import run_command
-from commandAGI.dev.build_images.cli import cli
+from commandAGI.dev.ci.cli import cli
 from commandAGI.version import get_container_version, get_package_version
 
 logger = logging.getLogger("build_images")

@@ -1,18 +1,12 @@
-import json
-import os
-import pickle
 import sys
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 import typer
 from rich.console import Console
-from rich.progress import Progress
 from rich.table import Table
 from rich.theme import Theme
 
 from commandAGI._internal.auth import AuthError
-from commandAGI.agents.advanced_agent import Agent
 from commandAGI.agents.hub import (
     AgentMetadata,
     delete_agent_sync,

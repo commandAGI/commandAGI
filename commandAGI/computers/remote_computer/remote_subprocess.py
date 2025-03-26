@@ -1,10 +1,8 @@
 from pathlib import Path
-from typing import Dict, Literal, Optional, Union
+from typing import Dict, Optional
 
-from PIL import Image
 
 from commandAGI.computers.base_computer.base_subprocess import (
-    BaseApplication,
     BaseSubprocess,
 )
 

@@ -1,44 +1,14 @@
-import base64
-import datetime
-import io
-import os
-import subprocess
-import tempfile
-import time
-from typing import List, Literal, Optional, Union
+from typing import Optional, Union
 
 try:
-    import mss
-    from PIL import Image
-    from pynput import keyboard, mouse
-    from pynput.keyboard import Key as PynputKey
-    from pynput.keyboard import KeyCode as PynputKeyCode
     from pynput.mouse import Button as PynputButton
 except ImportError:
     raise ImportError(
         "The local dependencies are not installed. Please install commandAGI with the local extra:\n\npip install commandAGI[local]"
     )
 
-from commandAGI._internal.config import APPDIR
-from commandAGI._utils.image import process_screenshot
-from commandAGI.computers.local_computer import LocalComputer
 from commandAGI.types import (
-    ComputerObservation,
-    KeyboardHotkeyAction,
-    KeyboardKey,
-    KeyboardKeyDownAction,
-    KeyboardKeyPressAction,
-    KeyboardKeyReleaseAction,
-    KeyboardStateObservation,
     MouseButton,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseStateObservation,
-    ScreenshotObservation,
-    ShellCommandAction,
-    TypeAction,
 )
 
 

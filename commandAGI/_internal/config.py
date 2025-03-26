@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 import platformdirs
-from pydantic import BaseModel, BaseSettings, EmailStr, Field, root_validator
+from pydantic import BaseModel, BaseSettings, Field, root_validator
 
 
 class UserProfile(BaseModel):

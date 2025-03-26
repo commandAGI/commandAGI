@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from abc import ABC, abstractmethod
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-from typing import Generic, List, Optional
+from typing import Generic, List
 
 from commandAGI.gym.agents.base_agent import BaseAgent
 from commandAGI.gym.environments.base_env import BaseEnv
@@ -24,12 +24,10 @@ class BaseDriver(Generic[ObsType, ActionType], ABC):
     @abstractmethod
     def collect_episodes(self, num_episodes: int) -> List[Episode[ObsType, ActionType]]:
         """Collect multiple episodes."""
-        pass
 
     @abstractmethod
     def collect_episode(self) -> Episode[ObsType, ActionType]:
         """Collect a single episode."""
-        pass
 
     def close(self):
         """Clean up resources."""

@@ -4,7 +4,6 @@ from typing import Generic, TypeVar
 from pydantic import BaseModel
 
 from commandAGI.gym.schema import Episode
-from commandAGI.types import ComputerAction, ComputerObservation
 
 ObsType = TypeVar("ObsType")
 ActionType = TypeVar("ActionType")

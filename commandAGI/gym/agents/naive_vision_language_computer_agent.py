@@ -270,4 +270,3 @@ class NaiveComputerAgent(BaseAgent[ComputerObservation, ComputerAction]):
 
     def train(self, episodes: list[Episode]) -> None:
         """Train the agent on a list of episodes."""
-        pass

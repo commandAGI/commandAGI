@@ -1,9 +1,8 @@
 from abc import ABC
-from typing import Any, Callable, ClassVar, Dict, Generic, Optional, TypeVar
+from typing import Any, Callable, ClassVar, Dict, Generic, TypeVar
 
 from rich.console import Console
 
-from commandAGI.computers.base_computer import BaseComputer
 from commandAGI.gym.environments.base_env import BaseEnv
 
 console = Console()

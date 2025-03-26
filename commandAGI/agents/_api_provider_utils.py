@@ -1,7 +1,7 @@
 import json
 import uuid
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
+from typing import Dict, List, Optional, TypeVar, Union
 
 import instructor
 from anthropic import Anthropic as AnthropicClient

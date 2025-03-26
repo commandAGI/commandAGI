@@ -1,41 +1,14 @@
-import base64
-import datetime
-import io
-import os
-import tempfile
-from pathlib import Path
-from typing import AnyStr, List, Literal, Optional, Union
+from typing import Union
 
 try:
-    from e2b_desktop import Sandbox
-    from PIL import Image
+    pass
 except ImportError:
     raise ImportError(
         "The E2B Desktop dependencies are not installed. Please install commandAGI with the e2b_desktop extra:\n\npip install commandAGI[e2b_desktop]"
     )
 
-from commandAGI._internal.config import APPDIR
-from commandAGI._utils.image import process_screenshot
-from commandAGI.computers.base_computer import BaseComputer, BaseComputerFile
 from commandAGI.types import (
-    ClickAction,
-    DoubleClickAction,
-    KeyboardHotkeyAction,
     KeyboardKey,
-    KeyboardKeyDownAction,
-    KeyboardKeyPressAction,
-    KeyboardKeyReleaseAction,
-    KeyboardStateObservation,
-    MouseButton,
-    MouseButtonDownAction,
-    MouseButtonUpAction,
-    MouseMoveAction,
-    MouseScrollAction,
-    MouseStateObservation,
-    RunProcessAction,
-    ScreenshotObservation,
-    ShellCommandAction,
-    TypeAction,
 )
 
 
